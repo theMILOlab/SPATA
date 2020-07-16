@@ -3,7 +3,7 @@ Type: Package
 Title: Toolbox For Spatial Transcription Analysis
 Version: 0.1.0
 Author: Dieter-Henrik Heiland, Jan Kueckelhaus
-Maintainer: Jan Kueckelhaus
+Maintainer: Jan Kueckelhaus <jankueckelhaus@gmx.de>
 Description: SPATA provides a framework of R functions for spatial transcription analysis
 License: What license is it under?
 Encoding: UTF-8
