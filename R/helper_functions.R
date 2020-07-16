@@ -1,0 +1,440 @@
+#' @title Compiles a trajectory data.frame
+#'
+#' @param segment_trajectory_df A data.frame specifying each segment of the whole
+#' trajectory with variables \code{x, y, xend, yend}.
+#' @param trajectory_width Numeric value that determines the width of the
+#' trajectory.
+#' @param object A valid spata-object.
+#' @param sample The sample specified as a character string of length one.
+#'
+#' @return A data.frame containing the variables \emph{barcodes, sample, x, y}
+#' as well as \emph{projection_length} indicating the position of the barcode
+#' with respect to the direction of the trajectory-part and \emph{trajectory_part}
+#' indicating the part of the trajectory the barcode belongs to.
+#'
+hlpr_compile_trajectory <- function(segment_trajectory_df,
+                                    trajectory_width,
+                                    object,
+                                    sample){
+
+  validation(object)
+
+  all_trajectories_list <- list()
+  all_trajectories_plots <- list()
+
+
+  for(i in 1:base::nrow(segment_trajectory_df)){
+
+    # One dimensional part ----------------------------------------------------
+
+    trajectory_vector_df <- segment_trajectory_df[i,1:4]
+
+    start_point <- as.numeric(trajectory_vector_df[1:2])
+    end_point <- as.numeric(trajectory_vector_df[3:4])
+
+    trajectory_vec <- end_point - start_point
+
+    # factor with which to compute the width vector
+    trajectory_magnitude <- base::sqrt((trajectory_vec[1])^2 + (trajectory_vec[2])^2)
+    trajectory_factor <- trajectory_width / trajectory_magnitude
+
+    # orthogonal trajectory vector
+    orth_trajectory_vec <- (c(-trajectory_vec[2], trajectory_vec[1]) * trajectory_factor)
+
+
+    # Two dimensional part ----------------------------------------------------
+
+    # determine trajectory frame points 'tfps' making up the square that embraces
+    # the points
+    tfp1.1 <- start_point + orth_trajectory_vec
+    tfp1.2 <- start_point - orth_trajectory_vec
+    tfp2.1 <- end_point - orth_trajectory_vec
+    tfp2.2 <- end_point + orth_trajectory_vec
+
+    trajectory_frame <-
+      data.frame(
+        x = c(tfp1.1[1], tfp1.2[1], tfp2.1[1], tfp2.2[1]),
+        y = c(tfp1.1[2], tfp1.2[2], tfp2.1[2], tfp2.2[2])
+      )
+
+    # calculate every point of interests projection on the trajectory vector using 'vector projection'  on a local
+    # coordinate system 'lcs' to sort the points according to the trajectories direction
+
+    sample_coords <-
+      coordsSpatial(object = object, of_sample = sample)
+
+    lcs <- data.frame(
+      x = c(tfp1.1[1], tfp1.1[1]),
+      y = c(tfp1.1[2], tfp1.1[2]),
+      xend = c(tfp2.2[1], tfp1.2[1]),
+      yend = c(tfp2.2[2], tfp1.2[2]),
+      id = c("local length axis", "local width axis")
+    )
+
+    positions <- sp::point.in.polygon(point.x = sample_coords$x,
+                                      point.y = sample_coords$y,
+                                      pol.x = trajectory_frame$x,
+                                      pol.y = trajectory_frame$y)
+
+
+    # Data wrangling part -----------------------------------------------------
+
+    # points of interest data.frame
+    points_of_interest <-
+      sample_coords %>%
+      dplyr::mutate(position = positions) %>%
+      dplyr::filter(position != 0) %>% # filter only those that fall in the trajectory frame
+      dplyr::select(-position) %>%
+      dplyr::group_by(barcodes) %>%
+      dplyr::mutate(projection_length = hlpr_vector_projection(lcs = lcs, x, y),
+                    trajectory_part = stringr::str_c("Part", i, sep = " ")) %>%
+      dplyr::arrange(projection_length) # arrange barcodes according to their projection value
+
+
+    all_trajectories_list[[i]] <- points_of_interest
+
+  }
+
+  compiled_trajectory_df <- base::do.call(base::rbind, all_trajectories_list)
+
+  return(compiled_trajectory_df)
+
+}
+
+
+#' @title Return customized ggplot:labs()
+#'
+#' @description Helper function
+#'
+#' @param input The color_to argument
+#' @param input_str Genes:, Gene set: or Feature:
+#' @param color_str Legend title
+#' @param display_title Logical
+#'
+#' @return A customized \code{ggplot2::labs()}-function.
+#'
+
+hlpr_labs_add_on <- function(input,
+                             input_str,
+                             color_str,
+                             display_title){
+
+  if(base::isTRUE(display_title)){
+
+    if(base::length(input) > 5){
+
+      input <- c(input[1:5], stringr::str_c("... +", (length(input)-5), sep = " "))
+
+    }
+
+    input_clpsd <- stringr::str_c(input, collapse = ", ")
+
+    plot_title <- stringr::str_c(input_str, input_clpsd, sep = " ")
+
+    base::return(ggplot2::labs(title = plot_title, color = color_str))
+
+  } else {
+
+    base::return(ggplot2::labs(color = color_str))
+
+  }
+
+}
+
+
+
+#' @title Normalize gene or gene set values
+#'
+#' @description Helper function to use within \code{purrr::imap()}
+#'
+#' @param variable The variable to smooth (if matches requirements).
+#' @param var_name The name of the variable to smooth.
+#' @param verbose Logical
+#' @param aspect Gene or Gene set
+#' @param subset A character vector of variable names that are to be normalized
+#'
+#' @return A normalized variable (data.frame within \code{purrr::imap()})
+#'
+
+hlpr_normalize_imap <- function(variable,
+                                var_name,
+                                verbose = TRUE,
+                                aspect,
+                                subset){
+
+
+  if(!base::is.numeric(variable) | !var_name %in% subset){
+
+      base::return(variable)
+
+  } else if(base::all(variable == 0)){
+
+      if(var_name == "mean_genes"){
+
+        var_name <- "average"
+
+      }
+
+      base::warning(stringr::str_c(aspect, var_name, "contains only 0s. Returning NULL.", sep = " "))
+      base::return(NULL)
+
+  } else if(base::length(base::unique(variable)) == 1){
+
+      if(var_name == "mean_genes"){
+
+        var_name <- "average"
+
+      }
+
+      base::warning(stringr::str_c(aspect, var_name, "is uniformly expressed. Returning NULL.", sep = " "))
+      base::return(NULL)
+
+  } else {
+
+      # normalize variable
+      res <-
+        (variable - base::min(variable)) /
+        (base::max(variable) - base::min(variable))
+
+      if(!base::any(base::is.na(res))){
+
+       if(verbose){
+
+         if(var_name == "mean_genes"){
+
+           var_name <- "average"
+
+         }
+
+          base::message(stringr::str_c(aspect,  var_name, "successfully normalized.", sep = " "))
+
+       }
+
+      base::return(res)
+
+      } else {
+
+        base::warning(stringr::str_c(aspect, var_name, "normalization resulted in NaNs. Returning NULL.", sep = " "))
+        base::return(NULL)
+
+      }
+
+  }
+
+}
+
+
+
+#' @inherit hlpr_normalize_imap params title
+#'
+#' @return A normalized variable
+
+hlpr_normalize_vctr <- function(variable){
+
+  res <-
+    (variable - base::min(variable)) /
+    (base::max(variable) - base::min(variable))
+
+  if(base::any(base::is.na(res))){
+
+    base::return(variable)
+
+  } else {
+
+    base::return(res)
+
+  }
+
+
+}
+
+
+
+#' @title Smooth variables spatially
+#'
+#' @description Helper function to use within \code{purrr::imap()}
+#'
+#' @param variable The variable to smooth
+#' @param var_name Name of the variable to smooth
+#' @param coords_df Data.frame that contains x and y coordinates
+#' @param verbose Logical
+#' @param smooth_span Span to smooth with
+#' @param aspect Gene or Gene set
+#' @param subset Vector of variable names to smooth
+#'
+#' @return Smoothed variable (data.frame within \code{purrr::imap()})
+
+hlpr_smooth <- function(variable,
+                        var_name,
+                        coords_df,
+                        verbose = TRUE,
+                        smooth_span,
+                        aspect,
+                        subset){
+
+  data <-
+    base::cbind(variable, coords_df[, c("x", "y")]) %>%
+    magrittr::set_colnames(value = c("rv", "x", "y"))
+
+  if(!var_name %in% subset){
+
+    base::return(variable)
+
+  } else if(!base::is.numeric(data$rv)){
+
+    if(var_name == "mean_genes"){
+
+      var_name <- "average"
+
+    }
+
+    base::warning("Skip smoothing of ", aspect, " ", var_name, " as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
+    base::return(variable)
+
+  } else if(base::any(base::is.na(data$rv)) |
+            base::any(base::is.nan(data$rv))|
+            base::any(base::is.infinite(data$rv))){
+
+    if(var_name == "mean_genes"){
+
+      var_name <- "average"
+
+    }
+
+    base::warning(stringr::str_c("Skip smoothing of", aspect, var_name, "as it contains NaNs or infinites.", sep = " "))
+    base::return(variable)
+
+  } else {
+
+    if(base::isTRUE(verbose)){
+
+      if(var_name == "mean_genes"){
+
+        var_name <- "average"
+
+      }
+
+      base::message(stringr::str_c("Smoothing ", aspect, " ", var_name, " with span ", smooth_span, ".", sep = ""))
+
+    }
+
+    model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span)
+
+    return(stats::predict(object = model))
+
+  }
+
+}
+
+
+#' @title Smooth variable spatially in mini-shiny-apps
+#'
+#' @description Helper function to use independently (or in a pipe)
+#'
+#' @inherit hlpr_smooth params
+#'
+#' @return Data.frame with the smoothed variable specified in \code{variable}.
+#'
+hlpr_smooth_shiny <- function(variable,
+                              coords_df,
+                              smooth_span){
+
+  base::colnames(coords_df)[base::which(base::colnames(coords_df) == variable)] <- "response_variable"
+
+  if(base::is.numeric(coords_df$response_variable)){
+
+    model <- stats::loess(formula = response_variable ~ x * y, span = smooth_span, data = coords_df)
+
+    smoothed_df_prel <-
+      broom::augment(model) %>%
+      dplyr::select(x, y, .fitted) %>%
+      magrittr::set_colnames(value = c("x", "y", variable))
+
+    selected_df <- dplyr::select(coords_df, -c("x", "y", "response_variable"))
+
+    smoothed_df <-
+      base::cbind(smoothed_df_prel, selected_df) %>%
+      dplyr::select(barcodes, sample, x, y, dplyr::everything()) %>%
+      as.data.frame()
+
+
+    # if coords_df derived from trajectory analysis
+    if("trajectory_order" %in% base::colnames(coords_df)){
+
+      smoothed_df$trajectory_order <- coords_df$trajectory_order
+
+    }
+
+    if(base::nrow(smoothed_df) == base::nrow(coords_df)){
+
+      return(smoothed_df)
+
+    } else {
+
+      shiny::showNotification(ui = "Smoothing failed. Return original values.",
+                              type = "warning")
+
+      return(coords_df)
+
+    }
+
+
+  } else {
+
+    shiny::showNotification(ui = "Can not smooth features that aren't of class 'numeric'. Skip smoothing.",
+                            type = "warning")
+
+    base::colnames(coords_df)[base::which(base::colnames(coords_df) == "response_variable")] <- variable
+
+    return(coords_df)
+
+  }
+
+}
+
+
+#' @title Perform vector projection
+#'
+#' @description Helper function for trajectory-analysis to use within
+#' \code{dplyr::mutate()}. Performs vector-projection with a spatial position
+#' and a local coordinates system to arrange the barcodes that fall into a
+#' trajectory square according to the trajectory direction.
+#'
+#' @param lcs A data.frame specifying the local coordinates system with variables
+#' \code{x, y, xend, yend} and the observations \emph{local length axis} and
+#' \emph{local width axis}.
+#' @param x_coordinate x-coordinate
+#' @param y_coordinate y-coordinate
+#'
+#' @return The projected length.
+#'
+hlpr_vector_projection <- function(lcs, x_coordinate, y_coordinate){
+
+  # vector from point of interest to origin of local coord system: 'vto'
+  vto <- c((x_coordinate - lcs$x[1]), (y_coordinate - lcs$y[1]))
+
+  # define local length axis (= relocated trajectory): 'lla'
+  lla <- c((lcs$xend[1] - lcs$x[1]), (lcs$yend[1] - lcs$y[1]))
+
+  # define lambda coefficient
+  lambda <-
+    ((vto[1] * lla[1]) + (vto[2] * lla[2])) / base::sqrt((lla[1])^2 + (lla[2])^2)^2
+
+  # projecting vector on length axis
+  pv <- lambda * (lla)
+
+  # compute the length of the projected vector
+  res <- base::sqrt((pv[1])^2 + (pv[2])^2)
+
+  base::return(res)
+
+
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,393 @@
+
+
+# Genes and gene set related ----------------------------------------------
+
+
+#' @title Obtain a gene set summary table
+#'
+#' @param object A valid spata-object.
+#'
+#' @return A data.frame with two variables \emph{Class} and \emph{Available Gene
+#' Sets} indicating the number of different gene sets the classes contain.
+#' @export
+#'
+
+getGeneSetOverview <- function(object){
+
+  validation(x = object)
+
+  gene_sets_df <- object@used_genesets
+  gene_sets <- object@used_genesets$ont
+
+  gene_set_types <-
+    stringr::str_replace_all(string = gene_sets, pattern = "_", replacement = "/") %>%
+    stringi::stri_extract_first_words()
+
+  dplyr::mutate(gene_sets_df, gs_type = gene_set_types) %>%
+    dplyr::select(-gene) %>%
+    dplyr::distinct() %>%
+    dplyr::pull(gs_type) %>%
+    base::table() %>%
+    base::as.data.frame() %>%
+    magrittr::set_colnames(value = c("Class", "Available Gene Sets"))
+
+
+}
+
+
+
+#' @title Obtain the gene set names
+#'
+#' @param object A valid spata-object.
+#' @param of_class A character vector indication the class of the gene sets to
+#' look for. (Can be obtained e.g. with \code{geneSetOverview()}).
+#'
+#' @return A list named according to \code{of_class} in which each element is
+#' a character vector containing the names of gene sets of the specified classes.
+#'  Is simplified to a vector if the number of elements in the list is one.
+#'
+#' @export
+#'
+
+getGeneSets <- function(object, of_class = "all"){
+
+  validation(x = object)
+
+  gene_sets_df <- object@used_genesets
+
+  if(!base::is.character(of_class)){
+
+    stop("Please specify 'of_class' as a character vector.")
+
+  }
+
+  if(base::length(of_class) == 1 && of_class == "all"){
+
+    base::return(base::unique(gene_sets_df$ont))
+
+  } else {
+
+    # get gene sets for all elements of 'of_class' in a list
+    res_list <-
+      base::lapply(X = of_class, FUN = function(i){
+
+        subset <-
+          gene_sets_df$ont %>%
+          stringr::str_subset(pattern = stringr::str_c("^", i, sep = "")) %>%
+          base::unique()
+
+        if(base::length(subset) == 0){
+
+          base::warning(stringr::str_c("Could not find any gene set of class:", i, sep = " "))
+
+          base::return(NULL)
+
+        } else {
+
+          base::return(subset)
+
+        }
+
+      })
+
+    base::names(res_list) <- of_class
+
+    # discard list elements if 'of_class' element wasn't found
+    res_list <-
+      purrr::discard(.x = res_list, .p = base::is.null)
+
+    # simplify if possible
+    if(base::length(res_list) == 1){
+
+      base::return(base::as.character(res_list[[1]]))
+
+    } else {
+
+      base::return(res_list)
+
+    }
+
+  }
+}
+
+
+
+#' @title Obtain gene names
+#'
+#' @param object A valid spata-object.
+#' @param of_gene_sets A character vector specifying the gene sets from which to
+#' return the gene names.
+#' @param in_sample The sample(s) in which the genes have to be expressed in order
+#' to be included.
+#' @param rna_assay Rna-assay.
+#'
+#' @return A list named according to the \code{of_gene_sets} in which each element is
+#' a character vector containing the names of genes the specific gene set is
+#' composed of. Is simplified into a vector if the number of elements in the returned list
+#' is one.
+
+getGenes <- function(object,
+                     of_gene_sets = "all",
+                     in_sample = "all",
+                     rna_assay = NULL){
+
+  validation(x = object)
+
+  if(!is.null(rna_assay) && is.matrix(rna_assay)){
+
+    warning("argument rna_assay is deprecated. Change it!")
+
+  }
+
+  in_sample <- check_sample(object = object, sample_input = of_sample)
+  rna_assay <- exprMtr(object = object, of_sample = in_sample)
+
+  # control:
+  if(!is.character(of_gene_sets) | length(of_gene_sets) == 0){
+
+    stop("Argument 'of_gene_sets' is empty or invalid. Has to be a character vector of length one or more.")
+
+  }
+
+  gene_sets_df <- object@used_genesets
+
+  if(base::any(!c("ont", "gene") %in% base::colnames(gene_sets_df)) |
+     !is.data.frame(gene_sets_df) |
+     base::nrow(gene_sets_df) == 0){
+
+    stop("Please make sure that the provided object contains a valid gene sets data.frame.")
+
+  }
+
+
+  # if only genes of specific gene sets are desired
+
+  if(base::length(of_gene_sets) != 1){
+
+    gene_sets_ctrl <- base::vector(mode = "logical", length = length(of_gene_sets))
+    not_found <- base::vector(mode = "character")
+
+    for(i in seq_along(of_gene_sets)){
+
+      if(of_gene_sets[i] %in%  gene_sets_df$ont){
+
+        gene_sets_ctrl[i] <- T
+
+      } else{
+
+        gene_sets_ctrl[i] <- F
+        not_found[length(not_found)+1] <- of_gene_sets[i]
+
+      }
+
+    }
+
+
+    of_gene_sets <- of_gene_sets[gene_sets_ctrl]
+
+    if(length(of_gene_sets) >= 1 & length(not_found) >= 1){
+
+      not_found_clpsd <- stringr::str_c(not_found, collapse = ", ")
+
+      base::message(stringr::str_c("Could not find gene sets: ", not_found_clpsd, ".", sep = ""))
+
+    } else if(length(of_gene_sets) == 0){
+
+      stop("Could not find any of the provided gene sets.")
+
+    }
+
+    genes_list <-
+      base::lapply(X = of_gene_sets,
+                   FUN = function(i){
+
+                     genes <-
+                       dplyr::filter(gene_sets_df, ont == i) %>%
+                       dplyr::pull(gene)
+
+                     genes_in_sample <-
+                       genes[genes %in% base::rownames(rna_assay)]
+
+                     return(genes_in_sample)
+
+                   })
+
+    base::names(genes_list) <- of_gene_sets
+
+    base::return(genes_list)
+
+  } else if(of_gene_sets == "all") { # if all genes are desired
+
+    all_genes <-
+      dplyr::pull(gene_sets_df, "gene") %>%
+      base::unique()
+
+    all_genes_in_sample <-
+      all_genes[all_genes %in% base::rownames(rna_assay)]
+
+    return(all_genes_in_sample)
+
+  } else if(base::length(of_gene_sets) == 1){
+
+    if(of_gene_sets %in% gene_sets_df$ont){
+
+      genes <-
+        gene_sets_df %>%
+        dplyr::filter(ont == of_gene_sets) %>%
+        dplyr::pull(gene)
+
+      return(genes)
+
+    } else {
+
+      stop(stringr::str_c("Did not find gene set", of_gene_sets, sep = ": "))
+
+    }
+
+
+  }
+
+
+
+
+
+
+}
+
+
+
+# Feature related ---------------------------------------------------------
+
+#' @title Obtain feature names
+#'
+#' @param object A valid spata-object.
+#'
+#' @return A named character vector of the variables in the feature data slot.
+#' @export
+#'
+
+getFeatureNames <- function(object){
+
+  validation(x = object)
+
+  feature_names <- base::colnames(object@fdata)
+
+  base::names(feature_names) <-
+    base::sapply(object@fdata[,feature_names], base::class)
+
+  base::return(feature_names[!feature_names %in% c("sample", "barcodes")])
+
+}
+
+
+
+# Segmentation related ----------------------------------------------------
+
+#' @title Obtain segment names
+#'
+#' @param object A valid spata-object.
+#' @param of_sample The samples from which to obtain the segment names specified
+#' as a character vector.
+#'
+#' @return A list named according to the \code{of_gene_sets} in which each element is
+#' a character vector containing the names of genes the specific gene set is
+#' composed of. Is simplified into a vector if the number of elements in the returned list
+#' is one.
+#'
+#' @export
+#'
+
+getSegmentNames <- function(object,
+                            of_sample){
+
+  validation(x = object)
+
+  of_sample <- check_sample(object, sample_input = of_sample)
+
+  res_list <-
+    base::lapply(X = of_sample,
+                FUN = function(i){
+
+                  segment_names <-
+                    featureData(object) %>%
+                    dplyr::filter(sample == i) %>%
+                    dplyr::pull(segment) %>% base::unique()
+
+                  if(base::length(segment_names) == 1 && segment_names == ""){
+
+                     base::warning(stringr::str_c("There seems to be no segmentation for '", i, "'."))
+
+                     base::return(NULL)
+
+                    }
+
+                  return(segment_names[segment_names != ""])
+
+                })
+
+  base::names(res_list) <- of_sample
+
+  res_list <- purrr::discard(.x = res_list, .p = base::is.null)
+
+
+  if(base::length(res_list) == 1){
+
+    base::return(base::as.character(res_list[[1]]))
+
+  } else {
+
+    base::return(res_list)
+  }
+
+
+}
+
+
+
+# Trajectory related ------------------------------------------------------
+
+#- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
+
+getTrajectoryNames <- function(object,
+                               of_sample = "all"){
+
+  validation(x = object)
+
+  of_sample <- check_sample(object = object, sample_input = of_sample)
+
+  t_names_list <-
+    base::lapply(X = of_sample, FUN = function(i){
+
+      t_names <-
+        base::names(object@trajectories[[i]])
+
+      if(length(t_names) == 0){
+
+        message(stringr::str_c("No trajectories found in sample: ", i, sep = ""))
+
+        return(NULL)
+
+      } else {
+
+        base::names(t_names) <- i
+        return(t_names)
+
+      }
+
+    })
+
+  t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
+
+  if(length(t_names_list) == 1){
+
+    return(base::as.character(t_names_list[[1]]))
+
+  } else {
+
+    return(t_names_list)
+
+  }
+
+}
+
+
