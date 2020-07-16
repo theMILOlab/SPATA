@@ -2,7 +2,7 @@ Package: SPATA
 Type: Package
 Title: Toolbox For Spatial Transcription Analysis
 Version: 0.1.0
-Author: Dieter-Henrik Heiland, Jan Kückelhaus
+Author: Dieter-Henrik Heiland, Jan Kueckelhaus
 Maintainer: Dieter-Henrik Heiland <dieter.henrik.heiland@uniklinik-freiburg.de>, 
 Jan Kueckelhaus <jan.kueckelhaus@uniklinik-freiburg.de>
 Description: SPATA provides a framework of R functions and shiny-applications to 
