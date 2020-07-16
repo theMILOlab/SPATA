@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Dieter-Henrik Heiland, Jan Kueckelhaus
 Maintainer: Dieter-Henrik Heiland, Jan Kueckelhaus
 Description: SPATA provides a framework of R functions and shiny-applications to 
-make it as easy and intuitive as possible to work with sptial transcriptomic data.
+make it as easy and intuitive as possible to work with sptial transcriptomic data
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
