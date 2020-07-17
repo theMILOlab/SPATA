@@ -24,7 +24,6 @@ Collate:
     'plotDimRed.R'
     'plot_family.R'
     'shiny_server.R'
-    'shiny_ui_spatial_segmentation.R'
     'shiny_uis.R'
     'spataValidation.R'
 Imports: 
