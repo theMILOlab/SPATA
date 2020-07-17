@@ -9,6 +9,7 @@
 #' @return An updated version of the spata-object specified as \code{object}
 #' now containing the information about all drawn segments.
 #'
+#' @export
 
 createSegmentation <- function(object = NULL){
 
@@ -37,6 +38,7 @@ createSegmentation <- function(object = NULL){
 #' now containing the information about all drawn trajectories.
 #' @export
 #'
+
 createTrajectories <- function(object){
 
   validation(x = object)

@@ -374,7 +374,7 @@ getTrajectoryNames <- function(object,
       t_names <-
         base::names(object@trajectories[[i]])
 
-      if(length(t_names) == 0){
+      if(base::length(t_names) == 0){
 
         message(stringr::str_c("No trajectories found in sample: ", i, sep = ""))
 
@@ -382,12 +382,13 @@ getTrajectoryNames <- function(object,
 
       } else {
 
-        base::names(t_names) <- i
         return(t_names)
 
       }
 
     })
+
+  base::names(t_names_list) <- of_sample
 
   t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
 

@@ -14,7 +14,6 @@
 #' umap1, umap2, tsne1 or tsne2}.
 #'
 #' @export
-#'
 
 coordsSpatial <- function(object,
                           of_sample,
@@ -72,6 +71,7 @@ coordsSpatial <- function(object,
 }
 
 #' @rdname coordsSpatial
+#' @export
 coordsTrajectory <- function(object,
                              of_sample,
                              of_trajectory){
@@ -110,6 +110,7 @@ coordsTrajectory <- function(object,
 }
 
 #' @rdname coordsSpatial
+#' @export
 coordsDimRed <- function(object,
                          of_sample,
                          method_dr = c("UMAP", "TSNE")){
