@@ -12,6 +12,7 @@ RoxygenNote: 7.1.0
 Collate: 
     'S4_documentation.R'
     'DEPRECATED.R'
+    'S4_generic_functions.R'
     'check_family.R'
     'checkpoint.R'
     'coords_family.R'
@@ -27,3 +28,5 @@ Collate:
     'shiny_ui_spatial_segmentation.R'
     'shiny_ui_spatial_trajectories.R'
     'spataValidation.R'
+Imports: 
+    magrittr

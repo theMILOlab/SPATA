@@ -17,7 +17,8 @@ createSegmentation <- function(object = NULL){
   ##----- launch application
   new_object <-
     shiny::runApp(shiny::shinyApp(ui = shiny_ui_spatial_segmentation,
-                                  server = shiny_server_spatial_segmentation))
+                                  server = shiny_server_spatial_segmentation)
+    )
 
   return(new_object)
 

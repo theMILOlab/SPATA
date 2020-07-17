@@ -400,7 +400,7 @@ plotSurface <- function(object,
 #' @param pt_clrsp The color spectrum used to display \code{color_to} if the
 #' specified variable is continuous. Needs to be one of \emph{inferno, magma,
 #' plasma, cividis or viridis}.
-#' @param sgmt_size
+#' @param sgmt_size The size of the segment arrrow specified as a numeric value.
 #' @param display_image Logical value. If set to TRUE the image will be displayed
 #' as the background. If set to FALSE barcodes that do not fall into the trajectory
 #' will be displayed in grey.
@@ -412,7 +412,7 @@ plotSurface <- function(object,
 #' to the rules of the ggplot2-framework.
 #' @export
 #'
-#' @examples
+
 plotTrajectory <- function(object,
                            trajectory_name,
                            of_sample,
@@ -733,9 +733,8 @@ plotTrajectory <- function(object,
 #'
 #' @return Returns a ggplot-object that can be additionally customized according
 #' to the rules of the ggplot2-framework.
-
+#'
 #' @export
-
 
 plotTrajectoryFeatures <- function(object,
                                    trajectory_name,

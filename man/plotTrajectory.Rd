@@ -56,6 +56,8 @@ the values displayed by color deploying \code{stats::loess()}.}
 specified variable is continuous. Needs to be one of \emph{inferno, magma,
 plasma, cividis or viridis}.}
 
+\item{sgmt_size}{The size of the segment arrrow specified as a numeric value.}
+
 \item{display_image}{Logical value. If set to TRUE the image will be displayed
 as the background. If set to FALSE barcodes that do not fall into the trajectory
 will be displayed in grey.}
