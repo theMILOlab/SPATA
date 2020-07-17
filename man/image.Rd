@@ -10,7 +10,6 @@
 \alias{samples}
 \alias{trajectory}
 \alias{getTrajectoryComment}
-\alias{image,spata-method}
 \alias{exprMtr,spata-method}
 \alias{coordinates,spata-method}
 \alias{coordinates<-,spata-method}
@@ -39,8 +38,6 @@ samples(object)
 trajectory(object, trajectory_name, of_sample)
 
 getTrajectoryComment(object, ...)
-
-\S4method{image}{spata}(object, of_sample)
 
 \S4method{exprMtr}{spata}(object, of_sample = "all")
 

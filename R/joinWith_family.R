@@ -112,8 +112,8 @@ joinWithGenes <- function(object,
 
   # 2. Extract expression values  -------------------------------------------
 
-  rows_to_subset <- base::which(rownames(rna_assay) %in% genes)
-  columns_to_subset <- base::which(colnames(rna_assay) %in% coords_df$barcodes)
+  rows_to_subset <- base::which(base::rownames(rna_assay) %in% genes)
+  columns_to_subset <- base::which(base::colnames(rna_assay) %in% coords_df$barcodes)
 
   # compute mean if necessary
   if(base::length(genes) > 1 && average_genes){

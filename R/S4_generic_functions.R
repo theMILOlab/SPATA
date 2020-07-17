@@ -86,6 +86,8 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
 # Methods -----------------------------------------------------------------
 
+#' @title Methods
+
 #' @param object A valid spata-object.
 #' @param of_sample The sample from which to extract the content.
 #' @param trajectory_name The trajectory specified as a character value.

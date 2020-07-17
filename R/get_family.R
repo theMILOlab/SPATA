@@ -149,7 +149,7 @@ getGenes <- function(object,
 
   }
 
-  in_sample <- check_sample(object = object, sample_input = of_sample)
+  in_sample <- check_sample(object = object, sample_input = in_sample)
   rna_assay <- exprMtr(object = object, of_sample = in_sample)
 
   # control:
