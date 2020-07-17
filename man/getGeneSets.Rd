@@ -4,18 +4,22 @@
 \alias{getGeneSets}
 \title{Obtain the gene set names}
 \usage{
-getGeneSets(object, of_class = "all")
+getGeneSets(object, of_class = "all", simplify = FALSE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_class}{A character vector indication the class of the gene sets to
-look for. (Can be obtained e.g. with \code{geneSetOverview()}).}
+\item{of_class}{A character vector indicating the class of the gene sets to
+look for. (Can be obtained e.g. with \code{geneSetOverview()}). If set to
+\emph{"all"} all gene sets are returned.}
+
+\item{simplify}{Logical value. Force the function to return a character vector.}
 }
 \value{
 A list named according to \code{of_class} in which each element is
 a character vector containing the names of gene sets of the specified classes.
- Is simplified to a vector if the number of elements in the list is one.
+ Is simplified to a vector if the number of elements in the list is one or
+ \code{simplify} is set to TRUE.
 }
 \description{
 Obtain the gene set names

@@ -87,6 +87,7 @@ joinWithFeatures <- function(object,
 
 
 #' @rdname joinWithFeatures
+#' @export
 joinWithGenes <- function(object,
                           coords_df,
                           genes,
@@ -186,6 +187,7 @@ joinWithGenes <- function(object,
 
 
 #' @rdname joinWithFeatures
+#' @export
 joinWithGeneSets <- function(object,
                              coords_df,
                              gene_sets,

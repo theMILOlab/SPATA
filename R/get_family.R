@@ -39,17 +39,21 @@ getGeneSetOverview <- function(object){
 #' @title Obtain the gene set names
 #'
 #' @param object A valid spata-object.
-#' @param of_class A character vector indication the class of the gene sets to
-#' look for. (Can be obtained e.g. with \code{geneSetOverview()}).
+#' @param of_class A character vector indicating the class of the gene sets to
+#' look for. (Can be obtained e.g. with \code{geneSetOverview()}). If set to
+#' \emph{"all"} all gene sets are returned.
+#' @param simplify Logical value. Force the function to return a character vector.
+#'
 #'
 #' @return A list named according to \code{of_class} in which each element is
 #' a character vector containing the names of gene sets of the specified classes.
-#'  Is simplified to a vector if the number of elements in the list is one.
+#'  Is simplified to a vector if the number of elements in the list is one or
+#'  \code{simplify} is set to TRUE.
 #'
 #' @export
 #'
 
-getGeneSets <- function(object, of_class = "all"){
+getGeneSets <- function(object, of_class = "all", simplify = FALSE){
 
   validation(x = object)
 
@@ -102,6 +106,12 @@ getGeneSets <- function(object, of_class = "all"){
       base::return(base::as.character(res_list[[1]]))
 
     } else {
+
+      if(base::isTRUE(simplify)){
+
+        res_list <- base::unname(base::unlist(res_list))
+
+      }
 
       base::return(res_list)
 
