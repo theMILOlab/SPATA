@@ -23,10 +23,9 @@ Collate:
     'joinWith_family.R'
     'plotDimRed.R'
     'plot_family.R'
-    'shiny_server_spatial_segmentation.R'
-    'shiny_server_spatial_trajectories.R'
+    'shiny_server.R'
     'shiny_ui_spatial_segmentation.R'
-    'shiny_ui_spatial_trajectories.R'
+    'shiny_uis.R'
     'spataValidation.R'
 Imports: 
     magrittr
