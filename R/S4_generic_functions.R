@@ -19,6 +19,7 @@ setGeneric(name = "image", def = function(object, of_sample){
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "exprMtr", def = function(object, of_sample = NULL){
 
   standardGeneric(f = "exprMtr")
@@ -26,6 +27,7 @@ setGeneric(name = "exprMtr", def = function(object, of_sample = NULL){
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "coordinates", valueClass = "data.frame", def = function(object, of_sample = "all"){
 
   standardGeneric("coordinates")
@@ -33,6 +35,7 @@ setGeneric(name = "coordinates", valueClass = "data.frame", def = function(objec
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "coordinates<-", def = function(object, value){
 
   standardGeneric(f = "coordinates<-")
@@ -40,6 +43,7 @@ setGeneric(name = "coordinates<-", def = function(object, value){
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "featureData", valueClass = "data.frame", def = function(object, of_sample = "all"){
 
   standardGeneric(f = "featureData")
@@ -47,6 +51,7 @@ setGeneric(name = "featureData", valueClass = "data.frame", def = function(objec
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "featureData<-", def = function(object, value){
 
   standardGeneric(f = "featureData<-")
@@ -54,6 +59,7 @@ setGeneric(name = "featureData<-", def = function(object, value){
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "samples", valueClass = "character", def = function(object){
 
   standardGeneric(f = "samples")
@@ -61,6 +67,7 @@ setGeneric(name = "samples", valueClass = "character", def = function(object){
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "trajectory", def = function(object, trajectory_name, of_sample){
 
   standardGeneric(f = "trajectory")
@@ -68,6 +75,7 @@ setGeneric(name = "trajectory", def = function(object, trajectory_name, of_sampl
 })
 
 #' @rdname image
+#' @export
 setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
   standardGeneric(f = "getTrajectoryComment")
@@ -85,7 +93,6 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 #' @export
 #'
 
-#' @rdname image
 setMethod(f = "image", signature = "spata", definition = function(object, of_sample){
 
   return(object@image[[of_sample]])
@@ -93,6 +100,7 @@ setMethod(f = "image", signature = "spata", definition = function(object, of_sam
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_sample = "all"){
 
   of_sample <- check_sample(object = object, sample_input = of_sample)
@@ -109,6 +117,7 @@ setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_s
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "coordinates", signature = "spata", def = function(object, of_sample = "all"){
 
   if(of_sample == "all"){
@@ -153,6 +162,7 @@ setMethod(f = "coordinates", signature = "spata", def = function(object, of_samp
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "coordinates<-", signature = "spata", def = function(object, value){
 
   object@coordinates <- value
@@ -164,6 +174,7 @@ setMethod(f = "coordinates<-", signature = "spata", def = function(object, value
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "featureData", signature = "spata", definition = function(object, of_sample = "all"){
 
 
@@ -189,6 +200,7 @@ setMethod(f = "featureData<-", signature = "spata", definition = function(object
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "samples", signature = "spata", definition = function(object){
 
   return(object@samples)
@@ -196,6 +208,7 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample){
 
   of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
@@ -223,6 +236,7 @@ setMethod(f = "trajectory", signature = "spata", definition = function(object, t
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "getTrajectoryComment", signature = "spata", definition = function(object, trajectory_name, of_sample){
 
 
@@ -249,6 +263,7 @@ setMethod(f = "getTrajectoryComment", signature = "spata", definition = function
 })
 
 #' @rdname image
+#' @export
 setMethod(f = "getTrajectoryComment", signature = "spatialTrajectory", definition = function(object){
 
 
