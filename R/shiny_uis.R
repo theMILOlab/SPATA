@@ -159,7 +159,7 @@ shiny_ui_spatial_trajectories <- function(){
                           shiny::HTML("<br>"),
                           shiny::helpText("4. Enter the name you want to give the trajectory as well as a 'guiding comment' and click the 'Save'-button."),
                           shiny::splitLayout(
-                            shiny::actionButton("save_trajectory", "Save Segment", width = "100%"),
+                            shiny::actionButton("save_trajectory", "Save Trajectory", width = "100%"),
                             shiny::textInput("name_trajectory", label = NULL, placeholder = "Name trajectory", value = ""),
                             cellWidths = c("50%", "50%")
                           ),

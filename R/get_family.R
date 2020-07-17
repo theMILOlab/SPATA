@@ -289,9 +289,9 @@ getFeatureNames <- function(object){
 #' @param of_sample The samples from which to obtain the segment names specified
 #' as a character vector.
 #'
-#' @return A list named according to the \code{of_gene_sets} in which each element is
-#' a character vector containing the names of genes the specific gene set is
-#' composed of. Is simplified into a vector if the number of elements in the returned list
+#' @return A list named according to the \code{of_sample} in which each element is
+#' a character vector containing the names of segments which were drawn for the
+#' specific sample. Is simplified to a vector if the number of samples in the returned list
 #' is one.
 #'
 #' @export
@@ -348,6 +348,19 @@ getSegmentNames <- function(object,
 
 #- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
 
+#' @title Obtain trajectory names
+#'
+#' @param object A valid spata object.
+#' @param of_sample The samples from which to obtain the trajectory names specified
+#' as a character vector.
+#'
+#' @return A list named according to the \code{of_sample} in which each element is
+#' a character vector containing the names of trajectories which were drawn for the
+#' specific sample. Is simplified to a vector if the number of samples in the returned list
+#' is one.
+#'
+#' @export
+#'
 getTrajectoryNames <- function(object,
                                of_sample = "all"){
 

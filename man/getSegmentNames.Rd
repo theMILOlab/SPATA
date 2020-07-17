@@ -13,9 +13,9 @@ getSegmentNames(object, of_sample)
 as a character vector.}
 }
 \value{
-A list named according to the \code{of_gene_sets} in which each element is
-a character vector containing the names of genes the specific gene set is
-composed of. Is simplified into a vector if the number of elements in the returned list
+A list named according to the \code{of_sample} in which each element is
+a character vector containing the names of segments which were drawn for the
+specific sample. Is simplified to a vector if the number of samples in the returned list
 is one.
 }
 \description{
