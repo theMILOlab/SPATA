@@ -22,6 +22,6 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Visualizes the segmentation of a specified sample that was drawn with
+Displays the segmentation of a specified sample that was drawn with
 \code{SPATA::createSegmentation()}.
 }

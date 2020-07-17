@@ -4,7 +4,7 @@
 \alias{plotTrajectoryFeatures}
 \alias{plotTrajectoryGenes}
 \alias{plotTrajectoryGeneSets}
-\title{Display values along a trajectory direction.}
+\title{Trajectory line plots}
 \usage{
 plotTrajectoryFeatures(
   object,
@@ -83,5 +83,5 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Display values along a trajectory direction.
+Displays values along a trajectory direction.
 }

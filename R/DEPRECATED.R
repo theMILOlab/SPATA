@@ -2,6 +2,11 @@
 
 # alphabetically arranged
 
+#' Deprecated functions
+#'
+#' @include S4_documentation.R
+#'
+
 setGeneric(name = "dimRed", def = function(object, of_sample, method){
 
   standardGeneric(f = "dimRed")
@@ -43,6 +48,7 @@ setMethod(f = "dimRed", signature = "spata", definition = function(object, of_sa
 
 })
 
+#' @rdname dimRed
 setGeneric(name = "featureNames", valueClass = "character", def = function(object){
 
   standardGeneric(f = "featureNames")
@@ -62,6 +68,7 @@ setMethod(f = "featureNames", signature = "spata", definition = function(object)
 
 })
 
+#' @rdname dimRed
 setGeneric(name = "getTrajectoryObject", def = function(object, trajectory_name, of_sample){
 
   standardGeneric(f = "getTrajectoryObject")

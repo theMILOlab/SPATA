@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_family.R
 \name{plotTrajectory}
 \alias{plotTrajectory}
-\title{Display a trajectory}
+\title{Plot trajectory}
 \usage{
 plotTrajectory(
   object,
@@ -70,6 +70,6 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Visualizes a trajectory of a specified sample that was
+Displays a trajectory of a specified sample that was
 drawn with \code{SPATA::createTrajectories()}.
 }
