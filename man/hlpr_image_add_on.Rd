@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{hlpr_image_add_on}
 \alias{hlpr_image_add_on}
-\title{}
+\title{Provides the image as ggplot background}
 \usage{
 hlpr_image_add_on(object, display_image)
 }
@@ -15,5 +15,5 @@ hlpr_image_add_on(object, display_image)
 Either null or a ggplot2::geom_annotation_raster
 }
 \description{
-
+Provides the image as ggplot background
 }

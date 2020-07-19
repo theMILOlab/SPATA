@@ -102,7 +102,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 }
 
 
-#' @title
+#' @title Provides the image as ggplot background
 #'
 #' @param object A valid spata-object.
 #' @param display_image Logical value.
