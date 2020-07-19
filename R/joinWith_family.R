@@ -141,9 +141,12 @@ joinWithGenes <- function(object,
 
   # convert results to data frame with appropriate column names
   gene_vls <-
-    as.data.frame(rna_assay) %>%
+    base::as.data.frame(rna_assay, row.names = NULL) %>%
     magrittr::set_colnames(value = col_names) %>%
-    tibble::rownames_to_column(var = "barcodes")
+    dplyr::mutate(
+      barcodes = base::rownames(rna_assay)
+    )
+
 
   # join both
   joined_df <-

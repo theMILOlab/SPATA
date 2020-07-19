@@ -1,4 +1,99 @@
 
+#' Check input
+#'
+#' @param color_to character or list
+#' @param all_features character. all features
+#' @param all_gene_sets character. all gene sets
+#' @param all_genes character. all genes
+#'
+#' @return a named list
+#' @export
+#'
+
+check_color_to <- function(color_to,
+                           all_features = character(),
+                           all_gene_sets = character(),
+                           all_genes = character()){
+
+
+
+  if(base::is.list(color_to) & !base::is.data.frame(color_to)){
+
+    color_to <- base::unlist(color_to)
+
+  } else if(!base::is.character(color_to)){
+
+    stop("Argument 'color_to' needs to be of class 'character' or of class 'list'.")
+
+  }
+
+
+  if(base::length(color_to) > 25){
+
+    base::stop("Argument 'color_to' needs to be of length < 25.")
+
+  }
+
+  if(base::any(color_to %in% all_features)){
+
+    found_features <- all_features[all_features %in% color_to]
+
+  } else {
+
+    found_features <- NULL
+
+  }
+
+  if(base::any(color_to %in% all_gene_sets)){
+
+    found_gene_sets <- all_gene_sets[all_gene_sets %in% color_to]
+
+  } else {
+
+    found_gene_sets <- NULL
+
+  }
+
+  if(base::any(color_to %in% all_genes)){
+
+    found_genes <- all_genes[all_genes %in% color_to]
+
+  } else {
+
+    found_genes <- NULL
+
+  }
+
+  found_all <- list("features" = found_features,
+                    "gene_sets" = found_gene_sets,
+                    "genes" = found_genes)
+
+  if(base::length(base::unlist(found_all)) != base::length(color_to)){
+
+    not_found <- color_to[!color_to %in% base::unlist(found_all)]
+
+    not_found_string <- stringr::str_c(not_found, collapse = "', '")
+
+    base::warning(stringr::str_c("Did not find gene set(s) and/or gene(s) '", not_found_string, "' of argument 'color_to'.", sep = ""))
+
+  }
+
+  return_list <-
+    purrr::discard(.x = found_all, .p = base::is.null)
+
+  if(base::length(return_list) == 0){
+
+    base::stop("Could not find any of the specified gene set(s) and/or gene(s) of argument 'color_to'.")
+
+  } else {
+
+    base::return(return_list)
+
+  }
+
+}
+
+
 #' @title Check input
 #'
 #' @description The \code{check_()}-function family checks a functions input to

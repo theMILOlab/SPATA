@@ -328,7 +328,7 @@ plotSurface <- function(object,
   # 4. Set up additional add-ons --------------------------------------------
 
   # set up background
-  if(isTRUE(display_image)){
+  if(base::isTRUE(display_image)){
 
     image_raster <-
       image(object, of_sample) %>%
@@ -364,6 +364,121 @@ plotSurface <- function(object,
     ggplot_add_on +
     ggplot2::coord_equal() +
     ggplot2::theme_void()
+
+}
+
+#' @title Plot several surface plots at the same time
+#'
+#' @description Plots a surface plot for every valid element in argument
+#' \code{color_to} and colors the surface according to the expression of
+#' genes and gene sets.
+#'
+#' @param object A valid object of class \emph{spata}.
+#' @param of_sample The samples name specified as a character of length one.
+#' @param color_to The genes and gene sets whoose expression you want to
+#' compare specified as a character vector or a list.
+#' @param smooth Logical value. If set to TRUE \code{plotSurface()} will smooth
+#'  the values displayed by color deploying \code{stats::loess()}.
+#' @param smooth_span Numeric value, given to \code{stats::loess()} if
+#'  \code{smooth} is set to TRUE.
+#' @param method_gs The method according to which gene sets will be handled
+#' specified as a character of length one. This can be either \emph{mean} or one
+#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+#' \code{gsva::GSVA()}. Ignored if \code{color_to} isn't a gene set.
+#' @param pt_size The size of the points specified as a numeric value.
+#' @param pt_alpha The transparency of the points specified as a numeric value.
+#' @param pt_clrsp The colour spectrum used to display \code{color_to} if the
+#' specified variable is continuous. Needs to be one of \emph{inferno, magma,
+#' plasma, cividis or viridis}.
+#' @param display_image Logical value to specify whether the histological image
+#' of the sample is supposed to be displayed underneath the plot.
+#'
+#' (Can be made visible with low \code{pt_alpha} or \code{color_to} set to NULL.)
+#' @param display_title Logical value to specify whether a title is supposed to
+#' be displayed.
+#' @param verbose Logical value to specify whether informative messages are
+#' supposed to be printed or not.
+#'
+#' @return Returns a ggplot-object that can be additionally customized according
+#' to the rules of the ggplot2-framework.
+#'
+#' @export
+
+plotSurfaceComparison <- function(object,
+                                  of_sample,
+                                  color_to,
+                                  method_gs,
+                                  smooth = FALSE,
+                                  smooth_span = 0.02,
+                                  pt_size = 2,
+                                  pt_alpha = 1,
+                                  pt_clrsp = "inferno",
+                                  display_image = F,
+                                  verbose = TRUE){
+
+  # control
+  validation(object)
+  of_sample <- check_sample(object, of_sample, 1)
+
+  all_gene_sets <- getGeneSets(object, "all")
+  all_genes <- getGenes(object, "all", "all")
+
+  color_to <- check_color_to(color_to = color_to,
+                             all_gene_sets = all_gene_sets,
+                             all_genes = all_genes)
+
+  data <- coordsSpatial(object = object,
+                        of_sample = of_sample)
+
+
+  # join data.frame with variables to compare
+  if("gene_sets" %in% base::names(color_to)){
+
+    data <- joinWithGeneSets(object,
+                             coords_df = data,
+                             gene_sets = color_to$gene_sets,
+                             method_gs = method_gs,
+                             smooth = smooth,
+                             smooth_span = smooth_span,
+                             verbose = verbose)
+
+  }
+
+  if("genes" %in% base::names(color_to)){
+
+    data <- joinWithGenes(object,
+                          coords_df = data,
+                          genes = color_to$genes,
+                          average_genes = FALSE,
+                          smooth = smooth,
+                          smooth_span = smooth_span,
+                          verbose = verbose)
+
+  }
+
+  # adjust data.frame for use of ggplot2::facets
+  shifted_data <-
+    tidyr::pivot_longer(
+      data = data,
+      cols = dplyr::all_of(base::unname(base::unlist(color_to))),
+      names_to = "aspects",
+      values_to = "values"
+    )
+
+  # display sample image
+  image_add_on <- hlpr_image_add_on(object = object,
+                                    display_image = display_image)
+
+
+  # plot
+  ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
+    image_add_on +
+    ggplot2::geom_point(mapping = ggplot2::aes(color = values),
+                        size = pt_size, alpha = pt_alpha) +
+    ggplot2::scale_color_viridis_c(option = pt_clrsp) +
+    ggplot2::theme_void() +
+    ggplot2::facet_wrap(facets = ~ aspects, scales = "fixed") +
+    ggplot2::labs(color = "Expr.\nscore")
 
 }
 

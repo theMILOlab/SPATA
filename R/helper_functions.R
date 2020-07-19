@@ -102,6 +102,50 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 }
 
 
+#' @title
+#'
+#' @param object A valid spata-object.
+#' @param display_image Logical value.
+#'
+#' @return Either null or a ggplot2::geom_annotation_raster
+#'
+
+hlpr_image_add_on <- function(object, display_image){
+
+  # set up background
+  if(base::isTRUE(display_image)){
+
+    image_raster <-
+      image(object, of_sample) %>%
+      grDevices::as.raster()
+
+    img_info <-
+      image_raster %>%
+      magick::image_read() %>%
+      magick::image_info()
+
+    st_image <-
+      image_raster %>%
+      magick::image_read() %>%
+      magick::image_flip()
+
+    image_add_on <-
+      ggplot2::annotation_raster(raster = st_image,
+                                 xmin = 0, ymin = 0,
+                                 xmax = img_info$width,
+                                 ymax = img_info$height)
+
+  } else {
+
+    image_add_on <- NULL
+
+  }
+
+
+
+}
+
+
 #' @title Return customized ggplot:labs()
 #'
 #' @description Helper function
