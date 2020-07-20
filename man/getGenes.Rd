@@ -4,7 +4,13 @@
 \alias{getGenes}
 \title{Obtain gene names}
 \usage{
-getGenes(object, of_gene_sets = "all", in_sample = "all", rna_assay = NULL)
+getGenes(
+  object,
+  of_gene_sets = "all",
+  in_sample = "all",
+  rna_assay = NULL,
+  coerce = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -15,13 +21,16 @@ return the gene names.}
 \item{in_sample}{The sample(s) in which the genes have to be expressed in order
 to be included.}
 
-\item{rna_assay}{Rna-assay.}
+\item{rna_assay}{Old argument used to provide an Rna-assay.}
+
+\item{coerce}{Logical. If set to TRUE and two or more valid gene sets were
+specified elements of the resulting list will be coerced into one single vector.}
 }
 \value{
 A list named according to the \code{of_gene_sets} in which each element is
 a character vector containing the names of genes the specific gene set is
 composed of. Is simplified into a vector if the number of elements in the returned list
-is one.
+is one or \code{simplify} is set to TRUE.
 }
 \description{
 Obtain gene names

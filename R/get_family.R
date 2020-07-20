@@ -129,25 +129,28 @@ getGeneSets <- function(object, of_class = "all", simplify = FALSE){
 #' return the gene names.
 #' @param in_sample The sample(s) in which the genes have to be expressed in order
 #' to be included.
-#' @param rna_assay Rna-assay.
+#' @param rna_assay Old argument used to provide an Rna-assay.
+#' @param coerce Logical. If set to TRUE and two or more valid gene sets were
+#' specified elements of the resulting list will be coerced into one single vector.
 #'
 #' @return A list named according to the \code{of_gene_sets} in which each element is
 #' a character vector containing the names of genes the specific gene set is
 #' composed of. Is simplified into a vector if the number of elements in the returned list
-#' is one.
+#' is one or \code{simplify} is set to TRUE.
 #'
 #' @export
 
 getGenes <- function(object,
                      of_gene_sets = "all",
                      in_sample = "all",
-                     rna_assay = NULL){
+                     rna_assay = NULL,
+                     coerce = TRUE){
 
   validation(x = object)
 
   if(!is.null(rna_assay) && is.matrix(rna_assay)){
 
-    warning("argument rna_assay is deprecated. Change it!")
+    warning("argument rna_assay is deprecated. do not use it while programming with getGenes()!")
 
   }
 
@@ -226,9 +229,20 @@ getGenes <- function(object,
 
     base::names(genes_list) <- of_gene_sets
 
+
+    if(base::isTRUE(coerce) && base::length(genes_list) > 1){
+
+      genes_list <-
+        genes_list %>%
+        base::unname() %>%
+        base::unlist()
+
+    }
+
+
     base::return(genes_list)
 
-  } else if(of_gene_sets == "all") { # if all genes are desired
+  } else if(base::all(of_gene_sets == "all")) { # if all genes are desired
 
     all_genes <-
       dplyr::pull(gene_sets_df, "gene") %>%
@@ -258,11 +272,6 @@ getGenes <- function(object,
 
 
   }
-
-
-
-
-
 
 }
 
