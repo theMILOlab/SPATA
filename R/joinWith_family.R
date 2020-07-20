@@ -112,23 +112,22 @@ joinWithGenes <- function(object,
 
   # 2. Extract expression values  -------------------------------------------
 
-  rows_to_subset <- genes
-  columns_to_subset <- coords_df$barcodes
+  barcodes <- coords_df$barcodes
 
   # compute mean if necessary
   if(base::length(genes) > 1 && average_genes){
 
-    rna_assay <- base::colMeans(rna_assay[rows_to_subset, columns_to_subset])
+    rna_assay <- base::colMeans(rna_assay[genes, barcodes])
     col_names <- "mean_genes"
 
   } else if(base::length(genes) > 1){
 
-    rna_assay <- t(rna_assay[rows_to_subset, columns_to_subset])
+    rna_assay <- t(rna_assay[genes, barcodes])
     col_names <- genes
 
   } else if(base::length(genes) == 1){
 
-    rna_assay <- rna_assay[rows_to_subset, columns_to_subset]
+    rna_assay <- rna_assay[genes, barcodes]
 
     if(base::isTRUE(average_genes)){
       col_names <- "mean_genes"
@@ -144,7 +143,7 @@ joinWithGenes <- function(object,
     base::as.data.frame(rna_assay, row.names = NULL) %>%
     magrittr::set_colnames(value = col_names) %>%
     dplyr::mutate(
-      barcodes = base::rownames(rna_assay)
+      barcodes = coords_df$barcodes
     )
 
 
