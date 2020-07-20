@@ -3,7 +3,7 @@
 
 #' @title Add a new gene set
 #'
-#' @description Stores a new gene set in the spata object.
+#' @description Stores a new gene set in the spata-object.
 #'
 #' @param object A valid spata-object.
 #' @param gs_class The class the gene set belongs to specified as a character.

@@ -22,5 +22,8 @@ addGeneSet(object, gs_class, gs_name, gs_genes, overwrite = FALSE)
 An updated spata-object.
 }
 \description{
-Stores a new gene set in the spata object.
+Stores a new gene set in the spata-object.
+}
+\details{
+Coerces \code{gs_class} and \code{gs_name} to the final gene set name.
 }

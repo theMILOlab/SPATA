@@ -257,7 +257,7 @@ check_genes <- function(object,
 
   }
 
-  if(!is.matrix(rna_assay) | is.null(rna_assay)){
+  if(!is.matrix(rna_assay) | !is.null(rna_assay)){
 
     stop("Invalid input for argument 'rna_assay'.")
 
