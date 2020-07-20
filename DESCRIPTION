@@ -13,6 +13,7 @@ Collate:
     'S4_documentation.R'
     'DEPRECATED.R'
     'S4_generic_functions.R'
+    'add_family.R'
     'check_family.R'
     'checkpoint.R'
     'coords_family.R'

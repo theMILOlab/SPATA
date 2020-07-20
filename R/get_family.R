@@ -9,6 +9,7 @@
 #'
 #' @return A data.frame with two variables \emph{Class} and \emph{Available Gene
 #' Sets} indicating the number of different gene sets the classes contain.
+#'
 #' @export
 #'
 
