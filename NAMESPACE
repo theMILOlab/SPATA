@@ -2,6 +2,7 @@
 
 export("coordinates<-")
 export("featureData<-")
+export(addFeature)
 export(addGeneSet)
 export(check_color_to)
 export(coordinates)

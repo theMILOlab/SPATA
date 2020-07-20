@@ -3,7 +3,7 @@
 # Genes and gene set related ----------------------------------------------
 
 
-#' @title Obtain a gene set summary table
+#' @title Overview about the current gene sets
 #'
 #' @param object A valid spata-object.
 #'
@@ -20,11 +20,9 @@ getGeneSetOverview <- function(object){
   gene_sets_df <- object@used_genesets
   gene_sets <- object@used_genesets$ont
 
-  gene_set_types <-
-    stringr::str_replace_all(string = gene_sets, pattern = "_", replacement = "/") %>%
-    stringi::stri_extract_first_words()
+  gene_set_classes <- stringr::str_extract(string = gene_sets, pattern = "^.+?(?=_)")
 
-  dplyr::mutate(gene_sets_df, gs_type = gene_set_types) %>%
+  dplyr::mutate(gene_sets_df, gs_type = gene_set_classes) %>%
     dplyr::select(-gene) %>%
     dplyr::distinct() %>%
     dplyr::pull(gs_type) %>%

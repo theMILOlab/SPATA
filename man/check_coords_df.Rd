@@ -2,9 +2,12 @@
 % Please edit documentation in R/check_family.R
 \name{check_coords_df}
 \alias{check_coords_df}
+\alias{check_feature_df}
 \title{Check input}
 \usage{
 check_coords_df(coords_df)
+
+check_feature_df(feature_df)
 }
 \arguments{
 \item{coords_df}{A data.frame that contains two character variables: \emph{

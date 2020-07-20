@@ -620,7 +620,7 @@ shiny_server_spatial_segmentation <- function(input, output, session){
   ##--- 3.1 convert vertices layer to geom_polygon to highlight the segment
   oe <- shiny::observeEvent(input$highlight_segment, {
 
-    jk_checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices", e_n)
+    checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices", e_n)
 
     new_layer <- list(ggplot2::geom_polygon(data = vertices_df(),
                                             mapping = ggplot2::aes(x = x, y = y),
@@ -641,9 +641,9 @@ shiny_server_spatial_segmentation <- function(input, output, session){
   ##--- 4. save the highlighted segment
   oe <- shiny::observeEvent(input$save_segment, {
 
-    jk_checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name", e_n)
-    jk_checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name", e_n)
-    jk_checkpoint(evaluate = nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices", e_n)
+    checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name", e_n)
+    checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name", e_n)
+    checkpoint(evaluate = nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices", e_n)
 
     sample_coords <- coordinates(objec = spata_obj(), of_sample = current$sample)
 
@@ -701,7 +701,7 @@ shiny_server_spatial_segmentation <- function(input, output, session){
     spata_obj <- spata_obj()
     fdata <- featureData(spata_obj)
 
-    jk_checkpoint(evaluate = input$name_segment_rmv %in% unique(fdata$segment), case_false = "segment_name_not_found", e_n)
+    checkpoint(evaluate = input$name_segment_rmv %in% unique(fdata$segment), case_false = "segment_name_not_found", e_n)
 
     fdata_new <-
       fdata %>%

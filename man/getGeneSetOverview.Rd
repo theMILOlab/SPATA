@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_family.R
 \name{getGeneSetOverview}
 \alias{getGeneSetOverview}
-\title{Obtain a gene set summary table}
+\title{Overview about the current gene sets}
 \usage{
 getGeneSetOverview(object)
 }
@@ -14,5 +14,5 @@ A data.frame with two variables \emph{Class} and \emph{Available Gene
 Sets} indicating the number of different gene sets the classes contain.
 }
 \description{
-Obtain a gene set summary table
+Overview about the current gene sets
 }

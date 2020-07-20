@@ -141,6 +141,36 @@ check_coords_df <- function(coords_df){
 
 }
 
+#' @rdname check_coords_df
+check_feature_df <- function(feature_df){
+
+  if(!base::is.data.frame(feature_df)){
+
+    base::stop("Argument 'feature_df' needs to be a data.frame.")
+
+  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(feature_df))){
+
+    base::stop("'feature_df' needs to have 'barcodes' and 'sample' variables.")
+
+  } else {
+
+    classes <- base::sapply(X = feature_df[,c("barcodes", "sample")],
+                            FUN = base::class)
+
+    if(!base::all(classes == "character")){
+
+      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
+
+    } else {
+
+      return(feature_df)
+
+    }
+
+  }
+
+}
+
 
 #' @title Check input
 #'

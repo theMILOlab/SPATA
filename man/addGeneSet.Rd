@@ -26,4 +26,7 @@ Stores a new gene set in the spata-object.
 }
 \details{
 Coerces \code{gs_class} and \code{gs_name} to the final gene set name.
+Gene set classes and gene set names are separated by '_' and handled like this
+in all additional gene set related functions which is why \code{gs_class} must
+not contain any '_'.
 }
