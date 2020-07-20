@@ -135,6 +135,8 @@ getGeneSets <- function(object, of_class = "all", simplify = FALSE){
 #' a character vector containing the names of genes the specific gene set is
 #' composed of. Is simplified into a vector if the number of elements in the returned list
 #' is one.
+#'
+#' @export
 
 getGenes <- function(object,
                      of_gene_sets = "all",
