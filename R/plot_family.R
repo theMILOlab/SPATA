@@ -93,10 +93,10 @@ plotTSNE <- function(object,
 #' character value.
 #' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 #' Whereby the states-variables contain the respective expression values of the specified
-#' gene sets.
+#' gene sets. See 'See also' for how to easily obtain these data.frames.
 #' @param states The gene sets defining the four states specified as a character vector
 #' of length 4.
-#' @param color_to The variable in the data frame that is supposed to be displayd by color
+#' @param color_to The variable in the data frame that is supposed to be displayed by color
 #' specified as a character value.
 #' @param xlim The limits of the x-axis specified as a numeric vector of length 2.
 #' @param ylim The limits of the y-axis specified as a numeric vector of length 2.
@@ -109,6 +109,10 @@ plotTSNE <- function(object,
 #' to the computational progress made will be printed.
 #'
 #' (Warning messages will always be printed.)
+#'
+#' @seealso Combine \code{coordsSpatial()} and \code{joinWithGeneSets()} to obtain
+#' a valid input data.frame for \code{data}.
+#'
 #'
 #' @return Returns a ggplot-object that can be additionally customized according
 #' to the rules of the ggplot2-framework.
@@ -129,7 +133,7 @@ plotFourStates <- function(data,
 
     base::stop("Argument 'data' needs to be of type data.frame.")
 
-  } else if("barcodes" %in% base::colnames(data)){
+  } else if(!"barcodes" %in% base::colnames(data)){
 
     base::stop("Data.frame 'data' needs to have a variable named 'barcodes'.")
 
@@ -187,7 +191,8 @@ plotFourStates <- function(data,
   xlab <- base::bquote(paste("log2(GSV-Score "[.(states[1])]*" - GSV-Score "[.(states[3])]*")"))
   ylab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
 
-  if(base::is.numeric(plot_df[, color_to])){
+
+  if(base::is.numeric(dplyr::pull(plot_df, var = {{color_to}}))){
 
     scale_color_add_on <- ggplot2::scale_colour_viridis_c(option = pt_clrsp)
 
@@ -217,8 +222,9 @@ plotFourStates <- function(data,
 
 
 #' @rdname plotFourStates
-#'
 #' @export
+#'
+
 plotFourStates2 <- function(object,
                             of_sample,
                             states,
@@ -295,8 +301,7 @@ plotFourStates2 <- function(object,
                        gene_sets = color_to,
                        method_gs = method_gs,
                        normalize = TRUE,
-                       verbose = verbose
-      )
+                       verbose = verbose)
 
   } else if(color_to %in% all_features){
 

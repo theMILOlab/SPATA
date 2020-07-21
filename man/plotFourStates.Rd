@@ -33,12 +33,12 @@ plotFourStates2(
 \arguments{
 \item{data}{A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 Whereby the states-variables contain the respective expression values of the specified
-gene sets.}
+gene sets. See 'See also' for how to easily obtain these data.frames.}
 
 \item{states}{The gene sets defining the four states specified as a character vector
 of length 4.}
 
-\item{color_to}{The variable in the data frame that is supposed to be displayd by color
+\item{color_to}{The variable in the data frame that is supposed to be displayed by color
 specified as a character value.}
 
 \item{pt_size}{The size of the points specified as a numeric value.}
@@ -74,4 +74,8 @@ x- and y- coordinates in the state plot. (See details.)
 
 (\code{plotFourStates2()} generates the data.frame that needs to be specified
 in \code{data} from scratch. It then calls \code{plotFourStates()}).
+}
+\seealso{
+Combine \code{coordsSpatial()} and \code{joinWithGeneSets()} to obtain
+a valid input data.frame for \code{data}.
 }
