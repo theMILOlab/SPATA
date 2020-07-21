@@ -9,7 +9,7 @@ getGenes(
   of_gene_sets = "all",
   in_sample = "all",
   rna_assay = NULL,
-  coerce = TRUE
+  coerce = FALSE
 )
 }
 \arguments{
@@ -23,14 +23,14 @@ to be included.}
 
 \item{rna_assay}{Old argument used to provide an Rna-assay.}
 
-\item{coerce}{Logical. If set to TRUE and two or more valid gene sets were
-specified elements of the resulting list will be coerced into one single vector.}
+\item{coerce}{Logical. If set to TRUE the list to be returned will be coerced
+into a character vector.}
 }
 \value{
-A list named according to the \code{of_gene_sets} in which each element is
+A list named according to the input of \code{of_gene_sets} in which each element is
 a character vector containing the names of genes the specific gene set is
-composed of. Is simplified into a vector if the number of elements in the returned list
-is one or \code{simplify} is set to TRUE.
+composed of. Is simplified to a vector if the number of elements in the returned list
+is one or \code{coerce} is set to TRUE.
 }
 \description{
 Obtain gene names

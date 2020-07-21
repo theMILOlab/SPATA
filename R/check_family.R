@@ -1,19 +1,26 @@
 
 #' Check input
 #'
+#' @description Checks what of the color_to input is actually given in the object.
+#' The all_* parameters allow for manipulation of what color_to input is an
+#' option. (e.g. if color_to of the specific function must not be of type 'features'
+#' specify paramter 'all_features' as an empty character vector and no color_to element
+#' can be recognized as such.)
+#'
 #' @param color_to character or list
 #' @param all_features character. all features
 #' @param all_gene_sets character. all gene sets
 #' @param all_genes character. all genes
 #'
-#' @return a named list
+#' @return a named list (or a character vector if max_length is set to 1).
 #' @export
 #'
 
 check_color_to <- function(color_to,
                            all_features = character(),
                            all_gene_sets = character(),
-                           all_genes = character()){
+                           all_genes = character(),
+                           max_length = 25){
 
 
 
@@ -28,9 +35,11 @@ check_color_to <- function(color_to,
   }
 
 
-  if(base::length(color_to) > 25){
+  if(base::length(color_to) > max_length){
 
-    base::stop("Argument 'color_to' needs to be of length < 25.")
+    base::stop(stringr::str_c("Maximum length (", max_length,
+                              ") of argument 'color_to' exceeded: ",
+                              base::length(color_to) ))
 
   }
 
@@ -85,11 +94,13 @@ check_color_to <- function(color_to,
 
     base::stop("Could not find any of the specified gene set(s) and/or gene(s) of argument 'color_to'.")
 
-  } else {
+  } else if(max_length == 1) {
 
-    base::return(return_list)
+    return_list <- base::unlist(return_list)
 
   }
+
+  base::return(return_list)
 
 }
 
@@ -396,6 +407,21 @@ check_gene_sets <- function(object,
 
   base::return(gene_sets_found)
 
+
+}
+
+#' @inherit check_features description return title params
+#'
+#' @param gene_sets The gene_sets-input.
+#'
+check_pt_clrsp <- function(pt_clrsp){
+
+  if(base::length(pt_clrsp) != 1 |
+     !pt_clrsp %in% c("inferno", "viridis", "magma", "plasma", "cividis")){
+
+    base::stop("Invalid input for 'pt_clrsp'.")
+
+  }
 
 }
 

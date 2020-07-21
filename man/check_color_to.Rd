@@ -8,7 +8,8 @@ check_color_to(
   color_to,
   all_features = character(),
   all_gene_sets = character(),
-  all_genes = character()
+  all_genes = character(),
+  max_length = 25
 )
 }
 \arguments{
@@ -21,8 +22,12 @@ check_color_to(
 \item{all_genes}{character. all genes}
 }
 \value{
-a named list
+a named list (or a character vector if max_length is set to 1).
 }
 \description{
-Check input
+Checks what of the color_to input is actually given in the object.
+The all_* parameters allow for manipulation of what color_to input is an
+option. (e.g. if color_to of the specific function must not be of type 'features'
+specify paramter 'all_features' as an empty character vector and no color_to element
+can be recognized as such.)
 }

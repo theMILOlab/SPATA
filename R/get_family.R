@@ -35,24 +35,26 @@ getGeneSetOverview <- function(object){
 
 
 
-#' @title Obtain the gene set names
+#' @title Obtain gene set names
 #'
 #' @param object A valid spata-object.
-#' @param of_class A character vector indicating the class of the gene sets to
-#' look for. (Can be obtained e.g. with \code{geneSetOverview()}). If set to
-#' \emph{"all"} all gene sets are returned.
-#' @param simplify Logical value. Force the function to return a character vector.
+#' @param of_class A character vector indicating the classes from which to obtain
+#' the gene set names. (Which classes exist in the current gene set data.frame can
+#' be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
+#' gene sets are returned.
+#' @param coerce Logical. If set to TRUE the list to be returned will be coerced
+#' into a character vector.
 #'
 #'
-#' @return A list named according to \code{of_class} in which each element is
+#' @return A list named according to input of argument \code{of_class} in which each element is
 #' a character vector containing the names of gene sets of the specified classes.
-#'  Is simplified to a vector if the number of elements in the list is one or
-#'  \code{simplify} is set to TRUE.
+#' Is simplified to a vector if the number of elements in the list is one or if
+#' \code{coerce} is set to TRUE.
 #'
 #' @export
 #'
 
-getGeneSets <- function(object, of_class = "all", simplify = FALSE){
+getGeneSets <- function(object, of_class = "all", coerce = FALSE){
 
   validation(x = object)
 
@@ -99,14 +101,14 @@ getGeneSets <- function(object, of_class = "all", simplify = FALSE){
     res_list <-
       purrr::discard(.x = res_list, .p = base::is.null)
 
-    # simplify if possible
+    # coerce if possible
     if(base::length(res_list) == 1){
 
       base::return(base::as.character(res_list[[1]]))
 
     } else {
 
-      if(base::isTRUE(simplify)){
+      if(base::isTRUE(coerce)){
 
         res_list <- base::unname(base::unlist(res_list))
 
@@ -129,13 +131,13 @@ getGeneSets <- function(object, of_class = "all", simplify = FALSE){
 #' @param in_sample The sample(s) in which the genes have to be expressed in order
 #' to be included.
 #' @param rna_assay Old argument used to provide an Rna-assay.
-#' @param coerce Logical. If set to TRUE and two or more valid gene sets were
-#' specified elements of the resulting list will be coerced into one single vector.
+#' @param coerce Logical. If set to TRUE the list to be returned will be coerced
+#' into a character vector.
 #'
-#' @return A list named according to the \code{of_gene_sets} in which each element is
+#' @return A list named according to the input of \code{of_gene_sets} in which each element is
 #' a character vector containing the names of genes the specific gene set is
-#' composed of. Is simplified into a vector if the number of elements in the returned list
-#' is one or \code{simplify} is set to TRUE.
+#' composed of. Is simplified to a vector if the number of elements in the returned list
+#' is one or \code{coerce} is set to TRUE.
 #'
 #' @export
 
@@ -143,7 +145,7 @@ getGenes <- function(object,
                      of_gene_sets = "all",
                      in_sample = "all",
                      rna_assay = NULL,
-                     coerce = TRUE){
+                     coerce = FALSE){
 
   validation(x = object)
 

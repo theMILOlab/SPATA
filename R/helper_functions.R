@@ -101,6 +101,19 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 
 }
 
+#' Removes the class part of a gene set string
+#'
+#' @param string Gene sets as a character vector
+#'
+#' @return Gene set name
+#'
+
+hlpr_gene_set_name <- function(string){
+
+  stringr::str_remove(string = string, pattern = "^.+?_")
+
+}
+
 
 #' @title Provides the image as ggplot background
 #'

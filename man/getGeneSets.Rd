@@ -2,25 +2,27 @@
 % Please edit documentation in R/get_family.R
 \name{getGeneSets}
 \alias{getGeneSets}
-\title{Obtain the gene set names}
+\title{Obtain gene set names}
 \usage{
-getGeneSets(object, of_class = "all", simplify = FALSE)
+getGeneSets(object, of_class = "all", coerce = FALSE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_class}{A character vector indicating the class of the gene sets to
-look for. (Can be obtained e.g. with \code{geneSetOverview()}). If set to
-\emph{"all"} all gene sets are returned.}
+\item{of_class}{A character vector indicating the classes from which to obtain
+the gene set names. (Which classes exist in the current gene set data.frame can
+be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
+gene sets are returned.}
 
-\item{simplify}{Logical value. Force the function to return a character vector.}
+\item{coerce}{Logical. If set to TRUE the list to be returned will be coerced
+into a character vector.}
 }
 \value{
-A list named according to \code{of_class} in which each element is
+A list named according to input of argument \code{of_class} in which each element is
 a character vector containing the names of gene sets of the specified classes.
- Is simplified to a vector if the number of elements in the list is one or
- \code{simplify} is set to TRUE.
+Is simplified to a vector if the number of elements in the list is one or if
+\code{coerce} is set to TRUE.
 }
 \description{
-Obtain the gene set names
+Obtain gene set names
 }

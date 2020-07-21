@@ -78,6 +78,254 @@ plotTSNE <- function(object,
 # Miscellaneous -----------------------------------------------------------
 
 
+
+#' @title Gene set state plot
+#'
+#' @description This function takes four gene sets and visualizes the relative
+#' expression of these four gene sets for every barcode by computing it's respective
+#' x- and y- coordinates in the state plot. (See details.)
+#'
+#' (\code{plotFourStates2()} generates the data.frame that needs to be specified
+#' in \code{data} from scratch. It then calls \code{plotFourStates()}).
+#'
+#' @param object A valid spata-object.
+#' @param of_sample The sample from which to extract the data specified as a
+#' character value.
+#' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
+#' Whereby the states-variables contain the respective expression values of the specified
+#' gene sets.
+#' @param states The gene sets defining the four states specified as a character vector
+#' of length 4.
+#' @param color_to The variable in the data frame that is supposed to be displayd by color
+#' specified as a character value.
+#' @param xlim The limits of the x-axis specified as a numeric vector of length 2.
+#' @param ylim The limits of the y-axis specified as a numeric vector of length 2.
+#' @param pt_size The size of the points specified as a numeric value.
+#' @param pt_alpha The transparency of the points specified as a numeric value.
+#' @param pt_clrsp The colour spectrum used to display \code{color_to} if the
+#' specified variable is continuous. Needs to be one of \emph{inferno, magma,
+#' plasma, cividis or viridis}.
+#' @param verbose Logical value. If set to TRUE informative messages with respect
+#' to the computational progress made will be printed.
+#'
+#' (Warning messages will always be printed.)
+#'
+#' @return Returns a ggplot-object that can be additionally customized according
+#' to the rules of the ggplot2-framework.
+#'
+#' @export
+#'
+
+plotFourStates <- function(data,
+                           states,
+                           color_to = NULL,
+                           pt_size = 1.5,
+                           pt_alpha = 0.9,
+                           pt_clrsp = "inferno",
+                           xlim = c(-1,1),
+                           ylim = c(-1,1)){
+
+  if(!base::is.data.frame(data)){
+
+    base::stop("Argument 'data' needs to be of type data.frame.")
+
+  } else if("barcodes" %in% base::colnames(data)){
+
+    base::stop("Data.frame 'data' needs to have a variable named 'barcodes'.")
+
+  }
+
+  if(!base::is.null(color_to)){
+
+    if(!base::length(color_to) == 1 |
+       !color_to %in% base::colnames(data)){
+
+      base::stop("Argument 'color_to' is not a variable of 'data'.")
+
+    }
+
+  }
+
+  check_pt_clrsp(pt_clrsp)
+
+  sym <- rlang::sym
+  max <- base::max
+  abs <- base::abs
+  log2 <- base::log2
+
+  plot_df <-
+    tidyr::pivot_longer(
+      data = data,
+      cols = dplyr::all_of(states),
+      names_to = "gene_set",
+      values_to = "gene_set_expr"
+    ) %>%
+    dplyr::group_by(barcodes) %>%
+    dplyr::filter(gene_set_expr == max(gene_set_expr)) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(barcodes, max_gene_set = gene_set, max_expr = gene_set_expr) %>%
+    dplyr::mutate(max_loc = dplyr::if_else(max_gene_set %in% states[1:2], true = "top", false = "bottom")) %>%
+    dplyr::left_join(x = dplyr::select(data, -x, -y), y = ., by = "barcodes") %>%
+    dplyr::mutate(
+      pos_x = dplyr::case_when(
+        max_loc == "top" & !!sym(states[1]) > !!sym(states[2]) ~ (log2(abs((!!sym(states[1]) - !!sym(states[2])) + 1)) * -1),
+        max_loc == "top" & !!sym(states[2]) > !!sym(states[1]) ~ log2(abs((!!sym(states[2]) - !!sym(states[1])) + 1)),
+        max_loc == "bottom" & !!sym(states[3]) > !!sym(states[4]) ~ (log2(abs((!!sym(states[3]) - !!sym(states[4])) + 1)) * -1),
+        max_loc == "bottom" & !!sym(states[4]) > !!sym(states[3]) ~ log2(abs((!!sym(states[4]) - !!sym(states[3])) + 1)))
+    ) %>%
+    dplyr::group_by(barcodes) %>%
+    dplyr::mutate(
+      pos_y = dplyr::case_when(
+        max_loc == "bottom" ~ (log2(abs(max(c(!!sym(states[3]), !!sym(states[4]))) - max(!!sym(states[1]), !!sym(states[2])) + 1)) * -1),
+        max_loc == "top" ~ log2(abs(max(c(!!sym(states[1]), !!sym(states[2]))) - max(!!sym(states[3]), !!sym(states[4])) + 1))
+      )
+    )
+
+  states <- hlpr_gene_set_name(states)
+  color_to_lab <- hlpr_gene_set_name(color_to)
+
+  xlab <- base::bquote(paste("log2(GSV-Score "[.(states[1])]*" - GSV-Score "[.(states[3])]*")"))
+  ylab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
+
+  if(base::is.numeric(plot_df[, color_to])){
+
+    scale_color_add_on <- ggplot2::scale_colour_viridis_c(option = pt_clrsp)
+
+  } else {
+
+    scale_color_add_on <- NULL
+
+  }
+
+  # plotting
+  ggplot2::ggplot(plot_df, mapping = ggplot2::aes(x = pos_x, y = pos_y)) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +
+    ggplot2::geom_hline(yintercept = 0,  linetype = "dashed", color = "lightgrey") +
+    ggplot2::geom_point(mapping = ggplot2::aes_string(color = color_to),
+                        size = pt_size, alpha = pt_alpha) +
+    ggplot2::scale_x_continuous(limits = xlim) +
+    ggplot2::scale_y_continuous(limits = ylim) +
+    scale_color_add_on +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    ) +
+    ggplot2::labs(x = xlab, y = ylab, color = color_to_lab)
+
+}
+
+
+#' @rdname plotFourStates
+#'
+#' @export
+plotFourStates2 <- function(object,
+                            of_sample,
+                            states,
+                            color_to = NULL,
+                            method_gs = "gsva",
+                            pt_size = 1.5,
+                            pt_alpha = 0.9,
+                            pt_clrsp = "inferno",
+                            xlim = c(-1,1),
+                            ylim = c(-1,1),
+                            verbose = TRUE){
+
+
+  # Control -----------------------------------------------------------------
+
+  validation(object)
+
+  check_pt_clrsp(pt_clrsp)
+
+  of_sample <- check_sample(object, sample_input = of_sample, desired_length = 1)
+
+  states <- check_gene_sets(object, gene_sets = states, max_length = 4)
+
+  if(base::length(states) != 4){
+
+    base::stop(stringr::str_c(base::length(states), "valid gene sets provided.",
+                              "Need four.",sep = " "))
+
+  }
+
+  all_genes <- getGenes(object)
+  all_gene_sets <- getGeneSets(object)
+  all_features <- getFeatureNames(object)
+
+
+  if(!base::is.null(color_to)){
+    color_to <- check_color_to(color_to = color_to,
+                               all_features = all_features,
+                               all_gene_sets = all_gene_sets,
+                               all_genes = all_genes,
+                               max_length = 1)
+  }
+
+
+
+
+  # Data extraction ---------------------------------------------------------
+
+  data <-
+    coordsSpatial(object = object,
+                  of_sample = of_sample) %>%
+    joinWithGeneSets(object,
+                     coords_df = .,
+                     gene_sets = states,
+                     normalize = TRUE,
+                     method_gs = "gsva",
+                     verbose = verbose)
+
+  if(color_to %in% all_genes){
+
+    data <-
+      joinWithGenes(object,
+                    coords_df = data,
+                    genes = color_to,
+                    average_genes = FALSE,
+                    normalize = TRUE,
+                    verbose = verbose)
+
+  } else if(color_to %in% all_gene_sets){
+
+    data <-
+      joinWithGeneSets(object,
+                       coords_df = data,
+                       gene_sets = color_to,
+                       method_gs = method_gs,
+                       normalize = TRUE,
+                       verbose = verbose
+      )
+
+  } else if(color_to %in% all_features){
+
+    data <-
+      joinWithFeatures(object,
+                       coords_df = data,
+                       features = color_to,
+                       normalize = TRUE,
+                       verbose = verbose)
+
+  }
+
+
+  # Plotting ----------------------------------------------------------------
+
+  plotFourStates(data = data,
+                 states = states,
+                 color_to = color_to,
+                 pt_size = pt_size,
+                 pt_alpha = pt_alpha,
+                 pt_clrsp = pt_clrsp,
+                 xlim = xlim,
+                 ylim = ylim)
+
+
+}
+
+
+
 #' Plot segmentation
 #'
 #' @description Displays the segmentation of a specified sample that was drawn with
