@@ -1,3 +1,37 @@
+#' Compare samples in df with those from object
+#'
+#' @param object A valid spata-object.
+#' @param df A data.frame
+#' @param messages A message vector.
+#'
+#' @return Updated message vector
+#'
+
+hlpr_compare_samples <- function(object, df, messages){
+
+  df_samples <- stringr::str_c(base::unique(df$sample), collapse = ", ") %>% base::sort()
+  o_samples <- stringr::str_c(samples(object), collapse = ", ") %>% base::sort()
+
+  if(!base::identical(df_samples, o_samples)){
+
+    feedback <-
+      stringr::str_c("Inavlid samples in column 'sample'.:",
+                     "\n In coordinates: ", df_samples,
+                     "\n In object:      ", o_samples,
+                     sep = "")
+
+    messages <-
+      base::append(x = messages,
+                   values = feedback)
+
+  }
+
+  return(messages)
+
+
+}
+
+
 #' @title Compiles a trajectory data.frame
 #'
 #' @param segment_trajectory_df A data.frame specifying each segment of the whole

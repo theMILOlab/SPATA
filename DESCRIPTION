@@ -27,5 +27,7 @@ Collate:
     'shiny_server.R'
     'shiny_uis.R'
     'spataValidation.R'
+    'spataValidationFunctions.R'
 Imports: 
-    magrittr
+    magrittr,
+    matrixcalc
