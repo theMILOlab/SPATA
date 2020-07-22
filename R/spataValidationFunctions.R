@@ -55,12 +55,20 @@ validateSpataObject <- function(object){
 
   }
 
+  feedback <- base::lapply(X = feedback,
+                           FUN = function(i){
+
+                             stringr::str_c(i, collapse = "\n")
+
+
+                           })
+
   # unlist feedback
   feedback_vec <- base::unlist(x = feedback) %>% unname()
   prefix <- stringr::str_c("Slot '", base::names(feedback), "': ", sep = "")
 
   # combine with descriptive prefix
-  final_feedback <- stringr::str_c(prefix, feedback_vec, sep = "")
+  final_feedback <- stringr::str_c(prefix, feedback_vec, sep = "\n")
 
   # return results
   base::writeLines(final_feedback)
