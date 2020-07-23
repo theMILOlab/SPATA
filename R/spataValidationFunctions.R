@@ -210,7 +210,31 @@ check_slot_scvelo <- function(object){
 #' @export
 check_slot_trajectories <- function(object){
 
-  "Valid!"
+  messages <- base::character()
+
+  o_names <-
+    object@samples %>%
+    base::sort() %>%
+    stringr::str_c(collapse = "', '")
+
+  tl_names <-
+    base::names(object@trajectories) %>%
+    base::sort() %>%
+    stringr::str_c(collapse = "', '")
+
+  if(!base::identical(object_names, tl_names)){
+
+    feedback <- stringr::str_c("Invalid names in trajectories-list.",
+                               "\n Currently:  ", tl_names,
+                               "\n Have to be: ", o_names,
+                               sep = "")
+
+    messages <- base::append(x = messages,
+                             values = feedback)
+
+  }
+
+
 
 }
 

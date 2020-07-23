@@ -52,6 +52,8 @@ plotUMAP <- function(object,
 }
 
 #' @rdname plotUMAP
+#'
+#' @export
 plotTSNE <- function(object,
                      of_sample,
                      color_to = NULL,
@@ -1181,6 +1183,8 @@ plotTrajectoryFeatures <- function(object,
 
 
 #' @rdname plotTrajectoryFeatures
+#'
+#' @export
 plotTrajectoryGenes <- function(object,
                                 trajectory_name,
                                 of_sample,
@@ -1305,6 +1309,8 @@ plotTrajectoryGenes <- function(object,
 
 
 #' @rdname plotTrajectoryFeatures
+#'
+#' @export
 plotTrajectoryGeneSets <- function(object,
                                    trajectory_name,
                                    of_sample,

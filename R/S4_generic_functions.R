@@ -211,6 +211,7 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 
 #' @rdname image
 #' @export
+
 setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample){
 
   of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
