@@ -12,8 +12,7 @@ plotFourStates(
   pt_size = 1.5,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
-  xlim = c(-1, 1),
-  ylim = c(-1, 1)
+  display_labels = TRUE
 )
 
 plotFourStates2(
@@ -25,8 +24,7 @@ plotFourStates2(
   pt_size = 1.5,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
-  xlim = c(-1, 1),
-  ylim = c(-1, 1),
+  display_labels = TRUE,
   verbose = TRUE
 )
 }
@@ -49,9 +47,7 @@ specified as a character value.}
 specified variable is continuous. Needs to be one of \emph{inferno, magma,
 plasma, cividis or viridis}.}
 
-\item{xlim}{The limits of the x-axis specified as a numeric vector of length 2.}
-
-\item{ylim}{The limits of the y-axis specified as a numeric vector of length 2.}
+\item{display_labels}{Logical value.}
 
 \item{object}{A valid spata-object.}
 

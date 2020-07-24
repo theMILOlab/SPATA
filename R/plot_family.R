@@ -100,13 +100,12 @@ plotTSNE <- function(object,
 #' of length 4.
 #' @param color_to The variable in the data frame that is supposed to be displayed by color
 #' specified as a character value.
-#' @param xlim The limits of the x-axis specified as a numeric vector of length 2.
-#' @param ylim The limits of the y-axis specified as a numeric vector of length 2.
 #' @param pt_size The size of the points specified as a numeric value.
 #' @param pt_alpha The transparency of the points specified as a numeric value.
 #' @param pt_clrsp The colour spectrum used to display \code{color_to} if the
 #' specified variable is continuous. Needs to be one of \emph{inferno, magma,
 #' plasma, cividis or viridis}.
+#' @param display_labels Logical value.
 #' @param verbose Logical value. If set to TRUE informative messages with respect
 #' to the computational progress made will be printed.
 #'
@@ -128,8 +127,10 @@ plotFourStates <- function(data,
                            pt_size = 1.5,
                            pt_alpha = 0.9,
                            pt_clrsp = "inferno",
-                           xlim = c(-1,1),
-                           ylim = c(-1,1)){
+                           display_labels = TRUE){
+
+
+  # Control -----------------------------------------------------------------
 
   if(!base::is.data.frame(data)){
 
@@ -153,6 +154,8 @@ plotFourStates <- function(data,
   }
 
   check_pt_clrsp(pt_clrsp)
+
+  # Data wrangling ----------------------------------------------------------
 
   sym <- rlang::sym
   max <- base::max
@@ -185,16 +188,22 @@ plotFourStates <- function(data,
         max_loc == "bottom" ~ (log2(abs(max(c(!!sym(states[3]), !!sym(states[4]))) - max(!!sym(states[1]), !!sym(states[2])) + 1)) * -1),
         max_loc == "top" ~ log2(abs(max(c(!!sym(states[1]), !!sym(states[2]))) - max(!!sym(states[3]), !!sym(states[4])) + 1))
       )
-    )
+    ) %>%
+    dplyr::filter(!base::is.na(pos_x) & !is.na(pos_y))
+
+
+
+  # Additional add ons ------------------------------------------------------
 
   states <- hlpr_gene_set_name(states)
   color_to_lab <- hlpr_gene_set_name(color_to)
 
-  xlab <- base::bquote(paste("log2(GSV-Score "[.(states[1])]*" - GSV-Score "[.(states[3])]*")"))
-  ylab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
+  #xlab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
+  #ylab <- base::bquote(paste("log2(GSV-Score "[.(states[2])]*" - GSV-Score "[.(states[1])]*")"))
 
 
-  if(base::is.numeric(dplyr::pull(plot_df, var = {{color_to}}))){
+  # scale color add-on
+  if(!is.null(color_to) && base::is.numeric(dplyr::pull(plot_df, var = {{color_to}}))){
 
     scale_color_add_on <- ggplot2::scale_colour_viridis_c(option = pt_clrsp)
 
@@ -204,21 +213,50 @@ plotFourStates <- function(data,
 
   }
 
+  max <- base::max(plot_df$pos_x, plot_df$pos_y)
+
+  # geom text add-on
+  if(base::isTRUE(display_labels)){
+
+    tpx <- max * 0.7
+    tpy <- max * 1.05
+
+    # assemble text data.frame
+    text_df <- data.frame(
+      "x" = as.numeric(c(-tpx, tpx, -tpx, tpx)),
+      "y" = as.numeric(c(tpy , tpy, -tpy, -tpy)),
+      "states" = states
+    )
+
+    geom_text_add_on <-
+      ggplot2::geom_text(mapping = ggplot2::aes(x = x, y = y, label = states),
+                         data = text_df)
+
+    print(text_df)
+
+  } else {
+
+    geom_text_add_on <- NULL
+
+  }
+
+
   # plotting
-  ggplot2::ggplot(plot_df, mapping = ggplot2::aes(x = pos_x, y = pos_y)) +
+  ggplot2::ggplot() +
     ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +
     ggplot2::geom_hline(yintercept = 0,  linetype = "dashed", color = "lightgrey") +
-    ggplot2::geom_point(mapping = ggplot2::aes_string(color = color_to),
-                        size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_x_continuous(limits = xlim) +
-    ggplot2::scale_y_continuous(limits = ylim) +
+    geom_text_add_on +
+    ggplot2::geom_point(mapping = ggplot2::aes_string(x = "pos_x", y = "pos_y", color = color_to),
+                        size = pt_size, alpha = pt_alpha, data = plot_df) +
+    ggplot2::scale_x_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
+    ggplot2::scale_y_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
     scale_color_add_on +
     ggplot2::theme_bw() +
     ggplot2::theme(
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank()
     ) +
-    ggplot2::labs(x = xlab, y = ylab, color = color_to_lab)
+    ggplot2::labs(x = NULL, y = NULL, color = color_to_lab)
 
 }
 
@@ -235,8 +273,7 @@ plotFourStates2 <- function(object,
                             pt_size = 1.5,
                             pt_alpha = 0.9,
                             pt_clrsp = "inferno",
-                            xlim = c(-1,1),
-                            ylim = c(-1,1),
+                            display_labels = TRUE,
                             verbose = TRUE){
 
 
@@ -272,7 +309,6 @@ plotFourStates2 <- function(object,
 
 
 
-
   # Data extraction ---------------------------------------------------------
 
   data <-
@@ -282,37 +318,41 @@ plotFourStates2 <- function(object,
                      coords_df = .,
                      gene_sets = states,
                      normalize = TRUE,
-                     method_gs = "gsva",
+                     method_gs = method_gs,
                      verbose = verbose)
 
-  if(color_to %in% all_genes){
+  if(!base::is.null(color_to)){
 
-    data <-
-      joinWithGenes(object,
-                    coords_df = data,
-                    genes = color_to,
-                    average_genes = FALSE,
-                    normalize = TRUE,
-                    verbose = verbose)
+    if(color_to %in% all_genes){
 
-  } else if(color_to %in% all_gene_sets){
+      data <-
+        joinWithGenes(object,
+                      coords_df = data,
+                      genes = color_to,
+                      average_genes = FALSE,
+                      normalize = TRUE,
+                      verbose = verbose)
 
-    data <-
-      joinWithGeneSets(object,
-                       coords_df = data,
-                       gene_sets = color_to,
-                       method_gs = method_gs,
-                       normalize = TRUE,
-                       verbose = verbose)
+    } else if(color_to %in% all_gene_sets){
 
-  } else if(color_to %in% all_features){
+      data <-
+        joinWithGeneSets(object,
+                         coords_df = data,
+                         gene_sets = color_to,
+                         method_gs = method_gs,
+                         normalize = TRUE,
+                         verbose = verbose)
 
-    data <-
-      joinWithFeatures(object,
-                       coords_df = data,
-                       features = color_to,
-                       normalize = TRUE,
-                       verbose = verbose)
+    } else if(color_to %in% all_features){
+
+      data <-
+        joinWithFeatures(object,
+                         coords_df = data,
+                         features = color_to,
+                         normalize = TRUE,
+                         verbose = verbose)
+
+    }
 
   }
 
@@ -325,8 +365,7 @@ plotFourStates2 <- function(object,
                  pt_size = pt_size,
                  pt_alpha = pt_alpha,
                  pt_clrsp = pt_clrsp,
-                 xlim = xlim,
-                 ylim = ylim)
+                 display_labels = display_labels)
 
 
 }
