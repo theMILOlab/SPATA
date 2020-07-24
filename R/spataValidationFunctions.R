@@ -363,7 +363,7 @@ check_trajectory_object <- function(t_object, t_object_name, t_object_sample){
 
   if(!base::identical(ctdf_colnames, correct_colnames)){
 
-    feedback <- stringr::str_c("Invalid columns in slot 'compiled_trajector_df.",
+    feedback <- stringr::str_c("Invalid columns in slot 'compiled_trajector_df'.",
                                "\n Column:     '", ctdf_colnames, "'",
                                "\n Have to be: '", correct_colnames, "'",
                                sep = "")
@@ -387,7 +387,7 @@ check_trajectory_object <- function(t_object, t_object_name, t_object_sample){
 
     if(!base::identical(ctdf_classes, correct_classes)){
 
-      feedback <- stringr::str_c("Invalid classes in trajectory-object.",
+      feedback <- stringr::str_c("Invalid classes in 'compiled_trajector_df'.",
                                  "\n Columns:    '", correct_colnames, "'",
                                  "\n Classes:    '", ctdf_classes, "'",
                                  "\n Have to be: '", correct_classes, "'",
