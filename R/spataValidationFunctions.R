@@ -51,7 +51,9 @@ validateSpataObject <- function(object){
 
     fun <- stringr::str_c("check_slot_", slot, sep = "")
 
-    feedback[[slot]] <- base::do.call(fun, list(object))
+    feedback[[slot]] <-
+      base::do.call(fun, list(object)) %>%
+      stringr::str_c("\n", sep = "")
 
   }
 
@@ -66,9 +68,11 @@ validateSpataObject <- function(object){
   # unlist feedback
   feedback_vec <- base::unlist(x = feedback) %>% unname()
   prefix <- stringr::str_c("Slot '", base::names(feedback), "': ", sep = "")
+  separating_lines <- "--------------------------------------------------"
+
 
   # combine with descriptive prefix
-  final_feedback <- stringr::str_c(prefix, feedback_vec, sep = "\n")
+  final_feedback <- stringr::str_c(prefix, feedback_vec, separating_lines, "", sep = "\n")
 
   # return results
   base::writeLines(final_feedback)
@@ -101,7 +105,7 @@ check_slot_coordinates <- function(object){
 
     c_colnames <- stringr::str_c(base::colnames(coords), collapse = "', '")
     feedback <- stringr::str_c("Invalid column names.",
-                               "\n Currently:  '",  c_colnames,
+                               "\n Columns:    '",  c_colnames,
                                "\n Have to be: 'barcodes', 'sample', 'x', 'y'",
                                sep = "")
 
@@ -123,7 +127,7 @@ check_slot_coordinates <- function(object){
     c_classes <- stringr::str_c(c_classes, collapse = "', '")
     feedback <- stringr::str_c("Invalid column classes.",
                                "\n             'barcodes',  'sample',    'x',       'y'",
-                               "\n Currently:  '", c_classes,
+                               "\n Classes:    '", c_classes,
                                "\n Have to be: 'character', 'character', 'numeric', 'numeric'.",
                                sep = "")
 
@@ -139,6 +143,8 @@ check_slot_coordinates <- function(object){
     base::return("Valid!")
 
   } else {
+
+
 
     base::return(messages)
 
@@ -176,6 +182,8 @@ check_slot_data <- function(object){
     base::return("Valid!")
 
   } else {
+
+
 
     base::return(messages)
 
@@ -222,21 +230,205 @@ check_slot_trajectories <- function(object){
     base::sort() %>%
     stringr::str_c(collapse = "', '")
 
-  if(!base::identical(object_names, tl_names)){
+  if(!base::identical(o_names, tl_names)){
 
     feedback <- stringr::str_c("Invalid names in trajectories-list.",
-                               "\n Currently:  ", tl_names,
-                               "\n Have to be: ", o_names,
+                               "\n Names:      '", tl_names, "'",
+                               "\n Have to be: '", o_names, "'",
                                sep = "")
 
     messages <- base::append(x = messages,
                              values = feedback)
 
+  } else {
+
+    tl_names <- base::names(object@trajectories)
+
+    for(i in base::seq_along(tl_names)){
+
+      sample <- tl_names[i]
+      sample_trajectories <- base::names(object@trajectories[[sample]])
+
+      messages <-
+        base::append(messages,
+                     values = stringr::str_c("\n-----------------------------------", "\n\nOf sample: ", sample, sep = ""))
+
+      if(base::is.null(sample_trajectories)){
+
+        messages <-
+          base::append(x = messages,
+                       values = "No trajectories.")
+
+      } else {
+
+        for(t in base::seq_along(sample_trajectories)){
+
+          t_name <- sample_trajectories[t]
+
+          feedback <-
+            check_trajectory_object(t_object = object@trajectories[[sample]][[t_name]],
+                                    t_object_name = t_name,
+                                    t_object_sample = sample)
+
+          if(base::identical(feedback, "Valid!")){
+
+            sep = "\n"
+
+          } else {
+
+            sep = "\n\n"
+
+          }
+
+          feedback_value <-
+            stringr::str_c("--------------------", "\n\nTrajectory: ", t_name, sep = "") %>%
+            stringr::str_c(feedback, sep = sep)
+
+          messages <-
+            base::append(x = messages,
+                         values = feedback_value)
+
+        }
+
+      }
+
+    }
+
   }
 
 
+  if(base::identical(messages, base::character())){
+
+    base::return("Valid")
+
+  } else {
+
+    base::return(messages)
+
+  }
+
 
 }
+
+
+#' @rdname check_slot_coordinates
+#'
+#' @export
+check_trajectory_object <- function(t_object, t_object_name, t_object_sample){
+
+  messages <- base::character()
+  df_slots <- methods::slotNames(t_object)
+
+  # name
+  if(!base::identical(t_object_name, t_object@name)){
+
+    feedback <-
+      stringr::str_c("Trajectory name in list and in object it self do not match.",
+                     "\n Name in list:   '", stringr::str_c(t_object_name, collapse = ""), "'",
+                     "\n Name in object: '", stringr::str_c(t_object@name, collapse = ""), "'",
+                     sep = "")
+
+    messages <-
+      base::append(x = messages,
+                   values = feedback)
+
+  }
+
+  # sample
+  if(!base::identical(t_object_sample, t_object@sample)){
+
+    feedback <-
+      stringr::str_c("Sample belonging in list and in object it self do not match.",
+                     "\n Belonging according to list:   '", stringr::str_c(t_object_sample, collapse = ""), "'",
+                     "\n Belonging acoording to object: '", stringr::str_c(t_object@sample, collapse = ""), "'",
+                     sep = "")
+
+    messages <-
+      base::append(x = messages,
+                   values = feedback)
+
+  }
+
+
+  # compiled-trajectory
+  ctdf <- t_object@compiled_trajectory_df
+
+  ctdf_colnames <-
+    base::colnames(ctdf) %>%
+    stringr::str_c(collapse = "', '")
+
+  correct_colnames <-
+    c("barcodes", "sample", "x", "y", "projection_length", "trajectory_part") %>%
+    stringr::str_c(collapse = "', '")
+
+  if(!base::identical(ctdf_colnames, correct_colnames)){
+
+    feedback <- stringr::str_c("Invalid columns in slot 'compiled_trajector_df.",
+                               "\n Column:     '", ctdf_colnames, "'",
+                               "\n Have to be: '", correct_colnames, "'",
+                               sep = "")
+
+    messages <- base::append(x = messages,
+                             values = feedback)
+
+
+  } else {
+
+    ctdf_classes <-
+      base::sapply(X = ctdf[,c("barcodes", "sample", "x", "y", "projection_length", "trajectory_part")],
+                   FUN = base::class) %>%
+      base::unname() %>%
+      stringr::str_c(collapse = "', '")
+
+    correct_classes <-
+      c("character", "character", "numeric", "numeric", "numeric", "character") %>%
+      base::unname() %>%
+      stringr::str_c(collapse = "', '")
+
+    if(!base::identical(ctdf_classes, correct_classes)){
+
+      feedback <- stringr::str_c("Invalid classes in trajectory-object.",
+                                 "\n Columns:    '", correct_colnames, "'",
+                                 "\n Classes:    '", ctdf_classes, "'",
+                                 "\n Have to be: '", correct_classes, "'",
+                                 sep = "")
+
+      messages <- base::append(x = messages,
+                               values = feedback)
+
+    }
+
+
+  }
+
+  #
+  sgmt_df <- t_object@segment_trajectory_df
+
+  if(!base::all(c("x", "y", "xend", "yend") %in% base::colnames(sgmt_df))){
+
+    messages <- base::append(x = messages,
+                             values = "Segment data.frame must have variables: 'x', 'y', 'xend', 'yend'.")
+
+  } else if(!base::all(base::sapply(sgmt_df[,c("x", "y", "xend", "yend")], base::class) == "numeric")){
+
+    messages <- base::append(x = messages,
+                             values = "Coordinate related columns of segment data.frame must be numeric.")
+
+  }
+
+
+  if(base::identical(messages, base::character())){
+
+    base::return("Valid!")
+
+  } else {
+
+    base::return(messages)
+
+  }
+
+}
+
 
 
 #' @rdname check_slot_coordinates
@@ -268,7 +460,7 @@ check_slot_dim_red <- function(object){
 
       u_colnames <- stringr::str_c(u_colnames, collapse = "', '")
       feedback <- stringr::str_c("Invalid column names in slot 'UMAP'.",
-                                 "\n Currently:  '",  u_colnames,
+                                 "\n Columns:  '",  u_colnames,
                                  "\n Have to be: 'barcodes', 'sample', 'umap1', 'umap2'",
                                  sep = "")
 
@@ -294,7 +486,7 @@ check_slot_dim_red <- function(object){
       u_classes <- stringr::str_c(u_classes, collapse = "', '")
       feedback <- stringr::str_c("Invalid column classes in slot 'UMAP'.",
                                  "\n             'barcodes',  'sample',    'umap1',   'umap2'",
-                                 "\n Currently:  '", u_classes,
+                                 "\n Classes:    '", u_classes,
                                  "\n Have to be: 'character', 'character', 'numeric', 'numeric'.",
                                  sep = "")
 
@@ -316,7 +508,7 @@ check_slot_dim_red <- function(object){
 
       t_colnames <- stringr::str_c(t_colnames, collapse = "', '")
       feedback <- stringr::str_c("Invalid column names in slot 'TSNE'.",
-                                 "\n Currently:  '",  t_colnames,
+                                 "\n Columns:    '",  t_colnames,
                                  "\n Have to be: 'barcodes', 'sample', 'tsne1', 'tsne2'",
                                  sep = "")
 
@@ -342,7 +534,7 @@ check_slot_dim_red <- function(object){
       t_classes <- stringr::str_c(t_classes, collapse = "', '")
       feedback <- stringr::str_c("Invalid column classes in slot 'TSNE'.",
                                  "\n             'barcodes',  'sample',    'tsne1',   'tsne2'",
-                                 "\n Currently:  '", t_classes,
+                                 "\n Classes:    '", t_classes,
                                  "\n Have to be: 'character', 'character', 'numeric', 'numeric'.",
                                  sep = "")
 
@@ -557,8 +749,8 @@ check_slot_used_genesets <- function(object){
       messages <-
         base::append(x = messages,
                      values = stringr::str_c("Invalid column names in slot 'used_genesets'",
-                                             "\n Currently: '", gs_colnames, "'",
-                                             "\n Must be  : 'gene', 'ont'",
+                                             "\n Columns:    '", gs_colnames, "'",
+                                             "\n Have to be: 'gene', 'ont'",
                                              sep = ""))
 
 
@@ -576,8 +768,8 @@ check_slot_used_genesets <- function(object){
         messages <-
           base::append(x = messages,
                        values = stringr::str_c("Invalid column classes:",
-                                               "\n Currently: '", gs_classes, "'",
-                                               "\n Must be  : 'character', 'character'",
+                                               "\n Classes:    '", gs_classes, "'",
+                                               "\n Have to be: 'character', 'character'",
                                                sep = ""))
 
       }
@@ -590,7 +782,7 @@ check_slot_used_genesets <- function(object){
   if(!base::identical(base::rownames(gs_df), base::as.character(1:base::nrow(gs_df)))){
 
     messages <- base::append(x = messages,
-                             values = "The use of row.names is discouraged.")
+                             values = "'used_genesets' data.frame must not contain row.names.")
 
   }
 
@@ -621,7 +813,7 @@ check_slot_samples <- function(object){
 
   } else {
 
-    "Slot 'samples' must not be of length zero."
+    "lot 'samples' must not be of length zero."
 
   }
 

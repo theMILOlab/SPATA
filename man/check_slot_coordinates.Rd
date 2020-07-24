@@ -6,6 +6,7 @@
 \alias{check_slot_description}
 \alias{check_slot_scvelo}
 \alias{check_slot_trajectories}
+\alias{check_trajectory_object}
 \alias{check_slot_dim_red}
 \alias{check_slot_fdata}
 \alias{check_slot_image}
@@ -22,6 +23,8 @@ check_slot_description(object)
 check_slot_scvelo(object)
 
 check_slot_trajectories(object)
+
+check_trajectory_object(t_object, t_object_name, t_object_sample)
 
 check_slot_dim_red(object)
 
