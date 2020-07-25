@@ -24,8 +24,6 @@ Collate:
     'joinWith_family.R'
     'plotDimRed.R'
     'plot_family.R'
-    'shiny_server.R'
-    'shiny_uis.R'
     'spataValidation.R'
     'spataValidationFunctions.R'
 Imports: 
