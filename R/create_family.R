@@ -137,7 +137,6 @@ createSegmentation <- function(object = NULL){
                         # Reactive values -----------------------------------------------------------
 
                         spata_obj <- shiny::reactiveVal(value = object)
-                        plot_obj <- shiny::reactiveVal(value = object)
 
                         vertices_df <-
                           shiny::reactiveVal(value = data.frame(x = numeric(0),
@@ -610,8 +609,8 @@ createSegmentation <- function(object = NULL){
 
                           shiny::selectInput("sample_opts",
                                              label = "Choose sample:",
-                                             choices = samples(plot_obj()),
-                                             selected = samples(plot_obj())[1])
+                                             choices = samples(object),
+                                             selected = samples(object)[1])
 
                         })
 
@@ -624,6 +623,22 @@ createSegmentation <- function(object = NULL){
 
                         })
 
+                        all_features <- reactive({
+
+                          getFeatureNames(object) %>% base::unname()
+
+                        })
+                        all_gene_sets <- reactive({
+
+                          getGeneSets(object = object)
+
+                        })
+                        all_genes <- reactive({
+
+                          getGenes(object = object, in_sample = current$sample)
+
+                        })
+
                         output$aes_clr_opts_detailed <- shiny::renderUI({
 
                           shiny::req(base::all(c(shiny::isTruthy(current$sample), shiny::isTruthy(input$aes_clr_opts))))
@@ -632,36 +647,30 @@ createSegmentation <- function(object = NULL){
 
                           if(input$aes_clr_opts == "gene_set"){
 
-                            gene_sets <- getGeneSets(object = plot_obj())
-
                             shinyWidgets::pickerInput(inputId = "aes_clr_opts_detailed",
                                                       label = "Choose gene set:",
-                                                      choices = gene_sets,
-                                                      selected = gene_sets[1],
+                                                      choices = all_gene_sets(),
+                                                      selected = all_gene_sets()[1],
                                                       options = list(`live-search` = TRUE),
                                                       multiple = F
                             )
 
                           } else if(input$aes_clr_opts == "genes"){
 
-                            genes <- getGenes(object = plot_obj(), in_sample = current$sample)
-
                             shinyWidgets::pickerInput(inputId = "aes_clr_opts_detailed",
                                                       label = "Choose gene(s):",
-                                                      choices = genes,
-                                                      selected = genes[1],
+                                                      choices = all_genes(),
+                                                      selected = all_genes()[1],
                                                       options = list(`live-search` = TRUE),
                                                       multiple = T
                             )
 
                           } else if(input$aes_clr_opts == "feature"){
 
-                            features <- featureNames(object = plot_obj()) %>% base::unname()
-
                             shiny::selectInput(inputId = "aes_clr_opts_detailed",
                                                label = "Choose feature:",
-                                               choices = features,
-                                               selected = features[1],
+                                               choices = all_features(),
+                                               selected = all_features()[1],
                                                multiple = F
                             )
 
@@ -997,7 +1006,6 @@ createTrajectories <- function(object){
           # Reactive values ---------------------------------------------------------
           print(object@samples)
           spata_obj <- shiny::reactiveVal(value = object)
-          plot_obj <- shiny::reactiveVal(value = object)
 
           vertices_df <-
             shiny::reactiveVal(value = data.frame(x = numeric(0),
@@ -1051,7 +1059,7 @@ createTrajectories <- function(object){
 
               ## extract image info
               image <-
-                image(object = plot_obj(), of_sample = current$sample) %>%
+                image(object = object, of_sample = current$sample) %>%
                 grDevices::as.raster() %>%
                 magick::image_read()
 
@@ -1485,13 +1493,29 @@ createTrajectories <- function(object){
           # Render UIs and Outputs --------------------------------------------------
 
           ## select outputs
+          all_features <- reactive({
+
+            getFeatureNames(object) %>% base::unname()
+
+          })
+          all_gene_sets <- reactive({
+
+            getGeneSets(object = object)
+
+          })
+          all_genes <- reactive({
+
+            getGenes(object = object, in_sample = current$sample)
+
+          })
+
+
           output$sample_opts <- shiny::renderUI({
-            #print("##### samples opts #####")
 
             shiny::selectInput("sample_opts",
                                label = "Choose sample:",
-                               choices = samples(plot_obj()),
-                               selected = samples(plot_obj())[1])
+                               choices = samples(object),
+                               selected = samples(object)[1])
 
           })
 
@@ -1506,49 +1530,40 @@ createTrajectories <- function(object){
 
           output$aes_clr_opts_detailed <- shiny::renderUI({
 
-            print("##### color opts detailed #####")
+            shiny::req(base::all(c(shiny::isTruthy(current$sample), shiny::isTruthy(input$aes_clr_opts))))
 
             if(input$aes_clr_opts == "gene_set"){
 
-              gene_sets <- getGeneSets(object = plot_obj())
-
               shinyWidgets::pickerInput(inputId = "aes_clr_opts_detailed",
                                         label = "Choose gene set:",
-                                        choices = gene_sets,
-                                        selected = gene_sets[1],
+                                        choices = all_gene_sets(),
+                                        selected = all_gene_sets()[1],
                                         options = list(`live-search` = TRUE),
                                         multiple = F
               )
 
             } else if(input$aes_clr_opts == "genes"){
 
-
-              genes <- getGenes(object = plot_obj(), in_sample = current$sample)
-
               shinyWidgets::pickerInput(inputId = "aes_clr_opts_detailed",
                                         label = "Choose gene(s):",
-                                        choices = genes,
-                                        selected = genes[1],
+                                        choices = all_genes(),
+                                        selected = all_genes()[1],
                                         options = list(`live-search` = TRUE),
                                         multiple = T
               )
 
             } else if(input$aes_clr_opts == "feature"){
 
-              features <- featureNames(object = plot_obj()) %>% base::unname()
-
               shiny::selectInput(inputId = "aes_clr_opts_detailed",
                                  label = "Choose feature:",
-                                 choices = features,
-                                 selected = features[1],
+                                 choices = all_features(),
+                                 selected = all_features()[1],
                                  multiple = F
               )
 
             }
 
-
           })
-
 
           ## plot output
           output$surface_plot <- shiny::renderPlot({

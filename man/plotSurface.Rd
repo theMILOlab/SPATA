@@ -2,13 +2,14 @@
 % Please edit documentation in R/plot_family.R
 \name{plotSurface}
 \alias{plotSurface}
+\alias{plotSurfaceInteractive}
 \title{Plot surface}
 \usage{
 plotSurface(
   object,
   of_sample,
   color_to,
-  smooth = F,
+  smooth = FALSE,
   smooth_span = 0.02,
   method_gs = "mean",
   pt_size = 2,
@@ -18,6 +19,8 @@ plotSurface(
   display_title = F,
   verbose = T
 )
+
+plotSurfaceInteractive(object)
 }
 \arguments{
 \item{object}{A valid object of class \emph{spata}.}
