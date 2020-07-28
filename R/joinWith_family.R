@@ -152,7 +152,7 @@ joinWithGenes <- function(object,
     dplyr::left_join(x = coords_df, y = gene_vls, by = "barcodes")
 
 
-  # 3. Smooth if specified --------------------------------------------------
+  # 3. Smooth and normalize if specified ------------------------------------
 
   if(base::isTRUE(smooth)){
 

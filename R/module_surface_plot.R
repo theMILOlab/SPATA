@@ -46,12 +46,13 @@ moduleSurfacePlotUI <- function(id){
                                     shinyWidgets::dropdownButton(
                                       shiny::sliderInput(ns("pt_size"), label = "Size of points", min = 1, max = 5, step = 0.01, value = 2.75),
                                       shiny::sliderInput(ns("pt_alpha"), label = "Transparency of points", min = 0.01, max = 0.99, step = 0.01, value = 0.1),
-                                      shinyWidgets::materialSwitch(ns("perform_smoothing"), value = F, label = "Smooth values:", status = "success"),
+                                      shinyWidgets::materialSwitch(ns("perform_smoothing"), value = FALSE, label = "Smooth values:", status = "success"),
                                       shiny::conditionalPanel(condition = "input.perform_smoothing == 1", ns = ns,
                                                               shiny::sliderInput(ns("span_smoothing"),
                                                                                  label = "Smoothing Degree",
                                                                                  min = 0.01, max = 0.1, step = 0.001, value = 0.015)
                                       ),
+                                      shinyWidgets::materialSwitch(ns("perform_normalization"), value = TRUE, label = "Normalize values:", status = "success"),
                                       label = NULL,
                                       up = T,
                                       circle = F,
@@ -430,14 +431,39 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       })
 
+      #normalized_df
+      normalized_df <- shiny::reactive({
+
+        if(base::isTRUE(current$normalize) & current$color_code != "feature"){
+
+          normalized_df <-
+            purrr::imap_dfr(.x = smoothed_df(),
+                            .f = hlpr_normalize_imap,
+                            aspect = "Gene",
+                            verbose = FALSE,
+                            subset = variable()
+            )
+
+          return(normalized_df)
+
+
+        } else {
+
+          return(smoothed_df())
+
+        }
+
+
+      })
+
       # geom_point_add_on
       geom_point_add_on <- shiny::reactive({
 
-        color <- dplyr::pull(.data = smoothed_df(), variable())
+        color <- dplyr::pull(.data = normalized_df(), variable())
 
         add_on <-
           list(
-            ggplot2::geom_point(data = smoothed_df(),
+            ggplot2::geom_point(data = normalized_df(),
                                 mapping = ggplot2::aes(x = x, y = y, color = color),
                                 size = input$pt_size,
                                 alpha = (1-input$pt_alpha))
@@ -675,6 +701,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         current$clrsp = input$clrsp
         current$smooth = input$perform_smoothing
         current$span = input$span_smoothing
+        current$normalize = input$perfrom_normalization
 
       })
 
