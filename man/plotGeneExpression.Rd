@@ -12,6 +12,8 @@ plotGeneExpression(
   plot_type = "histogram",
   binwidth = 0.05,
   normalize = TRUE,
+  assign = FALSE,
+  assign_name,
   verbose = TRUE
 )
 
@@ -23,6 +25,8 @@ plotGeneSetExpression(
   plot_type = "histogram",
   binwidth = 0.05,
   normalize = TRUE,
+  assign = FALSE,
+  assign_name,
   verbose = TRUE
 )
 }
@@ -38,6 +42,12 @@ character value.}
 
 \item{binwidth}{The binwidth to use if \code{plot_type} is  \emph{'histogram'}
 specified as a numeric value.}
+
+\item{assign}{Logical value. If set to TRUE a list of the data needed to plot the
+returned plot will be assigned to the global environment.}
+
+\item{assign_name}{The name of the list that is assigned to the global environment
+specified as a character value that does not already exist.}
 
 \item{verbose}{Logical value to specify whether informative messages are
 supposed to be printed or not.}
