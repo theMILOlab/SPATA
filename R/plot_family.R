@@ -439,6 +439,8 @@ plotFourStates2 <- function(object,
                             pt_alpha = 0.9,
                             pt_clrsp = "inferno",
                             display_labels = TRUE,
+                            assign = FALSE,
+                            assign_name,
                             verbose = TRUE){
 
 
@@ -446,10 +448,10 @@ plotFourStates2 <- function(object,
 
   validation(object)
 
-  check_pt_clrsp(pt_clrsp)
+  check_pt_input(pt_size, pt_alpha, pt_clrsp)
+  check_assign(assign, assign_name)
 
   of_sample <- check_sample(object, sample_input = of_sample, desired_length = 1)
-
   states <- check_gene_sets(object, gene_sets = states, max_length = 4)
 
   if(base::length(states) != 4){
@@ -524,6 +526,10 @@ plotFourStates2 <- function(object,
 
   # Plotting ----------------------------------------------------------------
 
+  hlpr_assign(assign = assign,
+              object = list("point" = data),
+              name = assign_name)
+
   plotFourStates(data = data,
                  states = states,
                  color_to = color_to,
@@ -582,6 +588,8 @@ plotSegmentation <- function(object,
 
 
 
+# Surface related ---------------------------------------------------------
+
 #' @title Plot surface
 #'
 #' @description Displays the sample and color the surface according to the
@@ -612,6 +620,10 @@ plotSegmentation <- function(object,
 #' (Can be made visible with low \code{pt_alpha} or \code{color_to} set to NULL.)
 #' @param display_title Logical value to specify whether a title is supposed to
 #' be displayed.
+#' @param assign Logical value. If set to TRUE a list of the data needed to plot the
+#' returned plot will be assigned to the global environment.
+#' @param assign_name The name of the list that is assigned to the global environment
+#' specified as a character value that does not already exist.
 #' @param verbose Logical value to specify whether informative messages are
 #' supposed to be printed or not.
 #'
@@ -623,21 +635,24 @@ plotSegmentation <- function(object,
 plotSurface <- function(object,
                         of_sample,
                         color_to,
+                        method_gs = "mean",
                         smooth = FALSE,
                         smooth_span = 0.02,
-                        method_gs = "mean",
                         pt_size = 2,
                         pt_alpha = 1,
                         pt_clrsp = "inferno",
                         display_image = F,
                         display_title = F,
-                        verbose = T){
+                        assign = FALSE,
+                        assign_name,
+                        verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
   validation(x = object)
 
   check_pt_input(pt_size, pt_alpha, pt_clrsp)
+  check_assign(assign, assign_name)
 
   of_sample <- check_sample(object = object,
                             sample_input = of_sample,
@@ -816,7 +831,12 @@ plotSurface <- function(object,
   }
 
 
+
   # 5. Plotting --------------------------------------------------------------
+
+  hlpr_assign(assign = assign,
+              object = list("point" = coords_df),
+              name = assign_name)
 
   ggplot2::ggplot() +
     image_add_on +
@@ -834,7 +854,7 @@ plotSurfaceInteractive <- function(object){
 
   validation(object)
 
-  surface_plot <-
+  surface_plots <-
     shiny::runApp(
       shiny::shinyApp(
         ui = function(){
@@ -851,18 +871,24 @@ plotSurfaceInteractive <- function(object){
             shiny::mainPanel(
               shiny::column(width = 12, align = "center",
                             moduleSurfacePlotUI(id = "isp"),
-                            shiny::actionButton("return_plot", label = "Return Plot")
+                            shiny::textInput("plot_name", label = NULL, value = "", placeholder = "Plot name"),
+                            shiny::actionButton("save_plot", label = "Save Plot"),
+                            shiny::actionButton("return_plot", label = "Return Plots")
               )
             )
 
           )},
         server = function(input, output, session){
 
+          # plot list
+          plot_list <- shiny::reactiveVal(value = list())
+
           # module return list
           module_return <-
             moduleSurfacePlotServer(id = "isp",
                                     object = object,
-                                    final_plot = shiny::reactive(module_return()$assembled_plot()))
+                                    final_plot = shiny::reactive(module_return()$assembled_plot()),
+                                    reactive_object = shiny::reactive(object))
 
           # final plot
           final_plot <- shiny::reactive({
@@ -871,10 +897,40 @@ plotSurfaceInteractive <- function(object){
 
           })
 
-          # return final plot
+          # store plot in list
+          oe <- shiny::observeEvent(input$save_plot, {
+
+            plot_list <- plot_list()
+
+            if(input$plot_name %in% base::names(plot_list) | input$plot_name == ""){
+
+              shiny::showNotification(ui = "Plot name is already taken or invalid.", type = "error")
+
+            } else {
+
+              plot_list[[input$plot_name]] <- final_plot()
+              plot_list(plot_list)
+              shiny::showNotification(ui = "Plot has been saved.", type = "message")
+
+            }
+
+          })
+
+          # return last plot
           oe <- shiny::observeEvent(input$return_plot, {
 
-            shiny::stopApp(returnValue = final_plot())
+            plot_list <- plot_list()
+
+            if(base::length(plot_list) == 1){
+
+              shiny::stopApp(returnValue = plot_list[[1]])
+
+            } else {
+
+              shiny::stopApp(returnValue = plot_list)
+
+            }
+
 
           })
 
@@ -883,7 +939,7 @@ plotSurfaceInteractive <- function(object){
     )
 
   # return surface plot
-  return(surface_plot)
+  return(surface_plots)
 
 }
 
@@ -914,10 +970,11 @@ plotSurfaceInteractive <- function(object){
 #' plasma, cividis or viridis}.
 #' @param display_image Logical value to specify whether the histological image
 #' of the sample is supposed to be displayed underneath the plot.
-#'
 #' (Can be made visible with low \code{pt_alpha} or \code{color_to} set to NULL.)
-#' @param display_title Logical value to specify whether a title is supposed to
-#' be displayed.
+#' @param assign Logical value. If set to TRUE a list of the data needed to plot the
+#' returned plot will be assigned to the global environment.
+#' @param assign_name The name of the list that is assigned to the global environment
+#' specified as a character value that does not already exist.
 #' @param verbose Logical value to specify whether informative messages are
 #' supposed to be printed or not.
 #'
@@ -929,17 +986,20 @@ plotSurfaceInteractive <- function(object){
 plotSurfaceComparison <- function(object,
                                   of_sample,
                                   color_to,
-                                  method_gs,
+                                  method_gs = "mean",
                                   smooth = FALSE,
                                   smooth_span = 0.02,
                                   pt_size = 2,
                                   pt_alpha = 1,
                                   pt_clrsp = "inferno",
-                                  display_image = F,
+                                  display_image = FALSE,
+                                  assign = FALSE,
+                                  assign_name,
                                   verbose = TRUE){
 
   # control
   validation(object)
+  check_assign(assign, assign_name)
   of_sample <- check_sample(object, of_sample, 1)
 
   all_gene_sets <- getGeneSets(object, "all")
@@ -993,6 +1053,10 @@ plotSurfaceComparison <- function(object,
 
 
   # plot
+  hlpr_assign(assign = assign,
+              object = list("point" = shifted_data),
+              name = assign_name)
+
   ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
     image_add_on +
     ggplot2::geom_point(mapping = ggplot2::aes(color = values),

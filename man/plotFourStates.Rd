@@ -25,6 +25,8 @@ plotFourStates2(
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
   display_labels = TRUE,
+  assign = FALSE,
+  assign_name,
   verbose = TRUE
 )
 }

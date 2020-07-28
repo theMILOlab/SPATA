@@ -63,7 +63,7 @@ moduleSurfacePlotUI <- function(id){
                                     shinyWidgets::checkboxGroupButtons(
                                       inputId = ns("display_add_ons"),
                                       label = NULL,
-                                      choices = c("Legend" = "legend", "Image" = "image", "Title" = "title", "Coordinates" = "coords"),
+                                      choices = c("Legend" = "legend", "Image" = "image", "Title" = "title", "Coordinates" = "coords", "Segmentation" = "segmentation"),
                                       direction = "horizontal", justified = F, individual = F)
                       )
                     )
@@ -82,6 +82,7 @@ moduleSurfacePlotUI <- function(id){
 #' @param id  The namespace id.
 #' @param object A valid spata-object.
 #' @param final_plot The final plot that is to be displayed. (See details.).
+#' @param reactive_object A valid (reactive) spata-object.
 #'
 #' @return A reactive list with several slots:
 #'  \enumerate{
@@ -94,7 +95,7 @@ moduleSurfacePlotUI <- function(id){
 #' \code{shiny::reactive(*module_return_variable*()$assembled_plot())}
 #'
 
-moduleSurfacePlotServer <- function(id, object, final_plot){
+moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
   shiny::moduleServer(
     id = id,
@@ -618,7 +619,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot){
       segmentation_df <- reactive({
 
         segm_df <-
-          featureData(object = object) %>%
+          featureData(object = reactive_object()) %>%
           dplyr::filter(segment != "") %>%
           dplyr::select(barcodes, segment)
 
@@ -686,7 +687,9 @@ moduleSurfacePlotServer <- function(id, object, final_plot){
         list(
           assembled_plot = shiny::reactive({assembled_plot()}),
           dblclick = shiny::reactive({input$surface_plot_dblclick}),
-          current_setting = shiny::reactive({current})
+          current_setting = shiny::reactive({current}),
+          smoothed_df = shiny::reactive({smoothed_df()}),
+          variable = shiny::reactive({variable()})
         )
 
       })

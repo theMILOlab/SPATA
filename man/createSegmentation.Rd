@@ -2,9 +2,12 @@
 % Please edit documentation in R/create_family.R
 \name{createSegmentation}
 \alias{createSegmentation}
+\alias{createSegmentation2}
 \title{Spatial Segmentation}
 \usage{
 createSegmentation(object = NULL)
+
+createSegmentation2(object = NULL)
 }
 \arguments{
 \item{object}{A valid spata-object.}

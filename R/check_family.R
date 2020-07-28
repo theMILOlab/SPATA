@@ -1,4 +1,45 @@
 
+
+#' Check input
+#'
+#' @description Make sure that no objects are overwritten.
+#'
+#' @param assign Logical.
+#' @param assign_name Character value.
+#'
+
+check_assign <- function(assign, assign_name){
+
+  stopifnot(base::is.logical(assign))
+
+  if(base::isTRUE(assign)){
+
+    if(!base::is.character(assign_name) | !base::length(assign_name) == 1){
+
+      base::stop("Argument 'assign_name' needs be a character value.")
+
+    }
+
+    if(assign_name == ""){
+
+      base::stop("Argument 'assign_name' must not be ''.")
+
+    }
+
+    if(base::exists(x = assign_name, where = .GlobalEnv)){
+
+      base::stop(stringr::str_c("It already exists an object named '",
+                                assign_name, "' in the global environment.",
+                                sep = ""))
+
+    }
+
+
+  }
+
+}
+
+
 #' Check input
 #'
 #' @description Checks what of the color_to input is actually given in the object.

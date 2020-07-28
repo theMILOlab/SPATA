@@ -4,7 +4,7 @@
 \alias{moduleSurfacePlotServer}
 \title{Server of surface plot module}
 \usage{
-moduleSurfacePlotServer(id, object, final_plot)
+moduleSurfacePlotServer(id, object, final_plot, reactive_object)
 }
 \arguments{
 \item{id}{The namespace id.}
@@ -12,6 +12,8 @@ moduleSurfacePlotServer(id, object, final_plot)
 \item{object}{A valid spata-object.}
 
 \item{final_plot}{The final plot that is to be displayed. (See details.).}
+
+\item{reactive_object}{A valid (reactive) spata-object.}
 }
 \value{
 A reactive list with several slots:

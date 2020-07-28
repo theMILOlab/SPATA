@@ -21,7 +21,6 @@ Collate:
     'default_parameters.R'
     'get_family.R'
     'helper_functions.R'
-    'interactive_family.R'
     'joinWith_family.R'
     'module_surface_plot.R'
     'plot_family.R'

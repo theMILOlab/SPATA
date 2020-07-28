@@ -9,15 +9,17 @@ plotSurface(
   object,
   of_sample,
   color_to,
+  method_gs = "mean",
   smooth = FALSE,
   smooth_span = 0.02,
-  method_gs = "mean",
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
   display_image = F,
   display_title = F,
-  verbose = T
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE
 )
 
 plotSurfaceInteractive(object)
@@ -32,16 +34,16 @@ character vector. If you specify a feature or a gene set this vector needs
 to be of length one. If you specify more than one gene the average
 expression of these genes will be calculated.}
 
+\item{method_gs}{The method according to which gene sets will be handled
+specified as a character of length one. This can be either \emph{mean} or one
+of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+\code{gsva::GSVA()}. Ignored if \code{color_to} isn't a gene set.}
+
 \item{smooth}{Logical value. If set to TRUE \code{plotSurface()} will smooth
 the values displayed by color deploying \code{stats::loess()}.}
 
 \item{smooth_span}{Numeric value, given to \code{stats::loess()} if
 \code{smooth} is set to TRUE.}
-
-\item{method_gs}{The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-\code{gsva::GSVA()}. Ignored if \code{color_to} isn't a gene set.}
 
 \item{pt_size}{The size of the points specified as a numeric value.}
 
@@ -58,6 +60,12 @@ of the sample is supposed to be displayed underneath the plot.
 
 \item{display_title}{Logical value to specify whether a title is supposed to
 be displayed.}
+
+\item{assign}{Logical value. If set to TRUE a list of the data needed to plot the
+returned plot will be assigned to the global environment.}
+
+\item{assign_name}{The name of the list that is assigned to the global environment
+specified as a character value that does not already exist.}
 
 \item{verbose}{Logical value to specify whether informative messages are
 supposed to be printed or not.}

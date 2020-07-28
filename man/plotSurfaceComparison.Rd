@@ -8,13 +8,15 @@ plotSurfaceComparison(
   object,
   of_sample,
   color_to,
-  method_gs,
+  method_gs = "mean",
   smooth = FALSE,
   smooth_span = 0.02,
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
-  display_image = F,
+  display_image = FALSE,
+  assign = FALSE,
+  assign_name,
   verbose = TRUE
 )
 }
@@ -47,14 +49,16 @@ plasma, cividis or viridis}.}
 
 \item{display_image}{Logical value to specify whether the histological image
 of the sample is supposed to be displayed underneath the plot.
-
 (Can be made visible with low \code{pt_alpha} or \code{color_to} set to NULL.)}
+
+\item{assign}{Logical value. If set to TRUE a list of the data needed to plot the
+returned plot will be assigned to the global environment.}
+
+\item{assign_name}{The name of the list that is assigned to the global environment
+specified as a character value that does not already exist.}
 
 \item{verbose}{Logical value to specify whether informative messages are
 supposed to be printed or not.}
-
-\item{display_title}{Logical value to specify whether a title is supposed to
-be displayed.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according
