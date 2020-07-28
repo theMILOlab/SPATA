@@ -542,6 +542,284 @@ plotFourStates2 <- function(object,
 }
 
 
+#' @title Visualize expression values
+#'
+#' @description Visualizes the distribution of the chosen genes or
+#' gene sets via a variety of plots.
+#'
+#' @param object A valid spata-object.
+#' @param of_sample The sample from which to extract the data specified as a
+#' character value.
+#' @param genes The genes of interest specified as a character vector.
+#' @param gene_sets The gene sets of interest specified as a character vector.
+#' @param plot_type One of \emph{'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.}
+#' @param binwidth The binwidth to use if \code{plot_type} is  \emph{'histogram'}
+#' specified as a numeric value.
+#'
+#' @inherit plotSurface params return
+#'
+#' @export
+#'
+
+plotGeneExpression <- function(object,
+                               of_sample,
+                               genes,
+                               plot_type = "histogram",
+                               binwidth = 0.05,
+                               normalize = TRUE,
+                               verbose = TRUE){
+
+  # Control -----------------------------------------------------------------
+
+  if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
+
+    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.")
+
+  }
+
+  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
+
+    max_length = 10
+
+  } else {
+
+    max_length = 25
+
+  }
+
+  validation(object)
+  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  genes <- check_genes(object = object, genes = genes, max_length = max_length)
+
+  # Extract and wrangle with data -------------------------------------------
+
+  expr_data <-
+    coordsSpatial(object = object,
+                  of_sample = of_sample) %>%
+    joinWithGenes(object = object,
+                  coords_df = .,
+                  genes = genes,
+                  smooth = FALSE,
+                  normalize = normalize,
+                  verbose = verbose) %>%
+    tidyr::pivot_longer(
+      data = .,
+      cols = dplyr::all_of(x = genes),
+      names_to = "genes",
+      values_to = "values"
+    )
+
+
+  # Display add on ----------------------------------------------------------
+
+  if(plot_type == "histogram"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = genes),
+                                color = "black", binwidth = binwidth,
+                                data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets")
+      )
+
+  } else if(plot_type == "density"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = genes),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = "Density", fill = "Gene sets")
+      )
+
+  } else if(plot_type == "ridgeplot"){
+
+    display_add_on <-
+      list(
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = genes, fill = genes),
+                                      color = "black", data = expr_data),
+        ggridges::theme_ridges(),
+        ggplot2::theme(legend.position = "none"),
+        ggplot2::labs(y = NULL)
+      )
+
+  } else if(plot_type == "violin"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = genes, fill = genes),
+                             color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets"),
+        ggplot2::coord_flip()
+      )
+
+  } else if(plot_type == "boxplot"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = genes, y = values, fill = genes),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets")
+      )
+
+  }
+
+  if(base::length(genes) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
+
+    facet_add_on <-
+      ggplot2::facet_wrap(facets = . ~ genes)
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # Plotting ----------------------------------------------------------------
+
+  ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
+    display_add_on +
+    facet_add_on +
+    ggplot2::labs(x = "Expression values")
+
+}
+
+#' @rdname plotGeneExpression
+#'
+#' @export
+plotGeneSetExpression <- function(object,
+                                  of_sample,
+                                  gene_sets,
+                                  method_gs = "mean",
+                                  plot_type = "histogram",
+                                  binwidth = 0.05,
+                                  normalize = TRUE,
+                                  verbose = TRUE){
+
+  # Control -----------------------------------------------------------------
+
+  if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
+
+    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.")
+
+  }
+
+  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
+
+    max_length = 10
+
+  } else {
+
+    max_length = 25
+
+  }
+
+  validation(object)
+  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  gene_sets <- check_gene_sets(object = object, gene_sets = gene_sets, max_length = max_length)
+
+
+  # Extract and wrangle with data -------------------------------------------
+
+  expr_data <-
+    coordsSpatial(object = object,
+                  of_sample = of_sample) %>%
+    joinWithGeneSets(object = object,
+                     coords_df = .,
+                     gene_sets = gene_sets,
+                     method_gs = method_gs,
+                     smooth = FALSE,
+                     normalize = normalize,
+                     verbose = verbose) %>%
+    tidyr::pivot_longer(
+      data = .,
+      cols = dplyr::all_of(x = gene_sets),
+      names_to = "gene_sets",
+      values_to = "values"
+    )
+
+
+  # Display add on ----------------------------------------------------------
+
+  if(plot_type == "histogram"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = gene_sets),
+                                color = "black", binwidth = binwidth,
+                                data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets")
+      )
+
+  } else if(plot_type == "density"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = gene_sets),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = "Density", fill = "Gene sets")
+      )
+
+  } else if(plot_type == "ridgeplot"){
+
+    display_add_on <-
+      list(
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = gene_sets, fill = gene_sets),
+                                      color = "black", data = expr_data),
+        ggridges::theme_ridges(),
+        ggplot2::theme(legend.position = "none"),
+        ggplot2::labs(y = NULL)
+      )
+
+  } else if(plot_type == "violin"){
+
+
+    display_add_on <-
+      list(
+        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = gene_sets, fill = gene_sets),
+                             color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets"),
+        ggplot2::coord_flip()
+      )
+
+  } else if(plot_type == "boxplot"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = gene_sets, fill = gene_sets),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL, fill = "Gene sets"),
+        ggplot2::coord_flip()
+      )
+
+  }
+
+  if(base::length(gene_sets) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
+
+    facet_add_on <-
+      ggplot2::facet_wrap(facets = . ~ gene_sets)
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # Plotting ----------------------------------------------------------------
+
+  ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
+    display_add_on +
+    facet_add_on +
+    ggplot2::labs(x = "Expression values")
+
+}
 
 #' Plot segmentation
 #'
@@ -1716,6 +1994,7 @@ plotTrajectoryGeneSets <- function(object,
 
 
 }
+
 
 
 

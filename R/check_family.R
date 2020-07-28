@@ -355,7 +355,7 @@ check_genes <- function(object,
 
   if(!base::any(genes %in% base::rownames(rna_assay))){
 
-    stop("Could not find any of supplied genes.")
+    stop("Could not find any of the specified genes.")
 
   } else if(base::all(genes %in% base::rownames(rna_assay))){
 
