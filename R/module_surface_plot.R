@@ -435,12 +435,12 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
       normalized_df <- shiny::reactive({
 
         if(base::isTRUE(current$normalize) & current$color_code != "feature"){
-
+          print("normalizing")
           normalized_df <-
             purrr::imap_dfr(.x = smoothed_df(),
                             .f = hlpr_normalize_imap,
                             aspect = "Gene",
-                            verbose = FALSE,
+                            verbose = TRUE,
                             subset = variable()
             )
 
@@ -701,7 +701,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         current$clrsp = input$clrsp
         current$smooth = input$perform_smoothing
         current$span = input$span_smoothing
-        current$normalize = input$perfrom_normalization
+        current$normalize = input$perform_normalization
 
       })
 
