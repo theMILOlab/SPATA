@@ -869,7 +869,6 @@ createSegmentation <- function(object = NULL){
 }
 
 #' @rdname createSegmentation
-#'
 #' @export
 
 createSegmentation2 <- function(object = NULL){
@@ -2032,7 +2031,6 @@ createTrajectories <- function(object){
 }
 
 #' @rdname createTrajectories
-#'
 #' @export
 
 createTrajectories2 <- function(object){
