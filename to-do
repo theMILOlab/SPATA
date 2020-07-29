@@ -1,5 +1,5 @@
-Shiny create segmentation:
-- allow for duplicated names as long as they appear in distinct samples
-- make sure that resetting / and saving does not make the plot reload
+- make the gene selection unreactive
+- plotTrajectory interactive
+- coerce == simplify
 
 
