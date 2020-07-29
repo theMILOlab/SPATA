@@ -2,9 +2,12 @@
 % Please edit documentation in R/create_family.R
 \name{createTrajectories}
 \alias{createTrajectories}
+\alias{createTrajectories2}
 \title{Spatial Trajectories}
 \usage{
 createTrajectories(object)
+
+createTrajectories2(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}
