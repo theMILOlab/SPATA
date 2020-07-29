@@ -698,6 +698,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
         }
 
+        current$size = input$pt_size
         current$clrsp = input$clrsp
         current$smooth = input$perform_smoothing
         current$span = input$span_smoothing
