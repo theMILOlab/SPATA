@@ -202,7 +202,7 @@ getGenes <- function(object,
 
   if(base::all(c(of_gene_sets, in_sample) == "all")){
 
-    base::return(base::rownames(exprMtr(object))[1:10])
+    base::return(base::rownames(exprMtr(object)))
 
   } else {
 
