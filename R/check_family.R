@@ -6,7 +6,7 @@
 #'
 #' @param assign Logical.
 #' @param assign_name Character value.
-#'
+#' @export
 
 check_assign <- function(assign, assign_name){
 
@@ -62,8 +62,6 @@ check_color_to <- function(color_to,
                            all_gene_sets = character(),
                            all_genes = character(),
                            max_length = 25){
-
-
 
   if(base::is.list(color_to) & !base::is.data.frame(color_to)){
 
@@ -145,6 +143,96 @@ check_color_to <- function(color_to,
 
 }
 
+#' @rdname check_color_to
+#' @export
+
+check_variables <- function(variables,
+                             all_features = character(),
+                             all_gene_sets = character(),
+                             all_genes = character(),
+                             max_length = 25,
+                             simplify = FALSE){
+
+    if(base::is.list(variables) & !base::is.data.frame(variables)){
+
+      variables <- base::unlist(variables)
+
+    } else if(!base::is.character(variables)){
+
+      stop("Argument 'variables' needs to be of class 'character' or of class 'list'.")
+
+    }
+
+
+    if(base::length(variables) > max_length){
+
+      base::stop(stringr::str_c("Maximum length (", max_length,
+                                ") of argument 'variables' exceeded: ",
+                                base::length(variables) ))
+
+    }
+
+    if(base::any(variables %in% all_features)){
+
+      found_features <- all_features[all_features %in% variables]
+
+    } else {
+
+      found_features <- NULL
+
+    }
+
+    if(base::any(variables %in% all_gene_sets)){
+
+      found_gene_sets <- all_gene_sets[all_gene_sets %in% variables]
+
+    } else {
+
+      found_gene_sets <- NULL
+
+    }
+
+    if(base::any(variables %in% all_genes)){
+
+      found_genes <- all_genes[all_genes %in% variables]
+
+    } else {
+
+      found_genes <- NULL
+
+    }
+
+    found_all <- list("features" = found_features,
+                      "gene_sets" = found_gene_sets,
+                      "genes" = found_genes)
+
+    if(base::length(base::unlist(found_all)) != base::length(variables)){
+
+      not_found <- variables[!variables %in% base::unlist(found_all)]
+
+      not_found_string <- stringr::str_c(not_found, collapse = "', '")
+
+      base::warning(stringr::str_c("Did not find feature(s), gene set(s) and/or gene(s) '", not_found_string, "' of argument 'variables'.", sep = ""))
+
+    }
+
+    return_list <-
+      purrr::discard(.x = found_all, .p = base::is.null)
+
+    if(base::length(return_list) == 0){
+
+      base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s) of argument 'variables'.")
+
+    } else if(max_length == 1 | base::isTRUE(simplify)) {
+
+      return_list <- base::unlist(return_list) %>% base::unname()
+
+    }
+
+    base::return(return_list)
+
+}
+
 
 #' @title Check input
 #'
@@ -161,7 +249,7 @@ check_color_to <- function(color_to,
 #' - If the input suffices for the function to work but needs slight moderation:
 #' a modified version of the input along with a warning-message.
 #' - If the input does not suffice for the function to work: an error
-#'
+#' @export
 
 check_coords_df <- function(coords_df){
 
@@ -194,6 +282,7 @@ check_coords_df <- function(coords_df){
 }
 
 #' @rdname check_coords_df
+#' @export
 check_feature_df <- function(feature_df){
 
   if(!base::is.data.frame(feature_df)){
@@ -241,7 +330,7 @@ check_feature_df <- function(feature_df){
 #' make sure that the function can run bug-free. If the input does not suffice a
 #' helping message is printed for the user to know what needs to be adjusted in
 #' order to make the function work.
-#'
+#' @export
 
 check_features <- function(object,
                            features,
@@ -327,7 +416,7 @@ check_features <- function(object,
 #' @param rna_assay A rna-assay (e.g. derived from \code{exprMtr()}).
 #'
 #' @inherit check_features description return title
-#'
+#' @export
 check_genes <- function(object,
                         genes,
                         rna_assay = NULL,
@@ -394,7 +483,7 @@ check_genes <- function(object,
 #' @inherit check_features description return title params
 #'
 #' @param gene_sets The gene_sets-input.
-#'
+#' @export
 
 check_gene_sets <- function(object,
                             gene_sets,
@@ -454,7 +543,7 @@ check_gene_sets <- function(object,
 #' @inherit check_features description return title params
 #'
 #' @param gene_sets The gene_sets-input.
-#'
+#' @export
 check_pt_clrsp <- function(pt_clrsp){
 
   if(base::length(pt_clrsp) != 1 |
@@ -474,7 +563,7 @@ check_pt_clrsp <- function(pt_clrsp){
 #' @param pt_size The pt_size-input.
 #' @param pt_alpha The pt_alpha-input.
 #' @param pt_clrsp The pt_clrsp-input.
-#'
+#' @export
 
 check_pt_input <- function(pt_size = NULL,
                            pt_alpha = NULL,
@@ -508,7 +597,7 @@ check_pt_input <- function(pt_size = NULL,
 #'
 #' @param sample_input The sample input.
 #' @param desired_length The length the input must have.
-#'
+#' @export
 
 check_sample <- function(object,
                          sample_input,
@@ -582,7 +671,7 @@ check_sample <- function(object,
 #' @param df The data.frame that is to be smoothed.
 #' @param smooth The smooth input.
 #' @param verbose Logical.
-#'
+#' @export
 
 check_smooth <- function(df, smooth, verbose = TRUE){
 

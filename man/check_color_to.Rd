@@ -2,6 +2,7 @@
 % Please edit documentation in R/check_family.R
 \name{check_color_to}
 \alias{check_color_to}
+\alias{check_variables}
 \title{Check input}
 \usage{
 check_color_to(
@@ -10,6 +11,15 @@ check_color_to(
   all_gene_sets = character(),
   all_genes = character(),
   max_length = 25
+)
+
+check_variables(
+  variables,
+  all_features = character(),
+  all_gene_sets = character(),
+  all_genes = character(),
+  max_length = 25,
+  simplify = FALSE
 )
 }
 \arguments{

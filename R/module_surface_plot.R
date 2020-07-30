@@ -108,7 +108,6 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       return_plot <- shiny::reactiveVal(list())
 
-      print(1)
       current <- shiny::reactiveValues(
 
         sample = samples(object)[1],
@@ -123,29 +122,12 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       )
 
-      all_features <- reactive({
+      reset_select_gene_sets <- shiny::reactiveVal(value = 0)
+      reset_select_genes <- shiny::reactiveVal(value = 0)
 
-        res <-
-          getFeatureNames(object) %>% base::unname()
-
-        return(res)
-
-      })
-      all_gene_sets <- reactive({
-
-        res <-
-          getGeneSets(object = object)
-
-        return(res)
-
-      })
-      all_genes <- reactive({
-
-        getGenes(object = object, in_sample = current$sample)
-
-      })
-
-      print(2)
+      all_features <- getFeatureNames(object) %>% base::unname()
+      all_gene_sets <- getGeneSets(object = object)
+      all_genes <- getGenes(object = object)
 
       # Render UIs and Outputs --------------------------------------------------
 
@@ -172,40 +154,62 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       })
 
-      output$aes_clr_opts_detailed <- shiny::renderUI({
+      select_gene_sets <- shiny::eventReactive(reset_select_gene_sets(),{
 
         ns <- session$ns
 
-        shiny::req(base::all(c(shiny::isTruthy(current$sample), shiny::isTruthy(input$aes_clr_opts))))
+        shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
+                                  label = "Choose gene set:",
+                                  choices = all_gene_sets,
+                                  selected = all_gene_sets[1],
+                                  options = list(`live-search` = TRUE),
+                                  multiple = F)
+
+      })
+      select_genes <- shiny::eventReactive(reset_select_genes(),{
+
+        ns <- session$ns
+
+        shiny::tagList(
+          shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
+                                    label = "Choose gene(s):",
+                                    choices = all_genes,
+                                    #selected = all_genes()[1],
+                                    options = shinyWidgets::pickerOptions(
+                                      liveSearch = TRUE,
+                                      actionsBox = TRUE),
+                                    multiple = T),
+          shiny::checkboxInput(ns("reset_select_genes"),
+                               label = "Automatic reset",
+                               value = TRUE))
+
+      })
+      select_features <- shiny::reactive({
+
+        ns <- session$ns
+
+        shiny::selectInput(inputId = ns("aes_clr_opts_detailed"),
+                           label = "Choose feature:",
+                           choices = all_features,
+                           #selected = all_features()[1],
+                           multiple = F
+        )
+
+      })
+
+      output$aes_clr_opts_detailed <- shiny::renderUI({
 
         if(input$aes_clr_opts == "gene_set"){
 
-          shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
-                                    label = "Choose gene set:",
-                                    choices = all_gene_sets(),
-                                    selected = all_gene_sets()[1],
-                                    options = list(`live-search` = TRUE),
-                                    multiple = F
-          )
+          return(select_gene_sets())
 
         } else if(input$aes_clr_opts == "genes"){
 
-          shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
-                                    label = "Choose gene(s):",
-                                    choices = all_genes(),
-                                    selected = all_genes()[1],
-                                    options = list(`live-search` = TRUE),
-                                    multiple = T
-          )
+          return(select_genes())
 
         } else if(input$aes_clr_opts == "feature"){
 
-          shiny::selectInput(inputId = ns("aes_clr_opts_detailed"),
-                             label = "Choose feature:",
-                             choices = all_features(),
-                             selected = all_features()[1],
-                             multiple = F
-          )
+          return(select_features())
 
         }
 
@@ -230,10 +234,6 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
         ## set up background
         if("image" %in% input$display_add_ons){
-
-          print("IMAGE")
-          print(current$sample)
-          print(class(image(object = object, of_sample = current$sample)))
 
           ## extract image info
           img_info <-
@@ -363,8 +363,6 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         fdata <-
           featureData(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
 
-        print("update featuer data")
-        print(head(fdata))
         return(fdata)
 
       })
@@ -703,6 +701,11 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         current$smooth = input$perform_smoothing
         current$span = input$span_smoothing
         current$normalize = input$perform_normalization
+
+        if(base::isTRUE(input$reset_select_genes) &&
+           current$color_code == "genes"){
+          reset_select_genes((reset_select_genes() + 1))
+        }
 
       })
 

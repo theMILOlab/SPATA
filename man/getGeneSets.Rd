@@ -4,7 +4,7 @@
 \alias{getGeneSets}
 \title{Obtain gene set names}
 \usage{
-getGeneSets(object, of_class = "all", coerce = FALSE)
+getGeneSets(object, of_class = "all", index = NULL, simplify = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -14,14 +14,16 @@ the gene set names. (Which classes exist in the current gene set data.frame can
 be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
 gene sets are returned.}
 
-\item{coerce}{Logical. If set to TRUE the list to be returned will be coerced
+\item{index}{A regular expression according to which the gene set names to be returned
+will be filtered again.}
+
+\item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
 into a character vector.}
 }
 \value{
-A list named according to input of argument \code{of_class} in which each element is
-a character vector containing the names of gene sets of the specified classes.
-Is simplified to a vector if the number of elements in the list is one or if
-\code{coerce} is set to TRUE.
+A list named according to the input of argument \code{of_class}. Each element of
+the returned list is a character vector containing the names of gene sets of the specified classes.
+The list coalesced to an unnamed vector if \code{simplify} is set to TRUE.
 }
 \description{
 Obtain gene set names
