@@ -1082,6 +1082,74 @@ plotDistribution3 <- function(object,
 }
 
 
+#' Monocle3 Pseudotime
+#'
+#' @param object A valid spata-object.
+#' @param use_cds_file A directory leading to a .rds file containing a valid
+#' cell_data_set-object previously calculated for the specified object. Specified
+#' as a character value. If set to FALSE the cell_data_set object will be created
+#' from scratch.
+#' @param save_cds_file A filename/directory (that does not already exists) under which the used or created cell_data_set-object
+#' is going to be stored specified as a character value. Should end with .rds.
+#' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
+#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
+#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
+#' already existing features of the same name!
+#' @param verbose Logical value. If set to TRUE informative messages with respect
+#' to the computational progress made will be printed.
+#'
+#' (Warning messages will always be printed.)
+#'
+#' @return Returns a list of two ggplot-objects that can be additionally customized according
+#' to the rules of the ggplot2-framework.
+#' @export
+#'
+
+plotPseudotime <- function(object,
+                           use_cds_file = FALSE,
+                           save_cds_file = FALSE,
+                           preprocess_method = "PCA",
+                           cluster_method = c("leiden", "louvain"),
+                           color_to = "pseudotime",
+                           verbose = TRUE){
+
+
+  validation(object)
+
+  cds <-
+    hlpr_compile_cds(object = object,
+                     use_cds_file = use_cds_file,
+                     save_cds_file = save_cds_file,
+                     preprocess_method = preprocess_method,
+                     cluster_method = cluster_method,
+                     verbose = verbose)
+
+  plot_list <- list()
+
+  plot_list[[1]] <-
+    monocle3::plot_cells(cds = cds,
+                         color_cells_by = color_to,
+                         cell_size = 1,
+                         label_cell_groups = FALSE,
+                         label_leaves = F,
+                         label_branch_points = F,
+                         graph_label_size = 0)
+
+  plot_list[[2]] <-
+    monocle3::plot_cells(cds = cds,
+                         color_cells_by = "pseudotime",
+                         cell_size = 1,
+                         label_cell_groups = F,
+                         label_leaves = F,
+                         label_branch_points = F,
+                         graph_label_size = 0)
+
+
+  base::return(plot_list)
+
+}
+
+
 #' Plot segmentation
 #'
 #' @description Displays the segmentation of a specified sample that was drawn with
