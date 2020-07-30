@@ -3,6 +3,7 @@
 \name{plotDistribution}
 \alias{plotDistribution}
 \alias{plotDistribution2}
+\alias{plotDistribution3}
 \title{Visualize variable distribution}
 \usage{
 plotDistribution(
@@ -17,6 +18,21 @@ plotDistribution2(
   object,
   of_sample,
   variables,
+  method_gs = "mean",
+  plot_type = "histogram",
+  binwidth = 0.05,
+  ...,
+  normalize = TRUE,
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE
+)
+
+plotDistribution3(
+  object,
+  of_sample,
+  variables,
+  feature,
   method_gs = "mean",
   plot_type = "histogram",
   binwidth = 0.05,
@@ -55,6 +71,8 @@ specified as a character value that does not already exist.}
 
 \item{verbose}{Logical value to specify whether informative messages are
 supposed to be printed or not.}
+
+\item{feature}{A categorical feature according to which the variables are be displayed.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

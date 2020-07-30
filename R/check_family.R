@@ -368,7 +368,7 @@ check_features <- function(object,
   }
 
 
-  # 2. Check which of the provided features match the 'class' requir --------
+  # 2. Check which of the provided features match the 'class' required ------
 
   if(!base::is.null(valid_classes)){
 
@@ -378,7 +378,10 @@ check_features <- function(object,
 
     if(length(valid_fnames) == 0){
 
-      base::stop("All features are of invalid classes.")
+      valid_classes <- stringr::str_c(valid_classes, collapse = "', '")
+
+      base::stop(stringr::str_c("All features are of invalid classes. Valid classes are: '",
+                                valid_classes, "'."))
 
     } else if(base::length(fnames) != base::length(valid_fnames)){
 
@@ -394,7 +397,7 @@ check_features <- function(object,
   }
 
 
-# 3. Check whether fnames is of desired length ----------------------------
+  # 3. Check whether fnames is of desired length ----------------------------
 
   if(!base::is.null(max_length) &&
      base::length(fnames) > max_length) {
