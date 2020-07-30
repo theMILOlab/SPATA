@@ -32,9 +32,6 @@ is going to be stored specified as a character value. Should end with .rds.}
 to the computational progress made will be printed.
 
 (Warning messages will always be printed.)}
-
-\item{feature_name}{The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-already existing features of the same name!}
 }
 \value{
 A monocle3::cell_data_set object.

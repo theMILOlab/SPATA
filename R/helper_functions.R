@@ -70,8 +70,6 @@ hlpr_compare_samples <- function(object, df, messages){
 #' is going to be stored specified as a character value. Should end with .rds.
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
 #' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
-#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-#' already existing features of the same name!
 #' @param verbose Logical value. If set to TRUE informative messages with respect
 #' to the computational progress made will be printed.
 #'
