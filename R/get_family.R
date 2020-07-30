@@ -193,9 +193,6 @@ getGenes <- function(object,
 
   }
 
-  in_sample <- check_sample(object = object, sample_input = in_sample)
-  rna_assay <- exprMtr(object = object, of_sample = in_sample)
-
   # control:
   if(!is.character(of_gene_sets) | length(of_gene_sets) == 0){
 
@@ -205,9 +202,12 @@ getGenes <- function(object,
 
   if(base::all(c(of_gene_sets, in_sample) == "all")){
 
-    base::return(base::unique(base::rownames(exprMtr(object))))
+    base::return(base::rownames(exprMtr(object))[1:10])
 
   } else {
+
+    in_sample <- check_sample(object = object, sample_input = in_sample)
+    rna_assay <- exprMtr(object = object, of_sample = in_sample)
 
     gene_sets_df <- object@used_genesets
 
@@ -221,7 +221,6 @@ getGenes <- function(object,
 
 
     # if only genes of specific gene sets are desired
-
     if(base::length(of_gene_sets) != 1){
 
       gene_sets_ctrl <- base::vector(mode = "logical", length = length(of_gene_sets))
