@@ -203,112 +203,120 @@ getGenes <- function(object,
 
   }
 
-  gene_sets_df <- object@used_genesets
+  if(base::all(c(of_gene_sets, in_sample) == "all")){
 
-  if(base::any(!c("ont", "gene") %in% base::colnames(gene_sets_df)) |
-     !is.data.frame(gene_sets_df) |
-     base::nrow(gene_sets_df) == 0){
+    base::return(base::unique(base::rownames(exprMtr(object))))
 
-    stop("Please make sure that the provided object contains a valid gene sets data.frame.")
+  } else {
 
-  }
+    gene_sets_df <- object@used_genesets
+
+    if(base::any(!c("ont", "gene") %in% base::colnames(gene_sets_df)) |
+       !is.data.frame(gene_sets_df) |
+       base::nrow(gene_sets_df) == 0){
+
+      stop("Please make sure that the provided object contains a valid gene sets data.frame.")
+
+    }
 
 
-  # if only genes of specific gene sets are desired
+    # if only genes of specific gene sets are desired
 
-  if(base::length(of_gene_sets) != 1){
+    if(base::length(of_gene_sets) != 1){
 
-    gene_sets_ctrl <- base::vector(mode = "logical", length = length(of_gene_sets))
-    not_found <- base::vector(mode = "character")
+      gene_sets_ctrl <- base::vector(mode = "logical", length = length(of_gene_sets))
+      not_found <- base::vector(mode = "character")
 
-    for(i in seq_along(of_gene_sets)){
+      for(i in seq_along(of_gene_sets)){
 
-      if(of_gene_sets[i] %in%  gene_sets_df$ont){
+        if(of_gene_sets[i] %in%  gene_sets_df$ont){
 
-        gene_sets_ctrl[i] <- T
+          gene_sets_ctrl[i] <- T
 
-      } else{
+        } else{
 
-        gene_sets_ctrl[i] <- F
-        not_found[length(not_found)+1] <- of_gene_sets[i]
+          gene_sets_ctrl[i] <- F
+          not_found[length(not_found)+1] <- of_gene_sets[i]
+
+        }
 
       }
 
-    }
 
+      of_gene_sets <- of_gene_sets[gene_sets_ctrl]
 
-    of_gene_sets <- of_gene_sets[gene_sets_ctrl]
+      if(length(of_gene_sets) >= 1 & length(not_found) >= 1){
 
-    if(length(of_gene_sets) >= 1 & length(not_found) >= 1){
+        not_found_clpsd <- stringr::str_c(not_found, collapse = ", ")
 
-      not_found_clpsd <- stringr::str_c(not_found, collapse = ", ")
+        base::message(stringr::str_c("Could not find gene sets: ", not_found_clpsd, ".", sep = ""))
 
-      base::message(stringr::str_c("Could not find gene sets: ", not_found_clpsd, ".", sep = ""))
+      } else if(length(of_gene_sets) == 0){
 
-    } else if(length(of_gene_sets) == 0){
+        stop("Could not find any of the provided gene sets.")
 
-      stop("Could not find any of the provided gene sets.")
-
-    }
-
-    genes_list <-
-      base::lapply(X = of_gene_sets,
-                   FUN = function(i){
-
-                     genes <-
-                       dplyr::filter(gene_sets_df, ont == i) %>%
-                       dplyr::pull(gene)
-
-                     genes_in_sample <-
-                       genes[genes %in% base::rownames(rna_assay)]
-
-                     return(genes_in_sample)
-
-                   })
-
-    base::names(genes_list) <- of_gene_sets
-
-
-    if(base::isTRUE(simplify) && base::length(genes_list) > 1){
+      }
 
       genes_list <-
-        genes_list %>%
-        base::unname() %>%
-        base::unlist()
+        base::lapply(X = of_gene_sets,
+                     FUN = function(i){
+
+                       genes <-
+                         dplyr::filter(gene_sets_df, ont == i) %>%
+                         dplyr::pull(gene)
+
+                       genes_in_sample <-
+                         genes[genes %in% base::rownames(rna_assay)]
+
+                       return(genes_in_sample)
+
+                     })
+
+      base::names(genes_list) <- of_gene_sets
+
+
+      if(base::isTRUE(simplify) && base::length(genes_list) > 1){
+
+        genes_list <-
+          genes_list %>%
+          base::unname() %>%
+          base::unlist()
+
+      }
+
+
+      base::return(genes_list)
+
+    } else if(base::all(of_gene_sets == "all")) { # if all genes are desired
+
+      all_genes <-
+        dplyr::pull(gene_sets_df, "gene") %>%
+        base::unique()
+
+      all_genes_in_sample <-
+        all_genes[all_genes %in% base::rownames(rna_assay)]
+
+      return(all_genes_in_sample)
+
+    } else if(base::length(of_gene_sets) == 1){
+
+      if(of_gene_sets %in% gene_sets_df$ont){
+
+        genes <-
+          gene_sets_df %>%
+          dplyr::filter(ont == of_gene_sets) %>%
+          dplyr::pull(gene)
+
+        return(genes)
+
+      } else {
+
+        stop(stringr::str_c("Did not find gene set", of_gene_sets, sep = ": "))
+
+      }
+
 
     }
-
-
-    base::return(genes_list)
-
-  } else if(base::all(of_gene_sets == "all")) { # if all genes are desired
-
-    all_genes <-
-      dplyr::pull(gene_sets_df, "gene") %>%
-      base::unique()
-
-    all_genes_in_sample <-
-      all_genes[all_genes %in% base::rownames(rna_assay)]
-
-    return(all_genes_in_sample)
-
-  } else if(base::length(of_gene_sets) == 1){
-
-    if(of_gene_sets %in% gene_sets_df$ont){
-
-      genes <-
-        gene_sets_df %>%
-        dplyr::filter(ont == of_gene_sets) %>%
-        dplyr::pull(gene)
-
-      return(genes)
-
-    } else {
-
-      stop(stringr::str_c("Did not find gene set", of_gene_sets, sep = ": "))
-
-    }
-
 
   }
 
