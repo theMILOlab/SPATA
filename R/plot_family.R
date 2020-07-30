@@ -1016,7 +1016,7 @@ plotDistribution3 <- function(object,
     display_add_on <-
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(feature)),
-                              color = "black", data = data),
+                              color = "black", data = data,alpha = 0.75),
         ggplot2::theme_bw(),
         ggplot2::labs(y = "Density")
       )
@@ -1026,8 +1026,9 @@ plotDistribution3 <- function(object,
     display_add_on <-
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = !!rlang::sym(feature), fill = !!rlang::sym(feature)),
-                                      color = "black", data = data),
-        ggplot2::labs(y = NULL, x = feature)
+                                      color = "black", data = data, alpha = 0.75),
+        ggplot2::labs(y = feature, x = NULL)
+
       )
 
   } else if(plot_type == "violin"){
@@ -1054,7 +1055,7 @@ plotDistribution3 <- function(object,
   if(base::length(variables) > 1){
 
     facet_add_on <-
-      list(ggplot2::facet_wrap(facets = . ~ variables, strip.position = "right", ...))
+      list(ggplot2::facet_wrap(facets = . ~ variables, ...))
 
   } else {
 
@@ -1069,7 +1070,6 @@ plotDistribution3 <- function(object,
     facet_add_on +
     ggplot2::theme_classic() +
     ggplot2::theme(
-      legend.position = "none",
       plot.margin = ggplot2::margin(t = 50, r = 100, b = 50, l = 100, unit = "pt"),
       axis.text.y = ggplot2::element_text(color = "black"),
       axis.text.x = ggplot2::element_text(color = "black"),
