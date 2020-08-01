@@ -2,11 +2,16 @@
 % Please edit documentation in R/helper_functions.R
 \name{hlpr_image_add_on}
 \alias{hlpr_image_add_on}
+\alias{hlpr_image_add_on2}
 \title{Provides the image as ggplot background}
 \usage{
-hlpr_image_add_on(object, display_image)
+hlpr_image_add_on(image)
+
+hlpr_image_add_on2(object, display_image, of_sample)
 }
 \arguments{
+\item{image}{Image input.}
+
 \item{object}{A valid spata-object.}
 
 \item{display_image}{Logical value.}

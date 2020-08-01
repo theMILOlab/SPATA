@@ -22,6 +22,23 @@ getExpressionMatrix <- function(object,
 }
 
 
+#' Extract barcodes of a sample
+#'
+#' @param object A valid spata-object.
+#' @param of_sample The sample from which to extract the barcodes.
+#'
+#' @return All barcodes of the specified sample(s).
+#' @export
+#'
+
+getBarcodes <- function(object, of_sample = "all"){
+
+  cdf <- coordinates(object = object, of_sample = of_sample)
+
+  return(dplyr::pull(cdf, barcodes))
+
+}
+
 
 # Genes and gene set related ----------------------------------------------
 
@@ -470,5 +487,6 @@ getTrajectoryNames <- function(object,
   }
 
 }
+
 
 

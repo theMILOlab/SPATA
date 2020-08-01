@@ -234,6 +234,34 @@ check_variables <- function(variables,
 }
 
 
+
+#' Title
+#'
+#' @param data A data.frame containing numeric variables for x and y axis
+#' @param x The name of the numeric variable to be plotted on the x axis.
+#' @param y The name of the numeric variable to be plotted on the y axis.
+#'
+#' @export
+#'
+#' @examples
+#'
+
+check_coordinates <- function(data, x = "x", y = "y"){
+
+  if(!base::all(c(x, y) %in% base::colnames(data))){
+
+    base::stop(glue::glue("Provided data.frame needs to have variables '{x}' and '{y}'."))
+
+  }
+
+  if(base::any(!base::sapply(X = data[,c(x,y)], FUN = base::is.numeric))){
+
+    base::stop(glue::glue("Both variables '{x}' and '{y}' need to be numeric."))
+
+  }
+
+}
+
 #' @title Check input
 #'
 #' @description The \code{check_()}-function family checks a functions input to
@@ -349,7 +377,8 @@ check_features <- function(object,
 
   if(!base::any(features %in% fnames)){
 
-    base::stop("Could not find any of the specified features.")
+    base::stop("Could not find any of the specified features", "'. \n  Supplied features: '",
+               stringr::str_c(features, collapse = "', '"), "'.")
 
   } else if(base::all(features %in% fnames)){
 
@@ -380,8 +409,9 @@ check_features <- function(object,
 
       valid_classes <- stringr::str_c(valid_classes, collapse = "', '")
 
-      base::stop(stringr::str_c("All features are of invalid classes. Valid classes are: '",
-                                valid_classes, "'."))
+      base::stop(glue::glue("All features are of invalid classes. Valid classes are: '",
+                                valid_classes, "'. \n  Supplied features: '",
+                                stringr::str_c(features, collapse = "', '"), "'."))
 
     } else if(base::length(fnames) != base::length(valid_fnames)){
 

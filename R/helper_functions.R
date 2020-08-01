@@ -197,6 +197,7 @@ hlpr_compile_cds <- function(object,
 #' with respect to the direction of the trajectory-part and \emph{trajectory_part}
 #' indicating the part of the trajectory the barcode belongs to.
 #'
+#' @export
 hlpr_compile_trajectory <- function(segment_trajectory_df,
                                     trajectory_width,
                                     object,
@@ -303,12 +304,49 @@ hlpr_gene_set_name <- function(string){
 #' @title Provides the image as ggplot background
 #'
 #' @param object A valid spata-object.
+#' @param image Image input.
 #' @param display_image Logical value.
 #'
 #' @return Either null or a ggplot2::geom_annotation_raster
 #'
+#' @export
 
-hlpr_image_add_on <- function(object, display_image){
+hlpr_image_add_on <- function(image){
+
+  if(!base::is.null(image)){
+
+    if(!"Image" %in% base::class(image)){
+
+      base::warning("Argument 'image' is neither NULL nor an object of class 'Image'. ")
+      image_add_on <- NULL
+
+    } else {
+
+      image_raster <- grDevices::as.raster(image)
+
+      image_info <-
+        magick::image_read(image_raster) %>%
+        magick::image_info()
+
+      image_flipped <-
+        magick::image_read(image_raster) %>%
+        magick::image_flip()
+
+      image_add_on <-
+        ggplot2::annotation_raster(raster = image_flipped,
+                                   xmin = 0, ymin = 0,
+                                   xmax = image_info$width,
+                                   ymax = image_info$height)
+
+    }
+
+  }
+
+}
+
+#' @rdname hlpr_image_add_on
+#' @export
+hlpr_image_add_on2 <- function(object, display_image, of_sample){
 
   # set up background
   if(base::isTRUE(display_image)){
