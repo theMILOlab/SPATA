@@ -23,6 +23,7 @@ Collate:
     'helper_functions.R'
     'joinWith_family.R'
     'module_surface_plot.R'
+    'package_dependencies.R'
     'plot_miscellaneous.R'
     'plot_surface_family.R'
     'plot_trajectory_family.R'
