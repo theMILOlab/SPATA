@@ -17,7 +17,7 @@ plotDimRed <- function(object,
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # adjusting check
-  of_sample <- check_sample(object = object, sample_input = of_sample)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
   color_to <- check_color_to(color_to = color_to,
                              max_length = 1,
                              all_genes = getGenes(object, in_sample = of_sample),
@@ -37,7 +37,7 @@ plotDimRed <- function(object,
   # 3. Join data and prepare ggplot add-ons ---------------------------------
 
   # if of length one and feature
-  if(base::length(color_to) == 1 && color_to %in% getFeatureNames(object = object)){
+  if("features" %in% base::names(color_to)){
 
     color_to <- check_features(object, features = color_to)
 
@@ -72,7 +72,7 @@ plotDimRed <- function(object,
     )
 
     # if of length one and gene set
-  } else if(length(color_to) == 1 && color_to %in% getGeneSets(object = object)){
+  } else if("gene_sets" %in% base::names(color_to)){
 
     color_to <- check_gene_sets(object, gene_sets = color_to)
 
@@ -96,9 +96,7 @@ plotDimRed <- function(object,
       ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to, " (", method_gs, ")", sep = ""))
     )
 
-
-
-  } else if(base::any(color_to %in% getGenes(object = object))){
+  } else if("genes" %in% base::names(color_to)){
 
     rna_assay <- exprMtr(object, of_sample = of_sample)
     color_to <- check_genes(object, genes = color_to, rna_assay = rna_assay)
@@ -129,7 +127,7 @@ plotDimRed <- function(object,
 
   }
 
-
+  # -----
 
   # 4. Plotting -------------------------------------------------------------
 
@@ -164,30 +162,18 @@ plotDimRed <- function(object,
 
   }
 
+  # -----
+
 }
 
 
 #' @title Plot dimensional reduction
 #'
-#' @param object A valid spata-object.
-#' @param of_sample The sample(s) name specified as a character.
-#' @param color_to The information you want to display by color specified as a
-#' character vector. If you specify a feature or a gene set this vector needs
-#' to be of length one. If you specify more than one gene the average
-#' expression of these genes will be calculated and displayed by color.
-#' @param method_gs The method according to which gene sets will be handled
-#' specified as a character of length one. This can be either \emph{mean} or one
-#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-#' \code{gsva::GSVA()}.
-#' @param pt_size The size of the points specified as a numeric value.
-#' @param pt_alpha The transparency of the points specified as a numeric value.
-#' @param pt_clrsp The colour spectrum used to display \code{color_to} if the
-#' specified variable is continuous. Needs to be one of \emph{inferno, magma,
-#' plasma, cividis or viridis}.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
+#' @inherit check_sample params
+#' @inherit check_color_to params
+#' @inherit check_method params
+#' @inherit check_pt params
+#' @inherit verbose params
 #'
 #' @return Returns a ggplot-object that can be additionally customized according
 #' to the rules of the ggplot2-framework.
@@ -243,43 +229,32 @@ plotTSNE <- function(object,
 
 #' @title Gene set state plot
 #'
-#' @description This function takes four gene sets and visualizes the relative
+#' @description Takes four gene sets and visualizes the relative
 #' expression of these four gene sets for every barcode by computing it's respective
 #' x- and y- coordinates in the state plot. (See details.)
 #'
-#' (\code{plotFourStates2()} generates the data.frame that needs to be specified
-#' in \code{data} from scratch. It then calls \code{plotFourStates()}).
+#' \itemize{
+#'  \item{ \code{plotFourStates()} Takes a data.frame as input.}
+#'  \item{ \code{plotFourStates2()} Takes the spata-object as the starting point and creates
+#'  the necessary data.frame from scratch according to additional parameters.}
+#'  }
 #'
-#' @param object A valid spata-object.
-#' @param of_sample The sample from which to extract the data specified as a
-#' character value.
 #' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 #' Whereby the states-variables contain the respective expression values of the specified
 #' gene sets. See 'See also' for how to easily obtain these data.frames.
 #' @param states The gene sets defining the four states specified as a character vector
 #' of length 4.
-#' @param color_to The variable in the data frame that is supposed to be displayed by color
-#' specified as a character value.
-#' @param pt_size The size of the points specified as a numeric value.
-#' @param pt_alpha The transparency of the points specified as a numeric value.
-#' @param pt_clrsp The colour spectrum used to display \code{color_to} if the
-#' specified variable is continuous. Needs to be one of \emph{inferno, magma,
-#' plasma, cividis or viridis}.
-#' @param display_labels Logical value.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
+#' @inherit check_color_to params
+#' @inherit check_pt params
+#' @inherit check_display params
+#' @inherit verbose params
 #'
 #' @seealso Combine \code{coordsSpatial()} and \code{joinWithGeneSets()} to obtain
 #' a valid input data.frame for \code{data}.
 #'
-#'
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' @inherit plot_family return
 #'
 #' @export
-#'
 
 plotFourStates <- function(data,
                            states,
@@ -290,8 +265,9 @@ plotFourStates <- function(data,
                            display_labels = TRUE){
 
 
-  # Control -----------------------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
+  # lazy check
   if(!base::is.data.frame(data)){
 
     base::stop("Argument 'data' needs to be of type data.frame.")
@@ -313,9 +289,25 @@ plotFourStates <- function(data,
 
   }
 
-  check_pt_clrsp(pt_clrsp)
+  if(!base::length(states) == 4){
 
-  # Data wrangling ----------------------------------------------------------
+    base::stop("Argument 'states' needs to be of length 4.")
+
+  }
+  if(!base::all(states %in% base::colnames(data))){
+
+    base::stop("All elements of argument 'states' must be variables of data.frame 'data'.")
+
+  }
+
+
+
+  check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
+
+  # -----
+
+
+  # 2. Data wrangling -------------------------------------------------------
 
   sym <- rlang::sym
   max <- base::max
@@ -351,15 +343,17 @@ plotFourStates <- function(data,
     ) %>%
     dplyr::filter(!base::is.na(pos_x) & !is.na(pos_y))
 
+  # -----
 
 
-  # Additional add ons ------------------------------------------------------
+
+  # 3. Additional add ons ---------------------------------------------------
 
   states <- hlpr_gene_set_name(states)
   color_to_lab <- hlpr_gene_set_name(color_to)
 
-  #xlab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
-  #ylab <- base::bquote(paste("log2(GSV-Score "[.(states[2])]*" - GSV-Score "[.(states[1])]*")"))
+  xlab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
+  ylab <- base::bquote(paste("log2(GSV-Score "[.(states[2])]*" - GSV-Score "[.(states[1])]*")"))
 
 
   # scale color add-on
@@ -373,39 +367,13 @@ plotFourStates <- function(data,
 
   }
 
+  # -----
+
   max <- base::max(plot_df$pos_x, plot_df$pos_y)
 
-  # geom text add-on
-  if(base::isTRUE(display_labels)){
-
-    tpx <- max * 0.7
-    tpy <- max * 1.05
-
-    # assemble text data.frame
-    text_df <- data.frame(
-      "x" = as.numeric(c(-tpx, tpx, -tpx, tpx)),
-      "y" = as.numeric(c(tpy , tpy, -tpy, -tpy)),
-      "states" = states
-    )
-
-    geom_text_add_on <-
-      ggplot2::geom_text(mapping = ggplot2::aes(x = x, y = y, label = states),
-                         data = text_df)
-
-    print(text_df)
-
-  } else {
-
-    geom_text_add_on <- NULL
-
-  }
-
-
-  # plotting
   ggplot2::ggplot() +
     ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +
     ggplot2::geom_hline(yintercept = 0,  linetype = "dashed", color = "lightgrey") +
-    geom_text_add_on +
     ggplot2::geom_point(mapping = ggplot2::aes_string(x = "pos_x", y = "pos_y", color = color_to),
                         size = pt_size, alpha = pt_alpha, data = plot_df) +
     ggplot2::scale_x_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
@@ -416,7 +384,7 @@ plotFourStates <- function(data,
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank()
     ) +
-    ggplot2::labs(x = NULL, y = NULL, color = color_to_lab)
+    ggplot2::labs(x = xlab, y = ylab, color = color_to_lab)
 
 }
 
@@ -430,6 +398,7 @@ plotFourStates2 <- function(object,
                             states,
                             color_to = NULL,
                             method_gs = "gsva",
+                            average_genes = FALSE,
                             pt_size = 1.5,
                             pt_alpha = 0.9,
                             pt_clrsp = "inferno",
@@ -439,14 +408,16 @@ plotFourStates2 <- function(object,
                             verbose = TRUE){
 
 
-  # Control -----------------------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
-  validation(object)
+  # lazy check
+  check_object(object)
 
-  check_pt_input(pt_size, pt_alpha, pt_clrsp)
+  check_pt(pt_size, pt_alpha, pt_clrsp)
   check_assign(assign, assign_name)
 
-  of_sample <- check_sample(object, sample_input = of_sample, desired_length = 1)
+  # adjusting check
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
   states <- check_gene_sets(object, gene_sets = states, max_length = 4)
 
   if(base::length(states) != 4){
@@ -460,7 +431,6 @@ plotFourStates2 <- function(object,
   all_gene_sets <- getGeneSets(object)
   all_features <- getFeatureNames(object)
 
-
   if(!base::is.null(color_to)){
     color_to <- check_color_to(color_to = color_to,
                                all_features = all_features,
@@ -469,9 +439,9 @@ plotFourStates2 <- function(object,
                                max_length = 1)
   }
 
+  # -----
 
-
-  # Data extraction ---------------------------------------------------------
+  # 2. Data extraction ------------------------------------------------------
 
   data <-
     coordsSpatial(object = object,
@@ -485,32 +455,32 @@ plotFourStates2 <- function(object,
 
   if(!base::is.null(color_to)){
 
-    if(color_to %in% all_genes){
+    if("genes" %in% base::names(color_to)){
 
       data <-
         joinWithGenes(object,
                       coords_df = data,
-                      genes = color_to,
+                      genes = color_to$genes,
                       average_genes = FALSE,
                       normalize = TRUE,
                       verbose = verbose)
 
-    } else if(color_to %in% all_gene_sets){
+    } else if("gene_sets" %in% base::names(color_to)){
 
       data <-
         joinWithGeneSets(object,
                          coords_df = data,
-                         gene_sets = color_to,
+                         gene_sets = color_to$gene_sets,
                          method_gs = method_gs,
                          normalize = TRUE,
                          verbose = verbose)
 
-    } else if(color_to %in% all_features){
+    } else if("features" %in% base::names(color_to)){
 
       data <-
         joinWithFeatures(object,
                          coords_df = data,
-                         features = color_to,
+                         features = color_to$features,
                          normalize = TRUE,
                          verbose = verbose)
 
@@ -518,8 +488,9 @@ plotFourStates2 <- function(object,
 
   }
 
+  # -----
 
-  # Plotting ----------------------------------------------------------------
+  # 3. Plotting -------------------------------------------------------------
 
   hlpr_assign(assign = assign,
               object = list("point" = data),
@@ -527,18 +498,19 @@ plotFourStates2 <- function(object,
 
   plotFourStates(data = data,
                  states = states,
-                 color_to = color_to,
+                 color_to = base::unlist(color_to),
                  pt_size = pt_size,
                  pt_alpha = pt_alpha,
                  pt_clrsp = pt_clrsp,
                  display_labels = display_labels)
 
+  # -----
 
 }
 
 
 
-#' Visualize variable distribution
+#' @title Visualize variable distribution
 #'
 #' @description Visualizes the distribution of values of a set of variables for the
 #' whole sample accross specific subgroups.
@@ -554,14 +526,19 @@ plotFourStates2 <- function(object,
 #'
 #'
 #' @param data The data.frame containing numeric variables.
-#' @param variables The numeric variable whose distribution you want to display.
+#' @param variables The numeric variables whose distribution you want to display. Specified as
+#' a character vector.
 #' @param across A categorical feature across which the value-distribution is displayed. Must be
 #' a \emph{character or factor}-element of \code{SPATA::getFeatureNames()}.
 #' @param plot_type One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.
 #' @param binwidth The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.
 #' @param ... additional arguments to \code{ggplot2::facet_wrap()}
 #'
-#' @inherit plotFourStates params return
+#' @inherit check_sample params
+#' @inherit check_method params
+#' @inherit verbose params
+#' @inherit normalize params
+#' @inherit check_assign params
 #'
 #' @export
 
@@ -572,8 +549,9 @@ plotDistribution <- function(data,
                              ...
                            ){
 
-  # Control -----------------------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
+  # lazy check
   stopifnot(base::is.data.frame(data))
   stopifnot(base::is.null(variables) | base::is.character(variables))
 
@@ -593,6 +571,7 @@ plotDistribution <- function(data,
 
   }
 
+  # adjusting check
   num_data <- data[,base::sapply(data, base::is.numeric)]
   num_variables <- base::colnames(num_data)
 
@@ -619,7 +598,9 @@ plotDistribution <- function(data,
 
   }
 
-  # Shift data --------------------------------------------------------------
+  # -----
+
+  # 2. Shift data -----------------------------------------------------------
 
   expr_data <-
     tidyr::pivot_longer(
@@ -629,8 +610,10 @@ plotDistribution <- function(data,
       values_to = "values"
     )
 
+  # -----
 
-  # Display add on ----------------------------------------------------------
+
+  # 3. Display add on -------------------------------------------------------
 
   if(plot_type == "histogram"){
 
@@ -699,7 +682,7 @@ plotDistribution <- function(data,
 
   }
 
-  # Plotting ----------------------------------------------------------------
+  # 4. Plotting -------------------------------------------------------------
 
   ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
@@ -724,7 +707,7 @@ plotDistribution2 <- function(object,
                               assign_name,
                               verbose = TRUE){
 
-  # Control -----------------------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
   if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
 
@@ -745,7 +728,7 @@ plotDistribution2 <- function(object,
   validation(object)
   check_assign(assign, assign_name)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
   all_features <- getFeatureNames(object)
   all_genes <- getGenes(object)
@@ -759,7 +742,9 @@ plotDistribution2 <- function(object,
                     max_length = max_length,
                     simplify = TRUE)
 
-  # Extract and wrangle with data -------------------------------------------
+  # -----
+
+  # 2. Extract and wrangle with data ----------------------------------------
 
   data <-
     coordsSpatial(object = object,
@@ -809,9 +794,11 @@ plotDistribution2 <- function(object,
       values_to = "values"
     )
 
+  # -----
 
 
-  # Display add on ----------------------------------------------------------
+
+  # 3. Display add on -------------------------------------------------------
 
   if(plot_type == "histogram"){
 
@@ -880,7 +867,8 @@ plotDistribution2 <- function(object,
 
   }
 
-  # Plotting ----------------------------------------------------------------
+  # -----
+
 
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
@@ -906,7 +894,7 @@ plotDistribution3 <- function(object,
                               assign_name,
                               verbose = TRUE){
 
-  # Control -----------------------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
   if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
 
@@ -927,7 +915,7 @@ plotDistribution3 <- function(object,
   validation(object)
   check_assign(assign, assign_name)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   across <- check_features(object, feature = across, valid_classes = c("character", "factor"), max_length = 1)
   print(across)
 
@@ -943,9 +931,9 @@ plotDistribution3 <- function(object,
                     max_length = max_length,
                     simplify = TRUE)
 
-  print(variables)
+  # -----
 
-  # Extract and wrangle with data -------------------------------------------
+  # 2. Extract and wrangle with data ----------------------------------------
 
   data <-
     coordsSpatial(object = object,
@@ -1008,9 +996,11 @@ plotDistribution3 <- function(object,
       values_to = "values"
     )
 
+  # -----
 
 
-  # Display add on ----------------------------------------------------------
+
+  # 4. Display add on -------------------------------------------------------
 
   if(plot_type == "histogram"){
 
@@ -1075,7 +1065,8 @@ plotDistribution3 <- function(object,
 
   }
 
-  # Plotting ----------------------------------------------------------------
+  # -----
+
 
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
@@ -1125,8 +1116,7 @@ plotPseudotime <- function(object,
                            color_to = "pseudotime",
                            verbose = TRUE){
 
-
-  validation(object)
+  check_object(object)
 
   cds <-
     hlpr_compile_cds(object = object,
@@ -1162,46 +1152,43 @@ plotPseudotime <- function(object,
 }
 
 
-#' Plot segmentation
+#' @title Plot segmentation
 #'
 #' @description Displays the segmentation of a specified sample that was drawn with
 #' \code{SPATA::createSegmentation()}.
 #'
-#' @param object A valid spata-object.
-#' @param of_sample The sample to be displayed specified as a character vector of
-#' length one.
-#' @param pt_size The size of the points specified as a numeric value.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
+#' @inherit check_sample params
+#' @inherit check_pt params
 #'
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' @inherit plot_family return
 #'
 #' @export
-#'
+
 plotSegmentation <- function(object,
                              of_sample,
-                             pt_size = 2,
-                             verbose = FALSE){
+                             pt_size = 2){
 
-  validation(x = object)
+  # control
+  check_object(object)
   of_sample <- check_sample(object, of_sample, desired_length = 1)
-  check_pt_input(pt_size = pt_size)
+  check_pt(pt_size = pt_size)
 
-
+  # data extraction
   plot_df <-
     coordsSpatial(object, of_sample = of_sample) %>%
-    joinWithFeatures(object, coords_df = ., features = "segment", verbose = verbose)
+    joinWithFeatures(object, coords_df = ., features = "segment", verbose = FALSE)
 
   segment_df <- dplyr::filter(plot_df, segment != "")
 
+  if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
+
+  # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
     ggplot2::theme_void() +
     ggplot2::labs(color = "Segments") +
     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5)))
-
 
 }
 

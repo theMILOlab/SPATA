@@ -4,7 +4,7 @@
 
 #' Deprecated functions
 #'
-#' @include S4_documentation.R
+#' @include S4-documentation.R
 #'
 
 setGeneric(name = "dimRed", def = function(object, of_sample, method){

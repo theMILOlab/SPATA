@@ -1,4 +1,7 @@
 
+#' @include S4-documentation.R
+NULL
+
 
 # Generics ----------------------------------------------------------------
 
@@ -180,7 +183,7 @@ setMethod(f = "coordinates<-", signature = "spata", def = function(object, value
 setMethod(f = "featureData", signature = "spata", definition = function(object, of_sample = "all"){
 
 
-  of_sample <- check_sample(object = object, sample_input = of_sample)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
 
   fdata <-
     as.data.frame(object@fdata) %>%
@@ -214,7 +217,7 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 
 setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample){
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
   if(!is.character(trajectory_name) | length(trajectory_name) != 1){
 

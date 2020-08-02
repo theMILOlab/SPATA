@@ -240,7 +240,7 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_dr)){
 
-    if(base::is.character(method_dr) || base::length(method_dr) != 1){
+    if(!base::is.character(method_dr) || base::length(method_dr) != 1){
 
       stop("Argument 'method_dr' needs to be a single character value.")
 
@@ -259,19 +259,17 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_gs)){
 
-    if(base::is.character(method_gs) || base::length(method_gs) != 1){
+    if(!base::is.character(method_gs) || base::length(method_gs) != 1){
 
       stop("Argument 'method_gs' needs to be a single character value.")
 
-    } else if(!method_dr %in% c("mean", "gsva", "ssgsea", "zscore", "plage")) {
+    } else if(!method_gs %in% c("mean", "gsva", "ssgsea", "zscore", "plage")) {
 
       stop("Argument 'method_dr' needs to be  one of: 'mean', 'gsva', 'ssgsea', 'zscore', 'plage'.")
 
     }
 
   }
-
-
 
 }
 

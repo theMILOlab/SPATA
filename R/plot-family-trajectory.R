@@ -50,62 +50,35 @@ plotTrajectory <- function(object,
                            pt_clr = "steelblue",
                            pt_clrsp = "inferno",
                            sgmt_size = 1,
-                           display_image = F,
-                           display_title = F,
+                           display_image = TRUE,
+                           display_title = FALSE,
                            verbose = T){
 
 
   # 1. Control --------------------------------------------------------------
 
-  validation(x = object)
+  # lazy check
+  check_object(object)
+  check_method(method_gs = method_gs)
+  check_pt(pt_size, pt_alpha, pt_clrsp, pt_clr = pt_clr)
+  check_display(display_title, display_image)
+  check_smooth(smooth = smooth, smooth_span = smooth_span)
+  check_trajectory(object, trajectory_name)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  # adjusting check
+  of_sample <- check_sample(object, of_sample, desired_length = 1)
 
-  if(!is.character(color_to) & !is.null(color_to)){
+  if(!base::is.null(color_to)){
 
-    stop("Argument 'color_to' needs to be either NULL or a character vector.")
-
-  }
-  if(!pt_clrsp %in% c("inferno", "viridis", "cividis", "plasma", "magma")){
-
-    stop("Please enter a valid color spectrum. (inferno, viridis, cividis, plasma, magma)")
-
-  }
-  if(length(method_gs) != 1 | !method_gs %in% c("mean", "gsva", "ssgsea", "zscore", "plage")){
-
-    stop("Invalid input for argument 'method_gs'.")
-
-  }
-  if(isTRUE(smooth) && !is.numeric(smooth_span)){
-
-    message("Argument 'span' needs to be numeric.")
-    smooth <- FALSE
-
-  } else if(isTRUE(smooth) && smooth_span < 0.01){
-
-    stop("Argument 'smooth_span' needs to be higher than '0.01'.")
+    color_to <- check_color_to(color_to = color_to,
+                               all_gene_sets = getGeneSets(object),
+                               all_genes = getGenes(object),
+                               all_features = getFeatureNames(object),
+                               max_length = 1)
 
   }
 
-  if(!is.logical(smooth)){
-
-    message("Argument 'smooth' needs to be logical.")
-    smooth <- FALSE
-
-  }
-
-  if(!is.logical(display_image)){
-
-    stop("Argument 'display_image' needs to be logical.")
-
-  }
-  if(!is.logical(display_title)){
-
-    stop("Argument 'display_title' needs to be logical.")
-
-  }
-
-
+  # -----
 
   # 2. Extract data ---------------------------------------------------------
 
@@ -115,31 +88,31 @@ plotTrajectory <- function(object,
   trajectory_bc <- dplyr::pull(t_object@compiled_trajectory_df, barcodes)
   trajectory_sgmt_df <- t_object@segment_trajectory_df
 
-  sample_coords <-
-    coordsSpatial(object, of_sample = of_sample)
+  bc_traj <-
+    coordsTrajectory(object, of_sample = of_sample, trajectory_name = trajectory_name) %>%
+    dplyr::pull(barcodes)
 
+  background_df <- coordsSpatial(object, of_sample = of_sample)
 
   # 3. Determine trajectory geom_point layer --------------------------------
 
-  if(base::length(color_to) == 1 && color_to %in% getFeatureNames(object = object)){
+  # if of length one and feature
+  if("features" %in% base::names(color_to)){
 
-    # check feature
-    feature <- check_features(object, features = color_to)
+    coords_df <- joinWithFeatures(object = object,
+                                  coords_df = background_df,
+                                  features = color_to$features,
+                                  smooth = smooth,
+                                  smooth_span = smooth_span,
+                                  verbose = verbose) %>%
+      dplyr::filter(barcodes %in% bc_traj)
 
-    # join coordinates with feature
-    plot_df <-
-      joinWithFeatures(object = object,
-                       coords_df = sample_coords,
-                       features = feature,
-                       smooth = smooth,
-                       smooth_span = smooth_span,
-                       verbose = verbose) %>%
-      dplyr::filter(barcodes %in% trajectory_bc)
+    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
+                                    color_str = color_to,
+                                    display_title = display_title)
 
-    # prepare ggplot add on
-    base::colnames(plot_df)[base::colnames(plot_df) == feature] <- "feature"
-
-    if(base::is.numeric(plot_df$feature)){
+    # colour spectrum
+    if(base::is.numeric(coords_df$feature)){
 
       scale_color_add_on <- ggplot2::scale_color_viridis_c(option = pt_clrsp)
 
@@ -149,173 +122,79 @@ plotTrajectory <- function(object,
 
     }
 
-    if(base::isTRUE(display_title)){
+    # assemble ggplot add on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
+      scale_color_add_on,
+      labs_add_on
+    )
 
-      plot_title <- stringr::str_c("Feature:", feature, sep = " ")
+    # if of length one and gene set
+  } else if("gene_sets" %in% base::names(color_to)){
 
-      labs_add_on <- ggplot2::labs(title = plot_title, color = feature)
-
-    } else {
-
-      labs_add_on <- ggplot2::labs(color = feature)
-
-    }
-
-    ggplot_add_on <-
-      list(
-        ggplot2::geom_point(data = plot_df, size = pt_size, alpha = pt_alpha,
-                            mapping = ggplot2::aes_string(x = "x", y = "y", color = "feature")),
-        labs_add_on,
-        scale_color_add_on
-      )
-
-
-  } else if(base::length(color_to) == 1 && color_to %in% getGeneSets(object = object)){
-
-    # check gene set
-    gene_set <- check_gene_sets(object, gene_sets = color_to)
-
-    # join coordinates with gene set
-    plot_df <-
-      joinWithGeneSets(object = object,
-                       coords_df = sample_coords,
-                       gene_sets = gene_set,
-                       method_gs = method_gs,
-                       smooth = smooth,
-                       smooth_span = smooth_span,
-                       verbose = verbose) %>%
-      dplyr::filter(barcodes %in% trajectory_bc)
-
-    # prepare ggplot add on
-    base::colnames(plot_df)[base::colnames(plot_df) == gene_set] <- "gene_set"
-
-    if(isTRUE(display_title)){
-
-      gene_set_string <- stringr::str_c(gene_set, " (", method_gs, ")", sep = "")
-
-      plot_title <- stringr::str_c("Gene set:", gene_set_string, sep = " ")
-
-      labs_add_on <- ggplot2::labs(title = plot_title, color = "Expr.\nscore")
-
-    } else {
-
-      labs_add_on <- ggplot2::labs(color = "Expr.\nscore")
-
-    }
-
-    ggplot_add_on <-
-      list(
-        ggplot2::geom_point(data = plot_df, size = pt_size, alpha = pt_alpha,
-                            mapping = ggplot2::aes_string(x = "x", y = "y", color = "gene_set")),
-        ggplot2::scale_color_viridis_c(option = pt_clrsp),
-        labs_add_on
-      )
+    coords_df <- joinWithGeneSets(object = object,
+                                  coords_df = background_df,
+                                  gene_sets = color_to$gene_sets,
+                                  method_gs = method_gs,
+                                  smooth = smooth,
+                                  smooth_span = smooth_span,
+                                  verbose = verbose) %>%
+      dplyr::filter(barcodes %in% bc_traj)
 
 
+    labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets, input_str = "Gene set:",
+                                    color_str = hlpr_gene_set_name(color_to$gene_sets),
+                                    display_title = display_title)
 
-  } else if(base::any(color_to %in% getGenes(object = object))){
+    # assemble ggplot add-on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
+      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      labs_add_on
+    )
 
-    # check genes
-    rna_assay <- exprMtr(object, of_sample = of_sample)
-    genes <- check_genes(object, genes = color_to, rna_assay = rna_assay)
+  } else if("genes" %in% base::names(color_to)){
 
-    # join coordinates with genes
-    plot_df <-
-      joinWithGenes(object = object,
-                    coords_df = sample_coords,
-                    genes = genes,
-                    average_genes = TRUE,
-                    smooth = smooth,
-                    smooth_span = smooth_span,
-                    verbose = verbose) %>%
-      dplyr::filter(barcodes %in% trajectory_bc)
+    coords_df <- joinWithGenes(object = object,
+                               coords_df = background_df,
+                               genes = color_to$genes,
+                               average_genes = TRUE,
+                               smooth = smooth,
+                               smooth_span = smooth_span,
+                               verbose = verbose) %>%
+      dplyr::filter(barcodes %in% bc_traj)
 
-    # prepare ggplot add on
-    if(base::isTRUE(display_title)){
+    color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
+                              yes = color_to$genes,
+                              no = "Mean expr.\nscore")
 
-      if(base::length(genes) > 5){
+    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Genes:",
+                                    color_str = color_str,
+                                    display_title = display_title)
 
-        genes <- c(genes[1:5], stringr::str_c("... +", (length(genes)-5), sep = " "))
-
-      }
-
-      genes_string <- stringr::str_c(genes, collapse = ", ")
-
-      plot_title <- stringr::str_c("Genes:", genes_string, sep = " ")
-
-      labs_add_on <- ggplot2::labs(title = plot_title, color = "Mean expr.\n score")
-
-    } else {
-
-      labs_add_on <- ggplot2::labs(color = "Mean expr.\n score")
-    }
-
-    ggplot_add_on <-
-      list(
-        ggplot2::geom_point(data = plot_df, size = pt_size, alpha = pt_alpha,
-                            mapping = ggplot2::aes_string(x = "x", y = "y", color = "mean_genes")),
-        ggplot2::scale_color_viridis_c(option = pt_clrsp),
-        labs_add_on
-      )
-
-
-  } else {
-
-    if(!base::is.null(color_to)){
-
-      warning("Could not map argument 'color_to'. Does input match the requirements? (Hint: Features and gene sets need to be of length one.)")
-
-    }
-
-    ggplot_add_on <- ggplot2::geom_point(data = t_object@compiled_trajectory_df,
-                                         mapping = ggplot2::aes(x = x, y = y), color = pt_clr, size = pt_size)
-
-  }
-
-
-  # 4. Set up additional add-ons --------------------------------------------
-
-  # set up background
-  if(isTRUE(display_image)){
-
-    image_raster <-
-      image(object, of_sample) %>%
-      grDevices::as.raster()
-
-    img_info <-
-      image_raster %>%
-      magick::image_read() %>%
-      magick::image_info()
-
-    st_image <-
-      image_raster %>%
-      magick::image_read() %>%
-      magick::image_flip()
-
-    background_add_on <-list(
-      ggplot2::geom_point(data = dplyr::filter(sample_coords, !barcodes %in% trajectory_bc),
-                          mapping = ggplot2::aes(x = x, y = y),
-                          color = "white", size = pt_size, alpha = 0.01),
-      ggplot2::annotation_raster(raster = st_image,
-                                 xmin = 0, ymin = 0,
-                                 xmax = img_info$width,
-                                 ymax = img_info$height)
+    # assemble ggplot add-on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes_string(x = "x", y = "y", color = "mean_genes")),
+      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      labs_add_on
     )
 
 
-  } else {
+  } else if(base::is.null(color_to)){
 
-    background_add_on <-  ggplot2::geom_point(data = dplyr::filter(sample_coords, !barcodes %in% trajectory_bc),
-                                              mapping = ggplot2::aes(x = x, y = y),
-                                              color = "lightgrey", size = pt_size)
+    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
+                                              mapping = ggplot2::aes(x = x, y = y)))
 
   }
 
-
-  # 5. Plotting -------------------------------------------------------------
+  # -----
 
   ggplot2::ggplot() +
-    background_add_on +
+    hlpr_image_add_on2(object, display_image, of_sample) +
+    ggplot2::geom_point(data = background_df, ggplot2::aes(x = x, y = y), alpha = 0.1, color = "white") +
     ggplot_add_on +
     ggplot2::geom_segment(data = trajectory_sgmt_df,
                           mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
@@ -324,6 +203,7 @@ plotTrajectory <- function(object,
     ggplot2::theme_void() +
     ggplot2::coord_equal()
 
+
 }
 
 
@@ -331,33 +211,16 @@ plotTrajectory <- function(object,
 #'
 #' @description Displays values along a trajectory direction.
 #'
-#' @param object A valid spata-object.
-#' @param trajectory_name The trajectory to plot specified as a character vector
-#' of length one.
-#' @param of_sample The sample from which the trajectory derives specfified as a
-#' character vector of length one.
-#' @param features The features you want to display specified as a character
-#' vector (only numeric features can be plotted with \code{plotTrajectoryFeatures()}).
-#' @param genes The genes to be displayed specified as a character vector.
-#' @param average_genes Logical value. If set to TRUE coords_df will be joined with
-#' the mean expression values of all genes specified.
-#' @param gene_sets The gene sets to be displayed specified as a character
-#' vector.
-#' @param method_gs The method according to which gene sets will be handled
-#' specified as a character of length one. This can be either \emph{mean} or one
-#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-#' \code{gsva::GSVA()}.
-#' @param smooth_method The smoothing method that will be used specified as a
-#' character vector of length one (e.g. \emph{"lm", "glm", "gam", "loess"}).
-#' @param smooth_se Logical value. If set to TRUE the confidence interval will be
-#' displayed.
-#' @param smooth_span The amount of smoothing specified as a numeric vector of
-#' length one given to \code{stats::loess()}.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
+#' @inherit check_sample params
+#' @inherit check_features params
+#' @inherit check_gene_sets params
+#' @inherit check_method params
+#' @inherit check_genes params
+#' @inherit average_genes params
+#' @inherit check_smooth params
+#' @inherit verbose params
 #'
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' @inherit plot_family return
 #'
 #' @export
 
@@ -367,20 +230,21 @@ plotTrajectoryFeatures <- function(object,
                                    features = "percent.mt",
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
-                                   smooth_se = T,
+                                   smooth_se = TRUE,
                                    verbose = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
 
-  validation(object)
+  # lazy check
+  check_object(object)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
+  # adjusting check
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
+  features <- check_features(object, features = features, valid_classes = c("numeric", "integer"))
 
-  features <-
-    check_features(object, features = features, valid_classes = c("numeric", "integer")) %>%
-    base::unname()
-
+  # -----
 
   # 2. Data wrangling -------------------------------------------------------
 
@@ -393,7 +257,7 @@ plotTrajectoryFeatures <- function(object,
     joinWithFeatures(object = object,
                      coords_df = .,
                      features = features,
-                     smooth = F,
+                     smooth = FALSE,
                      verbose = verbose)
 
   result_df <-
@@ -407,7 +271,6 @@ plotTrajectoryFeatures <- function(object,
                         names_to = "Features",
                         values_to = "Values")
 
-
   vline_df <-
     result_df %>%
     dplyr::group_by(trajectory_part) %>%
@@ -415,8 +278,7 @@ plotTrajectoryFeatures <- function(object,
                     trajectory_part_order == 1 &
                     Features == features[1])
 
-
-  # 3. Plotting -------------------------------------------------------------
+  # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = Values)) +
     ggplot2::geom_vline(data = vline_df[-1,],
@@ -452,10 +314,12 @@ plotTrajectoryGenes <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  validation(object)
+  # lazy check
+  check_object(object)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
-
+  # adjusting check
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
   if(base::length(genes) > 5 && base::isFALSE(average_genes) && base::isTRUE(verbose)){
 
@@ -465,8 +329,6 @@ plotTrajectoryGenes <- function(object,
 
   if(average_genes){
 
-    columns <- "mean_genes"
-
     y_title <- "Mean expression score"
 
     rna_assay <- exprMtr(object = object, of_sample = of_sample)
@@ -474,26 +336,23 @@ plotTrajectoryGenes <- function(object,
 
     if(base::length(genes) == 1){
 
-      average_genes <- F
-      plot_title <- genes
+      average_genes <- FALSE
       base::warning("Can not average one gene. Treating 'average_genes' as FALSE.")
+      y_title <- "Expression score"
 
     }
-
 
   } else {
 
     rna_assay <- exprMtr(object = object, of_sample = of_sample)
     genes <- check_genes(object, genes = genes, max_length = 10, rna_assay = rna_assay)
 
-    columns <- genes
 
     y_title <- "Expression score"
 
-    plot_title <- NULL
-
   }
 
+  # -----
 
   # 2. Data wrangling -------------------------------------------------------
 
@@ -509,10 +368,17 @@ plotTrajectoryGenes <- function(object,
                   average_genes = average_genes,
                   verbose = verbose)
 
+  # adapt genes in case normalization failed in some cases
+  if(!base::isTRUE(average_genes)){
+
+    genes <- genes[genes %in% base::colnames(coords_with_genes)]
+
+  }
+
   result_df <-
     coords_with_genes %>%
     dplyr::group_by(trajectory_part, order_binned) %>%
-    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = {{columns}}), ~ mean(., na.rm = TRUE)), .groups = "drop_last") %>%
+    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = {{genes}}), ~ mean(., na.rm = TRUE)), .groups = "drop_last") %>%
     dplyr::mutate(trajectory_part_order = dplyr::row_number()) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(trajectory_order = dplyr::row_number())
@@ -540,8 +406,7 @@ plotTrajectoryGenes <- function(object,
                     trajectory_part_order == 1 &
                     genes == genes[1])
 
-
-  # 3. Plotting -------------------------------------------------------------
+  # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = expr_score)) +
     ggplot2::geom_vline(data = vline_df[-1,],
@@ -556,8 +421,7 @@ plotTrajectoryGenes <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = y_title, color = "Genes", title = plot_title)
-
+    ggplot2::labs(x = "Direction", y = y_title, color = "Genes")
 
 }
 
@@ -571,18 +435,22 @@ plotTrajectoryGeneSets <- function(object,
                                    method_gs = "mean",
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
-                                   smooth_se = T,
-                                   verbose = T){
+                                   smooth_se = TRUE,
+                                   verbose = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
 
-  validation(object)
+  # lazy check
+  check_object(object)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_method(method_gs = method_gs)
 
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
-
+  # adjusting check
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   gene_sets <- check_gene_sets(object, gene_sets = gene_sets, max_length = 10)
 
+  # -----
 
   # 2. Data wrangling -------------------------------------------------------
 
@@ -618,8 +486,7 @@ plotTrajectoryGeneSets <- function(object,
                     trajectory_part_order == 1 &
                     gsets == gene_sets[1])
 
-  # 3. Plotting -------------------------------------------------------------
-
+  # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = expr_score)) +
     ggplot2::geom_vline(data = vline_df[-1,],

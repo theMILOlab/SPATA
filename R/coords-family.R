@@ -96,9 +96,7 @@ coordsTrajectory <- function(object,
   # 2. Data extraction ------------------------------------------------------
 
   t_object <-
-    getTrajectoryObject(object,
-                        trajectory_name = trajectory_name,
-                        of_sample = of_sample)
+    trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
 
   # -----
 

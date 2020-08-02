@@ -9,9 +9,10 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0
+Imports: 
+    magrittr,
+    matrixcalc
 Collate: 
-    'S4_documentation.R'
-    'DEPRECATED.R'
     'S4-documentation.R'
     'S4-generic-functions.R'
     'add-family.R'
@@ -21,6 +22,7 @@ Collate:
     'checkpoint.R'
     'coords-family.R'
     'create_family.R'
+    'deprecated-functions.R'
     'documentation-dummies.R'
     'get-family.R'
     'helper-functions.R'
@@ -31,6 +33,3 @@ Collate:
     'plot-family-surface.R'
     'plot-family-trajectory.R'
     'validation.R'
-Imports: 
-    magrittr,
-    matrixcalc

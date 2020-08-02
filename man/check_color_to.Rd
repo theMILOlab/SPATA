@@ -2,7 +2,6 @@
 % Please edit documentation in R/check-family-adjusting.R
 \name{check_color_to}
 \alias{check_color_to}
-\alias{check_variables}
 \title{Check color to}
 \usage{
 check_color_to(
@@ -12,24 +11,15 @@ check_color_to(
   all_genes = character(),
   max_length = 25
 )
-
-check_variables(
-  variables,
-  all_features = character(),
-  all_gene_sets = character(),
-  all_genes = character(),
-  max_length = 25,
-  simplify = FALSE
-)
 }
 \arguments{
-\item{color_to}{The information to be displayed by color.
+\item{color_to}{The variable to be displayed by color specified as .
 
  \itemize{
-  \item{ \strong{Gene sets} as a single character value.}
+  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
-  expression of those genes will be calculated and displayed.}
-  \item{ \strong{Features} as a single character value.}
+  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
   }}
 
 \item{all_features}{The valid features specified as a character vector.}

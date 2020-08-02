@@ -28,13 +28,13 @@ adjusting_check_dummy <- function(){}
 #' Returns a list with three slots named \emph{features}, \emph{genes} and \emph{gene_sets}
 #' containing the respective found/valid input of \code{color_to}.
 #'
-#' @param color_to The information to be displayed by color.
+#' @param color_to The variable to be displayed by color specified as .
 #'
 #'  \itemize{
-#'   \item{ \strong{Gene sets} as a single character value.}
+#'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
 #'   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
-#'   expression of those genes will be calculated and displayed.}
-#'   \item{ \strong{Features} as a single character value.}
+#'   expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+#'   \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
 #'   }
 #'
 #' @param all_features The valid features specified as a character vector.
@@ -124,17 +124,25 @@ check_color_to <- function(color_to,
 
   }
 
-  if(max_length == 1){
-
-    return_list <- base::unlist(return_list)
-
-  }
-
   base::return(return_list)
 
 }
 
-#' @rdname check_color_to
+#' @title Check variables
+#' @param variables The variables of interest specified as a character vector:
+#'
+#' \itemize{
+#'  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
+#'  \item{ \strong{Genes}: Must be in \code{getGenes()}}
+#'  \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+#'  }
+#'
+#' @param all_features Valid features.
+#' @param all_gene_sets Valid gene sets.
+#' @param all_genes Valid genes.
+#' @param max_length Max number of variables.
+#' @param simplify If set to TRUE the \code{check_variables()}-output is a vector.
+#'
 #' @export
 
 check_variables <- function(variables,

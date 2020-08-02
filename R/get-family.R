@@ -412,7 +412,16 @@ getTrajectoryNames <- function(object,
 
   t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
 
-  base::return(t_list)
+  if(!base::length(t_names_list) == 0){
+
+    base::return(t_names_list)
+
+  } else {
+
+    base::return(base::invisible(NULL))
+
+  }
+
 
 }
 
