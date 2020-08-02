@@ -6,27 +6,13 @@
 #'  the \emph{barcodes}-variable with a specified aspect.
 #'
 #' @param object A valid spata-object.
-#' @param coords_df A data.frame that contains variables \emph{barcodes, sample}
-#' @param features The features you want to join \code{coords_df} with specified
-#' as a character vector.
-#' @param genes The genes you want to join \code{coords_df} with specified
-#' as a character vector.
-#' @param average_genes Logical value. If set to TRUE coords_df will be joined with
-#' the mean expression values of all genes specified.
-#' @param gene_sets The gene sets you want to join \code{coords_df} with specified
-#' as a character vector.
-#' @param method_gs The method according to which gene sets will be handled
-#' specified as a character of length one. This can be either \emph{mean} or one
-#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-#' \code{gsva::GSVA()}.
-#' @param smooth Logical value. If set to TRUE values will be
-#' smoothed with respect to their local neighbors using \code{stats::loess()}.
-#' @param smooth_span Numeric value, given to \code{stats::loess()} if
-#'  \code{smooth} is set to TRUE.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
+#' @inherit check_coords_df params
+#' @inherit check_features params
+#' @inherit check_gene_sets params
+#' @inherit check_genes params
+#' @inherit check_smooth params
+#' @inherit check_method params
+#' @inherit verbose params
 #'
 #' @return The input data.frame of \code{coords_df} joined with all the aspects
 #' specified variables specified in \code{features} by the key \emph{barcodes}.
@@ -40,17 +26,19 @@ joinWithFeatures <- function(object,
                              smooth_span = 0.02,
                              verbose = TRUE){
 
+  # 1. Control --------------------------------------------------------------
 
-  # 1. Control valid input --------------------------------------------------
+  # lazy check
 
-  validation(x = object)
+  check_object(object)
+  check_coords_df(coords_df)
+  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
 
-  coords_df <- check_coords_df(coords_df)
 
+  # adjusting check
   features <- check_features(object, features = features)
 
-  smooth <- check_smooth(df = coords_df, smooth = smooth, verbose = verbose)
-
+  # -----
 
   # 2. Join data ------------------------------------------------------------
 
@@ -61,7 +49,7 @@ joinWithFeatures <- function(object,
   joined_df <-
     dplyr::left_join(x = coords_df, y = fdata, by = "barcodes")
 
-
+  # -----
 
   # 3. Smooth if specified -------------------------------------------------
 
@@ -78,8 +66,7 @@ joinWithFeatures <- function(object,
 
   }
 
-
-  # 4. Return final data frame ----------------------------------------------
+  # -----
 
   base::return(joined_df)
 
@@ -97,20 +84,21 @@ joinWithGenes <- function(object,
                           normalize = TRUE,
                           verbose = TRUE){
 
-  # 1. Control valid input --------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
-  validation(x = object)
+  # lazy check
 
-  coords_df <- check_coords_df(coords_df)
+  check_object(object)
+  check_coords_df(coords_df)
+  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
 
+  # adjusting check
   rna_assay <- exprMtr(object, of_sample = base::unique(coords_df$sample))
-
   genes <- check_genes(object, genes = genes, rna_assay = rna_assay)
 
-  smooth <- check_smooth(df = coords_df, smooth = smooth, verbose = verbose)
+  # -----
 
-
-  # 2. Extract expression values  -------------------------------------------
+  # 2. Extract expression values and join with coords_df ---------------------
 
   barcodes <- coords_df$barcodes
 
@@ -151,6 +139,7 @@ joinWithGenes <- function(object,
   joined_df <-
     dplyr::left_join(x = coords_df, y = gene_vls, by = "barcodes")
 
+  # -----
 
   # 3. Smooth and normalize if specified ------------------------------------
 
@@ -180,8 +169,7 @@ joinWithGenes <- function(object,
 
   }
 
-
-  # 4. Return final data frame ----------------------------------------------
+  # -----
 
   base::return(joined_df)
 
@@ -199,15 +187,20 @@ joinWithGeneSets <- function(object,
                              normalize = TRUE,
                              verbose = TRUE){
 
-  # 1. Control valid input --------------------------------------------------
+  # 1. Control --------------------------------------------------------------
 
-  validation(x = object)
+  # lazy check
 
-  coords_df <- check_coords_df(coords_df)
+  check_object(object)
+  check_coords_df(coords_df)
+  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
+  check_method(method_gs = method_gs)
 
+
+  # adjusting check
   gene_sets <- check_gene_sets(object, gene_sets = gene_sets)
 
-  smooth <- check_smooth(df = coords_df, smooth = smooth, verbose = verbose)
+  # -----
 
   # 2. Extract gene set data and join with coords_df ------------------------
 
@@ -284,6 +277,8 @@ joinWithGeneSets <- function(object,
 
   }
 
+  # -----
+
 
   # 3. Smooth and normalize if specified ------------------------------------
 
@@ -311,8 +306,7 @@ joinWithGeneSets <- function(object,
 
   }
 
-
-  # 4. Return final data frame ----------------------------------------------
+  # -----
 
   base::return(joined_df)
 

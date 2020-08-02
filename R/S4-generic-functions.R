@@ -105,7 +105,7 @@ setMethod(f = "image", signature = "spata", definition = function(object, of_sam
 #' @export
 setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_sample = "all"){
 
-  of_sample <- check_sample(object = object, sample_input = of_sample)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
 
   bc_in_sample <-
     object@fdata %>%

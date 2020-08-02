@@ -1,61 +1,49 @@
 
+#' @title This is a text dummy
+#'
+#' @details Members of the \code{adjusting-check_*()}-family take their
+#' arguments input and compare it to a variety of requirement settings by
+#' running several logical tests. If the input turns out to be appropriate
+#' for the main-function they return it the way it is supposed to be returned.
+#' If not, depending on the degree of deviation from the optimum, they either adjust
+#' the input in order not to interrupt the function or - if not adjustable - raise an
+#' error. In both cases informative messages will be printed in order to let the user
+#' know what has been adjusted or what part of the input was insufficient.
+#'
+#' @return The original input, an adjusted version of it or an error. In the latter two
+#' cases they print an informative message about what was going on.
 
-#' Check input
+adjusting_check_dummy <- function(){}
+
+
+
+#################################################################################################
+
+#' @title Check color to
 #'
-#' @description Make sure that no objects are overwritten.
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector and sorts its elements into a list depending on whether it was found in
+#' the input of \code{all_features}, \code{all_genes} or \code{all_gene_sets}.
 #'
-#' @param assign Logical.
-#' @param assign_name Character value.
+#' Returns a list with three slots named \emph{features}, \emph{genes} and \emph{gene_sets}
+#' containing the respective found/valid input of \code{color_to}.
+#'
+#' @param color_to The information to be displayed by color.
+#'
+#'  \itemize{
+#'   \item{ \strong{Gene sets} as a single character value.}
+#'   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+#'   expression of those genes will be calculated and displayed.}
+#'   \item{ \strong{Features} as a single character value.}
+#'   }
+#'
+#' @param all_features The valid features specified as a character vector.
+#' @param all_genes The valid genes specified as a character vector.
+#' @param all_gene_sets The valid gene sets specified as a character vector.
+#' @param max_length The maximum number of elements the resulting list can have.
+#'
+#' @inherit adjusting_check_dummy details return
 #' @export
-
-check_assign <- function(assign, assign_name){
-
-  stopifnot(base::is.logical(assign))
-
-  if(base::isTRUE(assign)){
-
-    if(!base::is.character(assign_name) | !base::length(assign_name) == 1){
-
-      base::stop("Argument 'assign_name' needs be a character value.")
-
-    }
-
-    if(assign_name == ""){
-
-      base::stop("Argument 'assign_name' must not be ''.")
-
-    }
-
-    if(base::exists(x = assign_name, where = .GlobalEnv)){
-
-      base::stop(stringr::str_c("It already exists an object named '",
-                                assign_name, "' in the global environment.",
-                                sep = ""))
-
-    }
-
-
-  }
-
-}
-
-
-#' Check input
-#'
-#' @description Checks what of the color_to input is actually given in the object.
-#' The all_* parameters allow for manipulation of what color_to input is an
-#' option. (e.g. if color_to of the specific function must not be of type 'features'
-#' specify paramter 'all_features' as an empty character vector and no color_to element
-#' can be recognized as such.)
-#'
-#' @param color_to character or list
-#' @param all_features character. all features
-#' @param all_gene_sets character. all gene sets
-#' @param all_genes character. all genes
-#'
-#' @return a named list (or a character vector if max_length is set to 1).
-#' @export
-#'
 
 check_color_to <- function(color_to,
                            all_features = character(),
@@ -72,7 +60,6 @@ check_color_to <- function(color_to,
     stop("Argument 'color_to' needs to be of class 'character' or of class 'list'.")
 
   }
-
 
   if(base::length(color_to) > max_length){
 
@@ -122,7 +109,9 @@ check_color_to <- function(color_to,
 
     not_found_string <- stringr::str_c(not_found, collapse = "', '")
 
-    base::warning(stringr::str_c("Did not find gene set(s) and/or gene(s) '", not_found_string, "' of argument 'color_to'.", sep = ""))
+    base::warning(stringr::str_c("Did not find '", not_found_string,
+                                 "' of argument 'color_to' in the provided spata object.",
+                                 sep = ""))
 
   }
 
@@ -131,9 +120,11 @@ check_color_to <- function(color_to,
 
   if(base::length(return_list) == 0){
 
-    base::stop("Could not find any of the specified gene set(s) and/or gene(s) of argument 'color_to'.")
+    base::stop("Could not find any element of argument 'color_to' in the provided spata-object..")
 
-  } else if(max_length == 1) {
+  }
+
+  if(max_length == 1){
 
     return_list <- base::unlist(return_list)
 
@@ -147,11 +138,11 @@ check_color_to <- function(color_to,
 #' @export
 
 check_variables <- function(variables,
-                             all_features = character(),
-                             all_gene_sets = character(),
-                             all_genes = character(),
-                             max_length = 25,
-                             simplify = FALSE){
+                            all_features = character(),
+                            all_gene_sets = character(),
+                            all_genes = character(),
+                            max_length = 25,
+                            simplify = FALSE){
 
     if(base::is.list(variables) & !base::is.data.frame(variables)){
 
@@ -234,130 +225,20 @@ check_variables <- function(variables,
 }
 
 
-
-#' Title
+#' @title Check feature variables input
 #'
-#' @param data A data.frame containing numeric variables for x and y axis
-#' @param x The name of the numeric variable to be plotted on the x axis.
-#' @param y The name of the numeric variable to be plotted on the y axis.
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector of feature names, checks who of the features exist and checks additionally
+#' if these features match the class requirements of \code{valid_classes}.
 #'
-#' @export
-#'
-#' @examples
-#'
-
-check_coordinates <- function(data, x = "x", y = "y"){
-
-  if(!base::all(c(x, y) %in% base::colnames(data))){
-
-    base::stop(glue::glue("Provided data.frame needs to have variables '{x}' and '{y}'."))
-
-  }
-
-  if(base::any(!base::sapply(X = data[,c(x,y)], FUN = base::is.numeric))){
-
-    base::stop(glue::glue("Both variables '{x}' and '{y}' need to be numeric."))
-
-  }
-
-}
-
-#' @title Check input
-#'
-#' @description The \code{check_()}-function family checks a functions input to
-#' make sure that the function can run bugfree. If the input does not suffice a
-#' helping message is printed for the user to know what needs to be adjusted in
-#' order to make the function work.
-#'
-#' @param coords_df A data.frame that contains two character variables: \emph{
-#' barcodes & sample}
-#'
-#' @return
-#' - If the input is just fine: the input.
-#' - If the input suffices for the function to work but needs slight moderation:
-#' a modified version of the input along with a warning-message.
-#' - If the input does not suffice for the function to work: an error
-#' @export
-
-check_coords_df <- function(coords_df){
-
-  if(!base::is.data.frame(coords_df)){
-
-    base::stop("Argument 'coords_df' needs to be a data.frame.")
-
-  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(coords_df))){
-
-    base::stop("'coords_df' needs to have 'barcodes' and 'sample' variables.")
-
-  } else {
-
-    classes <- base::sapply(X = coords_df[,c("barcodes", "sample")],
-                            FUN = base::class)
-
-    if(!base::all(classes == "character")){
-
-      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
-
-    } else {
-
-      return(coords_df)
-
-    }
-
-  }
-
-
-}
-
-#' @rdname check_coords_df
-#' @export
-check_feature_df <- function(feature_df){
-
-  if(!base::is.data.frame(feature_df)){
-
-    base::stop("Argument 'feature_df' needs to be a data.frame.")
-
-  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(feature_df))){
-
-    base::stop("'feature_df' needs to have 'barcodes' and 'sample' variables.")
-
-  } else {
-
-    classes <- base::sapply(X = feature_df[,c("barcodes", "sample")],
-                            FUN = base::class)
-
-    if(!base::all(classes == "character")){
-
-      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
-
-    } else {
-
-      return(feature_df)
-
-    }
-
-  }
-
-}
-
-
-#' @title Check input
+#' Returns an adjusted featurs-vector or raises an error.
 #'
 #' @param object A valid spata-object.
-#' @param features The feature-input.
+#' @param features The features of interest specified as a character vector.
 #' @param valid_classes The feature-classes that are allowed.
-#' @param max_length The maximum length the input can have.
+#' @param max_length The maximum number of features allowed.
 #'
-#' @return
-#' - If the input is just fine: the input.
-#' - If the input suffices for the function to work but needs slight moderation:
-#' a modified version of the input along with a warning-message.
-#' - If the input does not suffice for the function to work: an error
-#'
-#' @description The \code{check_()}-function family checks a functions input to
-#' make sure that the function can run bug-free. If the input does not suffice a
-#' helping message is printed for the user to know what needs to be adjusted in
-#' order to make the function work.
+#' @inherit adjusting_check_dummy details return
 #' @export
 
 check_features <- function(object,
@@ -365,15 +246,19 @@ check_features <- function(object,
                            valid_classes = NULL,
                            max_length = NULL){
 
+  # 1. Control --------------------------------------------------------------
+
   if(base::length(features) == 0 | !base::is.character(features)){
 
     base::stop("Invalid input for argument 'features'. Needs to be character vector of length > 0.")
 
   }
 
+  # -----
+
   fnames <- getFeatureNames(object = object)
 
-  # 1. Check if/how many features actually exist  ---------------------------
+  # 2. Check if/how many features actually exist  ---------------------------
 
   if(!base::any(features %in% fnames)){
 
@@ -396,8 +281,9 @@ check_features <- function(object,
 
   }
 
+  # -----
 
-  # 2. Check which of the provided features match the 'class' required ------
+  # 3. Check which of the provided features are of valid classes ------------
 
   if(!base::is.null(valid_classes)){
 
@@ -426,8 +312,9 @@ check_features <- function(object,
 
   }
 
+  # -----
 
-  # 3. Check whether fnames is of desired length ----------------------------
+  # 4. Check whether fnames is of desired length ----------------------------
 
   if(!base::is.null(max_length) &&
      base::length(fnames) > max_length) {
@@ -438,6 +325,7 @@ check_features <- function(object,
 
   }
 
+  # -----
 
   base::return(base::unname(fnames))
 
@@ -445,7 +333,7 @@ check_features <- function(object,
 
 
 #' @inheritParams check_features
-#' @param genes The genes-input.
+#' @param genes The genes of interest specified as a character vector.
 #' @param rna_assay A rna-assay (e.g. derived from \code{exprMtr()}).
 #'
 #' @inherit check_features description return title
@@ -454,6 +342,8 @@ check_genes <- function(object,
                         genes,
                         rna_assay = NULL,
                         max_length = NULL){
+
+  # 1. Control --------------------------------------------------------------
 
   if(base::length(genes) == 0 | !base::is.character(genes)){
 
@@ -473,7 +363,9 @@ check_genes <- function(object,
 
   }
 
-  # 1. Check if/how many genes actually exist -------------------------------
+  # -----
+
+  # 2. Check if/how many genes actually exist -------------------------------
 
   if(!base::any(genes %in% base::rownames(rna_assay))){
 
@@ -494,8 +386,9 @@ check_genes <- function(object,
 
   }
 
+  # -----
 
-  # 2. Check whether genes found is of desired length -----------------------
+  # 3. Check whether genes found is of desired length -----------------------
 
   if(!base::is.null(max_length) &&
      base::length(genes_found) > max_length){
@@ -506,6 +399,7 @@ check_genes <- function(object,
 
   }
 
+  # -----
 
   base::return(genes_found)
 
@@ -515,12 +409,15 @@ check_genes <- function(object,
 
 #' @inherit check_features description return title params
 #'
-#' @param gene_sets The gene_sets-input.
+#' @param gene_sets The gene sets of interest specified as a character vector.
 #' @export
 
 check_gene_sets <- function(object,
                             gene_sets,
                             max_length = NULL){
+
+
+  # 1. Control --------------------------------------------------------------
 
   if(base::length(gene_sets) == 0 | !base::is.character(gene_sets)){
 
@@ -528,12 +425,18 @@ check_gene_sets <- function(object,
 
   }
 
+
+  # 2. Main part ------------------------------------------------------------
+
   gene_set_df <- object@used_genesets
 
+  # 1. Check if/how many gene sets actually exists ----------
 
-  # 1. Check if/how many gene sets actually exists --------------------------
+  if(base::all(gene_sets == "all")){
 
-  if(!any(gene_sets %in% gene_set_df$ont)){
+    gene_sets_found <- gene_set_df$ont %>% base::unique()
+
+  } else if(!any(gene_sets %in% gene_set_df$ont)){
 
     stop("Could not find any specified geneset.")
 
@@ -555,8 +458,10 @@ check_gene_sets <- function(object,
 
   }
 
+  # -----
 
-  # 2. Check whether gene sets found is of desired length -------------------
+
+  # 2. Check whether gene sets found is of desired length ----------
 
   if(!base::is.null(max_length) &&
      base::length(gene_sets_found) > max_length){
@@ -567,112 +472,63 @@ check_gene_sets <- function(object,
 
   }
 
+  # -----
 
   base::return(gene_sets_found)
 
-
 }
-
-#' @inherit check_features description return title params
-#'
-#' @param gene_sets The gene_sets-input.
-#' @export
-check_pt_clrsp <- function(pt_clrsp){
-
-  if(base::length(pt_clrsp) != 1 |
-     !pt_clrsp %in% c("inferno", "viridis", "magma", "plasma", "cividis")){
-
-    base::stop("Invalid input for 'pt_clrsp'.")
-
-  }
-
-}
-
-
-
-
-#' @inherit check_features description return title
-#'
-#' @param pt_size The pt_size-input.
-#' @param pt_alpha The pt_alpha-input.
-#' @param pt_clrsp The pt_clrsp-input.
-#' @export
-
-check_pt_input <- function(pt_size = NULL,
-                           pt_alpha = NULL,
-                           pt_clrsp = NULL){
-
-  if(!base::is.null(pt_clrsp) && !pt_clrsp %in% c("inferno", "magma", "plasma", "cividis", "viridis")){
-
-    base::stop("Argument 'pt_clrsp' needs to be one of 'inferno', 'magma', 'plasma', 'cividis' or 'viridis'.")
-
-  }
-
-  if(!base::is.null(pt_size) && !base::is.numeric(pt_size)){
-
-    base::stop("Argument 'pt_size' needs to be numeric.")
-
-  }
-
-  if(!base::is.null(pt_alpha) && !base::is.numeric(pt_alpha)){
-
-    base::stop("Argument 'pt_alpha' needs to be numeric.")
-
-  }
-
-}
-
-
 
 
 
 #' @inherit check_features description return params title
 #'
-#' @param sample_input The sample input.
+#' @param of_sample The sample(s) of interest specified as a single character value or vector.
 #' @param desired_length The length the input must have.
 #' @export
 
 check_sample <- function(object,
-                         sample_input,
+                         of_sample,
                          desired_length = NULL){
 
-  if(!base::is.character(sample_input) | base::length(sample_input) == 0){
+  # 1. Check which samples are in the object --------------------------------
+
+  if(!base::is.character(of_sample) | base::length(of_sample) == 0){
 
     stop("Please specify the sample with its name as a character vector of length > 0.")
 
-  } else if(base::length(sample_input) == 1 && sample_input == "all"){
+  } else if(base::all(of_sample == "all")){
 
-    sample_input <- samples(object = object)
+    of_sample <- samples(object = object)
 
-    if(!base::is.null(desired_length) && base::length(sample_input) != desired_length){
+    if(!base::is.null(desired_length) && base::length(of_sample) != desired_length){
 
       stop(stringr::str_c("Number of samples specified needs to be: ", desired_length, ". ",
                           "Setting 'of_sample' to 'all' results in ",
-                          base::length(sample_input), " samples.", sep = ""))
+                          base::length(of_sample), " samples.", sep = ""))
 
     }
 
-    return(sample_input)
+    base::return(of_sample)
 
-  }  else if(!base::any(sample_input %in% object@samples)){
+  }  else if(!base::any(of_sample %in% object@samples)){
 
-    stop("Could not find sample(s) in provided object.")
+    stop("Could not find any of the specified samples in provided object.")
 
-  } else if(base::any(sample_input %in% samples(object))){
+  } else if(base::any(of_sample %in% samples(object))){
 
-    samples_found <- object@samples[object@samples %in% sample_input]
+    samples_found <- object@samples[object@samples %in% of_sample]
 
-    if(length(sample_input) > 1){
+    if(base::length(of_sample) > 1){
 
       samples_found_string <- stringr::str_c(samples_found, collapse = ", ")
 
-    } else if(base::length(sample_input) == 1){
+    } else if(base::length(of_sample) == 1){
 
       samples_found_string <- samples_found
 
     }
 
-    if(base::length(samples_found) != base::length(sample_input)){
+    if(base::length(samples_found) != base::length(of_sample)){
 
       base::warning(stringr::str_c("Did only find samples: ", samples_found_string, "."))
 
@@ -680,9 +536,9 @@ check_sample <- function(object,
 
   }
 
+  # -----
 
   # 2. Check if length of samples found coincides with desired length -------
-
 
   if(!base::is.null(desired_length) &&
      base::length(samples_found) != desired_length){
@@ -691,49 +547,54 @@ check_sample <- function(object,
 
   }
 
+  # -----
+
   base::return(samples_found)
 
 }
 
 
-#' @inherit check_features return title
+
+#' @title Check segment name
 #'
-#' @description Checks among other things whether \code{df} is spatially 'smoothable' -
-#' whether it contains x and y variables.
+#' @description A member of the \code{adjusting-check_*()}-family. Takes the
+#' segment name as a single character value, check whether such a segment
+#' exists in the provided spata-object. If no an error is raised. Else the
+#' barcodes of spots belonging to the specified segment are returned.
 #'
-#' @param df The data.frame that is to be smoothed.
-#' @param smooth The smooth input.
-#' @param verbose Logical.
+#' @param object A valid spata-object.
+#' @param segment_name The segment of interest specified as a single character
+#' value.
+#'
+#' @inherit adjusting_check_dummy details return
 #' @export
 
-check_smooth <- function(df, smooth, verbose = TRUE){
+check_segment <- function(object,
+                          segment_name){
 
-  if(!base::isTRUE(smooth) & !base::isFALSE(smooth)){
+  if(!is.null(segment_name) && !is.character(segment_name) && length(segment_name) != 1){
 
-    base::stop("Argument 'smooth' needs to be TRUE or FALSE.")
+    base::stop("Argument 'segment_name' needs to be a single character value.")
 
-  }
+  } else if(!is.null(segment_name)){
 
-  if(base::isTRUE(smooth)){
+    bc_segm <-
+      featureData(object, of_sample = of_sample) %>%
+      dplyr::filter(segment == segment_name) %>%
+      dplyr::pull(barcodes)
 
-    if(!base::all(c("x", "y") %in% base::colnames(df))){
+    if(base::length(bc_segm) == 0){
 
-      base::warning("Input data.frame doesn't contain x and y variables. Skip smoothing." )
-
-      base::return(FALSE)
+      base::stop(stringr::str_c("There is no segment of name' ", segment_name,
+                                "' in sample '", of_sample, "'.", sep = ""))
 
     } else {
 
-      base::return(TRUE)
+      base::return(bc_segm)
 
     }
 
-  } else {
-
-    base::return(FALSE)
-
   }
-
 
 }
 

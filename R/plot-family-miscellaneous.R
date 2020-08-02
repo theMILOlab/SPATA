@@ -12,28 +12,27 @@ plotDimRed <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  validation(x = object)
+  # lazy check
+  check_obejct(object)
+  check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
-  check_pt_input(pt_size, pt_alpha, pt_clrsp)
-
+  # adjusting check
   of_sample <- check_sample(object = object, sample_input = of_sample)
+  color_to <- check_color_to(color_to = color_to,
+                             max_length = 1,
+                             all_genes = getGenes(object, in_sample = of_sample),
+                             all_gene_sets = getGeneSets(object),
+                             all_features = getFeatureNames(object)
+                             )
 
-  if(!is.character(color_to) & !is.null(color_to)){
-
-    stop("Argument 'color_to' needs to be either NULL or a character vector.")
-
-  }
+  # -----
 
 
   # 2. Extract dimensional reduction ----------------------------------------
 
   dimRed_df <- coordsDimRed(object, method_dr = method_dr, of_sample = of_sample)
 
-  if(base::nrow(dimRed_df) == 0){
-
-    base::stop("There seems to be no data for method: ", method_dr)
-
-  }
+  # -----
 
   # 3. Join data and prepare ggplot add-ons ---------------------------------
 

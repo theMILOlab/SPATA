@@ -711,7 +711,6 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
 
       # Return values -----------------------------------------------------------
-      print(4)
 
       return_list <- shiny::reactive({
 
