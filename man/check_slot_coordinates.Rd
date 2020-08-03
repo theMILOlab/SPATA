@@ -40,7 +40,8 @@ check_slot_samples(object)
 \item{object}{A spata-object.}
 }
 \value{
-A character string. (Call \code{base::writeLines() wtih that string as input.})
+A character string. (Call \code{base::writeLines()} with that
+ string as input in order to format it.)
 }
 \description{
 Functions that provide a report regarding the validity of

@@ -13,6 +13,9 @@ check_smooth(
 )
 }
 \arguments{
+\item{df}{A data.frame that is to be smoothed spatially. That data frame must have
+numeric \emph{x}- and \emph{y}-variables.}
+
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 

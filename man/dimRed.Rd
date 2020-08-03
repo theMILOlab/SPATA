@@ -3,14 +3,11 @@
 \name{dimRed}
 \alias{dimRed}
 \alias{featureNames}
-\alias{getTrajectoryObject}
 \title{Deprecated functions}
 \usage{
 dimRed(object, of_sample, method)
 
 featureNames(object)
-
-getTrajectoryObject(object, trajectory_name, of_sample)
 }
 \description{
 Deprecated functions

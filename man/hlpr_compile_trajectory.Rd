@@ -24,9 +24,15 @@ trajectory.}
 }
 \value{
 A data.frame containing the variables \emph{barcodes, sample, x, y}
-as well as \emph{projection_length} indicating the position of the barcode
-with respect to the direction of the trajectory-part and \emph{trajectory_part}
-indicating the part of the trajectory the barcode belongs to.
+as well as
+\itemize{
+ \item{\emph{projection_length}: indicating the position of every barcode-spot
+ with respect to the direction of the trajectory-part. The higher the barcode-spots
+ value is the farther away it is from the starting point of the trajectory-part
+ it belongs to. }
+ \item{\emph{trajectory_part}: indicating the part of the trajectory the barcode-spot
+  belongs to.}
+  }
 }
 \description{
 Compiles a trajectory data.frame

@@ -917,7 +917,6 @@ plotDistribution3 <- function(object,
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   across <- check_features(object, feature = across, valid_classes = c("character", "factor"), max_length = 1)
-  print(across)
 
   all_features <- getFeatureNames(object)
   all_genes <- getGenes(object)

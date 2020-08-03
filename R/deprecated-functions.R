@@ -68,36 +68,3 @@ setMethod(f = "featureNames", signature = "spata", definition = function(object)
 
 })
 
-#' @rdname dimRed
-setGeneric(name = "getTrajectoryObject", def = function(object, trajectory_name, of_sample){
-
-  standardGeneric(f = "getTrajectoryObject")
-
-})
-setMethod(f = "getTrajectoryObject", signature = "spata", definition = function(object, trajectory_name, of_sample){
-
-  warning("'getTrajectoryObject' is deprecated. Use 'trajectory' instead.")
-
-  of_sample <- check_sample(object = object, sample_input = of_sample, desired_length = 1)
-
-  if(!is.character(trajectory_name) | length(trajectory_name) != 1){
-
-    stop("Argument 'trajectory_name' needs to be a character vector of length 1.")
-
-  }
-
-  t_names <- base::names(object@trajectories[[of_sample]])
-
-  if(trajectory_name %in% t_names){
-
-    trajectory_object <- object@trajectories[[of_sample]][[trajectory_name]]
-
-    return(trajectory_object)
-
-  } else {
-
-    stop(stringr::str_c("Could not find trajectory '", trajectory_name, "' in sample: '", of_sample, "'.", sep = ""))
-
-  }
-
-})

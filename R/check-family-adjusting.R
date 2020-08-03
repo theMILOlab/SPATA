@@ -129,6 +129,8 @@ check_color_to <- function(color_to,
 }
 
 #' @title Check variables
+#' @inherit check_color_to description
+#'
 #' @param variables The variables of interest specified as a character vector:
 #'
 #' \itemize{
@@ -154,7 +156,7 @@ check_variables <- function(variables,
 
     if(base::is.list(variables) & !base::is.data.frame(variables)){
 
-      variables <- base::unlist(variables)
+      variables <- base::unlist(variables) %>% base::unname()
 
     } else if(!base::is.character(variables)){
 
@@ -236,10 +238,10 @@ check_variables <- function(variables,
 #' @title Check feature variables input
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes a character
-#' vector of feature names, checks who of the features exist and checks additionally
+#' vector of feature names, checks which of the features exist and checks additionally
 #' if these features match the class requirements of \code{valid_classes}.
 #'
-#' Returns an adjusted featurs-vector or raises an error.
+#' Returns an adjusted features-vector or raises an error.
 #'
 #' @param object A valid spata-object.
 #' @param features The features of interest specified as a character vector.
@@ -340,11 +342,19 @@ check_features <- function(object,
 }
 
 
-#' @inheritParams check_features
-#' @param genes The genes of interest specified as a character vector.
-#' @param rna_assay A rna-assay (e.g. derived from \code{exprMtr()}).
+#' @title Check gene input
 #'
-#' @inherit check_features description return title
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector of gene names and checks which of the genes exist.
+#'
+#' Returns an adjusted genes-vector or raises an error.
+#'
+#' @param genes The genes of interest specified as a character vector.
+#' @param rna_assay The rna-assay you want to
+#' look in. If set to NULL the whole rna_assay of the provided object will be used
+#' with \code{exprMtr()}.
+#'
+#' @inherit adjusting_check_dummy details return
 #' @export
 check_genes <- function(object,
                         genes,
@@ -414,10 +424,17 @@ check_genes <- function(object,
 }
 
 
-
-#' @inherit check_features description return title params
+#' @title Check gene set input
 #'
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector of gene set names and checks which of these exist.
+#'
+#' Returns an adjusted gene-set-vector or raises an error.
+#'
+#' @inherit check_sample params
 #' @param gene_sets The gene sets of interest specified as a character vector.
+#'
+#' @inherit adjusting_check_dummy return details
 #' @export
 
 check_gene_sets <- function(object,
@@ -488,10 +505,17 @@ check_gene_sets <- function(object,
 
 
 
-#' @inherit check_features description return params title
+#' @title Check sample input
+#'
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector of sample names and checks which of these exist.
+#'
+#' Returns an adjusted sample-vector or raises an error.
 #'
 #' @param of_sample The sample(s) of interest specified as a single character value or vector.
 #' @param desired_length The length the input must have.
+#'
+#' @inherit adjusting_check_dummy return details
 #' @export
 
 check_sample <- function(object,

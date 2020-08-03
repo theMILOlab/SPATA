@@ -4,6 +4,7 @@
 \alias{joinWithFeatures}
 \alias{joinWithGenes}
 \alias{joinWithGeneSets}
+\alias{joinWithVariables}
 \title{Join barcodes with additional variables}
 \usage{
 joinWithFeatures(
@@ -36,6 +37,18 @@ joinWithGeneSets(
   normalize = TRUE,
   verbose = TRUE
 )
+
+joinWithVariables(
+  object,
+  coords_df,
+  variables,
+  method_gs = "mean",
+  average_genes = FALSE,
+  smooth = FALSE,
+  smooth_span = 0.02,
+  normalize = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -63,10 +76,15 @@ the computational progress will be printed.
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}
+
+\item{variables}{A named list. Names must contain one of \emph{features, genes}
+or \emph{gene_sets}. The input of \code{coords_df} will be joined with
+the respective elements of each slot by calling the appropriate
+\code{joinWith*()}-function.}
 }
 \value{
-The input data.frame of \code{coords_df} joined with all the aspects
-specified variables specified in \code{features} by the key \emph{barcodes}.
+The input data.frame of \code{coords_df} joined with all the
+specified variable-elements (by the key-variable \emph{barcodes}).
 }
 \description{
 Each member of the \code{joinWith()}-family takes a data.frame as

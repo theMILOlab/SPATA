@@ -72,6 +72,37 @@ check_assign <- function(assign = FALSE,
 }
 
 
+#' @title Check compiled trajectory data.frame
+#'
+#' @param ctdf A compiled trajectory data.frame containing the variables
+#' \emph{'barcodes', 'sample', 'x', 'y', 'projection_length', 'trajectory_part'}.
+#'
+#' @inherit lazy_check_dummy description details return
+#' @export
+#'
+
+check_compiled_trajectory_df <- function(ctdf){
+
+  check_coords_df(coords_df = ctdf)
+  check_coordinate_variables(data = ctdf, x = "x", y = "y")
+
+  vc <- confuns::variable_classes2(data = ctdf)
+
+  if(!base::all(c("projection_length", "trajectory_part") %in% base::names(vc))){
+    base::stop("Variables must contain 'projection_length' and 'trajectory_part'.")
+  }
+
+  if(vc["projection_length"] != "numeric"){
+    base::stop("Variable 'projection_length' needs to be of class numeric.")
+  }
+
+  if(vc["trajectory_part"] != "character"){
+    base::stop("Variable 'projection_length' needs to be of class character.")
+  }
+
+}
+
+
 
 #' @title Check coordinate variables
 #'
@@ -347,6 +378,8 @@ check_pt <- function(pt_size = NULL,
 
 #' @title Check smooth input
 #'
+#' @param df A data.frame that is to be smoothed spatially. That data frame must have
+#' numeric \emph{x}- and \emph{y}-variables.
 #' @param smooth Logical. If set to TRUE values will be smoothed according to the
 #' \code{smoooth_}-parameters.
 #' @param smooth_span The amount of smoothing specified as a single numeric value.
@@ -417,15 +450,17 @@ check_smooth <- function(df = NULL,
 
 #' Check trajectory name input
 #'
-#' @param object A valid spata object.
+#' @inherit check_sample params
 #' @param trajectory_name The trajectory of interest specified
 #' as a single character value.
+#'
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
 
 check_trajectory <- function(object,
-                             trajectory_name){
+                             trajectory_name,
+                             of_sample){
 
   if(!base::length(trajectory_name) == 1 || !base::is.character(trajectory_name)){
 

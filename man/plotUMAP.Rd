@@ -28,8 +28,6 @@ plotTSNE(
 )
 }
 \arguments{
-\item{object}{A valid spata-object.}
-
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{color_to}{The variable to be displayed by color specified as .

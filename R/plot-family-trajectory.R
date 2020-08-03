@@ -63,10 +63,10 @@ plotTrajectory <- function(object,
   check_pt(pt_size, pt_alpha, pt_clrsp, pt_clr = pt_clr)
   check_display(display_title, display_image)
   check_smooth(smooth = smooth, smooth_span = smooth_span)
-  check_trajectory(object, trajectory_name)
+  check_trajectory(object, trajectory_name, of_sample)
 
   # adjusting check
-  of_sample <- check_sample(object, of_sample, desired_length = 1)
+  of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
   if(!base::is.null(color_to)){
 
@@ -82,8 +82,7 @@ plotTrajectory <- function(object,
 
   # 2. Extract data ---------------------------------------------------------
 
-  t_object <-
-    trajectory(object = object, trajectory = trajectory_name, of_sample = of_sample)
+  t_object <- getTrajectoryObject(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
 
   trajectory_bc <- dplyr::pull(t_object@compiled_trajectory_df, barcodes)
   trajectory_sgmt_df <- t_object@segment_trajectory_df
@@ -239,6 +238,7 @@ plotTrajectoryFeatures <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_trajectory(object, trajectory_name, of_sample)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -251,40 +251,29 @@ plotTrajectoryFeatures <- function(object,
   t_object <-
     trajectory(object = object, trajectory = trajectory_name, of_sample = of_sample)
 
-  coords_with_feature <-
-    t_object@compiled_trajectory_df %>%
-    dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = 5, f = floor)) %>%
-    joinWithFeatures(object = object,
-                     coords_df = .,
-                     features = features,
-                     smooth = FALSE,
-                     verbose = verbose)
-
   result_df <-
-    coords_with_feature %>%
-    dplyr::group_by(trajectory_part, order_binned) %>%
-    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = {{features}}), ~ mean(., na.rm = TRUE)), .groups = "drop_last") %>%
-    dplyr::mutate(trajectory_part_order = dplyr::row_number()) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(trajectory_order = dplyr::row_number()) %>%
-    tidyr::pivot_longer(cols = dplyr::all_of(features),
-                        names_to = "Features",
-                        values_to = "Values")
+    hlpr_summarize_trajectory_df(object = object,
+                                 ctdf = t_object@compiled_trajectory_df,
+                                 accuracy = 5,
+                                 variables = features,
+                                 verbose = verbose)
 
   vline_df <-
     result_df %>%
     dplyr::group_by(trajectory_part) %>%
     dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
                     trajectory_part_order == 1 &
-                    Features == features[1])
+                    features == features[1])
 
   # -----
 
-  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = Values)) +
+  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
+                                                           y = values,
+                                                           color = features)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
-                         mapping = ggplot2::aes(color = Features), se = smooth_se) +
+                         se = smooth_se) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
@@ -293,7 +282,6 @@ plotTrajectoryFeatures <- function(object,
       axis.line.y = ggplot2::element_line()
     ) +
     ggplot2::labs(x = "Direction", y = NULL)
-
 
 }
 
@@ -305,7 +293,7 @@ plotTrajectoryGenes <- function(object,
                                 trajectory_name,
                                 of_sample,
                                 genes,
-                                average_genes = F,
+                                average_genes = FALSE,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
                                 smooth_se = T,
@@ -316,6 +304,7 @@ plotTrajectoryGenes <- function(object,
 
   # lazy check
   check_object(object)
+  check_trajectory(object, trajectory_name, of_sample)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
 
   # adjusting check
@@ -327,7 +316,7 @@ plotTrajectoryGenes <- function(object,
 
   }
 
-  if(average_genes){
+  if(base::isTRUE(average_genes)){
 
     y_title <- "Mean expression score"
 
@@ -373,6 +362,10 @@ plotTrajectoryGenes <- function(object,
 
     genes <- genes[genes %in% base::colnames(coords_with_genes)]
 
+  } else {
+
+    genes <- "mean_genes"
+
   }
 
   result_df <-
@@ -408,11 +401,13 @@ plotTrajectoryGenes <- function(object,
 
   # -----
 
-  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = expr_score)) +
+  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
+                                                           y = expr_score,
+                                                           color = genes)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
-                         mapping = ggplot2::aes(color = genes), se = smooth_se) +
+                         se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(
@@ -444,6 +439,7 @@ plotTrajectoryGeneSets <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
 
   # adjusting check
@@ -457,42 +453,30 @@ plotTrajectoryGeneSets <- function(object,
   t_object <-
     trajectory(object = object, trajectory = trajectory_name, of_sample = of_sample)
 
-  coords_with_feature <-
-    t_object@compiled_trajectory_df %>%
-    dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = 5, f = floor)) %>%
-    joinWithGeneSets(object = object,
-                     coords_df = .,
-                     gene_sets = gene_sets,
-                     method_gs = method_gs,
-                     verbose = verbose,
-                     smooth = FALSE)
-
   result_df <-
-    coords_with_feature %>%
-    dplyr::group_by(trajectory_part, order_binned) %>%
-    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = {{gene_sets}}), ~ mean(., na.rm = TRUE)), .groups = "drop_last") %>%
-    dplyr::mutate(trajectory_part_order = dplyr::row_number()) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(trajectory_order = dplyr::row_number()) %>%
-    tidyr::pivot_longer(cols = dplyr::all_of(gene_sets),
-                        names_to = "gsets",
-                        values_to = "expr_score")
-
+    hlpr_summarize_trajectory_df(object = object,
+                                 ctdf = t_object@compiled_trajectory_df,
+                                 accuracy = 5,
+                                 variables = gene_sets,
+                                 method_gs = method_gs,
+                                 verbose = verbose)
 
   vline_df <-
     result_df %>%
     dplyr::group_by(trajectory_part) %>%
     dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
                     trajectory_part_order == 1 &
-                    gsets == gene_sets[1])
+                    gene_sets == gene_sets[1])
 
   # -----
 
-  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order, y = expr_score)) +
+  ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
+                                                           y = values,
+                                                           color = gene_sets)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
-                         mapping = ggplot2::aes(color = gsets), se = smooth_se) +
+                         se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(

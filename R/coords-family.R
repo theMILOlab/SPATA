@@ -86,7 +86,7 @@ coordsTrajectory <- function(object,
 
   # lazy check
   check_object(object)
-  check_trajectory(object, trajectory_name)
+  check_trajectory(object, trajectory_name, of_sample)
 
   # adjusting check
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)

@@ -21,10 +21,10 @@ cases they print an informative message about what was going on.
 }
 \description{
 A member of the \code{adjusting-check_*()}-family. Takes a character
-vector of feature names, checks who of the features exist and checks additionally
+vector of feature names, checks which of the features exist and checks additionally
 if these features match the class requirements of \code{valid_classes}.
 
-Returns an adjusted featurs-vector or raises an error.
+Returns an adjusted features-vector or raises an error.
 }
 \details{
 Members of the \code{adjusting-check_*()}-family take their

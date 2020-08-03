@@ -12,9 +12,9 @@ hlpr_image_add_on2(object, display_image, of_sample)
 \arguments{
 \item{image}{Image input.}
 
-\item{object}{A valid spata-object.}
-
 \item{display_image}{Logical value.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 }
 \value{
 Either null or a ggplot2::geom_annotation_raster

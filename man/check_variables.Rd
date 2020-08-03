@@ -33,5 +33,10 @@ check_variables(
 \item{simplify}{If set to TRUE the \code{check_variables()}-output is a vector.}
 }
 \description{
-Check variables
+A member of the \code{adjusting-check_*()}-family. Takes a character
+vector and sorts its elements into a list depending on whether it was found in
+the input of \code{all_features}, \code{all_genes} or \code{all_gene_sets}.
+
+Returns a list with three slots named \emph{features}, \emph{genes} and \emph{gene_sets}
+containing the respective found/valid input of \code{color_to}.
 }

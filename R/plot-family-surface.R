@@ -62,7 +62,7 @@ plotSurface <- function(data,
     ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
                                                color = .data[[color_to]]),
                         size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_color_viridis_c(option = pt_clrsp) +
+    ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
     ggplot2::theme_void() +
     ggplot2::theme(
       panel.grid = ggplot2::element_blank()

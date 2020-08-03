@@ -11,7 +11,8 @@ LazyData: true
 RoxygenNote: 7.1.0
 Imports: 
     magrittr,
-    matrixcalc
+    matrixcalc,
+    confuns
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'

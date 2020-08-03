@@ -2,18 +2,16 @@
 % Please edit documentation in R/check-family-adjusting.R
 \name{check_genes}
 \alias{check_genes}
-\title{Check feature variables input}
+\title{Check gene input}
 \usage{
 check_genes(object, genes, rna_assay = NULL, max_length = NULL)
 }
 \arguments{
-\item{object}{A valid spata-object.}
-
 \item{genes}{The genes of interest specified as a character vector.}
 
-\item{rna_assay}{A rna-assay (e.g. derived from \code{exprMtr()}).}
-
-\item{max_length}{The maximum number of features allowed.}
+\item{rna_assay}{The rna-assay you want to
+look in. If set to NULL the whole rna_assay of the provided object will be used
+with \code{exprMtr()}.}
 }
 \value{
 The original input, an adjusted version of it or an error. In the latter two
@@ -21,8 +19,17 @@ cases they print an informative message about what was going on.
 }
 \description{
 A member of the \code{adjusting-check_*()}-family. Takes a character
-vector of feature names, checks who of the features exist and checks additionally
-if these features match the class requirements of \code{valid_classes}.
+vector of gene names and checks which of the genes exist.
 
-Returns an adjusted featurs-vector or raises an error.
+Returns an adjusted genes-vector or raises an error.
+}
+\details{
+Members of the \code{adjusting-check_*()}-family take their
+arguments input and compare it to a variety of requirement settings by
+running several logical tests. If the input turns out to be appropriate
+for the main-function they return it the way it is supposed to be returned.
+If not, depending on the degree of deviation from the optimum, they either adjust
+the input in order not to interrupt the function or - if not adjustable - raise an
+error. In both cases informative messages will be printed in order to let the user
+know what has been adjusted or what part of the input was insufficient.
 }

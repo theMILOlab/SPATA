@@ -88,9 +88,9 @@ validateSpataObject <- function(object){
 #'
 #' @param object A spata-object.
 #'
-#' @return A character string. (Call \code{base::writeLines() wtih that string as input.})
+#' @return A character string. (Call \code{base::writeLines()} with that
+#'  string as input in order to format it.)
 #' @export
-#'
 
 check_slot_coordinates <- function(object){
 
@@ -144,8 +144,6 @@ check_slot_coordinates <- function(object){
 
   } else {
 
-
-
     base::return(messages)
 
   }
@@ -194,8 +192,8 @@ check_slot_data <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_description <- function(object){
 
   base::return("Valid!")
@@ -203,9 +201,10 @@ check_slot_description <- function(object){
 }
 
 
+
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_scvelo <- function(object){
 
   "Valid!"
@@ -214,8 +213,8 @@ check_slot_scvelo <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_trajectories <- function(object){
 
   messages <- base::character()
@@ -312,8 +311,8 @@ check_slot_trajectories <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_trajectory_object <- function(t_object, t_object_name, t_object_sample){
 
   messages <- base::character()
@@ -432,8 +431,8 @@ check_trajectory_object <- function(t_object, t_object_name, t_object_sample){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_dim_red <- function(object){
 
   messages <- base::character()
@@ -563,8 +562,8 @@ check_slot_dim_red <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_fdata <- function(object){
 
   fdata <- object@fdata
@@ -655,8 +654,8 @@ check_slot_fdata <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_image <- function(object){
 
   image_list <- object@image
@@ -722,8 +721,8 @@ check_slot_image <- function(object){
 
 
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_used_genesets <- function(object){
 
   gs_df <- object@used_genesets
@@ -800,9 +799,10 @@ check_slot_used_genesets <- function(object){
 }
 
 
+
 #' @rdname check_slot_coordinates
-#'
 #' @export
+
 check_slot_samples <- function(object){
 
   samples <- object@samples
@@ -813,7 +813,7 @@ check_slot_samples <- function(object){
 
   } else {
 
-    "lot 'samples' must not be of length zero."
+    "Slot 'samples' must not be of length zero."
 
   }
 

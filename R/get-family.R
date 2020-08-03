@@ -378,8 +378,7 @@ getSegmentNames <- function(object,
 #'
 #' @export
 
-getTrajectoryNames <- function(object,
-                               of_sample = "all"){
+getTrajectoryNames <- function(object, of_sample = "all"){
 
   # lazy check
   check_object(object)
@@ -422,6 +421,27 @@ getTrajectoryNames <- function(object,
 
   }
 
+
+}
+
+
+#' @title Obtain trajectory object
+#'
+#' @inherit check_sample params
+#' @inherit check_trajectory
+#'
+#' @return An object of class \code{spatialTrajectory}.
+#' @export
+
+getTrajectoryObject <- function(object, trajectory_name, of_sample){
+
+  of_sample <- check_sample(object = object,
+                            of_sample = of_sample,
+                            desired_length = 1)
+
+  trajectory(object = object,
+             trajectory_name = trajectory_name,
+             of_sample = of_sample)
 
 }
 

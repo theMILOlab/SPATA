@@ -13,9 +13,13 @@
 #' @inherit check_smooth params
 #' @inherit check_method params
 #' @inherit verbose params
+#' @param variables A named list. Names must contain one of \emph{features, genes}
+#' or \emph{gene_sets}. The input of \code{coords_df} will be joined with
+#' the respective elements of each slot by calling the appropriate
+#' \code{joinWith*()}-function.
 #'
-#' @return The input data.frame of \code{coords_df} joined with all the aspects
-#' specified variables specified in \code{features} by the key \emph{barcodes}.
+#' @return The input data.frame of \code{coords_df} joined with all the
+#' specified variable-elements (by the key-variable \emph{barcodes}).
 #'
 #' @export
 
@@ -309,6 +313,64 @@ joinWithGeneSets <- function(object,
   # -----
 
   base::return(joined_df)
+
+}
+
+#' @rdname joinWithFeatures
+#' @export
+joinWithVariables <- function(object,
+                              coords_df,
+                              variables,
+                              method_gs = "mean",
+                              average_genes = FALSE,
+                              smooth = FALSE,
+                              smooth_span = 0.02,
+                              normalize = TRUE,
+                              verbose = TRUE){
+
+  stopifnot(base::is.list(variables))
+  stopifnot(base::any(c("features", "genes", "gene_sets") %in% base::names(variables)))
+
+  if("features" %in% base::names(variables)){
+
+    coords_df <-
+      joinWithFeatures(object = object,
+                       features = variables$features,
+                       coords_df = coords_df,
+                       smooth = smooth,
+                       smooth_span = smooth_span,
+                       verbose = verbose)
+
+  }
+
+  if("genes" %in% base::names(variables)){
+
+    coords_df <-
+      joinWithGenes(object = object,
+                    coords_df = coords_df,
+                    genes = variables$genes,
+                    average_genes = average_genes,
+                    smooth = smooth,
+                    smooth_span = smooth_span,
+                    normalize = normalize,
+                    verbose = verbose)
+
+  }
+
+  if("gene_sets" %in% base::names(variables)){
+
+    coords_df <-
+      joinWithGeneSets(object = object,
+                       coords_df = coords_df,
+                       gene_sets = variables$gene_sets,
+                       method_gs = method_gs,
+                       smooth = smooth,
+                       smooth_span = smooth_span,
+                       normalize = normalize,
+                       verbose = verbose)
+  }
+
+  base::return(coords_df)
 
 }
 

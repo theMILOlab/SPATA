@@ -55,8 +55,6 @@ a character vector.}
 
 \item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
 
-\item{object}{A valid spata-object.}
-
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{method_gs}{The method according to which gene sets will be handled

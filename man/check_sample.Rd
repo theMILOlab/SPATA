@@ -2,13 +2,11 @@
 % Please edit documentation in R/check-family-adjusting.R
 \name{check_sample}
 \alias{check_sample}
-\title{Check feature variables input}
+\title{Check sample input}
 \usage{
 check_sample(object, of_sample, desired_length = NULL)
 }
 \arguments{
-\item{object}{A valid spata-object.}
-
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{desired_length}{The length the input must have.}
@@ -19,8 +17,17 @@ cases they print an informative message about what was going on.
 }
 \description{
 A member of the \code{adjusting-check_*()}-family. Takes a character
-vector of feature names, checks who of the features exist and checks additionally
-if these features match the class requirements of \code{valid_classes}.
+vector of sample names and checks which of these exist.
 
-Returns an adjusted featurs-vector or raises an error.
+Returns an adjusted sample-vector or raises an error.
+}
+\details{
+Members of the \code{adjusting-check_*()}-family take their
+arguments input and compare it to a variety of requirement settings by
+running several logical tests. If the input turns out to be appropriate
+for the main-function they return it the way it is supposed to be returned.
+If not, depending on the degree of deviation from the optimum, they either adjust
+the input in order not to interrupt the function or - if not adjustable - raise an
+error. In both cases informative messages will be printed in order to let the user
+know what has been adjusted or what part of the input was insufficient.
 }
