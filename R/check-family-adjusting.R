@@ -128,111 +128,7 @@ check_color_to <- function(color_to,
 
 }
 
-#' @title Check variables
-#' @inherit check_color_to description
-#'
-#' @param variables The variables of interest specified as a character vector:
-#'
-#' \itemize{
-#'  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
-#'  \item{ \strong{Genes}: Must be in \code{getGenes()}}
-#'  \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
-#'  }
-#'
-#' @param all_features Valid features.
-#' @param all_gene_sets Valid gene sets.
-#' @param all_genes Valid genes.
-#' @param max_length Max number of variables.
-#' @param simplify If set to TRUE the \code{check_variables()}-output is a vector.
-#'
-#' @export
 
-check_variables <- function(variables,
-                            all_features = character(),
-                            all_gene_sets = character(),
-                            all_genes = character(),
-                            max_length = 25,
-                            simplify = FALSE){
-
-    if(base::is.list(variables) & !base::is.data.frame(variables)){
-
-      variables <- base::unlist(variables) %>% base::unname()
-
-    } else if(!base::is.character(variables)){
-
-      stop("Argument 'variables' needs to be of class 'character' or of class 'list'.")
-
-    }
-
-
-    if(base::length(variables) > max_length){
-
-      base::stop(stringr::str_c("Maximum length (", max_length,
-                                ") of argument 'variables' exceeded: ",
-                                base::length(variables) ))
-
-    }
-
-    if(base::any(variables %in% all_features)){
-
-      found_features <- all_features[all_features %in% variables]
-
-    } else {
-
-      found_features <- NULL
-
-    }
-
-    if(base::any(variables %in% all_gene_sets)){
-
-      found_gene_sets <- all_gene_sets[all_gene_sets %in% variables]
-
-    } else {
-
-      found_gene_sets <- NULL
-
-    }
-
-    if(base::any(variables %in% all_genes)){
-
-      found_genes <- all_genes[all_genes %in% variables]
-
-    } else {
-
-      found_genes <- NULL
-
-    }
-
-    found_all <- list("features" = found_features,
-                      "gene_sets" = found_gene_sets,
-                      "genes" = found_genes)
-
-    if(base::length(base::unlist(found_all)) != base::length(variables)){
-
-      not_found <- variables[!variables %in% base::unlist(found_all)]
-
-      not_found_string <- stringr::str_c(not_found, collapse = "', '")
-
-      base::warning(stringr::str_c("Did not find feature(s), gene set(s) and/or gene(s) '", not_found_string, "' of argument 'variables'.", sep = ""))
-
-    }
-
-    return_list <-
-      purrr::discard(.x = found_all, .p = base::is.null)
-
-    if(base::length(return_list) == 0){
-
-      base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s) of argument 'variables'.")
-
-    } else if(max_length == 1 | base::isTRUE(simplify)) {
-
-      return_list <- base::unlist(return_list) %>% base::unname()
-
-    }
-
-    base::return(return_list)
-
-}
 
 
 #' @title Check feature variables input
@@ -511,7 +407,7 @@ check_gene_sets <- function(object,
 #' vector of sample names and checks which of these exist.
 #'
 #' Returns an adjusted sample-vector or raises an error.
-#'
+#' @param object A valid spata-object.
 #' @param of_sample The sample(s) of interest specified as a single character value or vector.
 #' @param desired_length The length the input must have.
 #'
@@ -627,6 +523,126 @@ check_segment <- function(object,
     }
 
   }
+
+}
+
+
+
+#' @title Check variables
+#' @inherit check_color_to description
+#'
+#' @param variables The variables of interest specified as a character vector:
+#'
+#' \itemize{
+#'  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
+#'  \item{ \strong{Genes}: Must be in \code{getGenes()}}
+#'  \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+#'  }
+#'
+#' @param all_features Valid features.
+#' @param all_gene_sets Valid gene sets.
+#' @param all_genes Valid genes.
+#' @param max_length Max number of variable input.
+#' @param max_slots Max number of different aspects.
+#' @param simplify If set to TRUE the \code{check_variables()}-output is a vector.
+#'
+#' @export
+
+check_variables <- function(variables,
+                            all_features = character(),
+                            all_gene_sets = character(),
+                            all_genes = character(),
+                            max_length = Inf,
+                            max_slots = 3,
+                            simplify = FALSE){
+
+  if(base::is.list(variables) & !base::is.data.frame(variables)){
+
+    variables <- base::unlist(variables, use.names = FALSE)
+
+  } else if(!base::is.character(variables)){
+
+    stop("Argument 'variables' needs to be of class 'character' or of class 'list'.")
+
+  }
+
+
+  if(max_length < base::length(variables)){
+
+    base::stop(stringr::str_c("Maximum length (", max_length,
+                              ") of argument 'variables' exceeded: ",
+                              base::length(variables) ))
+
+  }
+
+  if(base::any(variables %in% all_features)){
+
+    found_features <- all_features[all_features %in% variables]
+
+  } else {
+
+    found_features <- NULL
+
+  }
+
+  if(base::any(variables %in% all_gene_sets)){
+
+    found_gene_sets <- all_gene_sets[all_gene_sets %in% variables]
+
+  } else {
+
+    found_gene_sets <- NULL
+
+  }
+
+  if(base::any(variables %in% all_genes)){
+
+    found_genes <- all_genes[all_genes %in% variables]
+
+  } else {
+
+    found_genes <- NULL
+
+  }
+
+  found_all <- list("features" = found_features,
+                    "gene_sets" = found_gene_sets,
+                    "genes" = found_genes)
+
+  return_list <-
+    purrr::discard(.x = found_all, .p = base::is.null)
+
+  if(base::length(return_list) > max_slots){
+
+    base::stop(glue::glue("Input of argument 'variables' can only contain elements of {max_slots} different types. Contains elements of {base::length(return_list)} types."))
+
+  }
+
+
+  found_variables <- base::unlist(x = return_list, use.names = FALSE)
+
+  if(base::length(found_variables) != base::length(variables)){
+
+    not_found <- variables[!variables %in% found_variables]
+
+    not_found_string <- stringr::str_c(not_found, collapse = "', '")
+
+    base::warning(stringr::str_c("Did not find '", not_found_string, "' of argument 'variables'.", sep = ""))
+
+  }
+
+
+  if(base::length(return_list) == 0){
+
+    base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s) of argument 'variables'.")
+
+  } else if(max_length == 1 | base::isTRUE(simplify)) {
+
+    return_list <- base::unlist(return_list) %>% base::unname()
+
+  }
+
+  base::return(return_list)
 
 }
 

@@ -43,6 +43,6 @@ the computational progress will be printed.
 }
 \description{
 Joins a compiled trajectory data.frame with
-the desired information and summarizes it in order to be
-"plottable" in a smoothed lineplot.
+the desired information and summarizes it's joined values
+along the sub-trajectory-parts via \code{base::mean()}.
 }

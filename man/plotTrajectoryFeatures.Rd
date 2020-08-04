@@ -22,7 +22,7 @@ plotTrajectoryGenes(
   trajectory_name,
   of_sample,
   genes,
-  average_genes = F,
+  average_genes = FALSE,
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = T,
@@ -78,5 +78,6 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Displays values along a trajectory direction.
+Displays values along a trajectory direction with
+a smoothed lineplot.
 }

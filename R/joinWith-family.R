@@ -233,7 +233,8 @@ joinWithGeneSets <- function(object,
       if(verbose){
 
         base::message(stringr::str_c(
-          "Calculating expression score for gene set '",
+          "Calculating expression score for gene set ",
+          "(",i, "/", base::length(gene_sets), ")", "  '",
           gene_sets[i],
           "' according to method: '",
           method_gs,
@@ -248,7 +249,8 @@ joinWithGeneSets <- function(object,
       if(verbose){
 
         base::message(stringr::str_c(
-          "Calculating expression score for gene set '",
+          "Calculating expression score for gene set ",
+          "(",i, "/", base::length(gene_sets), ")", "  '",
           gene_sets[i],
           "' according to method: '",
           method_gs,

@@ -7,6 +7,8 @@
 getSegmentNames(object, of_sample = "all")
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 }
 \value{

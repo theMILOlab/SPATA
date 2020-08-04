@@ -7,6 +7,8 @@
 check_gene_sets(object, gene_sets, max_length = NULL)
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{gene_sets}{The gene sets of interest specified as a character vector.}
 }
 \value{

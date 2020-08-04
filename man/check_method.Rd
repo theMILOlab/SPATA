@@ -4,7 +4,7 @@
 \alias{check_method}
 \title{Check method input}
 \usage{
-check_method(method_dr = NULL, method_gs = NULL)
+check_method(method_dr = NULL, method_gs = NULL, method_padj = NULL)
 }
 \arguments{
 \item{method_dr}{The dimensional reduction method of
@@ -15,6 +15,9 @@ either \emph{'UMAP'} or \emph{'TSNE'}).}
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}
+
+\item{method_padj}{The method according to which the adjusted p-values will
+be calculated. Given to \code{stats::p.adjust()}.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

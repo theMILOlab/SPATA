@@ -272,7 +272,8 @@ getGenes <- function(object,
       genes_list <-
         genes_list %>%
         base::unname() %>%
-        base::unlist()
+        base::unlist() %>%
+        base::unique()
 
     }
 
@@ -378,7 +379,7 @@ getSegmentNames <- function(object,
 #'
 #' @export
 
-getTrajectoryNames <- function(object, of_sample = "all"){
+getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 
   # lazy check
   check_object(object)
@@ -410,6 +411,12 @@ getTrajectoryNames <- function(object, of_sample = "all"){
   base::names(t_names_list) <- of_sample
 
   t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
+
+  if(base::isTRUE(simplify)){
+
+    t_names_list <- base::unlist(t_names_list) %>% base::unname()
+
+  }
 
   if(!base::length(t_names_list) == 0){
 

@@ -259,13 +259,15 @@ check_feature_df <- function(feature_name,
 #' specified as a character of length one. This can be either \emph{mean} or one
 #' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 #' \code{gsva::GSVA()}.
+#' @param method_padj The method according to which the adjusted p-values will
+#' be calculated. Given to \code{stats::p.adjust()}.
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
 
 check_method <- function(method_dr = NULL,
-                         method_gs = NULL){
-
+                         method_gs = NULL,
+                         method_padj = NULL){
 
   # dimensional reduction methods -------------------------------------------
 
@@ -285,7 +287,6 @@ check_method <- function(method_dr = NULL,
 
   # -----
 
-
   # gene set methods --------------------------------------------------------
 
   if(!base::is.null(method_gs)){
@@ -301,6 +302,27 @@ check_method <- function(method_dr = NULL,
     }
 
   }
+
+  # -----
+
+
+  # adjusted pvalue methods -------------------------------------------------
+
+  if(!base::is.null(method_padj)){
+
+    if(!base::is.character(method_padj) || base::length(method_padj) != 1){
+
+      stop("Argument 'method_padj' needs to be a single character value.")
+
+    } else if(!method_padj %in% stats::p.adjust.methods) {
+
+      stop("Argument 'method_dr' needs to be  one of: 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'.")
+
+    }
+
+  }
+
+  # -----
 
 }
 

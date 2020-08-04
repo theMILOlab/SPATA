@@ -9,7 +9,8 @@ check_variables(
   all_features = character(),
   all_gene_sets = character(),
   all_genes = character(),
-  max_length = 25,
+  max_length = Inf,
+  max_slots = 3,
   simplify = FALSE
 )
 }
@@ -28,7 +29,9 @@ check_variables(
 
 \item{all_genes}{Valid genes.}
 
-\item{max_length}{Max number of variables.}
+\item{max_length}{Max number of variable input.}
+
+\item{max_slots}{Max number of different aspects.}
 
 \item{simplify}{If set to TRUE the \code{check_variables()}-output is a vector.}
 }

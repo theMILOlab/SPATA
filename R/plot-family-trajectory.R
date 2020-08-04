@@ -63,10 +63,11 @@ plotTrajectory <- function(object,
   check_pt(pt_size, pt_alpha, pt_clrsp, pt_clr = pt_clr)
   check_display(display_title, display_image)
   check_smooth(smooth = smooth, smooth_span = smooth_span)
-  check_trajectory(object, trajectory_name, of_sample)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
+
+  check_trajectory(object, trajectory_name, of_sample)
 
   if(!base::is.null(color_to)){
 
@@ -142,7 +143,8 @@ plotTrajectory <- function(object,
       dplyr::filter(barcodes %in% bc_traj)
 
 
-    labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets, input_str = "Gene set:",
+    labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets,
+                                    input_str = "Gene set:",
                                     color_str = hlpr_gene_set_name(color_to$gene_sets),
                                     display_title = display_title)
 
@@ -184,6 +186,8 @@ plotTrajectory <- function(object,
 
   } else if(base::is.null(color_to)){
 
+    coords_df <- dplyr::filter(background_df, barcodes %in% bc_traj)
+
     ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
                                               mapping = ggplot2::aes(x = x, y = y)))
 
@@ -208,7 +212,8 @@ plotTrajectory <- function(object,
 
 #' @title Trajectory line plots
 #'
-#' @description Displays values along a trajectory direction.
+#' @description Displays values along a trajectory direction with
+#' a smoothed lineplot.
 #'
 #' @inherit check_sample params
 #' @inherit check_features params
@@ -238,11 +243,12 @@ plotTrajectoryFeatures <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
-  check_trajectory(object, trajectory_name, of_sample)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   features <- check_features(object, features = features, valid_classes = c("numeric", "integer"))
+
+  check_trajectory(object, trajectory_name, of_sample)
 
   # -----
 
@@ -304,11 +310,12 @@ plotTrajectoryGenes <- function(object,
 
   # lazy check
   check_object(object)
-  check_trajectory(object, trajectory_name, of_sample)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
+
+  check_trajectory(object, trajectory_name, of_sample)
 
   if(base::length(genes) > 5 && base::isFALSE(average_genes) && base::isTRUE(verbose)){
 
@@ -321,7 +328,7 @@ plotTrajectoryGenes <- function(object,
     y_title <- "Mean expression score"
 
     rna_assay <- exprMtr(object = object, of_sample = of_sample)
-    genes <- check_genes(object, genes = genes, max_length = 10, rna_assay = rna_assay)
+    genes <- check_genes(object, genes = genes, rna_assay = rna_assay)
 
     if(base::length(genes) == 1){
 
@@ -331,13 +338,17 @@ plotTrajectoryGenes <- function(object,
 
     }
 
+    labs_add_on <- hlpr_labs_add_on(input = genes,
+                                    input_str = "Genes: ",
+                                    color_str = NULL,
+                                    display_title = TRUE)
+
   } else {
 
     rna_assay <- exprMtr(object = object, of_sample = of_sample)
     genes <- check_genes(object, genes = genes, max_length = 10, rna_assay = rna_assay)
-
-
     y_title <- "Expression score"
+    labs_add_on <- NULL
 
   }
 
@@ -416,7 +427,8 @@ plotTrajectoryGenes <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = y_title, color = "Genes")
+    ggplot2::labs(x = "Direction", y = y_title, color = "Genes") +
+    labs_add_on
 
 }
 
@@ -439,12 +451,13 @@ plotTrajectoryGeneSets <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
-  check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   gene_sets <- check_gene_sets(object, gene_sets = gene_sets, max_length = 10)
+
+  check_trajectory(object, trajectory_name, of_sample)
 
   # -----
 
@@ -489,6 +502,233 @@ plotTrajectoryGeneSets <- function(object,
 
 
 }
+
+
+
+#' @title Expression dynamic in heatmpa
+#'
+#' @description Displays gene- or gene-set-expression values along a trajectory
+#' direction with a smoothed heatmap.
+#'
+#' @inherit check_sample params
+#' @inherit check_trajectory params
+#' @inherit verbose params
+#' @inherit check_smooth params
+#' @param variables The variables of interest specified as a character vector:
+#'
+#' \itemize{
+#'  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
+#'  \item{ \strong{Genes}: Must be in \code{getGenes()}}
+#'  }
+#'
+#' All elements of the specified character vector must either belong to
+#' gene sets or to genes.
+#'
+#' @param arrange_rows Alter the way the rows of the heatmap
+#' are displayed in order to highlight patterns. Currently either \emph{'maxima'}
+#' or \emph{'minima'}.
+#'
+#' Given to \code{accross} of \code{confuns::arrange_rows()}.
+#'
+#' @param show_row_names Logical. If set to TRUE the variable elements
+#' will be displayed at the rownames of the heatmap.
+#' @param split_columns Logial. If set to TRUE the heatmap is vertically
+#' splitted according to the trajectory parts.
+#' @param clrsp The color spectrum to be used. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.
+#'
+#' @return A drawn heatmap.
+#' @export
+#'
+
+plotTrajectoryHeatmap <- function(object,
+                                  of_sample,
+                                  trajectory_name,
+                                  variables = NULL,
+                                  show_row_names = TRUE,
+                                  arrange_rows = "none",
+                                  verbose = TRUE,
+                                  split_columns = TRUE,
+                                  borders = TRUE,
+                                  smooth_span = 0.5,
+                                  clrsp = "inferno"){
+
+  # 1. Control --------------------------------------------------------------
+
+  # all checks
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
+  check_method(method_gs = method_gs, method_padj = method_padj)
+  check_pt(pt_clrsp = clrsp)
+
+  variables <- check_variables(variables = variables,
+                               all_gene_sets = getGeneSets(object),
+                               all_genes = getGenes(object),
+                               max_slots = 1)
+
+  var_type <- base::names(variables)
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  t_object <- getTrajectoryObject(object = object,
+                                  trajectory_name = trajectory_name,
+                                  of_sample = of_sample)
+
+  # join ctdf with genes and pivot it
+  wide_tdf <-
+    hlpr_summarize_trajectory_df(
+      object = object,
+      ctdf = t_object@compiled_trajectory_df,
+      variables = variables[[1]],
+      accuracy = 5,
+      verbose = verbose) %>%
+    tidyr::pivot_wider(id_cols = dplyr::all_of(var_type),
+                       names_from = c("trajectory_part", "trajectory_order"),
+                       names_sep = "_",
+                       values_from = "values")
+
+  # -----
+
+  # 3. Heatmap column split -------------------------------------------------
+
+  # if the heatmap is to be splitted into the trajectory parts
+  n_parts <- base::length(base::unique(t_object@compiled_trajectory_df$trajectory_part))
+
+  if(base::isTRUE(split_columns) && n_parts > 1){
+
+    parts_subset <-
+      base::colnames(x = wide_tdf) %>%
+      stringr::str_subset(pattern = "[^genes]") %>%
+      stringr::str_extract_all(pattern = "^Part\\s\\d{1,}") %>%
+      base::unlist()
+
+    column_split_vec <-
+      base::sapply(X = base::unique(parts_subset),
+                   FUN = function(i){
+
+                     n_part <-
+                       base::length(parts_subset[parts_subset == i])
+
+                     base::rep(x = i, n_part * 10)
+
+                   }) %>%
+      base::unlist(use.names = FALSE)
+
+    column_split_vec <- base::factor(x = column_split_vec, levels = base::unique(column_split_vec))
+    column_title <- base::unique(column_split_vec)
+
+    show_column_names <- F
+
+    num_cn <- (base::ncol(wide_tdf) - 1) * 10
+    column_names <- base::vector(mode = "character", length = num_cn)
+
+  } else {
+
+    column_split_vec <- NULL
+    column_title <- NULL
+
+    show_column_names <- T
+
+    num_cn <- (base::ncol(wide_tdf) - 1) * 10
+    column_names <- base::vector(mode = "character", length = num_cn)
+
+  }
+
+
+  # arrange rows
+  if(base::all(arrange_rows == "maxima") | base::all(arrange_rows == "minima")){
+
+    wide_tdf <-
+      confuns::arrange_rows(df = wide_tdf,
+                            across = arrange_rows,
+                            verbose = verbose)
+
+  }
+
+  # -----
+
+  # 4. Smooth rows ----------------------------------------------------------
+
+  row_info <- dplyr::pull(.data = wide_tdf, var_type)
+
+  mtr <- as.matrix(dplyr::select(.data = wide_tdf, -{{var_type}}))
+  mtr_smoothed <- matrix(0, nrow = nrow(mtr), ncol = ncol(mtr) * 10)
+
+  if(verbose){
+
+    base::message(glue::glue("Smoothing values with smoothing span: {smooth_span}."))
+
+  }
+
+  for(i in 1:base::nrow(mtr)){
+
+    x <- 1:ncol(mtr)
+
+    values <- base::as.numeric(mtr[i,])
+
+    y <- (values - base::min(values))/(base::max(values) - base::min(values))
+
+    model <- stats::loess(formula = y ~ x, span = smooth_span)
+
+    mtr_smoothed[i,] <- stats::predict(model, seq(1, base::max(x) , length.out = num_cn))
+
+  }
+
+  plot_df <-
+    base::as.data.frame(mtr_smoothed) %>%
+    dplyr::mutate({{var_type}} := row_info)
+
+  # -----
+
+
+  # Plot heatmap ------------------------------------------------------------
+
+  row_labels <- row_info
+  mtr_smoothed <- as.matrix(plot_df[,base::sapply(plot_df, base::is.numeric)])
+
+  base::colnames(mtr_smoothed) <- column_names
+
+  if(verbose){
+
+    base::message("Plotting....")
+
+  }
+
+  if(var_type == "gene_sets"){
+
+    row_labels <- hlpr_gene_set_name(string = row_labels)
+
+  }
+
+  hm <-
+    ComplexHeatmap::Heatmap(
+      matrix = mtr_smoothed,
+      name = "Expr.\nscore",
+      column_title = column_title,
+      column_title_side = "bottom",
+      column_names_rot = 0,
+      row_title_side = "left",
+      row_names_side = "left",
+      cluster_rows = F,
+      cluster_columns = F,
+      show_column_names = show_column_names,
+      show_row_names = show_row_names,
+      row_labels = row_labels,
+      col = viridisLite::viridis(n = 1000, option = clrsp),
+      border = TRUE,
+      column_split = column_split_vec
+    )
+
+  # -----
+
+  base::return(ComplexHeatmap::draw(hm))
+
+}
+
 
 
 

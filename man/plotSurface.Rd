@@ -60,6 +60,8 @@ or \emph{-1}.}
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
 
+\item{object}{A valid spata-object.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{method_gs}{The method according to which gene sets will be handled

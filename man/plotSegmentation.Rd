@@ -7,6 +7,8 @@
 plotSegmentation(object, of_sample, pt_size = 2)
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{pt_size}{The size of the points specified as a single numeric value.}

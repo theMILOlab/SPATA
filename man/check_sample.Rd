@@ -7,6 +7,8 @@
 check_sample(object, of_sample, desired_length = NULL)
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{desired_length}{The length the input must have.}

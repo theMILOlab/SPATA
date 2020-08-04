@@ -7,6 +7,8 @@
 getTrajectoryObject(object, trajectory_name, of_sample)
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 

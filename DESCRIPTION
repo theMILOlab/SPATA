@@ -33,4 +33,5 @@ Collate:
     'plot-family-miscellaneous.R'
     'plot-family-surface.R'
     'plot-family-trajectory.R'
+    'trajectory-analysis.R'
     'validation.R'

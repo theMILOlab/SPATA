@@ -4,9 +4,11 @@
 \alias{getTrajectoryNames}
 \title{Obtain trajectory names}
 \usage{
-getTrajectoryNames(object, of_sample = "all")
+getTrajectoryNames(object, of_sample = "all", simplify = TRUE)
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 }
 \value{
