@@ -399,9 +399,9 @@ hlpr_image_add_on2 <- function(object, display_image, of_sample){
 #' @description Helper function
 #'
 #' @param input The color_to argument
-#' @param input_str Genes:, Gene set: or Feature:
+#' @param input_str Title-prefix. Should be one of \emph{'Genes:', 'Gene set:'} or \code{'Feature:'}.
 #' @param color_str Legend title
-#' @param display_title Logical
+#' @param display_title Logical. If set to FALSE only the legend-title will be specified.
 #'
 #' @return A customized \code{ggplot2::labs()}-function.
 #' @export
@@ -782,13 +782,10 @@ hlpr_summarize_trajectory_df <- function(object,
                                all_features = getFeatureNames(object),
                                all_gene_sets = getGeneSets(object),
                                all_genes = getGenes(object),
+                               max_slots = 1,
                                max_length = Inf)
 
-  if(base::length(variables) != 1){
-
-    base::stop("List variables can only have on element.")
-
-  } else if(base::names(variables) == "features"){
+  if(base::names(variables) == "features"){
 
     variables[[1]] <- check_features(object = object,
                                      features = variables[[1]],

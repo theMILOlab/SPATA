@@ -3,35 +3,17 @@
 #' @description Displays a trajectory of a specified sample that was
 #' drawn with \code{SPATA::createTrajectories()}.
 #'
-#' @param object A valid object of class \emph{spata}.
-#' @param trajectory_name The trajectory to plot specified as a character vector
-#' of length one.
-#' @param of_sample The samples name specified as a character of length one.
-#' @param color_to The information to be displayed by color specified as a
-#' character vector. If you specify a feature or a gene set this vector needs
-#' to be of length one. If you specify more than one gene the average
-#' expression of these genes will be calculated..
-#' @param method_gs The method according to which gene sets will be handled
-#' specified as a character of length one. This can be either \emph{mean} or one
-#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-#' \code{gsva::GSVA()}. Ignored if \code{color_to} isn't a gene set.
-#' @param smooth Logical value. If set to TRUE \code{plotSurface()} will smooth
-#'  the values displayed by color deploying \code{stats::loess()}.
-#' @param smooth_span Numeric value, given to \code{stats::loess()} if
-#'  \code{smooth} is set to TRUE.
-#' @param pt_size The size of the points specified as a numeric value.
-#' @param pt_alpha The transparency of the points specified as a numeric value.
-#' @param pt_clr The color of the points if \code{color_to} is set to NULL.
-#' @param pt_clrsp The color spectrum used to display \code{color_to} if the
-#' specified variable is continuous. Needs to be one of \emph{inferno, magma,
-#' plasma, cividis or viridis}.
+#' @inherit check_sample params
+#' @inherit check_trajectory params
+#' @inherit check_method params
+#' @inherit check_color_to params
+#' @inherit check_smooth params
+#' @inherit check_pt params
+#' @inherit check_display params
+#' @inherit verbose params
 #' @param sgmt_size The size of the segment arrrow specified as a numeric value.
-#' @param display_image Logical value. If set to TRUE the image will be displayed
-#' as the background. If set to FALSE barcodes that do not fall into the trajectory
-#' will be displayed in grey.
-#' @param display_title Logical value.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
+#'
+#' @inherit plot_family return
 #'
 #' @return Returns a ggplot-object that can be additionally customized according
 #' to the rules of the ggplot2-framework.
@@ -171,7 +153,8 @@ plotTrajectory <- function(object,
                               yes = color_to$genes,
                               no = "Mean expr.\nscore")
 
-    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Genes:",
+    labs_add_on <- hlpr_labs_add_on(input = color_to,
+                                    input_str = "Genes:",
                                     color_str = color_str,
                                     display_title = display_title)
 
