@@ -125,6 +125,7 @@ plotTrajectory <- function(object,
       dplyr::filter(barcodes %in% bc_traj)
 
 
+    # labs-add-on
     labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets,
                                     input_str = "Gene set:",
                                     color_str = hlpr_gene_set_name(color_to$gene_sets),
@@ -153,6 +154,7 @@ plotTrajectory <- function(object,
                               yes = color_to$genes,
                               no = "Mean expr.\nscore")
 
+    # labs-add-on
     labs_add_on <- hlpr_labs_add_on(input = color_to,
                                     input_str = "Genes:",
                                     color_str = color_str,
@@ -171,8 +173,20 @@ plotTrajectory <- function(object,
 
     coords_df <- dplyr::filter(background_df, barcodes %in% bc_traj)
 
+    # labs-add-on
+    if(base::isTRUE(display_title)){
+
+      labs_add_on <- ggplot2::labs(title = glue::glue("Trajectory: {trajectory_name}."))
+
+    } else {
+
+      labs_add_on <- NULL
+
+    }
+
     ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
-                                              mapping = ggplot2::aes(x = x, y = y)))
+                                              mapping = ggplot2::aes(x = x, y = y)),
+                          labs_add_on)
 
   }
 
@@ -191,6 +205,7 @@ plotTrajectory <- function(object,
 
 
 }
+
 
 
 #' @title Trajectory line plots
@@ -245,7 +260,12 @@ plotTrajectoryFeatures <- function(object,
                                  ctdf = t_object@compiled_trajectory_df,
                                  accuracy = 5,
                                  variables = features,
-                                 verbose = verbose)
+                                 verbose = verbose)  %>%
+    dplyr::group_by(features) %>%
+    dplyr::mutate(
+      values = confuns::normalize(x = values)
+    ) %>%
+    dplyr::ungroup()
 
   vline_df <-
     result_df %>%
@@ -377,12 +397,16 @@ plotTrajectoryGenes <- function(object,
       tidyr::pivot_longer(data = result_df,
                           cols = dplyr::all_of(genes),
                           names_to = "genes",
-                          values_to = "expr_score")
+                          values_to = "values") %>%
+      dplyr::group_by(genes) %>%
+      dplyr::mutate(values = confuns::normalize(x = values)) %>%
+      dplyr::ungroup()
 
   } else {
 
     result_df <-
-      dplyr::select(result_df, expr_score = mean_genes, genes = mean_genes, dplyr::everything())
+      dplyr::select(result_df, values = mean_genes, genes = mean_genes, dplyr::everything()) %>%
+      dplyr::mutate(values = confuns::normalize(x = values))
 
   }
 
@@ -396,7 +420,7 @@ plotTrajectoryGenes <- function(object,
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
-                                                           y = expr_score,
+                                                           y = values,
                                                            color = genes)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
@@ -455,7 +479,13 @@ plotTrajectoryGeneSets <- function(object,
                                  accuracy = 5,
                                  variables = gene_sets,
                                  method_gs = method_gs,
-                                 verbose = verbose)
+                                 verbose = verbose,
+                                 normalize = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(gene_sets) %>%
+    dplyr::mutate(values = confuns::normalize(x = values)) %>%
+    dplyr::ungroup()
+
 
   vline_df <-
     result_df %>%
@@ -488,7 +518,7 @@ plotTrajectoryGeneSets <- function(object,
 
 
 
-#' @title Expression dynamic in heatmpa
+#' @title Expression dynamic in heatmap
 #'
 #' @description Displays gene- or gene-set-expression values along a trajectory
 #' direction with a smoothed heatmap.
@@ -527,6 +557,7 @@ plotTrajectoryHeatmap <- function(object,
                                   of_sample,
                                   trajectory_name,
                                   variables = NULL,
+                                  method_gs = "mean",
                                   show_row_names = TRUE,
                                   arrange_rows = "none",
                                   verbose = TRUE,
@@ -543,7 +574,7 @@ plotTrajectoryHeatmap <- function(object,
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
   check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
-  check_method(method_gs = method_gs, method_padj = method_padj)
+  check_method(method_gs = method_gs)
   check_pt(pt_clrsp = clrsp)
 
   variables <- check_variables(variables = variables,
@@ -569,6 +600,10 @@ plotTrajectoryHeatmap <- function(object,
       variables = variables[[1]],
       accuracy = 5,
       verbose = verbose) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by({{var_type}}) %>%
+    dplyr::mutate(values = confuns::normalize(x = values)) %>%
+    dplyr::ungroup() %>%
     tidyr::pivot_wider(id_cols = dplyr::all_of(var_type),
                        names_from = c("trajectory_part", "trajectory_order"),
                        names_sep = "_",

@@ -130,7 +130,6 @@ check_color_to <- function(color_to,
 
 
 
-
 #' @title Check feature variables input
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes a character
@@ -238,6 +237,7 @@ check_features <- function(object,
 }
 
 
+
 #' @title Check gene input
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes a character
@@ -318,6 +318,7 @@ check_genes <- function(object,
   base::return(genes_found)
 
 }
+
 
 
 #' @title Check gene set input

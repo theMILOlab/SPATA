@@ -72,6 +72,7 @@ check_assign <- function(assign = FALSE,
 }
 
 
+
 #' @title Check compiled trajectory data.frame
 #'
 #' @param ctdf A compiled trajectory data.frame containing the variables

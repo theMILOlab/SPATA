@@ -752,6 +752,7 @@ hlpr_smooth_shiny <- function(variable,
 #' @inherit check_variables params
 #' @inherit check_method params
 #' @inherit verbose params
+#' @inherit normalize params
 #' @param accuracy Numeric. Given to \code{accuracy}-argument of
 #' \code{plyr::round_any()}. Determines how many barcode-spots will be summarized
 #' as one sub-trajectory-part.
@@ -763,7 +764,8 @@ hlpr_summarize_trajectory_df <- function(object,
                                          accuracy = 5,
                                          variables,
                                          method_gs = "mean",
-                                         verbose = TRUE){
+                                         verbose = TRUE,
+                                         normalize = FALSE){
 
 
   # 1. Control --------------------------------------------------------------
@@ -809,13 +811,15 @@ hlpr_summarize_trajectory_df <- function(object,
                       method_gs = method_gs,
                       average_genes = FALSE,
                       smooth = FALSE,
-                      normalize = TRUE,
+                      normalize = normalize,
                       verbose = verbose)
 
   # keep only variables that were successfully joined
   variables[[1]] <- variables[[1]][variables[[1]] %in% base::colnames(joined_df)]
 
   # summarize data.frame
+  if(base::isTRUE(verbose)){base::message("Summarizing trajectory data.frame...")}
+
   summarized_df <-
     dplyr::group_by(.data = joined_df, trajectory_part, order_binned) %>%
     dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = variables[[1]]),
@@ -874,6 +878,33 @@ hlpr_vector_projection <- function(lcs, x_coordinate, y_coordinate){
 
 }
 
+
+
+#' @title Widen trajectory data.frame
+#'
+#' @param stdf A summarized trajectory data.frame - output
+#' from \code{hlpr_summarize_trajectory_df()}.
+#' @param variable Character value. The variable of \code{stdf}:
+#' \emph{'gene_sets', 'genes'} or \emph{'features'}.
+#'
+#'
+#' @return A widened data.frame in which each every observation is a
+#' trajectory and every variable describes the value of the trajectory
+#' at a specific position.
+#'
+#' @export
+#'
+
+hlpr_widen_trajectory_df <- function(stdf,
+                                     variable){
+
+  tidyr::pivot_wider(data = tdf,
+                     id_cols = dplyr::all_of(c("trajectory_order", variable)),
+                     names_from = dplyr::all_of(c("trajectory_part", "trajectory_order")),
+                     values_from = "values")
+
+
+}
 
 
 

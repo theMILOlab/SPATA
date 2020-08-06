@@ -54,6 +54,7 @@ rankTrajectoryGeneSets <- function(object,
       accuracy = 5,
       verbose = verbose) %>%
     dplyr::group_by(!!rlang::sym("gene_sets")) %>%
+    dplyr::mutate(values = confuns::normalize(x = values)) %>%
     tidyr::nest()
 
   # -----
@@ -63,7 +64,7 @@ rankTrajectoryGeneSets <- function(object,
 
   # linear modeling
 
-  if(base::isTRUE(verbose)){base::message("Computing linear models.")}
+  if(base::isTRUE(verbose)){base::message("Computing linear models...")}
 
   lm_ctdf <-
     dplyr::mutate(.data = nested_ctdf,
@@ -122,6 +123,7 @@ rankTrajectoryGenes <- function(object,
       accuracy = 5,
       verbose = verbose) %>%
     dplyr::group_by(!!rlang::sym("genes")) %>%
+    dplyr::mutate(values = confuns::normalize(x = values)) %>%
     tidyr::nest()
 
   # -----
@@ -130,7 +132,7 @@ rankTrajectoryGenes <- function(object,
 
   # linear modeling
 
-  if(base::isTRUE(verbose)){base::message("Computing linear models.")}
+  if(base::isTRUE(verbose)){base::message("Computing linear models...")}
 
   lm_ctdf <-
     dplyr::mutate(.data = nested_ctdf,

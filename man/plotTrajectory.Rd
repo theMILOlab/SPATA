@@ -23,49 +23,52 @@ plotTrajectory(
 )
 }
 \arguments{
-\item{object}{A valid object of class \emph{spata}.}
+\item{object}{A valid spata-object.}
 
-\item{trajectory_name}{The trajectory to plot specified as a character vector
-of length one.}
+\item{trajectory_name}{The trajectory of interest specified
+as a single character value.}
 
-\item{of_sample}{The samples name specified as a character of length one.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
-\item{color_to}{The information to be displayed by color specified as a
-character vector. If you specify a feature or a gene set this vector needs
-to be of length one. If you specify more than one gene the average
-expression of these genes will be calculated..}
+\item{color_to}{The variable to be displayed by color specified as .
+
+ \itemize{
+  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
+  \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  }}
 
 \item{method_gs}{The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-\code{gsva::GSVA()}. Ignored if \code{color_to} isn't a gene set.}
+\code{gsva::GSVA()}.}
 
-\item{smooth}{Logical value. If set to TRUE \code{plotSurface()} will smooth
-the values displayed by color deploying \code{stats::loess()}.}
+\item{smooth}{Logical. If set to TRUE values will be smoothed according to the
+\code{smoooth_}-parameters.}
 
-\item{smooth_span}{Numeric value, given to \code{stats::loess()} if
-\code{smooth} is set to TRUE.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_size}{The size of the points specified as a numeric value.}
+\item{pt_size}{The size of the points specified as a single numeric value.}
 
-\item{pt_alpha}{The transparency of the points specified as a numeric value.}
+\item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
-\item{pt_clr}{The color of the points if \code{color_to} is set to NULL.}
+\item{pt_clr}{The base color of every point displayed in the plot.}
 
-\item{pt_clrsp}{The color spectrum used to display \code{color_to} if the
-specified variable is continuous. Needs to be one of \emph{inferno, magma,
-plasma, cividis or viridis}.}
+\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
+color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
 
 \item{sgmt_size}{The size of the segment arrrow specified as a numeric value.}
 
-\item{display_image}{Logical value. If set to TRUE the image will be displayed
-as the background. If set to FALSE barcodes that do not fall into the trajectory
-will be displayed in grey.}
+\item{display_image}{Logical. If set to TRUE the histology image of the specified sample
+is displayed underneath the plot.}
 
-\item{display_title}{Logical value.}
+\item{display_title}{Logical. If set to TRUE an informative title is displayed.}
 
-\item{verbose}{Logical value. If set to TRUE informative messages with respect
-to the computational progress made will be printed.}
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

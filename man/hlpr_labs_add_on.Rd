@@ -9,11 +9,11 @@ hlpr_labs_add_on(input, input_str, color_str, display_title)
 \arguments{
 \item{input}{The color_to argument}
 
-\item{input_str}{Genes:, Gene set: or Feature:}
+\item{input_str}{Title-prefix. Should be one of \emph{'Genes:', 'Gene set:'} or \code{'Feature:'}.}
 
 \item{color_str}{Legend title}
 
-\item{display_title}{Logical}
+\item{display_title}{Logical. If set to FALSE only the legend-title will be specified.}
 }
 \value{
 A customized \code{ggplot2::labs()}-function.
