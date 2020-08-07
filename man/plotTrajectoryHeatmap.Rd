@@ -2,13 +2,14 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryHeatmap}
 \alias{plotTrajectoryHeatmap}
-\title{Expression dynamic in heatmpa}
+\title{Expression dynamic in heatmap}
 \usage{
 plotTrajectoryHeatmap(
   object,
   of_sample,
   trajectory_name,
   variables = NULL,
+  method_gs = "mean",
   show_row_names = TRUE,
   arrange_rows = "none",
   verbose = TRUE,

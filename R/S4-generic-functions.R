@@ -79,6 +79,14 @@ setGeneric(name = "trajectory", def = function(object, trajectory_name, of_sampl
 
 #' @rdname image
 #' @export
+setGeneric(name = "ctdf", def = function(t_obj){
+
+  standardGeneric(f = "ctdf")
+
+})
+
+#' @rdname image
+#' @export
 setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
   standardGeneric(f = "getTrajectoryComment")
@@ -214,7 +222,6 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 
 #' @rdname image
 #' @export
-
 setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -238,6 +245,14 @@ setMethod(f = "trajectory", signature = "spata", definition = function(object, t
     stop(stringr::str_c("Could not find trajectory '", trajectory_name, "' in sample: '", of_sample, "'.", sep = ""))
 
   }
+
+})
+
+#' @rdname image
+#' @export
+setMethod(f = "ctdf", signature = "spatialTrajectory", definition = function(t_obj){
+
+  t_obj@compiled_trajectory_df
 
 })
 

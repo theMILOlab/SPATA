@@ -14,7 +14,7 @@ plotTrajectory(
   smooth_span = 0.02,
   pt_size = 2.5,
   pt_alpha = 1,
-  pt_clr = "steelblue",
+  pt_clr = "red",
   pt_clrsp = "inferno",
   sgmt_size = 1,
   display_image = TRUE,

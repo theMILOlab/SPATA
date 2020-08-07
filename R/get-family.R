@@ -432,10 +432,43 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 }
 
 
+
+#' @title Obtain a summarized trajectory data.frame
+#'
+#' @description A wrapper arround \code{getTrajectoryObject()} and
+#' \code{hlpr_sumamrize_trajectory_df()}.
+#'
+#' @inherit check_sample params
+#' @inherit check_trajectory params
+#' @param ... Additional arguments given to \code{hlpr_summarize_trajectory_df()}.
+#'
+#' @return A summarized trajectory data.frame.
+#'
+#' @export
+#'
+
+getSummarizedTrajectoryDf <- function(object,
+                                      trajectory_name,
+                                      of_sample,
+                                      ...){
+
+  tobj <-
+    getTrajectoryObject(object, trajectory_name, of_sample)
+
+  stdf <-
+  hlpr_summarize_trajectory_df(object,
+                               ctdf = tobj@compiled_trajectory_df,
+                               accuracy = 5,
+                               ...)
+
+  base::return(stdf)
+
+}
+
 #' @title Obtain trajectory object
 #'
 #' @inherit check_sample params
-#' @inherit check_trajectory
+#' @inherit check_trajectory params
 #'
 #' @return An object of class \code{spatialTrajectory}.
 #' @export

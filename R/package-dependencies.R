@@ -4,3 +4,6 @@
 NULL
 
 
+#' @importFrom pipeR %>>%
+
+NULL

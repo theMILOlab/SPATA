@@ -9,6 +9,7 @@
 \alias{featureData<-}
 \alias{samples}
 \alias{trajectory}
+\alias{ctdf}
 \alias{getTrajectoryComment}
 \alias{exprMtr,spata-method}
 \alias{coordinates,spata-method}
@@ -17,6 +18,7 @@
 \alias{featureData<-,spata-method}
 \alias{samples,spata-method}
 \alias{trajectory,spata-method}
+\alias{ctdf,spatialTrajectory-method}
 \alias{getTrajectoryComment,spata-method}
 \alias{getTrajectoryComment,spatialTrajectory-method}
 \title{Generics to extract a slots content}
@@ -37,6 +39,8 @@ samples(object)
 
 trajectory(object, trajectory_name, of_sample)
 
+ctdf(t_obj)
+
 getTrajectoryComment(object, ...)
 
 \S4method{exprMtr}{spata}(object, of_sample = "all")
@@ -52,6 +56,8 @@ getTrajectoryComment(object, ...)
 \S4method{samples}{spata}(object)
 
 \S4method{trajectory}{spata}(object, trajectory_name, of_sample)
+
+\S4method{ctdf}{spatialTrajectory}(t_obj)
 
 \S4method{getTrajectoryComment}{spata}(object, trajectory_name, of_sample)
 
