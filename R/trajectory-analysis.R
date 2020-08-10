@@ -26,7 +26,7 @@ trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient desc
 #' @export
 
 
-rankTrajectoryTends <- function(stdf){
+rankTrajectoryTrends <- function(stdf){
 
   # 1. Control --------------------------------------------------------------
 
