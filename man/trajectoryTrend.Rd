@@ -12,7 +12,7 @@ trajectoryTrend(atdf, limit = 2, pattern)
 \item{limit}{Numeric value. The maximum area-under-the-curve value the
 trajectory-trend-assessment might have.}
 
-\item{pattern}{Character value. The pattern of interest.}
+\item{pattern}{Character vector. The patterns of interest.}
 }
 \value{
 A character vector of gene or gene-set names that follow the specified

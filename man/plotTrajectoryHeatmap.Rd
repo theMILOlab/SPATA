@@ -6,8 +6,8 @@
 \usage{
 plotTrajectoryHeatmap(
   object,
-  of_sample,
   trajectory_name,
+  of_sample,
   variables = NULL,
   method_gs = "mean",
   show_row_names = TRUE,
@@ -22,10 +22,10 @@ plotTrajectoryHeatmap(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
-
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{variables}{The variables of interest specified as a character vector:
 

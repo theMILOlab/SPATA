@@ -10,6 +10,7 @@ getSummarizedTrajectoryDf(
   of_sample,
   variables,
   method_gs = "mean",
+  accuracy = 5,
   verbose = TRUE
 )
 }
@@ -33,6 +34,10 @@ as a single character value.}
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}
+
+\item{accuracy}{Numeric. Given to \code{accuracy}-argument of
+\code{plyr::round_any()}. Determines how many barcode-spots will be summarized
+as one sub-trajectory-part.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
