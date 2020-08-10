@@ -13,34 +13,39 @@ trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient desc
 
 #' @title Trajectory expression analysis
 #'
-#' @description These functions analyze the expression dynamics along
-#' a specified trajectory by fitting a variety of models to the trajectory's
-#' expression trend.
+#' @description Analyze the expression dynamics along
+#' a specified trajectory by fitting a variety of models to the genes or
+#' gene sets expression trends.
 #'
 #' @param stdf A summarized trajectory data.frame. (e.g. obtained by
 #' \code{getSummarizedTrajectoryDf()}).
-#'
-#' @return A ranked trajectory data.frame. These nested data.frames contain
-#' the following variables:
 #'
 #' @return A nested data.frame with information about the dynamics of each gene
 #' or gene set.
 #'
 #' @export
 
-rankTrajectoryGeneSets <- function(stdf){
+
+rankTrajectoryTends <- function(stdf){
 
   # 1. Control --------------------------------------------------------------
 
   check_summarized_trajectory_df(stdf)
-  base::stopifnot("gene_sets" %in% base::colnames(stdf))
+
+  var <- base::colnaes(stdf)[base::colnaes(stdf) %in% c("genes", "gene_sets")]
+
+  if(base::length(var) != 1){
+
+    base::stop("Data.frame 'stdf' must have one column of name 'genes' or 'gene_sets'.")
+
+  }
 
   # -----
 
   # 2. Ranking --------------------------------------------------------------
 
   ranked_df <-
-    dplyr::group_by(.data = stdf, !!rlang::sym("gene_sets")) %>%
+    dplyr::group_by(.data = stdf, !!rlang::sym(var)) %>%
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
     tidyr::nest() %>>%
     "Adding models." %>>%
@@ -56,35 +61,6 @@ rankTrajectoryGeneSets <- function(stdf){
 
 }
 
-#' @rdname rankTrajectoryGeneSets
-#' @export
-rankTrajectoryGenes <- function(stdf){
-
-  # 1. Control --------------------------------------------------------------
-
-  check_summarized_trajectory_df(stdf)
-  base::stopifnot("genes" %in% base::colnames(stdf))
-
-  # -----
-
-  # 2. Ranking --------------------------------------------------------------
-
-  ranked_df <-
-    dplyr::group_by(.data = stdf, !!rlang::sym("genes")) %>%
-    dplyr::mutate(values = confuns::normalize(x = values)) %>%
-    tidyr::nest() %>>%
-    "Adding models." %>>%
-    dplyr::mutate(models = purrr::map(.x = data, .f = hlpr_add_models)) %>>%
-    "Fitting models." %>>%
-    dplyr::mutate(residuals = purrr::map(.x = data, .f = hlpr_add_residuals)) %>>%
-    "Calculating residuals." %>>%
-    dplyr::mutate(auc = purrr::map(.x = residuals, .f = hlpr_summarize_residuals))
-
-  # -----
-
-  return(ranked_df)
-
-}
 
 
 
