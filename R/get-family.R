@@ -454,6 +454,7 @@ getSummarizedTrajectoryDf <- function(object,
                                       of_sample,
                                       variables,
                                       method_gs = "mean",
+                                      accuracy = 5,
                                       verbose = TRUE){
 
   tobj <-
@@ -462,7 +463,7 @@ getSummarizedTrajectoryDf <- function(object,
   stdf <-
   hlpr_summarize_trajectory_df(object,
                                ctdf = tobj@compiled_trajectory_df,
-                               accuracy = 5,
+                               accuracy = accuracy,
                                variables = variables,
                                method_gs = method_gs,
                                verbose = verbose)

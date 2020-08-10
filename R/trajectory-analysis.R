@@ -157,7 +157,7 @@ trajectoryTrend <- function(atdf,
                             limit = 2,
                             pattern){
 
-  confuns::is_vector(x = pattern, mode = "character", "pattern")
+  confuns::is_vec(x = pattern, mode = "character", "pattern")
 
   res <-
     hlpr_filter_trend(atdf = atdf,
