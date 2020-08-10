@@ -652,8 +652,8 @@ plotTrajectoryGeneSets <- function(object,
 #'
 
 plotTrajectoryHeatmap <- function(object,
-                                  of_sample,
                                   trajectory_name,
+                                  of_sample,
                                   variables = NULL,
                                   method_gs = "mean",
                                   show_row_names = TRUE,

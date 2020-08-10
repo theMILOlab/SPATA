@@ -567,6 +567,7 @@ check_variables <- function(variables,
 
   }
 
+  variables <- base::unique(variables)
 
   if(max_length < base::length(variables)){
 

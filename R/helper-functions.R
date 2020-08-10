@@ -1040,7 +1040,7 @@ hlpr_filter_trend <- function(atdf, limit, poi){
 
   res <-
     dplyr::filter(.data = atdf, pattern %in% poi && auc <= limit) %>%
-      dplyr::pull(var = 1)
+    dplyr::pull(var = 1) %>% base::unique()
 
   if(base::length(res) == 0){
 
