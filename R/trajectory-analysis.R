@@ -32,7 +32,7 @@ rankTrajectoryTends <- function(stdf){
 
   check_summarized_trajectory_df(stdf)
 
-  var <- base::colnaes(stdf)[base::colnaes(stdf) %in% c("genes", "gene_sets")]
+  var <- base::colnames(stdf)[base::colnames(stdf) %in% c("genes", "gene_sets")]
 
   if(base::length(var) != 1){
 
