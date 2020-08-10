@@ -4,7 +4,14 @@
 \alias{getSummarizedTrajectoryDf}
 \title{Obtain a summarized trajectory data.frame}
 \usage{
-getSummarizedTrajectoryDf(object, trajectory_name, of_sample, ...)
+getSummarizedTrajectoryDf(
+  object,
+  trajectory_name,
+  of_sample,
+  variables,
+  method_gs = "mean",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -14,7 +21,23 @@ as a single character value.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
-\item{...}{Additional arguments given to \code{hlpr_summarize_trajectory_df()}.}
+\item{variables}{The variables of interest specified as a character vector:
+
+\itemize{
+ \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
+ \item{ \strong{Genes}: Must be in \code{getGenes()}}
+ \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+ }}
+
+\item{method_gs}{The method according to which gene sets will be handled
+specified as a character of length one. This can be either \emph{mean} or one
+of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+\code{gsva::GSVA()}.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 }
 \value{
 A summarized trajectory data.frame.
@@ -22,4 +45,29 @@ A summarized trajectory data.frame.
 \description{
 A wrapper arround \code{getTrajectoryObject()} and
 \code{hlpr_sumamrize_trajectory_df()}.
+}
+\details{
+Initially the compiled trajectory data.frame of the specified trajectory
+is joined with the respective input of variables via \code{joinWithVariables()}.
+
+The argument \code{accuracy} refers to the amount of which the barcode-spots of the
+given trajectory will be summarized with regards to the trajectory's direction:
+The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
+determine the length and width of the sub-rectangles in which the rectangle the
+trajectory embraces are splitted and in which all barcode-spots are binned.
+Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
+These means are then arranged according to the trajectory's direction.
+
+Eventually the data.frame is shifted via \code{tidyr::pivot_longer()} to a data.frame in which
+every observation refers to the mean-value of one of the specified variable-elements (e.g. a specified
+gene set) of the particular sub-rectangle. The returned data.frame contains the following variables:
+
+\itemize{
+ \item{\emph{trajectory_part}: Character. Specifies the trajectory's sub-part of the observation. (Negligible if there is
+ only one trajectory part.)}
+ \item{\emph{trajectory_part_order}: Numeric. Indicates the order within the trajectory-part. (Negligible if there is
+ only one trajectory part.)}
+ \item{\emph{trajectory_order}: Numeric. Indicates the order within the whole trajectory.}
+ \item{\emph{gene_sets, genes or features}: Character. The respective gene sets, gene or feature the value refers to.}
+ \item{\emph{values}: Numeric. The actual summarized values.}}
 }

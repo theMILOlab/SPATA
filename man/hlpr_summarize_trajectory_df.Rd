@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper-functions.R
 \name{hlpr_summarize_trajectory_df}
 \alias{hlpr_summarize_trajectory_df}
-\title{Summarize and join ctdf}
+\title{Join and summarize compiled trajectory data.frames}
 \usage{
 hlpr_summarize_trajectory_df(
   object,
@@ -56,7 +56,7 @@ The argument \code{accuracy} refers to the amount of which the barcode-spots of 
 given trajectory will be summarized with regards to the trajectory's direction:
 The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
 determine the length and width of the sub-rectangles in which the rectangle the
-trajectory embraces is splitted and in which all barcode-spots are binned.
+trajectory embraces are splitted and in which all barcode-spots are binned.
 Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
 These means are then arranged according to the trajectory's direction.
 

@@ -1,151 +1,181 @@
+
+# Objects -----------------------------------------------------------------
+
+trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient descending", "Logarithmic descending",
+                         "Logarithmic ascending", "Gradient ascending","Sinus",  "Sinus (reversed)", "One peak",
+                         "One peak (reversed)", "Two peaks (reversed)", "Two peaks")
+
+# -----
+
+
+# Functions ---------------------------------------------------------------
+
+
 #' @title Trajectory expression analysis
 #'
 #' @description These functions analyze the expression dynamics along
-#' a specified trajectory.
+#' a specified trajectory by fitting a variety of models to the trajectory's
+#' expression trend.
 #'
-#' @inherit check_sample params
-#' @inherit check_trajectory params
-#' @inherit check_gene_sets params
-#' @inherit check_genes params
-#' @inherit check_method params
-#' @inherit verbose params
+#' @param stdf A summarized trajectory data.frame. (e.g. obtained by
+#' \code{getSummarizedTrajectoryDf()}).
+#'
+#' @return A ranked trajectory data.frame. These nested data.frames contain
+#' the following variables:
 #'
 #' @return A nested data.frame with information about the dynamics of each gene
 #' or gene set.
 #'
 #' @export
 
-rankTrajectoryGeneSets <- function(object,
-                                   trajectory_name,
-                                   of_sample,
-                                   gene_sets,
-                                   method_gs = "mean",
-                                   method_padj = "fdr",
-                                   verbose = TRUE){
+rankTrajectoryGeneSets <- function(stdf){
 
   # 1. Control --------------------------------------------------------------
 
-  # all checks
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
-  check_method(method_gs = method_gs, method_padj = method_padj)
-
-  gene_sets <- check_gene_sets(object = object, gene_sets = gene_sets)
+  check_summarized_trajectory_df(stdf)
+  base::stopifnot("gene_sets" %in% base::colnames(stdf))
 
   # -----
 
+  # 2. Ranking --------------------------------------------------------------
 
-  # 2. Prepare source data --------------------------------------------------
-
-  t_object <- getTrajectoryObject(object = object,
-                                  trajectory_name = trajectory_name,
-                                  of_sample = of_sample)
-
-  # nest compiled trajectory data.frame
-  nested_ctdf <-
-    hlpr_summarize_trajectory_df(
-      object = object,
-      ctdf = t_object@compiled_trajectory_df,
-      variables = gene_sets,
-      method_gs = method_gs,
-      accuracy = 5,
-      verbose = verbose) %>%
-    dplyr::group_by(!!rlang::sym("gene_sets")) %>%
+  ranked_df <-
+    dplyr::group_by(.data = stdf, !!rlang::sym("gene_sets")) %>%
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
-    tidyr::nest()
+    tidyr::nest() %>>%
+    "Adding models." %>>%
+    dplyr::mutate(models = purrr::map(.x = data, .f = hlpr_add_models)) %>>%
+    "Fitting models." %>>%
+    dplyr::mutate(residuals = purrr::map(.x = data, .f = hlpr_add_residuals)) %>>%
+    "Calculating residuals." %>>%
+    dplyr::mutate(auc = purrr::map(.x = residuals, .f = hlpr_summarize_residuals))
 
   # -----
 
-
-  # 3. Modeling pipelines ---------------------------------------------------
-
-  # linear modeling
-
-  if(base::isTRUE(verbose)){base::message("Computing linear models...")}
-
-  lm_ctdf <-
-    dplyr::mutate(.data = nested_ctdf,
-                  lm = purrr::map(.x = data, .f = hlpr_lm_trajectory),
-                  lm_info = purrr::map(.x = lm, .f = hlpr_lm_info)) %>%
-    tidyr::unnest(lm_info) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(lm_adj_pvalue = stats::p.adjust(p = lm_pvalue,
-                                                  method = method_padj)) %>%
-    dplyr::arrange(dplyr::desc(x = lm_adj_rsquared))
-
-  # -----
-
-  base::return(lm_ctdf)
+  return(ranked_df)
 
 }
-
 
 #' @rdname rankTrajectoryGeneSets
 #' @export
-
-rankTrajectoryGenes <- function(object,
-                                trajectory_name,
-                                of_sample,
-                                genes,
-                                method_padj = "fdr",
-                                verbose = TRUE){
+rankTrajectoryGenes <- function(stdf){
 
   # 1. Control --------------------------------------------------------------
 
-  # all checks
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
-  check_method(method_gs = method_gs, method_padj = method_padj)
-
-  genes <- check_genes(object = object, genes = genes)
+  check_summarized_trajectory_df(stdf)
+  base::stopifnot("genes" %in% base::colnames(stdf))
 
   # -----
 
-  # 2. Prepare source data --------------------------------------------------
+  # 2. Ranking --------------------------------------------------------------
 
-  t_object <- getTrajectoryObject(object = object,
-                                  trajectory_name = trajectory_name,
-                                  of_sample = of_sample)
-
-  # nest compiled trajectory data.frame
-  nested_ctdf <-
-    hlpr_summarize_trajectory_df(
-      object = object,
-      ctdf = t_object@compiled_trajectory_df,
-      variables = genes,
-      method_gs = method_gs,
-      accuracy = 5,
-      verbose = verbose) %>%
-    dplyr::group_by(!!rlang::sym("genes")) %>%
+  ranked_df <-
+    dplyr::group_by(.data = stdf, !!rlang::sym("genes")) %>%
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
-    tidyr::nest()
+    tidyr::nest() %>>%
+    "Adding models." %>>%
+    dplyr::mutate(models = purrr::map(.x = data, .f = hlpr_add_models)) %>>%
+    "Fitting models." %>>%
+    dplyr::mutate(residuals = purrr::map(.x = data, .f = hlpr_add_residuals)) %>>%
+    "Calculating residuals." %>>%
+    dplyr::mutate(auc = purrr::map(.x = residuals, .f = hlpr_summarize_residuals))
 
   # -----
 
-  # 3. Modeling pipelines ---------------------------------------------------
-
-  # linear modeling
-
-  if(base::isTRUE(verbose)){base::message("Computing linear models...")}
-
-  lm_ctdf <-
-    dplyr::mutate(.data = nested_ctdf,
-                  lm = purrr::map(.x = data, .f = hlpr_lm_trajectory),
-                  lm_info = purrr::map(.x = lm, .f = hlpr_lm_info)) %>%
-    tidyr::unnest(lm_info) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(lm_adj_pvalue = stats::p.adjust(p = lm_pvalue,
-                                                  method = method_padj)) %>%
-    dplyr::arrange(dplyr::desc(x = lm_adj_rsquared))
-
-  # -----
-
-  base::return(lm_ctdf)
+  return(ranked_df)
 
 }
+
+
+
+#' @title Assess trajectory ranking.
+#'
+#' @description Takes a ranked trajectory data.frame and returns a data.frame
+#' that informs about how well the ranked gene- or gene set exprssion-trends
+#' fitted certain patterns.
+#'
+#' @param rtdf A ranked trajectory data.frame.
+#' @param pattern The pattern(s) you are interested in specified as a character
+#' vector. If set to NULL all patterns are included.
+#' @param max_auc Numeric value. The maximum area-under-the-curve-value allowed.
+#' @param names_only Logical. If set to TRUE only the names of the assessed ranking
+#' are returned as a character vector. (Convenient to use as input for functions
+#' taking gene set- or gene vectors as input.)
+#'
+#' @return A data.frame arranged by the residuals area-under-the-curve-values describing
+#' how well a model fitted the expression trend of a gene or gene set.
+#'
+#' @export
+#'
+
+assessTrajectoryTrends <- function(rtdf, pattern = NULL, max_auc = NULL, names_only = FALSE){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_rtdf(rtdf = rtdf)
+
+  if(!base::is.null(pattern)){confuns::is_vec(pattern, "character", "pattern")}
+  if(!base::is.null(max_auc)){confuns::is_value(max_auc, "numeric", "max_auc")}
+
+  confuns::is_value(names_only, mode = "logical", "names_only")
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  arranged_df <-
+    dplyr::select(.data = rtdf, -data, - models, - residuals) %>%
+    tidyr::unnest(cols = dplyr::all_of("auc")) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::starts_with("p_"),
+      names_to = "pattern",
+      names_prefix = "p_",
+      values_to = "auc"
+    ) %>%
+    dplyr::arrange(auc) %>%
+    dplyr::filter(auc <= base::ifelse(base::is.numeric(max_auc),
+                                     yes = max_auc,
+                                     no = base::max(auc))) %>%
+    dplyr::mutate(
+      pattern = hlpr_name_models(pattern)
+    )
+
+
+  # filter
+  if(!base::is.null(pattern)){
+
+    confuns::is_vec(x = pattern, mode = "character", ref = "pattern")
+
+    flt_df <-
+      dplyr::filter(arranged_df, pattern %in% {{pattern}})
+
+    if(base::nrow(flt_df) == 0){
+
+      base::stop("Unknown input for 'pattern'.")
+
+    }
+
+  } else {
+
+    flt_df <- arranged_df
+
+  }
+
+  # -----
+
+  if(base::isTRUE(names_only)){
+
+    dplyr::pull(.data = flt_df, var = 1) %>%
+    base::return()
+
+  } else {
+
+    base::return(flt_df)
+
+  }
+
+}
+
+# -----
+
+

@@ -358,7 +358,7 @@ check_object <- function(object){
 #' colro is categorical.
 #' @param pt_clr The base color of every point displayed in the plot.
 #'
-#' @inherit lazy_check_dummy description  details return
+#' @inherit lazy_check_dummy description details return
 #' @export
 
 check_pt <- function(pt_size = NULL,
@@ -394,6 +394,59 @@ check_pt <- function(pt_size = NULL,
   }
 
   base::return(TRUE)
+
+}
+
+
+
+#' @title Check ranked trajectory data.frame input
+#'
+#' @param rtdf A rankged trajectory data.frame.
+#' @param variable The gene or gene set of interest specified as a character
+#' value.
+#'
+#' @inherit lazy_check_dummy description details return
+#' @export
+#'
+
+check_rtdf <- function(rtdf,
+                       variable = NULL){
+
+  # check classes
+  confuns::check_data_frame(df = rtdf,
+                             var.class =
+                               list(
+                                 data = "list",
+                                 models = "list",
+                                 residuals = "list",
+                                 auc = "list"),
+                             ref = "rtdf")
+
+
+  # check first column
+  first_column <- base::colnames(rtdf)[1]
+
+  if(!"gene_sets" %in% first_column &
+     !"genes" %in% first_column){
+
+    base::stop("First column of data.frame 'rtdf' must be 'gene_sets' or 'genes'.")
+
+  }
+
+
+  # compare variable
+  if(!base::is.null(variable) && confuns::is_value(variable, "character", "variable")){
+
+    if(!variable %in% dplyr::pull(rtdf, {{first_column}})){
+
+      base::stop(glue::glue("Variable '{variable}' does not appear in column '{first_column}'."))
+
+    }
+
+  }
+
+
+  base::return(base::invisible(TRUE))
 
 }
 
@@ -466,6 +519,28 @@ check_smooth <- function(df = NULL,
   }
 
   base::return(TRUE)
+
+}
+
+
+
+#' @title Check stdf-input
+#'
+#' @param stdf A summarized trajectory data.frame
+#'
+#' @inherit lazy_check_dummy description details return
+#' @export
+#'
+
+check_summarized_trajectory_df <- function(stdf){
+
+  confuns::check_data_frame(
+    df = stdf, var.class = list(
+      trajectory_part = "character",
+      trajectory_part_order = c("numeric", "integer"),
+      trajectory_order = c("numeric", "integer"),
+      values = c("numeric", "integer")
+    ) )
 
 }
 

@@ -440,9 +440,11 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 #'
 #' @inherit check_sample params
 #' @inherit check_trajectory params
-#' @param ... Additional arguments given to \code{hlpr_summarize_trajectory_df()}.
+#' @inherit hlpr_summarize_trajectory_df params
 #'
 #' @return A summarized trajectory data.frame.
+#'
+#' @inherit hlpr_summarize_trajectory_df details
 #'
 #' @export
 #'
@@ -450,7 +452,9 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 getSummarizedTrajectoryDf <- function(object,
                                       trajectory_name,
                                       of_sample,
-                                      ...){
+                                      variables,
+                                      method_gs = "mean",
+                                      verbose = TRUE){
 
   tobj <-
     getTrajectoryObject(object, trajectory_name, of_sample)
@@ -459,7 +463,9 @@ getSummarizedTrajectoryDf <- function(object,
   hlpr_summarize_trajectory_df(object,
                                ctdf = tobj@compiled_trajectory_df,
                                accuracy = 5,
-                               ...)
+                               variables = variables,
+                               method_gs = method_gs,
+                               verbose = verbose)
 
   base::return(stdf)
 

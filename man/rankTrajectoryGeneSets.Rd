@@ -5,55 +5,23 @@
 \alias{rankTrajectoryGenes}
 \title{Trajectory expression analysis}
 \usage{
-rankTrajectoryGeneSets(
-  object,
-  trajectory_name,
-  of_sample,
-  gene_sets,
-  method_gs = "mean",
-  method_padj = "fdr",
-  verbose = TRUE
-)
+rankTrajectoryGeneSets(stdf)
 
-rankTrajectoryGenes(
-  object,
-  trajectory_name,
-  of_sample,
-  genes,
-  method_padj = "fdr",
-  verbose = TRUE
-)
+rankTrajectoryGenes(stdf)
 }
 \arguments{
-\item{object}{A valid spata-object.}
-
-\item{trajectory_name}{The trajectory of interest specified
-as a single character value.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
-
-\item{gene_sets}{The gene sets of interest specified as a character vector.}
-
-\item{method_gs}{The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-\code{gsva::GSVA()}.}
-
-\item{method_padj}{The method according to which the adjusted p-values will
-be calculated. Given to \code{stats::p.adjust()}.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
-
-\item{genes}{The genes of interest specified as a character vector.}
+\item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
+\code{getSummarizedTrajectoryDf()}).}
 }
 \value{
+A ranked trajectory data.frame. These nested data.frames contain
+the following variables:
+
 A nested data.frame with information about the dynamics of each gene
 or gene set.
 }
 \description{
 These functions analyze the expression dynamics along
-a specified trajectory.
+a specified trajectory by fitting a variety of models to the trajectory's
+expression trend.
 }

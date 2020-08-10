@@ -2366,7 +2366,7 @@ createTrajectories2 <- function(object){
 }
 
 
-#' Monocle3 Pseudotime
+#' @title Monocle3 Pseudotime
 #'
 #' @description Calculates the pseudotime values for every barcode in a given sample
 #' and adds it under the specified name to the feature data in the provided

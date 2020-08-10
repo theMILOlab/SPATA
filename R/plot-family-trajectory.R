@@ -194,7 +194,9 @@ plotTrajectory <- function(object,
 
   ggplot2::ggplot() +
     hlpr_image_add_on2(object, display_image, of_sample) +
-    ggplot2::geom_point(data = background_df, ggplot2::aes(x = x, y = y), alpha = 0.1, color = "white") +
+    ggplot2::geom_point(data = background_df, ggplot2::aes(x = x, y = y),
+                        alpha = base::ifelse(display_image, 0.1, 0.75),
+                        color = base::ifelse(display_image, "white", "lightgrey")) +
     ggplot_add_on +
     ggplot2::geom_segment(data = trajectory_sgmt_df,
                           mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
@@ -203,6 +205,102 @@ plotTrajectory <- function(object,
     ggplot2::theme_void() +
     ggplot2::coord_equal()
 
+
+}
+
+
+
+#' @title Trajectory trends distribution
+#'
+#' @description Visualizes the distribution of the assessment-scores
+#'  (residuals-area-under-the-curve) of a trajectory via histograms.
+#'
+#' @param atdf An assessed trajectory data.frame returned by
+#'  \code{assessTrajectoryTrends()}.
+#' @param limits The minimum and maximum auc-values to include. Given to
+#' \code{ggplot2::scale_x_continuous()}.
+#' @param plot_type One of \emph{'histogram', 'density', and 'ridgeplot'}.
+#'
+#' @inherit plot_family return
+#' @export
+#'
+
+plotTrajectoryAssessment <- function(atdf,
+                                     limits = c(NA, NA),
+                                     plot_type = "density",
+                                     binwidth = 1){
+
+  # 1. Control --------------------------------------------------------------
+
+  confuns::is_value(x = plot_type, mode = "character", ref = "plot_type")
+
+  confuns::check_data_frame(
+    df = atdf,
+    var.class = list(
+      pattern = c("character", "factor"),
+      auc = c("numeric", "integer", "double")
+    ))
+
+  if("genes" %in% colnames(atdf)){
+
+    var <- "genes"
+
+  } else if("gene_sets" %in% colnames(atdf)){
+
+    var <- "gene_sets"
+
+  } else {
+
+    base::stop("Data.frame 'atdf' must have a variable named 'gene_sets' or 'genes'.")
+
+  }
+
+  base::stopifnot(base::is.character(dplyr::pull(atdf, {{var}})))
+
+  # -----
+
+  # 2. Plotting -------------------------------------------------------------
+
+  if(plot_type == "histogram"){
+
+    display_add_on <- list(
+      ggplot2::geom_histogram(mapping = ggplot2::aes(x = auc, fill = pattern),
+                              binwidth = binwidth, color = "black", data = atdf),
+      ggplot2::facet_wrap(facets = . ~ pattern)
+    )
+
+  } else if(plot_type == "density"){
+
+    display_add_on <- list(
+      ggplot2::geom_density(mapping = ggplot2::aes(x = auc, fill = pattern),
+                            color = "black", data = atdf),
+      ggplot2::facet_wrap(facets = . ~ pattern)
+    )
+
+  } else if(plot_type == "ridgeplot"){
+
+    display_add_on <- list(
+      ggridges::geom_density_ridges(mapping = ggplot2::aes(x = auc, y = pattern, fill = pattern),
+                                    color = "black", data = atdf, alpha = 0.75),
+      ggridges::theme_ridges()
+    )
+
+  } else {
+
+    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density' or 'ridgeplot'")
+  }
+
+  # -----
+
+  ggplot2::ggplot(data = atdf) +
+    ggplot2::theme_classic() +
+    ggplot2::labs(x = "Area under the curve [residuals]",
+                  y = NULL) +
+    display_add_on +
+    ggplot2::theme(
+      strip.background = ggplot2::element_blank(),
+      legend.position = "none") +
+    ggplot2::scale_x_continuous(limits = limits)
 
 }
 
@@ -747,6 +845,119 @@ plotTrajectoryHeatmap <- function(object,
 
 }
 
+
+
+#' @title Display trajectory fit
+#'
+#' @description Displayes the trend of a trajectory in comparison to a variety
+#' of models / mathematical curves and thus how well it fits to each of them.
+#'
+#' @param rtdf A ranked trajectory data.frame.
+#' @param gene_set The gene set of interest specified as a character value.
+#' @param gene The gene of interest specified as a character value.
+#' @param display_residuals Logical. If set to TRUE the residuals are displayed
+#' via a ret line.
+#' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
+#'
+#' @inherit plot_family return
+#' @export
+#'
+
+plotTrajectoryFit <- function(rtdf,
+                              variable,
+                              display_residuals = FALSE,
+                              ...){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_rtdf(rtdf = rtdf,
+             variable = variable)
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  column <- colnames(rtdf)[1]
+
+  # extract and shift
+  rtdf <- dplyr::filter(.data = rtdf, !!rlang::sym(column) == {{variable}})
+
+  data <- dplyr::select(.data = rtdf$data[[1]], trajectory_order, values_Expression = values)
+
+  models <-
+    tidyr::pivot_longer(
+      data = rtdf$models[[1]],
+      cols = dplyr::starts_with("p_"),
+      values_to = "values_Fitted curve",
+      names_to = "pattern",
+      names_prefix = "p_"
+    )
+
+  joined_df <-
+    dplyr::left_join(x = models, y = data, key = "trajectory_order")
+
+  # add residuals
+  if(base::isTRUE(display_residuals)){
+
+    residuals <-
+      tidyr::pivot_longer(
+        data = rtdf$residuals[[1]],
+        cols = dplyr::starts_with("p_"),
+        values_to = "values_Residuals",
+        names_to = "pattern",
+        names_prefix = "p_"
+      )
+
+    joined_df <-
+      dplyr::left_join(x = joined_df,
+                       y = residuals,
+                       by = c("trajectory_order", "pattern"))
+
+    legend_position = "right"
+
+  } else {
+
+    legend_position = "none"
+
+  }
+
+  # shift to plottable df
+  plot_df <-
+    tidyr::pivot_longer(
+      data = joined_df,
+      cols = dplyr::all_of(x = tidyselect::starts_with("values")),
+      names_to = "origin",
+      values_to = "all_values",
+      names_prefix = "values_"
+    ) %>%
+    dplyr::mutate(
+      pattern = hlpr_name_models(pattern)
+    )
+
+  # -----
+
+  ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values)) +
+    ggplot2::geom_line(size = 1, alpha = 0.75, color = "blue4", linetype = "dotted",
+                       data = dplyr::filter(plot_df, origin == "Fitted curve")
+    ) +
+    ggplot2::geom_path(
+      mapping = ggplot2::aes(group = origin, color = origin),
+      size = 1, data = dplyr::filter(plot_df, origin %in% c("Residuals", "Expression"))
+    ) +
+    ggplot2::facet_wrap(~ pattern, ...) +
+    ggplot2::scale_color_manual(values = c("Expression" = "forestgreen",
+                                           "Residuals" = "tomato")) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(),
+                   axis.ticks.x = ggplot2::element_blank(),
+                   axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
+                   strip.background = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(color = "black", size = 11),
+                   legend.position = legend_position) +
+    ggplot2::labs(x = "Trajectory direction", y = NULL, color = NULL, caption = variable)
+
+}
 
 
 

@@ -741,7 +741,7 @@ hlpr_smooth_shiny <- function(variable,
 
 
 
-#' @title Summarize and join ctdf
+#' @title Join and summarize compiled trajectory data.frames
 #'
 #' @description Joins a compiled trajectory data.frame with
 #' the desired information and summarizes those.
@@ -763,7 +763,7 @@ hlpr_smooth_shiny <- function(variable,
 #' given trajectory will be summarized with regards to the trajectory's direction:
 #' The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
 #' determine the length and width of the sub-rectangles in which the rectangle the
-#' trajectory embraces is splitted and in which all barcode-spots are binned.
+#' trajectory embraces are splitted and in which all barcode-spots are binned.
 #' Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
 #' These means are then arranged according to the trajectory's direction.
 #'
@@ -927,6 +927,107 @@ hlpr_widen_trajectory_df <- function(stdf,
                      names_from = dplyr::all_of(c("trajectory_part", "trajectory_order")),
                      values_from = "values")
 
+
+}
+
+
+
+#' @title Helper functions for trajectory ranking
+#'
+#' @description Functions to use within \code{purrr::map()} again in \code{dplyr::mutate()} in order to
+#' create a nested ranked trajectory data.frame.
+#'
+#' \itemize{
+#'  \item{\code{hlpr_add_models()}: Returns a data.frame of variables corresponding to
+#'  mathematical curves.}
+#'  \item{\code{hlpr_add_residuals(): Calculates the residuals of the variable \emph{values} with respect
+#'  to each mathematical curve.}}
+#'  \item{\code{hlpr_summarise_residuals(): Calculates the area under the curve for every residual in order to
+#'  access the fit of the respective expression trend to the fitted curve.}}}
+#'
+#' @param df A data.frame.
+#'
+#' @return If used within \code{purrr::map()} a list of data.frames.
+#' @export
+#'
+
+hlpr_add_models <- function(df){
+
+  dplyr::transmute(.data = df,
+                   trajectory_order = trajectory_order,
+                   p_one_peak = confuns::fit_curve(trajectory_order, "one_peak"),
+                   p_one_peak_rev = confuns::fit_curve(trajectory_order, "one_peak", rev = TRUE),
+                   p_two_peaks = confuns::fit_curve(trajectory_order, "two_peaks"),
+                   p_two_peaks_rev = confuns::fit_curve(trajectory_order, "two_peaks", rev = TRUE),
+                   p_gradient_desc = confuns::fit_curve(trajectory_order, "gradient"),
+                   p_gradient_asc = confuns::fit_curve(trajectory_order, "gradient", rev = TRUE),
+                   p_log_asc = confuns::fit_curve(trajectory_order, "log"),
+                   p_log_desc = confuns::fit_curve(trajectory_order, "log", rev = TRUE),
+                   p_lin_asc = confuns::fit_curve(trajectory_order, "linear"),
+                   p_lin_desc = confuns::fit_curve(trajectory_order, "linear", rev = TRUE),
+                   p_sin = confuns::fit_curve(trajectory_order, "sinus"),
+                   p_sin_rev = confuns::fit_curve(trajectory_order, "sinus", rev = TRUE)
+  )
+
+}
+
+#' @rdname hlpr_add_models
+#' @export
+hlpr_add_residuals <- function(df){
+
+  diff_df <-
+    dplyr::transmute(.data = df,
+                     trajectory_order = trajectory_order,
+                     p_one_peak =  (values - confuns::fit_curve(trajectory_order, "one_peak"))^2,
+                     p_one_peak_rev = (values - confuns::fit_curve(trajectory_order, "one_peak", rev = TRUE))^2,
+                     p_two_peaks = (values - confuns::fit_curve(trajectory_order, "two_peaks"))^2,
+                     p_two_peaks_rev = (values - confuns::fit_curve(trajectory_order, "two_peaks", rev = TRUE))^2,
+                     p_gradient_desc = (values - confuns::fit_curve(trajectory_order, "gradient"))^2,
+                     p_gradient_asc = (values - confuns::fit_curve(trajectory_order, "gradient", rev = TRUE))^2,
+                     p_log_asc = (values - confuns::fit_curve(trajectory_order, "log"))^2,
+                     p_log_desc = (values - confuns::fit_curve(trajectory_order, "log", rev = TRUE))^2,
+                     p_lin_asc = (values - confuns::fit_curve(trajectory_order, "linear"))^2,
+                     p_lin_desc = (values - confuns::fit_curve(trajectory_order, "linear", rev = TRUE))^2,
+                     p_sin = (values - confuns::fit_curve(trajectory_order, "sinus"))^2,
+                     p_sin_rev = (values - confuns::fit_curve(trajectory_order, "sinus", rev = TRUE))^2
+    )
+
+}
+
+#' @rdname hlpr_add_models
+#' @export
+hlpr_summarize_residuals <- function(df){
+
+  purrr::map_dfc(.x = dplyr::select(df, -trajectory_order),
+                 .f = function(y){
+
+                   pracma::trapz(x = df$trajectory_order, y = y)
+
+                 })
+
+}
+
+#' @rdname hlpr_add_models
+#' @export
+hlpr_name_models <- function(names){
+
+  stringr::str_replace_all(
+    string = names,
+    pattern = c(
+      "gradient_desc" = "Gradient descending",
+      "gradient_asc" = "Gradient ascending",
+      "lin_desc" = "Linear descending",
+      "lin_asc" = "Linear ascending",
+      "log_desc" = "Logarithmic descending",
+      "log_asc" = "Logarithmic ascending",
+      "one_peak_rev" = "One peak (reversed)",
+      "one_peak" = "One peak",
+      "sin_rev" = "Sinus (reversed)",
+      "sin" = "Sinus",
+      "two_peaks_rev" = "Two peaks (reversed)",
+      "two_peaks" = "Two peaks"
+    )
+  )
 
 }
 
