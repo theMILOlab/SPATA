@@ -4,12 +4,7 @@
 \alias{assessTrajectoryTrends}
 \title{Assess trajectory ranking.}
 \usage{
-assessTrajectoryTrends(
-  rtdf,
-  pattern = NULL,
-  max_auc = NULL,
-  names_only = FALSE
-)
+assessTrajectoryTrends(rtdf)
 }
 \arguments{
 \item{rtdf}{A ranked trajectory data.frame.}

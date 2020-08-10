@@ -1031,7 +1031,28 @@ hlpr_name_models <- function(names){
 
 }
 
+#' @rdname hlpr_add_models
+#' @export
+hlpr_filter_trend <- function(atdf, limit, poi){
 
+  check_atdf(atdf)
+  confuns::is_value(x = limit, mode = "numeric", ref = "limit")
+
+  res <-
+    dplyr::filter(.data = atdf, pattern %in% poi && auc <= limit) %>%
+      dplyr::pull(var = 1)
+
+  if(base::length(res) == 0){
+
+    base::stop(glue::glue("No trajectory-trends of pattern '{stringr::str_c(poi, collapse = ', ')}' found with auc lower than {limit}."))
+
+  } else {
+
+    base::return(res)
+
+  }
+
+}
 
 
 

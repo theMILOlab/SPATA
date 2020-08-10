@@ -401,7 +401,8 @@ check_pt <- function(pt_size = NULL,
 
 #' @title Check ranked trajectory data.frame input
 #'
-#' @param rtdf A rankged trajectory data.frame.
+#' @param atdf An assessed trajectory data.frame.
+#' @param rtdf A ranked trajectory data.frame.
 #' @param variable The gene or gene set of interest specified as a character
 #' value.
 #'
@@ -409,8 +410,31 @@ check_pt <- function(pt_size = NULL,
 #' @export
 #'
 
-check_rtdf <- function(rtdf,
-                       variable = NULL){
+check_atdf <- function(atdf){
+
+  confuns::check_data_frame(
+    df = atdf,
+    var.class = list(
+      pattern = "character",
+      auc = c("double", "integer", "numeric")
+    )
+  )
+
+  # check first column
+  first_column <- base::colnames(rtdf)[1]
+
+  if(!"gene_sets" %in% first_column &
+     !"genes" %in% first_column){
+
+    base::stop("First column of data.frame 'atdf' must be 'gene_sets' or 'genes'.")
+
+  }
+
+}
+
+#' @rdname check_atdf
+#' @export
+check_rtdf <- function(rtdf, variable = NULL){
 
   # check classes
   confuns::check_data_frame(df = rtdf,

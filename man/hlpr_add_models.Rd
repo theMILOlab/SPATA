@@ -5,6 +5,7 @@
 \alias{hlpr_add_residuals}
 \alias{hlpr_summarize_residuals}
 \alias{hlpr_name_models}
+\alias{hlpr_filter_trend}
 \title{Helper functions for trajectory ranking}
 \usage{
 hlpr_add_models(df)
@@ -14,6 +15,8 @@ hlpr_add_residuals(df)
 hlpr_summarize_residuals(df)
 
 hlpr_name_models(names)
+
+hlpr_filter_trend(atdf, limit, poi)
 }
 \arguments{
 \item{df}{A data.frame.}

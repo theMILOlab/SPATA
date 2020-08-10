@@ -108,16 +108,11 @@ rankTrajectoryGenes <- function(stdf){
 #' @export
 #'
 
-assessTrajectoryTrends <- function(rtdf, pattern = NULL, max_auc = NULL, names_only = FALSE){
+assessTrajectoryTrends <- function(rtdf){
 
   # 1. Control --------------------------------------------------------------
 
   check_rtdf(rtdf = rtdf)
-
-  if(!base::is.null(pattern)){confuns::is_vec(pattern, "character", "pattern")}
-  if(!base::is.null(max_auc)){confuns::is_value(max_auc, "numeric", "max_auc")}
-
-  confuns::is_value(names_only, mode = "logical", "names_only")
 
   # -----
 
@@ -133,48 +128,46 @@ assessTrajectoryTrends <- function(rtdf, pattern = NULL, max_auc = NULL, names_o
       values_to = "auc"
     ) %>%
     dplyr::arrange(auc) %>%
-    dplyr::filter(auc <= base::ifelse(base::is.numeric(max_auc),
-                                     yes = max_auc,
-                                     no = base::max(auc))) %>%
-    dplyr::mutate(
-      pattern = hlpr_name_models(pattern)
-    )
-
-
-  # filter
-  if(!base::is.null(pattern)){
-
-    confuns::is_vec(x = pattern, mode = "character", ref = "pattern")
-
-    flt_df <-
-      dplyr::filter(arranged_df, pattern %in% {{pattern}})
-
-    if(base::nrow(flt_df) == 0){
-
-      base::stop("Unknown input for 'pattern'.")
-
-    }
-
-  } else {
-
-    flt_df <- arranged_df
-
-  }
+    dplyr::mutate(pattern = hlpr_name_models(pattern))
 
   # -----
 
-  if(base::isTRUE(names_only)){
+  base::return(arranged_df)
 
-    dplyr::pull(.data = flt_df, var = 1) %>%
-    base::return()
-
-  } else {
-
-    base::return(flt_df)
-
-  }
 
 }
+
+
+
+#' @title Trajectory trends
+#'
+#' @description Extracts the trajectories of a desired trend.
+#'
+#' @param atdf An assessed trajectory data.frame.
+#' @param limit Numeric value. The maximum area-under-the-curve value the
+#' trajectory-trend-assessment might have.
+#' @param pattern Character vector. The patterns of interest.
+#'
+#' @return A character vector of gene or gene-set names that follow the specified
+#' patterns to the specified degree.
+#' @export
+#'
+
+trajectoryTrend <- function(atdf,
+                            limit = 2,
+                            pattern){
+
+  confuns::is_vector(x = pattern, mode = "character", "pattern")
+
+  res <-
+    hlpr_filter_trend(atdf = atdf,
+                      limit = limit,
+                      poi = pattern)
+
+  base::return(res)
+
+}
+
 
 # -----
 

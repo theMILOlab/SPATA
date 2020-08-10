@@ -133,37 +133,7 @@ setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_s
 #' @export
 setMethod(f = "coordinates", signature = "spata", def = function(object, of_sample = "all"){
 
-  if(of_sample == "all"){
-
-    of_sample <- samples(object = object)
-
-  }
-
-  if(!is.character(of_sample)){
-
-    stop("Please specify the sample(s) by name as character strings.")
-
-  } else if(any(!of_sample %in% object@samples)) {
-
-    of_sample <- object@samples[object@samples %in% of_sample]
-
-    if(length(of_sample) > 1){
-
-      samples_found <- stringr::str_c(of_sample, collapse = "', '")
-
-    } else if(length(of_sample) == 1){
-
-      samples_found <- of_sample
-
-    } else if(length(of_sample) == 0){
-
-      stop("Could not find any of the specified samples.")
-
-    }
-
-    message(stringr::str_c("Did only find samples ", samples_found, "'."))
-
-  }
+  of_sample <- check_sample(object, of_sample = of_sample)
 
   ##----- filter for bc in sample
   coords_df <-
