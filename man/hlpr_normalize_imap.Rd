@@ -7,7 +7,7 @@
 hlpr_normalize_imap(variable, var_name, verbose = TRUE, aspect, subset)
 }
 \arguments{
-\item{variable}{The variable to smooth (if matches requirements).}
+\item{variable}{The variable to normalize (if matches requirements).}
 
 \item{var_name}{The name of the variable to smooth.}
 

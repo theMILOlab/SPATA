@@ -300,8 +300,6 @@ plotFourStates <- function(data,
 
   }
 
-
-
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # -----
@@ -381,8 +379,8 @@ plotFourStates <- function(data,
     scale_color_add_on +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank()
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank()
     ) +
     ggplot2::labs(x = xlab, y = ylab, color = color_to_lab)
 

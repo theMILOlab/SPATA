@@ -7,7 +7,7 @@
 hlpr_normalize_vctr(variable)
 }
 \arguments{
-\item{variable}{The variable to smooth (if matches requirements).}
+\item{variable}{The variable to normalize (if matches requirements).}
 }
 \value{
 A normalized variable
