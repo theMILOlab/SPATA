@@ -1,0 +1,23 @@
+---
+title: "SPATA - Introduction"
+author: "Jan Kueckelhaus"
+date: "8/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This tutorial's goal is to provide an overview about the architecture of the SPATA-package and it's 
+main objects as well as to introduce the main functions needed to extract and manipulate it's main-parts.
+
+
+
+
+
+
+
+
+
+

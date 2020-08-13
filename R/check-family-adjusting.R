@@ -499,7 +499,8 @@ check_sample <- function(object,
 #' @export
 
 check_segment <- function(object,
-                          segment_name){
+                          segment_name,
+                          of_sample){
 
   if(!is.null(segment_name) && !is.character(segment_name) && length(segment_name) != 1){
 

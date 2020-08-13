@@ -1,4 +1,71 @@
-# Expression matrix related
+
+
+
+
+#' @title Obtain spatial coordinates
+#'
+#' @inherit check_sample params
+#' @param of_segment Character value. Specifies the segment of interest.
+#'
+#' @return A data.frame containing the variables \emph{barcods, sample, x, y}
+#' (and \emph{segment} if specified).
+#' @export
+#'
+
+getCoordinates <- function(object,
+                           of_sample){
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  check_object(object)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample, 1)
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  coords <- coordinates(object, of_sample = of_sample)
+
+  # -----
+
+  base::return(coords)
+
+
+}
+
+#' @rdname getCoordinates
+#' @export
+getCoordinatesSegment <- function(object,
+                                  of_segment,
+                                  of_sample){
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  check_object(object)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+  bc_segm <- check_segment(object, segment_name = of_segment, of_sample = of_sample)
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  coords <-
+    coordinates(object = object, of_sample = of_sample) %>%
+    dplyr::filter(barcodes %in% bc_segm) %>%
+    dplyr::mutate(segment_name = {{of_segment}})
+
+  # -----
+
+  base::return(coords)
+
+}
+
 
 #' Obtain expression matrix
 #'
@@ -27,7 +94,7 @@ getExpressionMatrix <- function(object,
 #'
 #' @inherit check_sample params
 #'
-#' @return All barcodes of the specified sample(s).
+#' @return All barcodes of the specified sample(s) as a character vector.
 #' @export
 
 getBarcodes <- function(object, of_sample = "all"){
@@ -40,6 +107,84 @@ getBarcodes <- function(object, of_sample = "all"){
 
 
 
+# Dimensional reduction ---------------------------------------------------
+
+#' @title Obtain dimensional reduction data
+#'
+#' @inherit check_sample params
+#' @inherit check_method params
+#'
+#' @return A data.frame that contains the unique identifiers
+#' (keys): \emph{barcodes, sample} and:.
+#'
+#'  \itemize{
+#'   \item{ \code{getTsneData()}: \emph{tsne1, tsne2}}
+#'   \item{ \code{getUmapData()}: \emph{umap1, umap2}}
+#'   }
+#'
+#' @export
+#'
+#' @examples
+getDimRedData <- function(object,
+                          of_sample,
+                          method_dr = c("UMAP", "TSNE")){
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  check_object(object)
+  check_method(method_dr = method_dr)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  # -----
+
+  # 2. Data extraction ------------------------------------------------------
+
+  dr_strings <- stringr::str_c(base::tolower(x = method_dr), 1:2, sep = "")
+
+  dim_red_df <-
+    methods::slot(object = object@dim_red, name = method_dr) %>%
+    dplyr::filter(sample %in% of_sample) %>%
+    dplyr::select(dplyr::all_of(x = c("barcodes", "sample", dr_strings))) %>%
+    tibble::remove_rownames()
+
+  # -----
+
+  if(base::nrow(dim_red_df) == 0){
+
+    base::stop("There seems to be no data for method: ", method_dr)
+
+  }
+
+  base::return(dim_red_df)
+
+}
+
+#' @rdname getDimRedData
+#' @export
+getUmapData <- function(object,
+                        of_sample){
+
+
+  getDimRedData(object = object,
+                of_sample = of_sample,
+                method_dr = "UMAP")
+
+}
+
+#' @rdname getDimRedData
+#' @export
+getTsneData <- function(object,
+                        of_sample){
+
+  getDimRedData(object = object,
+                of_sample = of_sample,
+                method_dr = "TSNE")
+
+}
+# -----
 # Genes and gene set related ----------------------------------------------
 
 #' @title Overview about the current gene sets
@@ -83,8 +228,8 @@ getGeneSetOverview <- function(object){
 #' be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
 #' gene sets are returned.
 #' @param index A regular expression according to which the gene set names to be returned
-#' will be filtered again.
-#' @param simplify Logical. If set to TRUE the list to be returned will be simplified
+#' are filtered again.
+#' @param simplify Logical. If set to TRUE the list to be returned is simplified
 #' into a character vector.
 #'
 #'
@@ -95,7 +240,6 @@ getGeneSetOverview <- function(object){
 #' @export
 
 getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -287,6 +431,7 @@ getGenes <- function(object,
 
 
 
+# -----
 # Feature related ---------------------------------------------------------
 
 #' @title Obtain feature names
@@ -311,6 +456,7 @@ getFeatureNames <- function(object){
 
 
 
+# -----
 # Segmentation related ----------------------------------------------------
 
 #' @title Obtain segment names
@@ -365,6 +511,7 @@ getSegmentNames <- function(object,
 
 
 
+# -----
 # Trajectory related ------------------------------------------------------
 
 #- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
@@ -457,6 +604,8 @@ getSummarizedTrajectoryDf <- function(object,
                                       accuracy = 5,
                                       verbose = TRUE){
 
+  warning("getSummarizedTrajectoryDf is deprecated. Use getTrajectoryDf instead")
+
   tobj <-
     getTrajectoryObject(object, trajectory_name, of_sample)
 
@@ -467,6 +616,34 @@ getSummarizedTrajectoryDf <- function(object,
                                variables = variables,
                                method_gs = method_gs,
                                verbose = verbose)
+
+  base::return(stdf)
+
+}
+
+
+#' @rdname getSummarizedTrajectoryDf
+#' @export
+getTrajectoryDf <- function(object,
+                            trajectory_name,
+                            of_sample,
+                            variables,
+                            method_gs = "mean",
+                            accuracy = 5,
+                            verbose = TRUE){
+
+  warning("getSummarizedTrajectoryDf is deprecated. Use getTrajectoryDf instead")
+
+  tobj <-
+    getTrajectoryObject(object, trajectory_name, of_sample)
+
+  stdf <-
+    hlpr_summarize_trajectory_df(object,
+                                 ctdf = tobj@compiled_trajectory_df,
+                                 accuracy = accuracy,
+                                 variables = variables,
+                                 method_gs = method_gs,
+                                 verbose = verbose)
 
   base::return(stdf)
 
@@ -494,3 +671,5 @@ getTrajectoryObject <- function(object, trajectory_name, of_sample){
 
 
 
+
+# -----

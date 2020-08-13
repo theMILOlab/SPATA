@@ -259,7 +259,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
     # coordinate system 'lcs' to sort the points according to the trajectories direction
 
     sample_coords <-
-      coordsSpatial(object = object, of_sample = sample)
+      getCoordinates(object = object, of_sample = sample)
 
     lcs <- data.frame(
       x = c(tfp1.1[1], tfp1.1[1]),
@@ -984,7 +984,7 @@ hlpr_filter_trend <- function(atdf, limit, poi){
   confuns::is_value(x = limit, mode = "numeric", ref = "limit")
 
   res <-
-    dplyr::filter(.data = atdf, pattern %in% poi && auc <= limit) %>%
+    dplyr::filter(.data = atdf, pattern %in% poi & auc <= limit) %>%
     dplyr::pull(var = 1) %>% base::unique()
 
   if(base::length(res) == 0){

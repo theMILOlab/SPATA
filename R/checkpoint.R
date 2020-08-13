@@ -25,7 +25,7 @@ checkpoint <- function(evaluate = TRUE,
 
                          # segmentation
                          insufficient_n_vertices = "Please determine at least three vertices.",
-                         insufficient_n_vertices2 = "Please determine at least two segments and highlight the trajectory.",
+                         insufficient_n_vertices2 = "Please determine at least two vertices and highlight the trajectory.",
                          invalid_segment_name = "Please enter a valid name for the segment.",
                          segment_name_not_found = "Could not find the specified segment.",
                          occupied_segment_name = "This segment name is already taken.",

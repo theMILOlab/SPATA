@@ -30,7 +30,7 @@ plotDimRed <- function(object,
 
   # 2. Extract dimensional reduction ----------------------------------------
 
-  dimRed_df <- coordsDimRed(object, method_dr = method_dr, of_sample = of_sample)
+  dimRed_df <- getDimRedData(object, method_dr = method_dr, of_sample = of_sample)
 
   # -----
 
@@ -442,8 +442,8 @@ plotFourStates2 <- function(object,
   # 2. Data extraction ------------------------------------------------------
 
   data <-
-    coordsSpatial(object = object,
-                  of_sample = of_sample) %>%
+    getCoordinates(object = object,
+                   of_sample = of_sample) %>%
     joinWithGeneSets(object,
                      coords_df = .,
                      gene_sets = states,
@@ -511,7 +511,7 @@ plotFourStates2 <- function(object,
 #' @title Visualize variable distribution
 #'
 #' @description Visualizes the distribution of values of a set of variables for the
-#' whole sample accross specific subgroups.
+#' whole sample across specific subgroups.
 #'
 #' \itemize{
 #'  \item{ \code{plotDistribution()} Takes a data.frame as the starting point.}
@@ -745,8 +745,8 @@ plotDistribution2 <- function(object,
   # 2. Extract and wrangle with data ----------------------------------------
 
   data <-
-    coordsSpatial(object = object,
-                  of_sample = of_sample)
+    getCoordinates(object = object,
+                   of_sample = of_sample)
 
 
   if(base::any(variables %in% all_features)){
@@ -933,8 +933,8 @@ plotDistribution3 <- function(object,
   # 2. Extract and wrangle with data ----------------------------------------
 
   data <-
-    coordsSpatial(object = object,
-                  of_sample = of_sample)
+    getCoordinates(object = object,
+                   of_sample = of_sample)
 
 
   if(across %in% getFeatureNames(object)){
@@ -1172,7 +1172,7 @@ plotSegmentation <- function(object,
 
   # data extraction
   plot_df <-
-    coordsSpatial(object, of_sample = of_sample) %>%
+    getCoordinates(object, of_sample = of_sample) %>%
     joinWithFeatures(object, coords_df = ., features = "segment", verbose = FALSE)
 
   segment_df <- dplyr::filter(plot_df, segment != "")

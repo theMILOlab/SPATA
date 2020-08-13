@@ -46,7 +46,7 @@ plotSurface <- function(data,
      !base::length(color_to) == 1 |
      !color_to %in% base::colnames(data)){
 
-    base::stopp("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
 
   }
 
@@ -140,7 +140,7 @@ plotSurface2 <- function(object,
                                     display_title = display_title)
 
     # colour spectrum
-    if(base::is.numeric(coords_df$feature)){
+    if(base::is.numeric(dplyr::pull(coords_df, var = color_to$features))){
 
       scale_color_add_on <- ggplot2::scale_color_viridis_c(option = pt_clrsp)
 
@@ -336,7 +336,7 @@ plotSurfaceInteractive <- function(object){
 #' @title Plot several surface plots at the same time
 #'
 #' @description Plots a surface plot for every valid element in argument
-#' \code{color_to} and colors it according to the element.
+#' \code{variables} and colors it according to each element.
 #'
 #' \itemize{
 #'  \item{ \code{plotSurfaceComparison()} Takes a data.frame as the starting point. }
@@ -465,8 +465,7 @@ plotSurfaceComparison2 <- function(object,
 
   # 2. Extract and join data ------------------------------------------------
 
-  data <- coordsSpatial(object = object,
-                        of_sample = of_sample)
+  data <- getCoordinates(object, of_sample = of_sample)
 
 
   # join data.frame with variables to compare

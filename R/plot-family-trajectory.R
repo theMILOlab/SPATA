@@ -338,7 +338,7 @@ plotTrajectoryFeatures <- function(object,
 
   # lazy check
   check_object(object)
-  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -411,7 +411,7 @@ plotTrajectoryGenes <- function(object,
 
   # lazy check
   check_object(object)
-  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -555,7 +555,7 @@ plotTrajectoryGeneSets <- function(object,
 
   # lazy check
   check_object(object)
-  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method)
+  check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_method(method_gs = method_gs)
 
   # adjusting check

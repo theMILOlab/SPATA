@@ -67,7 +67,7 @@ rankTrajectoryTrends <- function(stdf){
 #' @title Assess trajectory ranking.
 #'
 #' @description Takes a ranked trajectory data.frame and returns a data.frame
-#' that informs about how well the ranked gene- or gene set exprssion-trends
+#' that informs about how well the ranked gene- or gene set expression-trends
 #' fitted certain patterns.
 #'
 #' @param rtdf A ranked trajectory data.frame.
@@ -109,7 +109,6 @@ assessTrajectoryTrends <- function(rtdf){
   # -----
 
   base::return(arranged_df)
-
 
 }
 

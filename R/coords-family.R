@@ -18,12 +18,14 @@
 #'   \item{ \code{coordsTrajectory()}: \emph{x, y}}
 #'   \item{ \code{coordsTSNE()}: \emph{tsne1, tsne2}}
 #'   \item{ \code{coordsUMAP()}: \emph{umap1, umap2}}
-#'   }.
+#'   }
 #'
 #' @export
 
 coordsSpatial <- function(object,
                           of_sample){
+
+  warning("coords-family is deprectated. Use getCoords instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -54,6 +56,8 @@ coordsSegment <- function(object,
                           of_sample,
                           segment_name){
 
+  warning("coords-family is deprectated. Use getCoords instead. ")
+
   # 1. Control --------------------------------------------------------------
 
   # adjusting check
@@ -81,6 +85,8 @@ coordsSegment <- function(object,
 coordsTrajectory <- function(object,
                              of_sample,
                              trajectory_name){
+
+  warning("coords-family is deprectated. Use getCoords instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -110,6 +116,8 @@ coordsDimRed <- function(object,
                          of_sample,
                          method_dr = c("UMAP", "TSNE")
                          ){
+
+  warning("coords-family is deprectated. Use getCoords instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -148,6 +156,8 @@ coordsDimRed <- function(object,
 #' @export
 coordsUMAP <- function(object,
                        of_sample){
+  warning("coords-family is deprectated. Use getCoords instead. ")
+
 
   coordsDimRed(object = object,
                of_sample = of_sample,
@@ -159,6 +169,7 @@ coordsUMAP <- function(object,
 #' @export
 coordsTSNE <- function(object,
                        of_sample){
+  warning("coords-family is deprectated. Use getCoords instead. ")
 
   coordsDimRed(object = object,
                of_sample = of_sample,
