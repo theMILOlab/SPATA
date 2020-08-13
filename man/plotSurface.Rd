@@ -7,16 +7,6 @@
 \title{Plot the sample}
 \usage{
 plotSurface(
-  data,
-  color_to,
-  pt_size = 2,
-  pt_alpha = 0.9,
-  pt_clrsp = "inferno",
-  pt_clrsp_dir = 1,
-  image = NULL
-)
-
-plotSurface2(
   object,
   of_sample,
   color_to,
@@ -33,10 +23,22 @@ plotSurface2(
   verbose = TRUE
 )
 
+plotSurface2(
+  data,
+  color_to,
+  pt_size = 2,
+  pt_alpha = 0.9,
+  pt_clrsp = "inferno",
+  pt_clrsp_dir = 1,
+  image = NULL
+)
+
 plotSurfaceInteractive(object)
 }
 \arguments{
-\item{data}{A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{color_to}{The variable to be displayed by color specified as .
 
@@ -47,23 +49,6 @@ plotSurfaceInteractive(object)
   \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
   }}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
-
-\item{pt_alpha}{The transparency of the points specified as single numeric value.}
-
-\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
-
-\item{pt_clrsp_dir}{The direction of the color spectrum specified as either \emph{1}
-or \emph{-1}.}
-
-\item{image}{An image of class \emph{Image} to be displayed in the background.
-Easily accessible via \code{SPATA::image()}.}
-
-\item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
-
 \item{method_gs}{The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
@@ -73,6 +58,13 @@ of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{smoooth_}-parameters.}
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+
+\item{pt_size}{The size of the points specified as a single numeric value.}
+
+\item{pt_alpha}{The transparency of the points specified as single numeric value.}
+
+\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
+color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
@@ -90,15 +82,23 @@ a single character value.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{data}{A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.}
+
+\item{pt_clrsp_dir}{The direction of the color spectrum specified as either \emph{1}
+or \emph{-1}.}
+
+\item{image}{An image of class \emph{Image} to be displayed in the background.
+Easily accessible via \code{SPATA::image()}.}
 }
 \description{
 Displays the sample and colors the surface according to the
 expression of genes and gene sets or other featured characteristics.
 
 \itemize{
- \item{ \code{plotSurface()} Takes a data.frame as the starting point.}
- \item{ \code{plotSurface2()} Takes the spata-object as the starting point and creates the
+ \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional paramters.}
+ \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
  application which allows for interactive plotting.}
 

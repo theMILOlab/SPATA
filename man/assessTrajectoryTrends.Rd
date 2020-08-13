@@ -26,7 +26,7 @@ as a single character value.}
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
-\code{getSummarizedTrajectoryDf()}).}
+\code{getTrajectoryDf()}).}
 
 \item{variables}{The variables of interest specified as a character vector:
 

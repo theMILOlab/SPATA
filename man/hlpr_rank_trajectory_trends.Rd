@@ -8,7 +8,7 @@ hlpr_rank_trajectory_trends(stdf)
 }
 \arguments{
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
-\code{getSummarizedTrajectoryDf()}).}
+\code{getTrajectoryDf()}).}
 }
 \value{
 A nested data.frame with information about the dynamics of each gene

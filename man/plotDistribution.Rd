@@ -3,18 +3,10 @@
 \name{plotDistribution}
 \alias{plotDistribution}
 \alias{plotDistribution2}
-\alias{plotDistribution3}
+\alias{plotDistributionAcross}
 \title{Visualize variable distribution}
 \usage{
 plotDistribution(
-  data,
-  variables = NULL,
-  plot_type = "histogram",
-  binwidth = 0.05,
-  ...
-)
-
-plotDistribution2(
   object,
   of_sample,
   variables,
@@ -28,7 +20,15 @@ plotDistribution2(
   verbose = TRUE
 )
 
-plotDistribution3(
+plotDistribution2(
+  data,
+  variables = NULL,
+  plot_type = "histogram",
+  binwidth = 0.05,
+  ...
+)
+
+plotDistributionAcross(
   object,
   of_sample,
   variables,
@@ -44,25 +44,23 @@ plotDistribution3(
 )
 }
 \arguments{
-\item{data}{The data.frame containing numeric variables.}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
 \item{variables}{The numeric variables whose distribution you want to display. Specified as
 a character vector.}
+
+\item{method_gs}{The method according to which gene sets will be handled
+specified as a character of length one. This can be either \emph{mean} or one
+of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+\code{gsva::GSVA()}.}
 
 \item{plot_type}{One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
 
 \item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
 
 \item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
-
-\item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
-
-\item{method_gs}{The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
-\code{gsva::GSVA()}.}
 
 \item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
 
@@ -78,6 +76,8 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
+\item{data}{The data.frame containing numeric variables.}
+
 \item{across}{A categorical feature across which the value-distribution is displayed. Must be
 a \emph{character or factor}-element of \code{SPATA::getFeatureNames()}.}
 }
@@ -86,10 +86,10 @@ Visualizes the distribution of values of a set of variables for the
 whole sample across specific subgroups.
 
 \itemize{
- \item{ \code{plotDistribution()} Takes a data.frame as the starting point.}
- \item{ \code{plotDistribution2()} Takes the spata-object as the starting point and creates the
+ \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters.}
- \item{ \code{plotDistribution3()} Takes the spata-object as the starting point and creates the
+ \item{ \code{plotDistribution2()} Takes a data.frame as the starting point.}
+ \item{ \code{plotDistributionAcross()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters. It takes an additional
  argument which allows to display the variables value-distribution across subgroups.}
 }

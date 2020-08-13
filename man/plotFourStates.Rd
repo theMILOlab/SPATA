@@ -2,20 +2,9 @@
 % Please edit documentation in R/plot-family-miscellaneous.R
 \name{plotFourStates}
 \alias{plotFourStates}
-\alias{plotFourStates2}
 \title{Gene set state plot}
 \usage{
 plotFourStates(
-  data,
-  states,
-  color_to = NULL,
-  pt_size = 1.5,
-  pt_alpha = 0.9,
-  pt_clrsp = "inferno",
-  display_labels = TRUE
-)
-
-plotFourStates2(
   object,
   of_sample,
   states,
@@ -32,10 +21,6 @@ plotFourStates2(
 )
 }
 \arguments{
-\item{data}{A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
-Whereby the states-variables contain the respective expression values of the specified
-gene sets. See 'See also' for how to easily obtain these data.frames.}
-
 \item{states}{The gene sets defining the four states specified as a character vector
 of length 4.}
 
@@ -59,6 +44,10 @@ color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'civ
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{data}{A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
+Whereby the states-variables contain the respective expression values of the specified
+gene sets. See 'See also' for how to easily obtain these data.frames.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according
