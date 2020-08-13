@@ -12,7 +12,7 @@ getBarcodes(object, of_sample = "all")
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 }
 \value{
-All barcodes of the specified sample(s).
+All barcodes of the specified sample(s) as a character vector.
 }
 \description{
 Obtain barcodes of a sample

@@ -20,7 +20,7 @@ check_variables(
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
  \item{ \strong{Genes}: Must be in \code{getGenes()}}
- \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+ \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
  }}
 
 \item{all_features}{Valid features.}

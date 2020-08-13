@@ -1,5 +1,4 @@
 
-# Surface related ---------------------------------------------------------
 
 #' @title Plot the sample
 #'
@@ -7,9 +6,9 @@
 #' expression of genes and gene sets or other featured characteristics.
 #'
 #' \itemize{
-#'  \item{ \code{plotSurface()} Takes a data.frame as the starting point.}
-#'  \item{ \code{plotSurface2()} Takes the spata-object as the starting point and creates the
+#'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional paramters.}
+#'  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
 #'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
 #'  application which allows for interactive plotting.}
 #'
@@ -31,64 +30,20 @@
 #'
 #' @export
 
-plotSurface <- function(data,
+plotSurface <- function(object,
+                        of_sample,
                         color_to,
+                        method_gs = "mean",
+                        smooth = FALSE,
+                        smooth_span = 0.02,
                         pt_size = 2,
-                        pt_alpha = 0.9,
+                        pt_alpha = 1,
                         pt_clrsp = "inferno",
-                        pt_clrsp_dir = 1,
-                        image = NULL){
-
-  # 1. Control --------------------------------------------------------------
-
-  # check lazy
-  if(!base::is.character(color_to) |
-     !base::length(color_to) == 1 |
-     !color_to %in% base::colnames(data)){
-
-    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
-
-  }
-
-  check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_coordinate_variables(data = data, x = "x", y = "y")
-
-  # -----
-
-  # 2. Plotting -------------------------------------------------------------
-
-  ggplot2::ggplot(data = data) +
-    hlpr_image_add_on(image) +
-    ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
-                                               color = .data[[color_to]]),
-                        size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
-    ggplot2::theme_void() +
-    ggplot2::theme(
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(x = NULL, y = NULL)
-
-  # -----
-
-}
-
-#' @rdname plotSurface
-#' @export
-plotSurface2 <- function(object,
-                         of_sample,
-                         color_to,
-                         method_gs = "mean",
-                         smooth = FALSE,
-                         smooth_span = 0.02,
-                         pt_size = 2,
-                         pt_alpha = 1,
-                         pt_clrsp = "inferno",
-                         display_image = FALSE,
-                         display_title = FALSE,
-                         assign = FALSE,
-                         assign_name,
-                         verbose = TRUE){
+                        display_image = FALSE,
+                        display_title = FALSE,
+                        assign = FALSE,
+                        assign_name,
+                        verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
@@ -235,6 +190,52 @@ plotSurface2 <- function(object,
   # -----
 
 }
+
+
+#' @rdname plotSurface
+#' @export
+plotSurface2 <- function(data,
+                        color_to,
+                        pt_size = 2,
+                        pt_alpha = 0.9,
+                        pt_clrsp = "inferno",
+                        pt_clrsp_dir = 1,
+                        image = NULL){
+
+  # 1. Control --------------------------------------------------------------
+
+  # check lazy
+  if(!base::is.character(color_to) |
+     !base::length(color_to) == 1 |
+     !color_to %in% base::colnames(data)){
+
+    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+
+  }
+
+  check_pt(pt_size, pt_alpha, pt_clrsp)
+  check_coordinate_variables(data = data, x = "x", y = "y")
+
+  # -----
+
+  # 2. Plotting -------------------------------------------------------------
+
+  ggplot2::ggplot(data = data) +
+    hlpr_image_add_on(image) +
+    ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
+                                               color = .data[[color_to]]),
+                        size = pt_size, alpha = pt_alpha) +
+    ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = NULL, y = NULL)
+
+  # -----
+
+}
+
 
 #' @rdname plotSurface
 #' @export

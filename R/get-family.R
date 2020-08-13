@@ -124,7 +124,7 @@ getBarcodes <- function(object, of_sample = "all"){
 #'
 #' @export
 #'
-#' @examples
+
 getDimRedData <- function(object,
                           of_sample,
                           method_dr = c("UMAP", "TSNE")){
@@ -594,7 +594,6 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 #' @inherit hlpr_summarize_trajectory_df details
 #'
 #' @export
-#'
 
 getSummarizedTrajectoryDf <- function(object,
                                       trajectory_name,
@@ -630,9 +629,9 @@ getTrajectoryDf <- function(object,
                             variables,
                             method_gs = "mean",
                             accuracy = 5,
+                            normalize = TRUE,
                             verbose = TRUE){
 
-  warning("getSummarizedTrajectoryDf is deprecated. Use getTrajectoryDf instead")
 
   tobj <-
     getTrajectoryObject(object, trajectory_name, of_sample)
@@ -643,7 +642,8 @@ getTrajectoryDf <- function(object,
                                  accuracy = accuracy,
                                  variables = variables,
                                  method_gs = method_gs,
-                                 verbose = verbose)
+                                 verbose = verbose,
+                                 normalize = normalize)
 
   base::return(stdf)
 

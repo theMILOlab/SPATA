@@ -226,6 +226,11 @@ plotTSNE <- function(object,
 
 }
 
+# -----
+
+
+# State plots -------------------------------------------------------------
+
 
 #' @title Gene set state plot
 #'
@@ -256,7 +261,126 @@ plotTSNE <- function(object,
 #'
 #' @export
 
-plotFourStates <- function(data,
+#' @rdname plotFourStates
+#' @export
+#'
+
+plotFourStates <- function(object,
+                           of_sample,
+                           states,
+                           color_to = NULL,
+                           method_gs = "gsva",
+                           average_genes = FALSE,
+                           pt_size = 1.5,
+                           pt_alpha = 0.9,
+                           pt_clrsp = "inferno",
+                           display_labels = TRUE,
+                           assign = FALSE,
+                           assign_name,
+                           verbose = TRUE){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  check_object(object)
+
+  check_pt(pt_size, pt_alpha, pt_clrsp)
+  check_assign(assign, assign_name)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+  states <- check_gene_sets(object, gene_sets = states, max_length = 4)
+
+  if(base::length(states) != 4){
+
+    base::stop(stringr::str_c(base::length(states), "valid gene sets provided.",
+                              "Need four.",sep = " "))
+
+  }
+
+  all_genes <- getGenes(object)
+  all_gene_sets <- getGeneSets(object)
+  all_features <- getFeatureNames(object)
+
+  if(!base::is.null(color_to)){
+    color_to <- check_color_to(color_to = color_to,
+                               all_features = all_features,
+                               all_gene_sets = all_gene_sets,
+                               all_genes = all_genes,
+                               max_length = 1)
+  }
+
+  # -----
+
+  # 2. Data extraction ------------------------------------------------------
+
+  data <-
+    getCoordinates(object = object,
+                   of_sample = of_sample) %>%
+    joinWithGeneSets(object,
+                     coords_df = .,
+                     gene_sets = states,
+                     normalize = TRUE,
+                     method_gs = method_gs,
+                     verbose = verbose)
+
+  if(!base::is.null(color_to)){
+
+    if("genes" %in% base::names(color_to)){
+
+      data <-
+        joinWithGenes(object,
+                      coords_df = data,
+                      genes = color_to$genes,
+                      average_genes = FALSE,
+                      normalize = TRUE,
+                      verbose = verbose)
+
+    } else if("gene_sets" %in% base::names(color_to)){
+
+      data <-
+        joinWithGeneSets(object,
+                         coords_df = data,
+                         gene_sets = color_to$gene_sets,
+                         method_gs = method_gs,
+                         normalize = TRUE,
+                         verbose = verbose)
+
+    } else if("features" %in% base::names(color_to)){
+
+      data <-
+        joinWithFeatures(object,
+                         coords_df = data,
+                         features = color_to$features,
+                         normalize = TRUE,
+                         verbose = verbose)
+
+    }
+
+  }
+
+  # -----
+
+  # 3. Plotting -------------------------------------------------------------
+
+  hlpr_assign(assign = assign,
+              object = list("point" = data),
+              name = assign_name)
+
+  plotFourStates(data = data,
+                 states = states,
+                 color_to = base::unlist(color_to),
+                 pt_size = pt_size,
+                 pt_alpha = pt_alpha,
+                 pt_clrsp = pt_clrsp,
+                 display_labels = display_labels)
+
+  # -----
+
+}
+
+plotFourStates2 <- function(data,
                            states,
                            color_to = NULL,
                            pt_size = 1.5,
@@ -386,127 +510,7 @@ plotFourStates <- function(data,
 
 }
 
-
-#' @rdname plotFourStates
-#' @export
-#'
-
-plotFourStates2 <- function(object,
-                            of_sample,
-                            states,
-                            color_to = NULL,
-                            method_gs = "gsva",
-                            average_genes = FALSE,
-                            pt_size = 1.5,
-                            pt_alpha = 0.9,
-                            pt_clrsp = "inferno",
-                            display_labels = TRUE,
-                            assign = FALSE,
-                            assign_name,
-                            verbose = TRUE){
-
-
-  # 1. Control --------------------------------------------------------------
-
-  # lazy check
-  check_object(object)
-
-  check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_assign(assign, assign_name)
-
-  # adjusting check
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-  states <- check_gene_sets(object, gene_sets = states, max_length = 4)
-
-  if(base::length(states) != 4){
-
-    base::stop(stringr::str_c(base::length(states), "valid gene sets provided.",
-                              "Need four.",sep = " "))
-
-  }
-
-  all_genes <- getGenes(object)
-  all_gene_sets <- getGeneSets(object)
-  all_features <- getFeatureNames(object)
-
-  if(!base::is.null(color_to)){
-    color_to <- check_color_to(color_to = color_to,
-                               all_features = all_features,
-                               all_gene_sets = all_gene_sets,
-                               all_genes = all_genes,
-                               max_length = 1)
-  }
-
-  # -----
-
-  # 2. Data extraction ------------------------------------------------------
-
-  data <-
-    getCoordinates(object = object,
-                   of_sample = of_sample) %>%
-    joinWithGeneSets(object,
-                     coords_df = .,
-                     gene_sets = states,
-                     normalize = TRUE,
-                     method_gs = method_gs,
-                     verbose = verbose)
-
-  if(!base::is.null(color_to)){
-
-    if("genes" %in% base::names(color_to)){
-
-      data <-
-        joinWithGenes(object,
-                      coords_df = data,
-                      genes = color_to$genes,
-                      average_genes = FALSE,
-                      normalize = TRUE,
-                      verbose = verbose)
-
-    } else if("gene_sets" %in% base::names(color_to)){
-
-      data <-
-        joinWithGeneSets(object,
-                         coords_df = data,
-                         gene_sets = color_to$gene_sets,
-                         method_gs = method_gs,
-                         normalize = TRUE,
-                         verbose = verbose)
-
-    } else if("features" %in% base::names(color_to)){
-
-      data <-
-        joinWithFeatures(object,
-                         coords_df = data,
-                         features = color_to$features,
-                         normalize = TRUE,
-                         verbose = verbose)
-
-    }
-
-  }
-
-  # -----
-
-  # 3. Plotting -------------------------------------------------------------
-
-  hlpr_assign(assign = assign,
-              object = list("point" = data),
-              name = assign_name)
-
-  plotFourStates(data = data,
-                 states = states,
-                 color_to = base::unlist(color_to),
-                 pt_size = pt_size,
-                 pt_alpha = pt_alpha,
-                 pt_clrsp = pt_clrsp,
-                 display_labels = display_labels)
-
-  # -----
-
-}
-
-
+# -----
 
 #' @title Visualize variable distribution
 #'
@@ -514,10 +518,10 @@ plotFourStates2 <- function(object,
 #' whole sample across specific subgroups.
 #'
 #' \itemize{
-#'  \item{ \code{plotDistribution()} Takes a data.frame as the starting point.}
-#'  \item{ \code{plotDistribution2()} Takes the spata-object as the starting point and creates the
+#'  \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
-#'  \item{ \code{plotDistribution3()} Takes the spata-object as the starting point and creates the
+#'  \item{ \code{plotDistribution2()} Takes a data.frame as the starting point.}
+#'  \item{ \code{plotDistributionAcross()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters. It takes an additional
 #'  argument which allows to display the variables value-distribution across subgroups.}
 #' }
@@ -540,160 +544,7 @@ plotFourStates2 <- function(object,
 #'
 #' @export
 
-plotDistribution <- function(data,
-                             variables = NULL,
-                             plot_type = "histogram",
-                             binwidth = 0.05,
-                             ...
-                           ){
-
-  # 1. Control --------------------------------------------------------------
-
-  # lazy check
-  stopifnot(base::is.data.frame(data))
-  stopifnot(base::is.null(variables) | base::is.character(variables))
-
-  if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
-
-    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.")
-
-  }
-
-  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
-
-    max_length = 10
-
-  } else {
-
-    max_length = 25
-
-  }
-
-  # adjusting check
-  num_data <- data[,base::sapply(data, base::is.numeric)]
-  num_variables <- base::colnames(num_data)
-
-  if(base::is.null(variables)){
-
-    valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
-
-  } else {
-
-    valid_variables <- variables[variables %in% num_variables]
-    valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
-
-    invalid_variables <- variables[!variables %in% valid_variables]
-
-
-    if(base::length(invalid_variables) > 0){
-
-      invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
-
-      base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
-                                   invalid_variables, "'", sep = "" ))
-
-    }
-
-  }
-
-  # -----
-
-  # 2. Shift data -----------------------------------------------------------
-
-  expr_data <-
-    tidyr::pivot_longer(
-      data = data[, valid_variables],
-      cols = dplyr::all_of(x = valid_variables),
-      names_to = "variables",
-      values_to = "values"
-    )
-
-  # -----
-
-
-  # 3. Display add on -------------------------------------------------------
-
-  if(plot_type == "histogram"){
-
-    display_add_on <-
-      list(
-        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
-                                color = "black", binwidth = binwidth,
-                                data = expr_data),
-        ggplot2::theme_bw(),
-        ggplot2::labs(y = NULL)
-      )
-
-  } else if(plot_type == "density"){
-
-    display_add_on <-
-      list(
-        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
-                              color = "black", data = expr_data),
-        ggplot2::theme_bw(),
-        ggplot2::labs(y = "Density")
-      )
-
-  } else if(plot_type == "ridgeplot"){
-
-    display_add_on <-
-      list(
-        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
-                                      color = "black", data = expr_data),
-        ggridges::theme_ridges(),
-        ggplot2::labs(y = NULL)
-      )
-
-  } else if(plot_type == "violin"){
-
-
-    display_add_on <-
-      list(
-        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
-                             color = "black", data = expr_data),
-        ggplot2::theme_bw(),
-        ggplot2::labs(y = NULL),
-        ggplot2::coord_flip()
-      )
-
-  } else if(plot_type == "boxplot"){
-
-    display_add_on <-
-      list(
-        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
-                              color = "black", data = expr_data),
-        ggplot2::theme_bw(),
-        ggplot2::labs(y = NULL),
-        ggplot2::coord_flip()
-      )
-
-  }
-
-  if(base::length(valid_variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
-
-    facet_add_on <-
-      list(ggplot2::facet_wrap(facets = . ~ variables, ...))
-
-  } else {
-
-    facet_add_on <- NULL
-
-  }
-
-  # 4. Plotting -------------------------------------------------------------
-
-  ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
-    display_add_on +
-    facet_add_on +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::labs(x = "Values")
-
-}
-
-#' @rdname plotDistribution
-#' @export
-
-plotDistribution2 <- function(object,
+plotDistribution <- function(object,
                               of_sample,
                               variables,
                               method_gs = "mean",
@@ -879,18 +730,170 @@ plotDistribution2 <- function(object,
 
 #' @rdname plotDistribution
 #' @export
-plotDistribution3 <- function(object,
-                              of_sample,
-                              variables,
-                              across,
-                              method_gs = "mean",
+plotDistribution2 <- function(data,
+                              variables = NULL,
                               plot_type = "histogram",
                               binwidth = 0.05,
-                              ... ,
-                              normalize = TRUE,
-                              assign = FALSE,
-                              assign_name,
-                              verbose = TRUE){
+                              ...
+){
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  stopifnot(base::is.data.frame(data))
+  stopifnot(base::is.null(variables) | base::is.character(variables))
+
+  if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
+
+    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.")
+
+  }
+
+  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
+
+    max_length = 10
+
+  } else {
+
+    max_length = 25
+
+  }
+
+  # adjusting check
+  num_data <- data[,base::sapply(data, base::is.numeric)]
+  num_variables <- base::colnames(num_data)
+
+  if(base::is.null(variables)){
+
+    valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+
+  } else {
+
+    valid_variables <- variables[variables %in% num_variables]
+    valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+
+    invalid_variables <- variables[!variables %in% valid_variables]
+
+
+    if(base::length(invalid_variables) > 0){
+
+      invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
+
+      base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
+                                   invalid_variables, "'", sep = "" ))
+
+    }
+
+  }
+
+  # -----
+
+  # 2. Shift data -----------------------------------------------------------
+
+  expr_data <-
+    tidyr::pivot_longer(
+      data = data[, valid_variables],
+      cols = dplyr::all_of(x = valid_variables),
+      names_to = "variables",
+      values_to = "values"
+    )
+
+  # -----
+
+
+  # 3. Display add on -------------------------------------------------------
+
+  if(plot_type == "histogram"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
+                                color = "black", binwidth = binwidth,
+                                data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL)
+      )
+
+  } else if(plot_type == "density"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = "Density")
+      )
+
+  } else if(plot_type == "ridgeplot"){
+
+    display_add_on <-
+      list(
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+                                      color = "black", data = expr_data),
+        ggridges::theme_ridges(),
+        ggplot2::labs(y = NULL)
+      )
+
+  } else if(plot_type == "violin"){
+
+
+    display_add_on <-
+      list(
+        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+                             color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL),
+        ggplot2::coord_flip()
+      )
+
+  } else if(plot_type == "boxplot"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+                              color = "black", data = expr_data),
+        ggplot2::theme_bw(),
+        ggplot2::labs(y = NULL),
+        ggplot2::coord_flip()
+      )
+
+  }
+
+  if(base::length(valid_variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
+
+    facet_add_on <-
+      list(ggplot2::facet_wrap(facets = . ~ variables, ...))
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # 4. Plotting -------------------------------------------------------------
+
+  ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
+    display_add_on +
+    facet_add_on +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::labs(x = "Values")
+
+}
+
+#' @rdname plotDistribution
+#' @export
+plotDistributionAcross <- function(object,
+                                    of_sample,
+                                    variables,
+                                    across,
+                                    method_gs = "mean",
+                                    plot_type = "histogram",
+                                    binwidth = 0.05,
+                                    ... ,
+                                    normalize = TRUE,
+                                    assign = FALSE,
+                                    assign_name,
+                                    verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 

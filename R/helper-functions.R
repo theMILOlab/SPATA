@@ -446,7 +446,7 @@ hlpr_labs_add_on <- function(input,
 #' @param subset A character vector of variable names that are to be normalized
 #'
 #' @return A normalized variable (data.frame within \code{purrr::imap()})
-#'
+#' @export
 
 hlpr_normalize_imap <- function(variable,
                                 var_name,
@@ -520,6 +520,7 @@ hlpr_normalize_imap <- function(variable,
 #' @inherit hlpr_normalize_imap params title
 #'
 #' @return A normalized variable
+#' @export
 
 hlpr_normalize_vctr <- function(variable){
 
@@ -555,6 +556,7 @@ hlpr_normalize_vctr <- function(variable){
 #' @param subset Vector of variable names to smooth
 #'
 #' @return Smoothed variable (data.frame within \code{purrr::imap()})
+#' @export
 
 hlpr_smooth <- function(variable,
                         var_name,
@@ -779,7 +781,7 @@ hlpr_summarize_trajectory_df <- function(object,
                       method_gs = method_gs,
                       average_genes = FALSE,
                       smooth = FALSE,
-                      normalize = normalize,
+                      normalize = FALSE,
                       verbose = verbose)
 
   # keep only variables that were successfully joined
@@ -800,6 +802,15 @@ hlpr_summarize_trajectory_df <- function(object,
     tidyr::pivot_longer(cols = dplyr::all_of(x = variables[[1]]),
                         names_to = base::names(variables),
                         values_to = "values")
+
+  if(base::isTRUE(normalize)){
+
+    summarized_df <-
+      dplyr::group_by(.data = summarized_df, !!rlang::sym(base::names(variables))) %>%
+      dplyr::mutate(values = confuns::normalize(x = values)) %>%
+      dplyr::ungroup()
+
+  }
 
   # -----
 
@@ -920,7 +931,6 @@ hlpr_add_models <- function(df){
 #' @export
 hlpr_add_residuals <- function(df){
 
-  diff_df <-
     dplyr::transmute(.data = df,
                      trajectory_order = trajectory_order,
                      p_one_peak =  (values - confuns::fit_curve(trajectory_order, "one_peak"))^2,

@@ -15,9 +15,9 @@ be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
 gene sets are returned.}
 
 \item{index}{A regular expression according to which the gene set names to be returned
-will be filtered again.}
+are filtered again.}
 
-\item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
+\item{simplify}{Logical. If set to TRUE the list to be returned is simplified
 into a character vector.}
 }
 \value{

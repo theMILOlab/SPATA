@@ -6,9 +6,9 @@
 \usage{
 plotTrajectoryAssessment(
   atdf,
-  limits = c(NA, NA),
-  plot_type = "density",
-  binwidth = 1
+  limits = c(0, 10),
+  plot_type = "histogram",
+  binwidth = 0.5
 )
 }
 \arguments{

@@ -2,6 +2,7 @@
 % Please edit documentation in R/get-family.R
 \name{getSummarizedTrajectoryDf}
 \alias{getSummarizedTrajectoryDf}
+\alias{getTrajectoryDf}
 \title{Obtain a summarized trajectory data.frame}
 \usage{
 getSummarizedTrajectoryDf(
@@ -11,6 +12,17 @@ getSummarizedTrajectoryDf(
   variables,
   method_gs = "mean",
   accuracy = 5,
+  verbose = TRUE
+)
+
+getTrajectoryDf(
+  object,
+  trajectory_name,
+  of_sample,
+  variables,
+  method_gs = "mean",
+  accuracy = 5,
+  normalize = TRUE,
   verbose = TRUE
 )
 }
@@ -27,7 +39,7 @@ as a single character value.}
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
  \item{ \strong{Genes}: Must be in \code{getGenes()}}
- \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+ \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
  }}
 
 \item{method_gs}{The method according to which gene sets will be handled
@@ -43,6 +55,8 @@ as one sub-trajectory-part.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
 }
 \value{
 A summarized trajectory data.frame.

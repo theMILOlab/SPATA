@@ -40,7 +40,7 @@ plotSurfaceComparison2(
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
  \item{ \strong{Genes}: Must be in \code{getGenes()}}
- \item{ \strong{Features}: Must be a numeric one of \code{getFeaturenNames()}}
+ \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
  }}
 
 \item{pt_size}{The size of the points specified as a single numeric value.}
@@ -82,7 +82,7 @@ the computational progress will be printed.
 }
 \description{
 Plots a surface plot for every valid element in argument
-\code{color_to} and colors it according to the element.
+\code{variables} and colors it according to each element.
 
 \itemize{
  \item{ \code{plotSurfaceComparison()} Takes a data.frame as the starting point. }

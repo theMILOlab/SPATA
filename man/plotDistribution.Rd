@@ -83,7 +83,7 @@ a \emph{character or factor}-element of \code{SPATA::getFeatureNames()}.}
 }
 \description{
 Visualizes the distribution of values of a set of variables for the
-whole sample accross specific subgroups.
+whole sample across specific subgroups.
 
 \itemize{
  \item{ \code{plotDistribution()} Takes a data.frame as the starting point.}

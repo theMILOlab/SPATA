@@ -2,28 +2,51 @@
 % Please edit documentation in R/trajectory-analysis.R
 \name{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends}
-\title{Assess trajectory ranking.}
+\alias{assessTrajectoryTrends2}
+\title{Trajectory analysis}
 \usage{
-assessTrajectoryTrends(rtdf)
+assessTrajectoryTrends(
+  object,
+  trajectory_name,
+  of_sample,
+  stdf = NULL,
+  variables,
+  accuracy = 5,
+  verbose = TRUE
+)
+
+assessTrajectoryTrends2(stdf)
 }
 \arguments{
-\item{rtdf}{A ranked trajectory data.frame.}
+\item{object}{A valid spata-object.}
 
-\item{pattern}{The pattern(s) you are interested in specified as a character
-vector. If set to NULL all patterns are included.}
+\item{trajectory_name}{The trajectory of interest specified
+as a single character value.}
 
-\item{max_auc}{Numeric value. The maximum area-under-the-curve-value allowed.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
-\item{names_only}{Logical. If set to TRUE only the names of the assessed ranking
-are returned as a character vector. (Convenient to use as input for functions
-taking gene set- or gene vectors as input.)}
+\item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
+\code{getSummarizedTrajectoryDf()}).}
+
+\item{variables}{The variables of interest specified as a character vector:
+
+\itemize{
+ \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
+ \item{ \strong{Genes}: Must be in \code{getGenes()}}
+ \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
+ }}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 }
 \value{
 A data.frame arranged by the residuals area-under-the-curve-values describing
 how well a model fitted the expression trend of a gene or gene set.
 }
 \description{
-Takes a ranked trajectory data.frame and returns a data.frame
-that informs about how well the ranked gene- or gene set exprssion-trends
-fitted certain patterns.
+Assesses the trend of gene and gene-set-expressions along
+trajectories by fitting a variety of mathematical models to them and
+by assessing the quality of the fit.
 }

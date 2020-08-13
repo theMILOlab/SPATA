@@ -421,7 +421,7 @@ check_atdf <- function(atdf){
   )
 
   # check first column
-  first_column <- base::colnames(rtdf)[1]
+  first_column <- base::colnames(atdf)[1]
 
   if(!"gene_sets" %in% first_column &
      !"genes" %in% first_column){
@@ -441,7 +441,6 @@ check_rtdf <- function(rtdf, variable = NULL){
                              var.class =
                                list(
                                  data = "list",
-                                 models = "list",
                                  residuals = "list",
                                  auc = "list"),
                              ref = "rtdf")
@@ -564,7 +563,8 @@ check_summarized_trajectory_df <- function(stdf){
       trajectory_part_order = c("numeric", "integer"),
       trajectory_order = c("numeric", "integer"),
       values = c("numeric", "integer")
-    ) )
+    ),
+    ref = "stdf")
 
 }
 

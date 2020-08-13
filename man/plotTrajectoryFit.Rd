@@ -2,21 +2,48 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFit}
 \alias{plotTrajectoryFit}
+\alias{plotTrajectoryFit2}
 \title{Display trajectory fit}
 \usage{
-plotTrajectoryFit(rtdf, variable, display_residuals = FALSE, ...)
+plotTrajectoryFit(
+  object,
+  trajectory_name,
+  of_sample,
+  variable,
+  method_gs = "mean",
+  accuracy = 5,
+  display_residuals = FALSE,
+  verbose = TRUE,
+  ...
+)
+
+plotTrajectoryFit2(rtdf, variable, display_residuals = FALSE, ...)
 }
 \arguments{
-\item{rtdf}{A ranked trajectory data.frame.}
+\item{object}{A valid spata-object.}
+
+\item{variable}{The gene or gene set of interest specified as a character value.}
+
+\item{method_gs}{The method according to which gene sets will be handled
+specified as a character of length one. This can be either \emph{mean} or one
+of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+\code{gsva::GSVA()}.}
+
+\item{accuracy}{Numeric. Given to \code{accuracy}-argument of
+\code{plyr::round_any()}. Determines how many barcode-spots will be summarized
+as one sub-trajectory-part.}
 
 \item{display_residuals}{Logical. If set to TRUE the residuals are displayed
 via a ret line.}
 
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
 
-\item{gene_set}{The gene set of interest specified as a character value.}
-
-\item{gene}{The gene of interest specified as a character value.}
+\item{rtdf}{A ranked trajectory data.frame.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

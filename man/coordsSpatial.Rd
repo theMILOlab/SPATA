@@ -46,7 +46,7 @@ A data.frame that contains the unique identifiers
   \item{ \code{coordsTrajectory()}: \emph{x, y}}
   \item{ \code{coordsTSNE()}: \emph{tsne1, tsne2}}
   \item{ \code{coordsUMAP()}: \emph{umap1, umap2}}
-  }.
+  }
 }
 \description{
 Extracts spatial information of whole samples, trajectories,
