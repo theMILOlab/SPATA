@@ -1,4 +1,17 @@
+#' Obtain barcodes of a sample
+#'
+#' @inherit check_sample params
+#'
+#' @return All barcodes of the specified sample(s) as a character vector.
+#' @export
 
+getBarcodes <- function(object, of_sample = "all"){
+
+  cdf <- coordinates(object = object, of_sample = of_sample)
+
+  return(dplyr::pull(cdf, barcodes))
+
+}
 
 
 
@@ -71,7 +84,7 @@ getCoordinatesSegment <- function(object,
 #'
 #' @inherit check_sample params
 #'
-#' @return The expression matrix of the specified object and sample.
+#' @return The expression matrix of the specified object and sample(s).
 #' @export
 
 getExpressionMatrix <- function(object,
@@ -90,21 +103,23 @@ getExpressionMatrix <- function(object,
 }
 
 
-#' Obtain barcodes of a sample
+#' Obtain feature data
 #'
 #' @inherit check_sample params
 #'
-#' @return All barcodes of the specified sample(s) as a character vector.
+#' @return The feature data data.frame of the specfied object and sample(s).
 #' @export
+#'
 
-getBarcodes <- function(object, of_sample = "all"){
+getFeatureData <- function(object, of_sample){
 
-  cdf <- coordinates(object = object, of_sample = of_sample)
+  check_object(object)
+  of_sample <- check_sample(object, of_sample)
 
-  return(dplyr::pull(cdf, barcodes))
+  featureData(object = object,
+              of_sample = of_sample)
 
 }
-
 
 
 # Dimensional reduction ---------------------------------------------------
@@ -185,6 +200,8 @@ getTsneData <- function(object,
 
 }
 # -----
+
+
 # Genes and gene set related ----------------------------------------------
 
 #' @title Overview about the current gene sets
@@ -432,6 +449,8 @@ getGenes <- function(object,
 
 
 # -----
+
+
 # Feature related ---------------------------------------------------------
 
 #' @title Obtain feature names
@@ -457,6 +476,8 @@ getFeatureNames <- function(object){
 
 
 # -----
+
+
 # Segmentation related ----------------------------------------------------
 
 #' @title Obtain segment names
@@ -512,6 +533,8 @@ getSegmentNames <- function(object,
 
 
 # -----
+
+
 # Trajectory related ------------------------------------------------------
 
 #- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#

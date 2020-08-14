@@ -2,7 +2,6 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFit}
 \alias{plotTrajectoryFit}
-\alias{plotTrajectoryFit2}
 \title{Display trajectory fit}
 \usage{
 plotTrajectoryFit(
@@ -16,15 +15,13 @@ plotTrajectoryFit(
   verbose = TRUE,
   ...
 )
-
-plotTrajectoryFit2(rtdf, variable, display_residuals = FALSE, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
 \item{variable}{The gene or gene set of interest specified as a character value.}
 
-\item{method_gs}{The method according to which gene sets will be handled
+\item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}
@@ -34,7 +31,7 @@ of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 as one sub-trajectory-part.}
 
 \item{display_residuals}{Logical. If set to TRUE the residuals are displayed
-via a ret line.}
+via a red line.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
@@ -50,6 +47,6 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Displayes the trend of a trajectory in comparison to a variety
-of models / mathematical curves and thus how well it fits to each of them.
+Displays the trend of a trajectory in comparison to a variety
+of models / mathematical curves..
 }

@@ -42,7 +42,7 @@ as a single character value.}
  \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
  }}
 
-\item{method_gs}{The method according to which gene sets will be handled
+\item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}

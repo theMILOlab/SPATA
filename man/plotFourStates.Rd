@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot-family-miscellaneous.R
 \name{plotFourStates}
 \alias{plotFourStates}
+\alias{plotFourStates2}
 \title{Gene set state plot}
 \usage{
 plotFourStates(
@@ -18,6 +19,16 @@ plotFourStates(
   assign = FALSE,
   assign_name,
   verbose = TRUE
+)
+
+plotFourStates2(
+  data,
+  states,
+  color_to = NULL,
+  pt_size = 1.5,
+  pt_alpha = 0.9,
+  pt_clrsp = "inferno",
+  display_labels = TRUE
 )
 }
 \arguments{

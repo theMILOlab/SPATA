@@ -261,10 +261,6 @@ plotTSNE <- function(object,
 #'
 #' @export
 
-#' @rdname plotFourStates
-#' @export
-#'
-
 plotFourStates <- function(object,
                            of_sample,
                            states,
@@ -380,6 +376,9 @@ plotFourStates <- function(object,
 
 }
 
+#' @rdname plotFourStates
+#' @export
+#'
 plotFourStates2 <- function(data,
                            states,
                            color_to = NULL,

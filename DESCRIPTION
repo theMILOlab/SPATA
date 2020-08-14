@@ -26,6 +26,7 @@ Collate:
     'create_family.R'
     'deprecated-functions.R'
     'documentation-dummies.R'
+    'gene-expression-analysis.R'
     'get-family.R'
     'helper-functions.R'
     'joinWith-family.R'

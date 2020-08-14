@@ -3,13 +3,12 @@
 \name{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends2}
-\title{Trajectory analysis}
+\title{Trajectory trend analysis}
 \usage{
 assessTrajectoryTrends(
   object,
   trajectory_name,
   of_sample,
-  stdf = NULL,
   variables,
   accuracy = 5,
   verbose = TRUE
@@ -25,9 +24,6 @@ as a single character value.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
-\item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
-\code{getTrajectoryDf()}).}
-
 \item{variables}{The variables of interest specified as a character vector:
 
 \itemize{
@@ -40,13 +36,23 @@ as a single character value.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
+\code{getTrajectoryDf()}).}
 }
 \value{
 A data.frame arranged by the residuals area-under-the-curve-values describing
 how well a model fitted the expression trend of a gene or gene set.
 }
 \description{
-Assesses the trend of gene and gene-set-expressions along
+Analyzes the trend of gene and gene-set-expressions along
 trajectories by fitting a variety of mathematical models to them and
 by assessing the quality of the fit.
+
+\itemize{
+ \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
+ the subsequent data.frame from scratch.}
+ \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
+ returned by \code{getTrajectoryDf()}.}
+ }
 }

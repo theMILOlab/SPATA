@@ -25,7 +25,7 @@
 coordsSpatial <- function(object,
                           of_sample){
 
-  warning("coords-family is deprectated. Use getCoords instead. ")
+  warning("coords-family is deprectated. Use getCoordinates instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -56,7 +56,7 @@ coordsSegment <- function(object,
                           of_sample,
                           segment_name){
 
-  warning("coords-family is deprectated. Use getCoords instead. ")
+  warning("coords-family is deprectated. Use getCoordinates instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -117,7 +117,7 @@ coordsDimRed <- function(object,
                          method_dr = c("UMAP", "TSNE")
                          ){
 
-  warning("coords-family is deprectated. Use getCoords instead. ")
+  warning("coords-family is deprectated. Use getCoordinates instead. ")
 
   # 1. Control --------------------------------------------------------------
 
@@ -156,7 +156,7 @@ coordsDimRed <- function(object,
 #' @export
 coordsUMAP <- function(object,
                        of_sample){
-  warning("coords-family is deprectated. Use getCoords instead. ")
+  warning("coords-family is deprectated. Use getCoordinates instead. ")
 
 
   coordsDimRed(object = object,
@@ -169,7 +169,7 @@ coordsUMAP <- function(object,
 #' @export
 coordsTSNE <- function(object,
                        of_sample){
-  warning("coords-family is deprectated. Use getCoords instead. ")
+  warning("coords-family is deprectated. Use getCoordinates instead. ")
 
   coordsDimRed(object = object,
                of_sample = of_sample,

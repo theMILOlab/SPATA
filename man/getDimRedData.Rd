@@ -17,7 +17,7 @@ getTsneData(object, of_sample)
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
 
-\item{method_dr}{The dimensional reduction method of
+\item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
 either \emph{'UMAP'} or \emph{'TSNE'}).}
 }

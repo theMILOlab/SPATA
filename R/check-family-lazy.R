@@ -253,21 +253,23 @@ check_feature_df <- function(feature_name,
 
 #' @title Check method input
 #'
-#' @param method_dr The dimensional reduction method of
+#' @param method_dr Character value. The dimensional reduction method of
 #' interest specified as a single character value. (Currently
 #' either \emph{'UMAP'} or \emph{'TSNE'}).
-#' @param method_gs The method according to which gene sets will be handled
+#' @param method_gs Character value. The method according to which gene sets will be handled
 #' specified as a character of length one. This can be either \emph{mean} or one
 #' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 #' \code{gsva::GSVA()}.
-#' @param method_padj The method according to which the adjusted p-values will
+#' @param method_padj Character value. The method according to which the adjusted p-values will
 #' be calculated. Given to \code{stats::p.adjust()}.
+#' @param method_de Character value. Given to argument \code{test.use} of \code{Seurat::FindAllMarkers()}.
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
 
 check_method <- function(method_dr = NULL,
                          method_gs = NULL,
+                         method_de = NULL,
                          method_padj = NULL){
 
   # dimensional reduction methods -------------------------------------------
@@ -317,7 +319,26 @@ check_method <- function(method_dr = NULL,
 
     } else if(!method_padj %in% stats::p.adjust.methods) {
 
-      stop("Argument 'method_dr' needs to be  one of: 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'.")
+      stop("Argument 'method_padj' needs to be  one of: 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'.")
+
+    }
+
+  }
+
+  # -----
+
+
+  # differential expression methods -----------------------------------------
+
+  if(!base::is.null(method_de)){
+
+    if(!base::is.character(method_de) || base::length(method_de) != 1){
+
+      stop("Argument 'method_de' needs to be a single character value.")
+
+    } else if(!method_de %in% c("wilcox", "bimod", "roc", "t", "negbinom", "poisson", "LR", "MAST", "DESeq2")) {
+
+      stop("Argument 'method_de' needs to be  one of: 'wilcox', 'bimod', 'roc', 't', 'negbinom', 'poisson', 'LR', 'MAST', 'DESeq2'.")
 
     }
 

@@ -849,14 +849,14 @@ plotTrajectoryHeatmap <- function(object,
 
 #' @title Display trajectory fit
 #'
-#' @description Displayes the trend of a trajectory in comparison to a variety
-#' of models / mathematical curves and thus how well it fits to each of them.
+#' @description Displays the trend of a trajectory in comparison to a variety
+#' of models / mathematical curves..
 #'
 #'
 #' @param rtdf A ranked trajectory data.frame.
 #' @param variable The gene or gene set of interest specified as a character value.
 #' @param display_residuals Logical. If set to TRUE the residuals are displayed
-#' via a ret line.
+#' via a red line.
 #' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
 #' @inherit hlpr_summarize_trajectory_df params
 #'
@@ -978,104 +978,6 @@ plotTrajectoryFit <- function(object,
 
 }
 
-#' @rdname plotTrajectoryFit
-plotTrajectoryFit2 <- function(rtdf,
-                              variable,
-                              display_residuals = FALSE,
-                              ...){
-
-
-
-  # 1. Control --------------------------------------------------------------
-
-  check_rtdf(rtdf = rtdf,
-             variable = variable)
-
-  # -----
-
-  # 2. Data wrangling -------------------------------------------------------
-
-  column <- colnames(rtdf)[1]
-
-  # extract and shift
-  rtdf <- dplyr::filter(.data = rtdf, !!rlang::sym(column) == {{variable}})
-
-  data <- dplyr::select(.data = rtdf$data[[1]], trajectory_order, values_Expression = values)
-
-  models <-
-    tidyr::pivot_longer(
-      data = rtdf$models[[1]],
-      cols = dplyr::starts_with("p_"),
-      values_to = "values_Fitted curve",
-      names_to = "pattern",
-      names_prefix = "p_"
-    )
-
-  joined_df <-
-    dplyr::left_join(x = models, y = data, key = "trajectory_order")
-
-  # add residuals
-  if(base::isTRUE(display_residuals)){
-
-    residuals <-
-      tidyr::pivot_longer(
-        data = rtdf$residuals[[1]],
-        cols = dplyr::starts_with("p_"),
-        values_to = "values_Residuals",
-        names_to = "pattern",
-        names_prefix = "p_"
-      )
-
-    joined_df <-
-      dplyr::left_join(x = joined_df,
-                       y = residuals,
-                       by = c("trajectory_order", "pattern"))
-
-    legend_position = "right"
-
-  } else {
-
-    legend_position = "none"
-
-  }
-
-  # shift to plottable df
-  plot_df <-
-    tidyr::pivot_longer(
-      data = joined_df,
-      cols = dplyr::all_of(x = tidyselect::starts_with("values")),
-      names_to = "origin",
-      values_to = "all_values",
-      names_prefix = "values_"
-    ) %>%
-    dplyr::mutate(
-      pattern = hlpr_name_models(pattern)
-    )
-
-  # -----
-
-  ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values)) +
-    ggplot2::geom_line(size = 1, alpha = 0.75, color = "blue4", linetype = "dotted",
-                       data = dplyr::filter(plot_df, origin == "Fitted curve")
-    ) +
-    ggplot2::geom_path(
-      mapping = ggplot2::aes(group = origin, color = origin),
-      size = 1, data = dplyr::filter(plot_df, origin %in% c("Residuals", "Expression"))
-    ) +
-    ggplot2::facet_wrap(~ pattern, ...) +
-    ggplot2::scale_color_manual(values = c("Expression" = "forestgreen",
-                                           "Residuals" = "tomato")) +
-    ggplot2::theme_classic() +
-    ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
-                   axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
-                   strip.background = ggplot2::element_blank(),
-                   strip.text = ggplot2::element_text(color = "black", size = 11),
-                   legend.position = legend_position) +
-    ggplot2::labs(x = "Trajectory direction", y = NULL, color = NULL, caption = variable)
-
-}
 
 
 

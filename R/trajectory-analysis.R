@@ -140,13 +140,21 @@ filterTrends <- function(atdf, limit = 2, trends){
 # -----
 
 
+
 # Main functions ----------------------------------------------------------
 
-#' @title Trajectory analysis
+#' @title Trajectory trend analysis
 #'
-#' @description Assesses the trend of gene and gene-set-expressions along
+#' @description Analyzes the trend of gene and gene-set-expressions along
 #' trajectories by fitting a variety of mathematical models to them and
 #' by assessing the quality of the fit.
+#'
+#' \itemize{
+#'  \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
+#'  the subsequent data.frame from scratch.}
+#'  \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
+#'  returned by \code{getTrajectoryDf()}.}
+#'  }
 #'
 #' @inherit check_sample params
 #' @inherit check_trajectory params
@@ -162,7 +170,6 @@ filterTrends <- function(atdf, limit = 2, trends){
 assessTrajectoryTrends <- function(object,
                                    trajectory_name,
                                    of_sample,
-                                   stdf = NULL,
                                    variables,
                                    accuracy = 5,
                                    verbose = TRUE){
@@ -183,21 +190,12 @@ assessTrajectoryTrends <- function(object,
 
   # get trajectory data.frame
 
-  if(base::is.null(stdf)){
     stdf <- getTrajectoryDf(object = object,
                            trajectory_name = trajectory_name,
                            of_sample = of_sample,
                            variables = variables,
                            accuracy = accuracy,
-                           verbose = verbose
-                           )
-  } else {
-
-    base::message("Using specified trajectory data.frame.")
-
-    check_summarized_trajectory_df(stdf = stdf)
-
-  }
+                           verbose = verbose)
 
   rtdf <- hlpr_rank_trajectory_trends(stdf = stdf)
 

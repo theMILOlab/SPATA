@@ -32,7 +32,7 @@ value.}
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{method_dr}{The dimensional reduction method of
+\item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
 either \emph{'UMAP'} or \emph{'TSNE'}).}
 }

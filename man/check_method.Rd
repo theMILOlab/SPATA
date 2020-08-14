@@ -4,19 +4,26 @@
 \alias{check_method}
 \title{Check method input}
 \usage{
-check_method(method_dr = NULL, method_gs = NULL, method_padj = NULL)
+check_method(
+  method_dr = NULL,
+  method_gs = NULL,
+  method_de = NULL,
+  method_padj = NULL
+)
 }
 \arguments{
-\item{method_dr}{The dimensional reduction method of
+\item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
 either \emph{'UMAP'} or \emph{'TSNE'}).}
 
-\item{method_gs}{The method according to which gene sets will be handled
+\item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
 of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{method_padj}{The method according to which the adjusted p-values will
+\item{method_de}{Character value. Given to argument \code{test.use} of \code{Seurat::FindAllMarkers()}.}
+
+\item{method_padj}{Character value. The method according to which the adjusted p-values will
 be calculated. Given to \code{stats::p.adjust()}.}
 }
 \value{
