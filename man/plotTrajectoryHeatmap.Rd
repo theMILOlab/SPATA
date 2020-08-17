@@ -7,7 +7,7 @@
 plotTrajectoryHeatmap(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   variables = NULL,
   method_gs = "mean",
   show_row_names = TRUE,

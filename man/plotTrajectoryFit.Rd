@@ -7,7 +7,7 @@
 plotTrajectoryFit(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   variable,
   method_gs = "mean",
   accuracy = 5,

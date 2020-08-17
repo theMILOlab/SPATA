@@ -263,6 +263,8 @@ setMethod(f = "getTrajectoryComment", signature = "spata", definition = function
 
   }
 
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
   t_names <- base::names(object@trajectories[[of_sample]])
 
   if(trajectory_name %in% t_names){

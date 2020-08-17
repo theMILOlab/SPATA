@@ -22,7 +22,7 @@
 
 plotTrajectory <- function(object,
                            trajectory_name,
-                           of_sample,
+                           of_sample = "",
                            color_to = NULL,
                            method_gs = "mean",
                            smooth = FALSE,
@@ -74,7 +74,7 @@ plotTrajectory <- function(object,
     coordsTrajectory(object, of_sample = of_sample, trajectory_name = trajectory_name) %>%
     dplyr::pull(barcodes)
 
-  background_df <- coordsSpatial(object, of_sample = of_sample)
+  background_df <- getCoordinates(object, of_sample = of_sample)
 
   # 3. Determine trajectory geom_point layer --------------------------------
 
@@ -220,6 +220,7 @@ plotTrajectory <- function(object,
 #' @param limits The minimum and maximum auc-values to include. Given to
 #' \code{ggplot2::scale_x_continuous()}.
 #' @param plot_type One of \emph{'histogram', 'density', and 'ridgeplot'}.
+#' @param ... additional arguments given to \code{ggplot2::facet_wrap()}.
 #'
 #' @inherit plot_family return
 #' @export
@@ -228,7 +229,8 @@ plotTrajectory <- function(object,
 plotTrajectoryAssessment <- function(atdf,
                                      limits = c(0, 10),
                                      plot_type = "histogram",
-                                     binwidth = 0.5){
+                                     binwidth = 0.5,
+                                     ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -261,12 +263,14 @@ plotTrajectoryAssessment <- function(atdf,
 
   # 2. Plotting -------------------------------------------------------------
 
+  atdf <- dplyr::filter(atdf, dplyr::between(auc, left = limits[1], right = limits[2]))
+
   if(plot_type == "histogram"){
 
     display_add_on <- list(
       ggplot2::geom_histogram(mapping = ggplot2::aes(x = auc, fill = pattern),
                               binwidth = binwidth, color = "black", data = atdf),
-      ggplot2::facet_wrap(facets = . ~ pattern)
+      ggplot2::facet_wrap(facets = . ~ pattern, ...)
     )
 
   } else if(plot_type == "density"){
@@ -274,7 +278,7 @@ plotTrajectoryAssessment <- function(atdf,
     display_add_on <- list(
       ggplot2::geom_density(mapping = ggplot2::aes(x = auc, fill = pattern),
                             color = "black", data = atdf),
-      ggplot2::facet_wrap(facets = . ~ pattern)
+      ggplot2::facet_wrap(facets = . ~ pattern, ...)
     )
 
   } else if(plot_type == "ridgeplot"){
@@ -299,8 +303,7 @@ plotTrajectoryAssessment <- function(atdf,
     display_add_on +
     ggplot2::theme(
       strip.background = ggplot2::element_blank(),
-      legend.position = "none") +
-    ggplot2::scale_x_continuous(limits = limits)
+      legend.position = "none")
 
 }
 
@@ -326,7 +329,7 @@ plotTrajectoryAssessment <- function(atdf,
 
 plotTrajectoryFeatures <- function(object,
                                    trajectory_name,
-                                   of_sample,
+                                   of_sample = "",
                                    features = "percent.mt",
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
@@ -398,7 +401,7 @@ plotTrajectoryFeatures <- function(object,
 #' @export
 plotTrajectoryGenes <- function(object,
                                 trajectory_name,
-                                of_sample,
+                                of_sample = "",
                                 genes,
                                 average_genes = FALSE,
                                 smooth_method = "loess",
@@ -542,7 +545,7 @@ plotTrajectoryGenes <- function(object,
 #' @export
 plotTrajectoryGeneSets <- function(object,
                                    trajectory_name,
-                                   of_sample,
+                                   of_sample = "",
                                    gene_sets = "Neftel_NPC_Comb",
                                    method_gs = "mean",
                                    smooth_method = "loess",
@@ -653,7 +656,7 @@ plotTrajectoryGeneSets <- function(object,
 
 plotTrajectoryHeatmap <- function(object,
                                   trajectory_name,
-                                  of_sample,
+                                  of_sample = "",
                                   variables = NULL,
                                   method_gs = "mean",
                                   show_row_names = TRUE,
@@ -865,7 +868,7 @@ plotTrajectoryHeatmap <- function(object,
 
 plotTrajectoryFit <- function(object,
                               trajectory_name,
-                              of_sample,
+                              of_sample = "",
                               variable,
                               method_gs = "mean",
                               accuracy = 5,
@@ -956,16 +959,17 @@ plotTrajectoryFit <- function(object,
   # -----
 
   ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values)) +
-    ggplot2::geom_line(size = 1, alpha = 0.75, color = "blue4", linetype = "dotted",
+    ggplot2::geom_line(size = 1, alpha = 0.75, color = "blue4", linetype = "solid",
                        data = dplyr::filter(plot_df, origin == "Fitted curve")
     ) +
     ggplot2::geom_path(
-      mapping = ggplot2::aes(group = origin, color = origin),
+      mapping = ggplot2::aes(group = origin, color = origin, linetype = origin),
       size = 1, data = dplyr::filter(plot_df, origin %in% c("Residuals", "Expression"))
     ) +
     ggplot2::facet_wrap(~ pattern, ...) +
     ggplot2::scale_color_manual(values = c("Expression" = "forestgreen",
                                            "Residuals" = "tomato")) +
+    ggplot2::scale_linetype_discrete(c("Residuals"= "dotted", "Expression" = "solid"), guide = FALSE) +
     ggplot2::theme_classic() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),

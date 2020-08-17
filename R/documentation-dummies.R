@@ -44,3 +44,4 @@ image_dummy <- function(image){}
 #' of all specified genes will be calculated.
 
 average_genes <- function(average_genes){}
+

@@ -7,7 +7,7 @@
 plotTrajectory(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   color_to = NULL,
   method_gs = "mean",
   smooth = FALSE,

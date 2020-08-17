@@ -8,7 +8,8 @@ plotTrajectoryAssessment(
   atdf,
   limits = c(0, 10),
   plot_type = "histogram",
-  binwidth = 0.5
+  binwidth = 0.5,
+  ...
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ plotTrajectoryAssessment(
 \code{ggplot2::scale_x_continuous()}.}
 
 \item{plot_type}{One of \emph{'histogram', 'density', and 'ridgeplot'}.}
+
+\item{...}{additional arguments given to \code{ggplot2::facet_wrap()}.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

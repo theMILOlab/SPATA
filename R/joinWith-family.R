@@ -278,65 +278,71 @@ joinWithGeneSets <- function(object,
       dplyr::filter(gene %in% base::rownames(rna_assay)) %>%
       dplyr::pull(gene)
 
-    # apply specified method to handle gene sets
-    if(method_gs == "mean"){
+    # make sure that at least two genes of the gene set are found in the matrix
+    if(base::length(genes) > 1){
 
-      geneset_vls <-
-        base::colMeans(rna_assay[genes, ]) %>%
-        base::as.data.frame() %>%
-        magrittr::set_colnames(value = gene_sets[i]) %>%
-        tibble::rownames_to_column(var = "barcodes")
+      # apply specified method to handle gene sets
+      if(method_gs == "mean"){
 
-      if(verbose){
+        geneset_vls <-
+          base::colMeans(rna_assay[genes, ]) %>%
+          base::as.data.frame() %>%
+          magrittr::set_colnames(value = gene_sets[i]) %>%
+          tibble::rownames_to_column(var = "barcodes")
 
-        base::message(stringr::str_c(
-          "Calculating expression score for gene set ",
-          "(",i, "/", base::length(gene_sets), ")", "  '",
-          gene_sets[i],
-          "' according to method: '",
-          method_gs,
-          "'.",
-          sep = ""))
+        if(verbose){
+
+          base::message(stringr::str_c(
+            "Calculating expression score for gene set ",
+            "(",i, "/", base::length(gene_sets), ")", "  '",
+            gene_sets[i],
+            "' according to method: '",
+            method_gs,
+            "'.",
+            sep = ""))
+
+        }
+
+
+      } else if(method_gs %in% c("gsva", "ssgsea", "zscore", "plage")) {
+
+        if(verbose){
+
+          base::message(stringr::str_c(
+            "Calculating expression score for gene set ",
+            "(",i, "/", base::length(gene_sets), ")", "  '",
+            gene_sets[i],
+            "' according to method: '",
+            method_gs,
+            "'. This might take a few moments.",
+            sep = ""))
+
+        }
+
+        geneset_vls <-
+          GSVA::gsva(expr = rna_assay[genes,],
+                     gset.idx.list = gene_set_df,
+                     mx.diff = 1,
+                     parallel.sz = 2,
+                     method = method_gs,
+                     verbose = FALSE) %>%
+          t() %>%
+          as.data.frame() %>%
+          magrittr::set_colnames(value = gene_sets[i]) %>%
+          tibble::rownames_to_column(var = "barcodes")
 
       }
 
+      # gradually add gene_set columns to joined_df
+      joined_df <-
+        dplyr::left_join(x = joined_df, y = geneset_vls, by = "barcodes")
 
-    } else if(method_gs %in% c("gsva", "ssgsea", "zscore", "plage")) {
+  } else {
 
-      if(verbose){
+      base::warning(glue::glue("Skipping gene-set '{gene_sets[i]}'. Reason: Number of genes from that gene-set found in the expression matrix was lower than 2."))
 
-        base::message(stringr::str_c(
-          "Calculating expression score for gene set ",
-          "(",i, "/", base::length(gene_sets), ")", "  '",
-          gene_sets[i],
-          "' according to method: '",
-          method_gs,
-          "'. This might take a few moments.",
-          sep = ""))
+  }
 
-      }
-
-      geneset_vls <-
-        GSVA::gsva(expr = rna_assay[genes,],
-                   gset.idx.list = gene_set_df,
-                   mx.diff = 1,
-                   parallel.sz = 2,
-                   method = method_gs,
-                   verbose = FALSE) %>%
-        t() %>%
-        as.data.frame() %>%
-        magrittr::set_colnames(value = gene_sets[i]) %>%
-        tibble::rownames_to_column(var = "barcodes")
-
-    } else {
-
-      stop("Please enter valid method to handle gene sets.")
-
-    }
-
-    # gradually add gene_set columns to joined_df
-    joined_df <-
-      dplyr::left_join(x = joined_df, y = geneset_vls, by = "barcodes")
 
   }
 

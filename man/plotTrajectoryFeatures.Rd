@@ -9,7 +9,7 @@
 plotTrajectoryFeatures(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   features = "percent.mt",
   smooth_method = "loess",
   smooth_span = 0.2,
@@ -20,7 +20,7 @@ plotTrajectoryFeatures(
 plotTrajectoryGenes(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   genes,
   average_genes = FALSE,
   smooth_method = "loess",
@@ -32,7 +32,7 @@ plotTrajectoryGenes(
 plotTrajectoryGeneSets(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   gene_sets = "Neftel_NPC_Comb",
   method_gs = "mean",
   smooth_method = "loess",
