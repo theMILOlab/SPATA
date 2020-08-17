@@ -22,9 +22,10 @@ assessTrajectoryTrends2(stdf)
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{variables}{The variables of interest specified as a character vector:
+\item{variables}{Character vector. The variables of interest:
 
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}

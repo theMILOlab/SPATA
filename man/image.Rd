@@ -3,6 +3,7 @@
 \name{image}
 \alias{image}
 \alias{exprMtr}
+\alias{countMtr}
 \alias{coordinates}
 \alias{coordinates<-}
 \alias{featureData}
@@ -12,6 +13,7 @@
 \alias{ctdf}
 \alias{getTrajectoryComment}
 \alias{exprMtr,spata-method}
+\alias{countMtr,spata-method}
 \alias{coordinates,spata-method}
 \alias{coordinates<-,spata-method}
 \alias{featureData,spata-method}
@@ -27,39 +29,43 @@ image(object, of_sample)
 
 exprMtr(object, of_sample = NULL)
 
-coordinates(object, of_sample = "all")
+countMtr(object, of_sample = "NULL")
+
+coordinates(object, of_sample = "")
 
 coordinates(object) <- value
 
-featureData(object, of_sample = "all")
+featureData(object, of_sample = "")
 
 featureData(object) <- value
 
 samples(object)
 
-trajectory(object, trajectory_name, of_sample)
+trajectory(object, trajectory_name, of_sample = "")
 
 ctdf(t_obj)
 
 getTrajectoryComment(object, ...)
 
-\S4method{exprMtr}{spata}(object, of_sample = "all")
+\S4method{exprMtr}{spata}(object, of_sample = "")
 
-\S4method{coordinates}{spata}(object, of_sample = "all")
+\S4method{countMtr}{spata}(object, of_sample = "")
+
+\S4method{coordinates}{spata}(object, of_sample = "")
 
 \S4method{coordinates}{spata}(object) <- value
 
-\S4method{featureData}{spata}(object, of_sample = "all")
+\S4method{featureData}{spata}(object, of_sample = "")
 
 \S4method{featureData}{spata}(object) <- value
 
 \S4method{samples}{spata}(object)
 
-\S4method{trajectory}{spata}(object, trajectory_name, of_sample)
+\S4method{trajectory}{spata}(object, trajectory_name, of_sample = "")
 
 \S4method{ctdf}{spatialTrajectory}(t_obj)
 
-\S4method{getTrajectoryComment}{spata}(object, trajectory_name, of_sample)
+\S4method{getTrajectoryComment}{spata}(object, trajectory_name, of_sample = "")
 
 \S4method{getTrajectoryComment}{spatialTrajectory}(object)
 }

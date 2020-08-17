@@ -2,9 +2,12 @@
 % Please edit documentation in R/add-family.R
 \name{addGeneSet}
 \alias{addGeneSet}
+\alias{addGeneSetsInteractive}
 \title{Add a new gene set}
 \usage{
 addGeneSet(object, class_name, gs_name, genes, overwrite = FALSE)
+
+addGeneSetsInteractive(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}

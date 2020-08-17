@@ -4,7 +4,7 @@
 \alias{image,spata-method}
 \title{Methods}
 \usage{
-\S4method{image}{spata}(object, of_sample)
+\S4method{image}{spata}(object, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}

@@ -9,7 +9,8 @@ findDE(object, of_sample, feature, method_de = "wilcox", p_val_adj = 0.05)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{feature}{Character value. A categorical feature of the feature data that
 separates all barcodes into subgroups for which eventually the marker genes will be determined.

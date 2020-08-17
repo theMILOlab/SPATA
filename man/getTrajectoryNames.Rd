@@ -9,7 +9,8 @@ getTrajectoryNames(object, of_sample = "all", simplify = TRUE)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 A list named according to the \code{of_sample} in which each element is

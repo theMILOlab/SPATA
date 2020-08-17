@@ -8,7 +8,7 @@
 getSummarizedTrajectoryDf(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   variables,
   method_gs = "mean",
   accuracy = 5,
@@ -18,7 +18,7 @@ getSummarizedTrajectoryDf(
 getTrajectoryDf(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   variables,
   method_gs = "mean",
   accuracy = 5,
@@ -32,9 +32,10 @@ getTrajectoryDf(
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{variables}{The variables of interest specified as a character vector:
+\item{variables}{Character vector. The variables of interest:
 
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
@@ -56,7 +57,9 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
+\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
+
+Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
 }
 \value{
 A summarized trajectory data.frame.

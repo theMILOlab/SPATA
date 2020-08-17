@@ -7,7 +7,7 @@
 \usage{
 plotFourStates(
   object,
-  of_sample,
+  of_sample = "",
   states,
   color_to = NULL,
   method_gs = "gsva",
@@ -23,7 +23,7 @@ plotFourStates(
 
 plotFourStates2(
   data,
-  states,
+  states = "",
   color_to = NULL,
   pt_size = 1.5,
   pt_alpha = 0.9,
@@ -70,9 +70,9 @@ expression of these four gene sets for every barcode by computing it's respectiv
 x- and y- coordinates in the state plot. (See details.)
 
 \itemize{
- \item{ \code{plotFourStates()} Takes a data.frame as input.}
- \item{ \code{plotFourStates2()} Takes the spata-object as the starting point and creates
+ \item{ \code{plotFourStates()} Takes the spata-object as the starting point and creates
  the necessary data.frame from scratch according to additional parameters.}
+ \item{ \code{plotFourStates2()} Takes a data.frame as input.}
  }
 }
 \seealso{

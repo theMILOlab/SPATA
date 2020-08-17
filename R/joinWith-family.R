@@ -2,8 +2,8 @@
 #'
 #' @description Each member of the \code{joinWith()}-family takes a data.frame as
 #' input that contains at least the variables \emph{barcodes} and \emph{sample}.
-#' (Easily obtained with the \code{spata::coords()}-family.) It joins them over
-#'  the \emph{barcodes}-variable with a specified aspect.
+#' (Easily obtained with the \code{get*()}-family.) It extracts the specified
+#' variables and joins them over the barcode variable with the provided data.frame.
 #'
 #' @param object A valid spata-object.
 #' @inherit check_coords_df params
@@ -13,16 +13,73 @@
 #' @inherit check_smooth params
 #' @inherit check_method params
 #' @inherit verbose params
-#' @param variables A named list. Names must contain one of \emph{features, genes}
-#' or \emph{gene_sets}. The input of \code{coords_df} will be joined with
-#' the respective elements of each slot by calling the appropriate
-#' \code{joinWith*()}-function.
+#' @inherit check_variables params
+#' @inherit normalize params
 #'
 #' @return The input data.frame of \code{coords_df} joined with all the
 #' specified variable-elements (by the key-variable \emph{barcodes}).
 #'
 #' @export
 
+
+joinWith <- function(object,
+                     coords_df,
+                     features = NULL,
+                     method_gs = "mean",
+                     gene_sets = NULL,
+                     genes = NULL,
+                     average_genes = FALSE,
+                     smooth = FALSE,
+                     smooth_span = 0.02,
+                     verbose = TRUE,
+                     normalize = TRUE){
+
+  input_list <-
+    purrr::map2(.x = list(gene_sets, genes, features),
+                .y = c("gene_sets", "genes", "features"),
+                .f = function(x, y){
+
+                  if(!base::is.null(x)){
+
+                    confuns::is_vec(x = x, mode = "character", ref = y)
+
+                    return(x)
+
+                  } else {
+
+                    return(x)
+
+                  }
+
+                })
+
+
+  variables <- check_variables(
+    variables = input_list,
+    all_features = getFeatureNames(object),
+    all_gene_sets = getGeneSets(object),
+    all_genes = getGenes(object)
+  )
+
+  output_df <-
+  joinWithVariables(
+    object = object,
+    coords_df = coords_df,
+    variables = variables,
+    method_gs = method_gs,
+    average_genes = average_genes,
+    smooth = smooth,
+    smooth_span = smooth_span,
+    verbose = verbose,
+    normalize = normalize
+  )
+
+  base::return(output_df)
+
+}
+
+#' @rdname joinWith
+#' @export
 joinWithFeatures <- function(object,
                              coords_df,
                              features,
@@ -77,7 +134,7 @@ joinWithFeatures <- function(object,
 }
 
 
-#' @rdname joinWithFeatures
+#' @rdname joinWith
 #' @export
 joinWithGenes <- function(object,
                           coords_df,
@@ -180,7 +237,7 @@ joinWithGenes <- function(object,
 }
 
 
-#' @rdname joinWithFeatures
+#' @rdname joinWith
 #' @export
 joinWithGeneSets <- function(object,
                              coords_df,
@@ -318,7 +375,7 @@ joinWithGeneSets <- function(object,
 
 }
 
-#' @rdname joinWithFeatures
+#' @rdname joinWith
 #' @export
 joinWithVariables <- function(object,
                               coords_df,

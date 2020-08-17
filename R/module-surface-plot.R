@@ -178,7 +178,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
                                     options = shinyWidgets::pickerOptions(
                                       liveSearch = TRUE,
                                       actionsBox = TRUE),
-                                    multiple = T),
+                                    multiple = TRUE),
           shiny::checkboxInput(ns("reset_select_genes"),
                                label = "Automatic reset",
                                value = TRUE))

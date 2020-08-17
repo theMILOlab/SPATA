@@ -4,12 +4,13 @@
 \alias{check_sample}
 \title{Check sample input}
 \usage{
-check_sample(object, of_sample, desired_length = NULL)
+check_sample(object, of_sample = "", desired_length = NULL)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{desired_length}{The length the input must have.}
 }

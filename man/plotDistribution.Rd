@@ -8,7 +8,7 @@
 \usage{
 plotDistribution(
   object,
-  of_sample,
+  of_sample = "",
   variables,
   method_gs = "mean",
   plot_type = "histogram",
@@ -30,7 +30,7 @@ plotDistribution2(
 
 plotDistributionAcross(
   object,
-  of_sample,
+  of_sample = "",
   variables,
   across,
   method_gs = "mean",
@@ -46,7 +46,8 @@ plotDistributionAcross(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{variables}{The numeric variables whose distribution you want to display. Specified as
 a character vector.}
@@ -62,7 +63,9 @@ of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 
 \item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
 
-\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
+\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
+
+Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
 
 \item{assign}{Logical. If set to TRUE a named list will be assigned to the global
 environment. This list contains data and information to rebuild or additionally

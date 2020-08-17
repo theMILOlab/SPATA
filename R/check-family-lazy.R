@@ -1,3 +1,5 @@
+#' @include S4-generic-functions.R
+NULL
 
 #' @title This is a text dummy
 #'

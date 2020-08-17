@@ -32,7 +32,13 @@ checkpoint <- function(evaluate = TRUE,
 
                          # trajectory
                          occupied_trajectory_name = "This trajectory name is already taken.",
-                         invalid_trajectory_name = "Please enter a valid name for the trajectory."
+                         invalid_trajectory_name = "Please enter a valid name for the trajectory.",
+
+                         # gene sets
+                         insufficient_n_genes = "Please determine at least two genes.",
+                         invalid_gs_string1 = "The class-prefix must not contain '_'.",
+                         invalid_gs_string2 = "Please enter a valid string for the class-prefix and the gene-set name.",
+                         occupied_gs_name = "This gene-set name is already taken."
 
                        ),
                        warning_notifications = list(),
@@ -57,7 +63,7 @@ checkpoint <- function(evaluate = TRUE,
 
       ##-- stop computation and or stop app?
       if(isFALSE(stop_app) & isTRUE(stop_process)){
-        print("checking")
+
         shiny::req(evaluate)
 
       } else if(isTRUE(stop_app)) {

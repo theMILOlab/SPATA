@@ -2,7 +2,7 @@
 # Dimensional reduction related -------------------------------------------
 plotDimRed <- function(object,
                        method_dr,
-                       of_sample,
+                       of_sample = "",
                        color_to = NULL,
                        method_gs = "mean",
                        pt_size = 2,
@@ -13,7 +13,7 @@ plotDimRed <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_obejct(object)
+  check_object(object)
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # adjusting check
@@ -22,8 +22,7 @@ plotDimRed <- function(object,
                              max_length = 1,
                              all_genes = getGenes(object, in_sample = of_sample),
                              all_gene_sets = getGeneSets(object),
-                             all_features = getFeatureNames(object)
-                             )
+                             all_features = getFeatureNames(object))
 
   # -----
 
@@ -39,11 +38,9 @@ plotDimRed <- function(object,
   # if of length one and feature
   if("features" %in% base::names(color_to)){
 
-    color_to <- check_features(object, features = color_to)
-
     dimRed_df <- joinWithFeatures(object = object,
                                   coords_df = dimRed_df,
-                                  features = color_to,
+                                  features = color_to$features,
                                   smooth = FALSE,
                                   verbose = verbose)
 
@@ -74,11 +71,9 @@ plotDimRed <- function(object,
     # if of length one and gene set
   } else if("gene_sets" %in% base::names(color_to)){
 
-    color_to <- check_gene_sets(object, gene_sets = color_to)
-
     dimRed_df <- joinWithGeneSets(object = object,
                                   coords_df = dimRed_df,
-                                  gene_sets = color_to,
+                                  gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = FALSE,
                                   verbose = verbose)
@@ -99,11 +94,10 @@ plotDimRed <- function(object,
   } else if("genes" %in% base::names(color_to)){
 
     rna_assay <- exprMtr(object, of_sample = of_sample)
-    color_to <- check_genes(object, genes = color_to, rna_assay = rna_assay)
 
     dimRed_df <- joinWithGenes(object = object,
                                coords_df = dimRed_df,
-                               genes = color_to,
+                               genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = FALSE,
                                verbose = verbose)
@@ -135,7 +129,7 @@ plotDimRed <- function(object,
 
     ggplot2::ggplot(data = dimRed_df) +
       ggplot_add_on +
-      ggplot2::theme_bw() +
+      ggplot2::theme_classic() +
       ggplot2::theme(
         axis.text = ggplot2::element_blank(),
         axis.ticks = ggplot2::element_blank(),
@@ -182,7 +176,7 @@ plotDimRed <- function(object,
 #'
 
 plotUMAP <- function(object,
-                     of_sample,
+                     of_sample = "",
                      color_to = NULL,
                      method_gs = "mean",
                      pt_size = 2,
@@ -206,7 +200,7 @@ plotUMAP <- function(object,
 #'
 #' @export
 plotTSNE <- function(object,
-                     of_sample,
+                     of_sample = "",
                      color_to = NULL,
                      method_gs = "mean",
                      pt_size = 2,
@@ -239,9 +233,9 @@ plotTSNE <- function(object,
 #' x- and y- coordinates in the state plot. (See details.)
 #'
 #' \itemize{
-#'  \item{ \code{plotFourStates()} Takes a data.frame as input.}
-#'  \item{ \code{plotFourStates2()} Takes the spata-object as the starting point and creates
+#'  \item{ \code{plotFourStates()} Takes the spata-object as the starting point and creates
 #'  the necessary data.frame from scratch according to additional parameters.}
+#'  \item{ \code{plotFourStates2()} Takes a data.frame as input.}
 #'  }
 #'
 #' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
@@ -262,7 +256,7 @@ plotTSNE <- function(object,
 #' @export
 
 plotFourStates <- function(object,
-                           of_sample,
+                           of_sample = "",
                            states,
                            color_to = NULL,
                            method_gs = "gsva",
@@ -380,7 +374,7 @@ plotFourStates <- function(object,
 #' @export
 #'
 plotFourStates2 <- function(data,
-                           states,
+                           states = "",
                            color_to = NULL,
                            pt_size = 1.5,
                            pt_alpha = 0.9,
@@ -511,6 +505,11 @@ plotFourStates2 <- function(data,
 
 # -----
 
+
+
+# Plot distribution -------------------------------------------------------
+
+
 #' @title Visualize variable distribution
 #'
 #' @description Visualizes the distribution of values of a set of variables for the
@@ -544,7 +543,7 @@ plotFourStates2 <- function(data,
 #' @export
 
 plotDistribution <- function(object,
-                              of_sample,
+                              of_sample = "",
                               variables,
                               method_gs = "mean",
                               plot_type = "histogram",
@@ -648,6 +647,8 @@ plotDistribution <- function(object,
 
   # 3. Display add on -------------------------------------------------------
 
+  data$variables <- hlpr_gene_set_name(string = data$variables)
+
   if(plot_type == "histogram"){
 
     display_add_on <-
@@ -655,7 +656,7 @@ plotDistribution <- function(object,
         ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
                                 color = "black", binwidth = binwidth,
                                 data = data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL)
       )
 
@@ -665,7 +666,7 @@ plotDistribution <- function(object,
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
                               color = "black", data = data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = "Density")
       )
 
@@ -686,7 +687,7 @@ plotDistribution <- function(object,
       list(
         ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                              color = "black", data = data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
@@ -697,7 +698,7 @@ plotDistribution <- function(object,
       list(
         ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                               color = "black", data = data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
@@ -716,7 +717,6 @@ plotDistribution <- function(object,
   }
 
   # -----
-
 
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
@@ -802,6 +802,8 @@ plotDistribution2 <- function(data,
 
   # 3. Display add on -------------------------------------------------------
 
+  expr_data$variables <- hlpr_gene_set_name(string = expr_data$variables)
+
   if(plot_type == "histogram"){
 
     display_add_on <-
@@ -809,7 +811,7 @@ plotDistribution2 <- function(data,
         ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
                                 color = "black", binwidth = binwidth,
                                 data = expr_data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL)
       )
 
@@ -819,7 +821,7 @@ plotDistribution2 <- function(data,
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
                               color = "black", data = expr_data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = "Density")
       )
 
@@ -840,7 +842,7 @@ plotDistribution2 <- function(data,
       list(
         ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                              color = "black", data = expr_data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
@@ -851,7 +853,7 @@ plotDistribution2 <- function(data,
       list(
         ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                               color = "black", data = expr_data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
@@ -882,7 +884,7 @@ plotDistribution2 <- function(data,
 #' @rdname plotDistribution
 #' @export
 plotDistributionAcross <- function(object,
-                                    of_sample,
+                                    of_sample = "",
                                     variables,
                                     across,
                                     method_gs = "mean",
@@ -1008,7 +1010,7 @@ plotDistributionAcross <- function(object,
         ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
                                 color = "black", binwidth = binwidth,
                                 data = data),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL)
       )
 
@@ -1018,7 +1020,7 @@ plotDistributionAcross <- function(object,
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
                               color = "black", data = data,alpha = 0.75),
-        ggplot2::theme_bw(),
+        ggplot2::theme_classic(),
         ggplot2::labs(y = "Density")
       )
 
@@ -1072,7 +1074,6 @@ plotDistributionAcross <- function(object,
     facet_add_on +
     ggplot2::theme_classic() +
     ggplot2::theme(
-      plot.margin = ggplot2::margin(t = 50, r = 100, b = 50, l = 100, unit = "pt"),
       axis.text.y = ggplot2::element_text(color = "black"),
       axis.text.x = ggplot2::element_text(color = "black"),
       strip.text.y = ggplot2::element_text(angle = 0, face = "italic", size = 14),

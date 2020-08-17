@@ -15,7 +15,7 @@ check_variables(
 )
 }
 \arguments{
-\item{variables}{The variables of interest specified as a character vector:
+\item{variables}{Character vector. The variables of interest:
 
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}

@@ -16,7 +16,8 @@ hlpr_image_add_on2(object, display_image, of_sample)
 
 \item{display_image}{Logical value.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 Either null or a ggplot2::geom_annotation_raster

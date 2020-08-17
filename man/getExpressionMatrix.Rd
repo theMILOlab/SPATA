@@ -2,18 +2,22 @@
 % Please edit documentation in R/get-family.R
 \name{getExpressionMatrix}
 \alias{getExpressionMatrix}
-\title{Obtain expression matrix}
+\alias{getCountMatrix}
+\title{Obtain count and expression matrix}
 \usage{
-getExpressionMatrix(object, of_sample = "all")
+getExpressionMatrix(object, of_sample = "")
+
+getCountMatrix(object, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-The expression matrix of the specified object and sample(s).
+The expression/count matrix of the specified object and sample(s).
 }
 \description{
-Obtain expression matrix
+Obtain count and expression matrix
 }

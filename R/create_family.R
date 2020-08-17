@@ -2396,11 +2396,11 @@ createPseudotime <- function(object,
                              use_cds_file = FALSE,
                              save_cds_file = FALSE,
                              preprocess_method = "PCA",
-                             cluster_method = c("leiden", "louvain"),
+                             cluster_method = "leiden",
                              feature_name = "pseudotime",
                              verbose = TRUE){
 
-  validation(object)
+  check_object(object)
 
   cds <-
     hlpr_compile_cds(object = object,
@@ -2410,12 +2410,10 @@ createPseudotime <- function(object,
                      cluster_method = cluster_method,
                      verbose = verbose)
 
-
   ps_time <-
     as.data.frame(monocle3::pseudotime(cds)) %>%
     magrittr::set_colnames(value = feature_name) %>%
-    tibble::rownames_to_column(var = "barcodes") %>%
-    dplyr::mutate(sample = of_sample)
+    tibble::rownames_to_column(var = "barcodes")
 
   ps_time[base::is.infinite(ps_time[,feature_name]), feature_name] <- NA
 

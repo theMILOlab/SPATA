@@ -76,7 +76,8 @@ hlpr_compare_samples <- function(object, df, messages){
 #' @param save_cds_file A filename/directory (that does not already exists) under which the used or created cell_data_set-object
 #' is going to be stored specified as a character value. Should end with .rds.
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
-#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
+#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string. Must be one of
+#' \emph{'leiden', 'louvain'}.
 #' @param verbose Logical value. If set to TRUE informative messages with respect
 #' to the computational progress made will be printed.
 #'
@@ -95,6 +96,8 @@ hlpr_compile_cds <- function(object,
 
 
   validation(object)
+  confuns::is_value(preprocess_method, "character", "preprocess_method")
+  confuns::is_value(cluster_method, mode = "character", "cluster_method")
 
   if(base::is.character(use_cds_file) & !base::file.exists(use_cds_file)){
 
@@ -108,6 +111,7 @@ hlpr_compile_cds <- function(object,
 
   }
 
+  # check if valid cds files
   if(base::is.character(use_cds_file) &
      base::file.exists(use_cds_file)){
 
@@ -129,14 +133,14 @@ hlpr_compile_cds <- function(object,
     }
 
 
-  } else {
+  } else { # start from scratch
 
     if(base::isTRUE(verbose)){base::message("No cds-file specified. Performing monocle anylsis from scratch.")}
 
     base::stopifnot(preprocess_method %in% c("PCA", "LSI"))
     base::stopifnot(cluster_method %in% c("leiden", "louvain"))
 
-    expression_matrix <- object@data@counts
+    expression_matrix <- base::as.matrix(object@data@counts)
 
     gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
     base::rownames(gene_metadata) <- base::rownames(expression_matrix)
@@ -145,11 +149,11 @@ hlpr_compile_cds <- function(object,
     base::rownames(cell_metadata) <- object@fdata$barcodes
 
     cds <- monocle3::new_cell_data_set(
-      expression_matrix,
+      expression_data = expression_matrix,
       cell_metadata = cell_metadata,
       gene_metadata = gene_metadata)
 
-    cds <- cds[,Matrix::colSums(exprs(cds)) != 0]
+    cds <- cds[,Matrix::colSums(monocle3::exprs(cds)) != 0]
 
     if(base::isTRUE(verbose)){base::message("Estimating size factors...")}
     cds <- monocle3::estimate_size_factors(cds)
@@ -158,7 +162,7 @@ hlpr_compile_cds <- function(object,
     cds <- monocle3::preprocess_cds(cds, preprocess_method = preprocess_method, num_dim = 30)
 
     if(base::isTRUE(verbose)){base::message("Reducing dimensions...")}
-    cds <- monocle3::reduce_dimension(cds, cores=4)
+    cds <- monocle3::reduce_dimension(cds, cores = 4)
 
     if(base::isTRUE(verbose)){base::message("Clustering cells...")}
     cds <- monocle3::cluster_cells(cds, cluster_method = cluster_method)

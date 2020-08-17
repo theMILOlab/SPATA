@@ -1,4 +1,8 @@
 
+#' @include S4-generic-functions.R
+NULL
+
+
 #' @title This is a text dummy
 #'
 #' @details Members of the \code{adjusting-check_*()}-family take their
@@ -259,11 +263,7 @@ check_genes <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  if(base::length(genes) == 0 | !base::is.character(genes)){
-
-    base::stop("Invalid input for argument 'genes'. Needs to be character vector of length > 0.")
-
-  }
+  confuns::is_vec(genes, "character", "genes")
 
   if(!base::is.matrix(rna_assay) && !base::is.null(rna_assay)){
 
@@ -341,18 +341,15 @@ check_gene_sets <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  if(base::length(gene_sets) == 0 | !base::is.character(gene_sets)){
+  confuns::is_vec(gene_sets, "character", "gene_sets")
 
-    base::stop("Invalid input for argument 'gene_sets'. Needs to be character vector of length > 0.")
-
-  }
-
+  # -----
 
   # 2. Main part ------------------------------------------------------------
 
   gene_set_df <- object@used_genesets
 
-  # 1. Check if/how many gene sets actually exists ----------
+  # 2.1 Check if/how many gene sets actually exists ---------
 
   if(base::all(gene_sets == "all")){
 
@@ -383,7 +380,7 @@ check_gene_sets <- function(object,
   # -----
 
 
-  # 2. Check whether gene sets found is of desired length ----------
+  # 2.2 Check whether gene sets found is of desired length ---------
 
   if(!base::is.null(max_length) &&
      base::length(gene_sets_found) > max_length){
@@ -410,14 +407,27 @@ check_gene_sets <- function(object,
 #' Returns an adjusted sample-vector or raises an error.
 #' @param object A valid spata-object.
 #' @param of_sample The sample(s) of interest specified as a single character value or vector.
+#'  If set to \emph{""} (the default) the first sample is chosen.
 #' @param desired_length The length the input must have.
 #'
 #' @inherit adjusting_check_dummy return details
 #' @export
 
 check_sample <- function(object,
-                         of_sample,
+                         of_sample = "",
                          desired_length = NULL){
+
+
+  # 0. Default sample -------------------------------------------------------
+
+  confuns::is_vec(of_sample, "character", "of_sample")
+
+  if(of_sample == ""){
+
+    of_sample <- samples(object)[1]
+    base::message(glue::glue("No sample specified. Defaulting back to first sample: '{of_sample}'."))
+
+  }
 
   # 1. Check which samples are in the object --------------------------------
 
@@ -500,13 +510,11 @@ check_sample <- function(object,
 
 check_segment <- function(object,
                           segment_name,
-                          of_sample){
+                          of_sample = ""){
 
-  if(!is.null(segment_name) && !is.character(segment_name) && length(segment_name) != 1){
+  confuns::is_value(segment_name, "character", "segment_name")
 
-    base::stop("Argument 'segment_name' needs to be a single character value.")
-
-  } else if(!is.null(segment_name)){
+  if(!is.null(segment_name)){
 
     bc_segm <-
       featureData(object, of_sample = of_sample) %>%
@@ -533,7 +541,7 @@ check_segment <- function(object,
 #' @title Check variables
 #' @inherit check_color_to description
 #'
-#' @param variables The variables of interest specified as a character vector:
+#' @param variables Character vector. The variables of interest:
 #'
 #' \itemize{
 #'  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
@@ -560,7 +568,9 @@ check_variables <- function(variables,
 
   if(base::is.list(variables) & !base::is.data.frame(variables)){
 
-    variables <- base::unlist(variables, use.names = FALSE)
+    variables <-
+      purrr::discard(.x = variables, .p = base::is.null) %>%
+      base::unlist(use.names = FALSE)
 
   } else if(!base::is.character(variables)){
 
@@ -630,14 +640,14 @@ check_variables <- function(variables,
 
     not_found_string <- stringr::str_c(not_found, collapse = "', '")
 
-    base::warning(stringr::str_c("Did not find '", not_found_string, "' of argument 'variables'.", sep = ""))
+    base::warning(stringr::str_c("Did not find input: '", not_found_string, "'" , sep = ""))
 
   }
 
 
   if(base::length(return_list) == 0){
 
-    base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s) of argument 'variables'.")
+    base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s).")
 
   } else if(max_length == 1 | base::isTRUE(simplify)) {
 

@@ -24,7 +24,8 @@ coordsTSNE(object, of_sample)
 \arguments{
 \item{object}{A valid object of class \emph{spata}.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{segment_name}{The segment of interest specified as a single character
 value.}

@@ -5,14 +5,15 @@
 \alias{getCoordinatesSegment}
 \title{Obtain spatial coordinates}
 \usage{
-getCoordinates(object, of_sample)
+getCoordinates(object, of_sample = "")
 
-getCoordinatesSegment(object, of_segment, of_sample)
+getCoordinatesSegment(object, of_segment, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{of_segment}{Character value. Specifies the segment of interest.}
 }

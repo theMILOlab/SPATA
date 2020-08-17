@@ -79,6 +79,44 @@ addGeneSet <- function(object,
 
 }
 
+#' @rdname addGeneSet
+addGeneSetsInteractive <- function(object){
+
+  check_object(object)
+
+  new_object <-
+    shiny::runApp(
+      shiny::shinyApp(
+        ui = function(){
+
+          shiny::fluidPage(
+            moduleAddGeneSetsUI(id = "add_gs"),
+            shiny::HTML("<br><br>"),
+            shiny::actionButton("close_app", label = "Close application")
+          )
+
+        },
+        server = function(input, output, session){
+
+          module_return <-
+            moduleAddGeneSetsServer(id = "add_gs",
+                                    object = object)
+
+
+          oe <- shiny::observeEvent(input$close_app, {
+
+            shiny::stopApp(returnValue = module_return())
+
+          })
+
+        }
+      )
+    )
+
+  base::return(new_object)
+
+}
+
 
 #' Discard gene sets
 #'
@@ -108,6 +146,8 @@ discardGeneSets <- function(object, gs_names){
 
 
 
+
+# -----
 # Feature related ---------------------------------------------------------
 
 
@@ -134,7 +174,10 @@ addFeature <- function(object,
 
   # lazy control
   check_object(object)
-  check_feature_df(feature_name, feature_df)
+  confuns::check_data_frame(df = feature_df,
+                            var.class = list(
+                              "barcodes" = "character"
+                            ), ref = "feature_df")
 
   # extract data
   if(feature_name %in% getFeatureNames(object) &&

@@ -8,12 +8,26 @@ Description: This package provides a framework of functions and shiny-applicatio
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: 
     magrittr,
     matrixcalc,
     confuns,
-    pipeR
+    pipeR,
+    monocle3,
+    dplyr,
+    readr,
+    stringr,
+    stringi,
+    purrr,
+    shiny,
+    shinyWidgets,
+    ComplexHeatmap,
+    ggridges,
+    EBImage,
+    umap,
+    tidyr,
+    tibble
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
@@ -30,6 +44,8 @@ Collate:
     'get-family.R'
     'helper-functions.R'
     'joinWith-family.R'
+    'loading-and-saving.R'
+    'module-add-gene-sets.R'
     'module-surface-plot.R'
     'package-dependencies.R'
     'plot-family-miscellaneous.R'

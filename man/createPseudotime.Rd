@@ -9,7 +9,7 @@ createPseudotime(
   use_cds_file = FALSE,
   save_cds_file = FALSE,
   preprocess_method = "PCA",
-  cluster_method = c("leiden", "louvain"),
+  cluster_method = "leiden",
   feature_name = "pseudotime",
   verbose = TRUE
 )

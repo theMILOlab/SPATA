@@ -7,7 +7,9 @@
 normalize(normalize)
 }
 \arguments{
-\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
+\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
+
+Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
 }
 \description{
 normalize

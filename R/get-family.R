@@ -26,7 +26,7 @@ getBarcodes <- function(object, of_sample = "all"){
 #'
 
 getCoordinates <- function(object,
-                           of_sample){
+                           of_sample = ""){
 
   # 1. Control --------------------------------------------------------------
 
@@ -53,7 +53,7 @@ getCoordinates <- function(object,
 #' @export
 getCoordinatesSegment <- function(object,
                                   of_segment,
-                                  of_sample){
+                                  of_sample = ""){
 
   # 1. Control --------------------------------------------------------------
 
@@ -80,15 +80,15 @@ getCoordinatesSegment <- function(object,
 }
 
 
-#' Obtain expression matrix
+#' Obtain count and expression matrix
 #'
 #' @inherit check_sample params
 #'
-#' @return The expression matrix of the specified object and sample(s).
+#' @return The expression/count matrix of the specified object and sample(s).
 #' @export
 
 getExpressionMatrix <- function(object,
-                                of_sample = "all"){
+                                of_sample = ""){
 
   # lazy check
   check_object(object)
@@ -97,6 +97,23 @@ getExpressionMatrix <- function(object,
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
   rna_assay <- exprMtr(object = object, of_sample = of_sample)
+
+  base::return(rna_assay)
+
+}
+
+#' @rdname getExpressionMatrix
+#' @export
+getCountMatrix <- function(object,
+                           of_sample = ""){
+
+  # lazy check
+  check_object(object)
+
+  # adjusting check
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  rna_assay <- countMtr(object = object, of_sample = of_sample)
 
   base::return(rna_assay)
 
@@ -111,7 +128,7 @@ getExpressionMatrix <- function(object,
 #' @export
 #'
 
-getFeatureData <- function(object, of_sample){
+getFeatureData <- function(object, of_sample = ""){
 
   check_object(object)
   of_sample <- check_sample(object, of_sample)
@@ -141,7 +158,7 @@ getFeatureData <- function(object, of_sample){
 #'
 
 getDimRedData <- function(object,
-                          of_sample,
+                          of_sample = "",
                           method_dr = c("UMAP", "TSNE")){
 
   # 1. Control --------------------------------------------------------------
@@ -180,7 +197,7 @@ getDimRedData <- function(object,
 #' @rdname getDimRedData
 #' @export
 getUmapData <- function(object,
-                        of_sample){
+                        of_sample = ""){
 
 
   getDimRedData(object = object,
@@ -192,7 +209,7 @@ getUmapData <- function(object,
 #' @rdname getDimRedData
 #' @export
 getTsneData <- function(object,
-                        of_sample){
+                        of_sample = ""){
 
   getDimRedData(object = object,
                 of_sample = of_sample,
@@ -220,17 +237,27 @@ getGeneSetOverview <- function(object){
 
   # main part
   gene_sets_df <- object@used_genesets
+
   gene_sets <- object@used_genesets$ont
 
-  gene_set_classes <- stringr::str_extract(string = gene_sets, pattern = "^.+?(?=_)")
+  if(base::nrow(gene_sets_df) == 0){
 
-  dplyr::mutate(gene_sets_df, gs_type = gene_set_classes) %>%
-    dplyr::select(-gene) %>%
-    dplyr::distinct() %>%
-    dplyr::pull(gs_type) %>%
-    base::table() %>%
-    base::as.data.frame() %>%
-    magrittr::set_colnames(value = c("Class", "Available Gene Sets"))
+    base::message("Gene-set data.frame is empty.")
+    base::return(data.frame())
+
+  } else {
+
+    gene_set_classes <- stringr::str_extract(string = gene_sets, pattern = "^.+?(?=_)")
+
+    dplyr::mutate(gene_sets_df, gs_type = gene_set_classes) %>%
+      dplyr::select(-gene) %>%
+      dplyr::distinct() %>%
+      dplyr::pull(gs_type) %>%
+      base::table() %>%
+      base::as.data.frame() %>%
+      magrittr::set_colnames(value = c("Class", "Available Gene Sets"))
+
+  }
 
 
 }
@@ -369,7 +396,7 @@ getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE)
 
 getGenes <- function(object,
                      of_gene_sets = "all",
-                     in_sample = "all",
+                     in_sample = "",
                      simplify = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -491,7 +518,7 @@ getFeatureNames <- function(object){
 #' @export
 
 getSegmentNames <- function(object,
-                            of_sample = "all"){
+                            of_sample = ""){
 
   # lazy check
   check_object(object)
@@ -620,7 +647,7 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 
 getSummarizedTrajectoryDf <- function(object,
                                       trajectory_name,
-                                      of_sample,
+                                      of_sample = "",
                                       variables,
                                       method_gs = "mean",
                                       accuracy = 5,
@@ -648,7 +675,7 @@ getSummarizedTrajectoryDf <- function(object,
 #' @export
 getTrajectoryDf <- function(object,
                             trajectory_name,
-                            of_sample,
+                            of_sample = "",
                             variables,
                             method_gs = "mean",
                             accuracy = 5,
@@ -680,7 +707,7 @@ getTrajectoryDf <- function(object,
 #' @return An object of class \code{spatialTrajectory}.
 #' @export
 
-getTrajectoryObject <- function(object, trajectory_name, of_sample){
+getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
 
   of_sample <- check_sample(object = object,
                             of_sample = of_sample,

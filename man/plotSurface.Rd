@@ -8,8 +8,8 @@
 \usage{
 plotSurface(
   object,
-  of_sample,
-  color_to,
+  of_sample = "",
+  color_to = NULL,
   method_gs = "mean",
   smooth = FALSE,
   smooth_span = 0.02,
@@ -38,7 +38,8 @@ plotSurfaceInteractive(object)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{color_to}{The variable to be displayed by color specified as .
 

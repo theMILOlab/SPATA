@@ -4,7 +4,7 @@
 \alias{getGenes}
 \title{Obtain gene names}
 \usage{
-getGenes(object, of_gene_sets = "all", in_sample = "all", simplify = TRUE)
+getGenes(object, of_gene_sets = "all", in_sample = "", simplify = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

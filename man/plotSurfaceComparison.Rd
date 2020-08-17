@@ -6,18 +6,8 @@
 \title{Plot several surface plots at the same time}
 \usage{
 plotSurfaceComparison(
-  data,
-  variables = NULL,
-  pt_size = 2,
-  pt_alpha = 0.9,
-  pt_clrsp = "inferno",
-  image = NULL,
-  ...
-)
-
-plotSurfaceComparison2(
   object,
-  of_sample,
+  of_sample = "",
   variables,
   method_gs = "mean",
   smooth = FALSE,
@@ -31,29 +21,25 @@ plotSurfaceComparison2(
   verbose = TRUE,
   ...
 )
+
+plotSurfaceComparison2(
+  data,
+  variables = NULL,
+  pt_size = 2,
+  pt_alpha = 0.9,
+  pt_clrsp = "inferno",
+  image = NULL,
+  ...
+)
 }
 \arguments{
-\item{data}{A data.frame containing the numeric variables of interest.}
-
-\item{variables}{The variables of interest specified as a character vector:
+\item{variables}{Character vector. The variables of interest:
 
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
  \item{ \strong{Genes}: Must be in \code{getGenes()}}
  \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
  }}
-
-\item{pt_size}{The size of the points specified as a single numeric value.}
-
-\item{pt_alpha}{The transparency of the points specified as single numeric value.}
-
-\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
-
-\item{image}{An image of class \emph{Image} to be displayed in the background.
-Easily accessible via \code{SPATA::image()}.}
-
-\item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{mean} or one
@@ -64,6 +50,13 @@ of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
 \code{smoooth_}-parameters.}
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+
+\item{pt_size}{The size of the points specified as a single numeric value.}
+
+\item{pt_alpha}{The transparency of the points specified as single numeric value.}
+
+\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
+color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
@@ -79,14 +72,21 @@ a single character value.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
+
+\item{data}{A data.frame containing the numeric variables of interest.}
+
+\item{image}{An image of class \emph{Image} to be displayed in the background.
+Easily accessible via \code{SPATA::image()}.}
 }
 \description{
 Plots a surface plot for every valid element in argument
 \code{variables} and colors it according to each element.
 
 \itemize{
- \item{ \code{plotSurfaceComparison()} Takes a data.frame as the starting point. }
- \item{ \code{plotSurfaceComparison2()} Takes the spata-object as the starting point and creates the
+ \item{ \code{plotSurfaceComparison()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters.}
+ \item{ \code{plotSurfaceComparison2()} Takes a data.frame as the starting point. }
  }
 }

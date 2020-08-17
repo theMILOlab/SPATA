@@ -1,3 +1,6 @@
+#' @include S4-generic-functions.R
+NULL
+
 #' @title Validate a spata object
 #'
 #' @description Takes a spata object and checks whether all slots contain suitable
@@ -159,7 +162,8 @@ check_slot_data <- function(object){
 
   messages <- base::character()
 
-  if(!base::is.matrix(data@counts)){
+  if(base::all(c(!base::is.matrix(data@counts), !methods::is(data@counts, "Matrix"))) ||
+     !base::is.numeric(base::as.matrix(data@counts))){
 
     messages <-
       base::append(messages,
@@ -167,7 +171,8 @@ check_slot_data <- function(object){
 
   }
 
-  if(!base::is.matrix(data@norm_exp)){
+  if(base::all(c(!base::is.matrix(data@norm_exp), !methods::is(data@norm_exp, "Matrix"))) ||
+     !base::is.numeric(base::as.matrix(data@norm_exp))){
 
     messages <-
       base::append(messages,
@@ -778,7 +783,7 @@ check_slot_used_genesets <- function(object){
   }
 
   # check for rownames
-  if(!base::identical(base::rownames(gs_df), base::as.character(1:base::nrow(gs_df)))){
+  if(tibble::has_rownames(gs_df)){
 
     messages <- base::append(x = messages,
                              values = "'used_genesets' data.frame must not contain row.names.")

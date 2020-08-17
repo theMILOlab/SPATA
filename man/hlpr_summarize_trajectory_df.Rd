@@ -24,7 +24,7 @@ hlpr_summarize_trajectory_df(
 \code{plyr::round_any()}. Determines how many barcode-spots will be summarized
 as one sub-trajectory-part.}
 
-\item{variables}{The variables of interest specified as a character vector:
+\item{variables}{Character vector. The variables of interest:
 
 \itemize{
  \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
@@ -42,7 +42,9 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.}
+\item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
+
+Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
 }
 \description{
 Joins a compiled trajectory data.frame with

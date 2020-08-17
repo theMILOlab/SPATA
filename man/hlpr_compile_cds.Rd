@@ -26,7 +26,8 @@ is going to be stored specified as a character value. Should end with .rds.}
 
 \item{preprocess_method}{Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.}
 
-\item{cluster_method}{Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.}
+\item{cluster_method}{Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string. Must be one of
+\emph{'leiden', 'louvain'}.}
 
 \item{verbose}{Logical value. If set to TRUE informative messages with respect
 to the computational progress made will be printed.

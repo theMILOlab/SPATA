@@ -31,8 +31,8 @@
 #' @export
 
 plotSurface <- function(object,
-                        of_sample,
-                        color_to,
+                        of_sample = "",
+                        color_to = NULL,
                         method_gs = "mean",
                         smooth = FALSE,
                         smooth_span = 0.02,
@@ -63,6 +63,10 @@ plotSurface <- function(object,
                                all_gene_sets = all_gene_sets,
                                all_genes = all_genes,
                                max_length = 1)
+  } else if(base::is.null(color_to)){
+
+    base::message("No specification for argument 'color_to'. Color according to sample belonging.")
+
   } else {
 
     color_to <- list("genes" = color_to)
@@ -76,7 +80,7 @@ plotSurface <- function(object,
 
   # -----
 
-  coords_df <- coordsSpatial(object, of_sample = of_sample)
+  coords_df <- getCoordinates(object, of_sample = of_sample)
 
   # 2. Join data and prepare ggplot add-ons ---------------------------------
 
@@ -167,8 +171,8 @@ plotSurface <- function(object,
 
   } else if(base::is.null(color_to)){
 
-    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 0,
-                                              mapping = ggplot2::aes(x = x, y = y)))
+    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+                                              mapping = ggplot2::aes(x = x, y = y, color = sample)))
 
   }
 
@@ -195,53 +199,53 @@ plotSurface <- function(object,
 #' @rdname plotSurface
 #' @export
 plotSurface2 <- function(data,
-                        color_to,
-                        pt_size = 2,
-                        pt_alpha = 0.9,
-                        pt_clrsp = "inferno",
-                        pt_clrsp_dir = 1,
-                        image = NULL){
+                         color_to,
+                         pt_size = 2,
+                         pt_alpha = 0.9,
+                         pt_clrsp = "inferno",
+                         pt_clrsp_dir = 1,
+                         image = NULL){
 
-  # 1. Control --------------------------------------------------------------
+    # 1. Control --------------------------------------------------------------
 
-  # check lazy
-  if(!base::is.character(color_to) |
-     !base::length(color_to) == 1 |
-     !color_to %in% base::colnames(data)){
+    # check lazy
+    if(!base::is.character(color_to) |
+       !base::length(color_to) == 1 |
+       !color_to %in% base::colnames(data)){
 
-    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+      base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+
+    }
+
+    check_pt(pt_size, pt_alpha, pt_clrsp)
+    check_coordinate_variables(data = data, x = "x", y = "y")
+
+    # -----
+
+    # 2. Plotting -------------------------------------------------------------
+
+    ggplot2::ggplot(data = data) +
+      hlpr_image_add_on(image) +
+      ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
+                                                 color = .data[[color_to]]),
+                          size = pt_size, alpha = pt_alpha) +
+      ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
+      ggplot2::theme_void() +
+      ggplot2::theme(
+        panel.grid = ggplot2::element_blank()
+      ) +
+      ggplot2::labs(x = NULL, y = NULL)
+
+    # -----
 
   }
-
-  check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_coordinate_variables(data = data, x = "x", y = "y")
-
-  # -----
-
-  # 2. Plotting -------------------------------------------------------------
-
-  ggplot2::ggplot(data = data) +
-    hlpr_image_add_on(image) +
-    ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
-                                               color = .data[[color_to]]),
-                        size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
-    ggplot2::theme_void() +
-    ggplot2::theme(
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(x = NULL, y = NULL)
-
-  # -----
-
-}
 
 
 #' @rdname plotSurface
 #' @export
 plotSurfaceInteractive <- function(object){
 
-  validation(object)
+  check_object(object)
 
   surface_plots <-
     shiny::runApp(
@@ -340,9 +344,9 @@ plotSurfaceInteractive <- function(object){
 #' \code{variables} and colors it according to each element.
 #'
 #' \itemize{
-#'  \item{ \code{plotSurfaceComparison()} Takes a data.frame as the starting point. }
-#'  \item{ \code{plotSurfaceComparison2()} Takes the spata-object as the starting point and creates the
+#'  \item{ \code{plotSurfaceComparison()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
+#'  \item{ \code{plotSurfaceComparison2()} Takes a data.frame as the starting point. }
 #'  }
 #'
 #' @param data A data.frame containing the numeric variables of interest.
@@ -358,75 +362,9 @@ plotSurfaceInteractive <- function(object){
 #'
 #' @export
 
-plotSurfaceComparison <- function(data,
-                                  variables = NULL,
-                                  pt_size = 2,
-                                  pt_alpha = 0.9,
-                                  pt_clrsp = "inferno",
-                                  image = NULL,
-                                  ...){
 
-
-  # 1. Control --------------------------------------------------------------
-
-  stopifnot(base::is.data.frame(data))
-  stopifnot(base::is.null(variables) | base::is.character(variables))
-
-  check_pt(pt_size, pt_alpha, pt_clrsp)
-
-  num_data <- data[,base::sapply(data, base::is.numeric)]
-  num_variables <- base::colnames(num_data)
-
-  if(base::is.null(variables)){
-
-    valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
-
-  } else {
-
-    valid_variables <- variables[variables %in% num_variables]
-    valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
-
-    invalid_variables <- variables[!variables %in% valid_variables]
-
-    if(base::length(invalid_variables) > 0){
-
-      invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
-
-      base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
-                                   invalid_variables, "'", sep = "" ))
-
-    }
-
-  }
-
-  # -----
-
-  # adjust data.frame for use of ggplot2::facets
-  shifted_data <-
-    tidyr::pivot_longer(
-      data = data,
-      cols = dplyr::all_of(valid_variables),
-      names_to = "aspects",
-      values_to = "values"
-    )
-
-  # plotting
-
-  ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
-    hlpr_image_add_on(image) +
-    ggplot2::geom_point(mapping = ggplot2::aes(color = values),
-                        size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_color_viridis_c(option = pt_clrsp) +
-    ggplot2::theme_void() +
-    ggplot2::facet_wrap(facets = ~ aspects, ...) +
-    ggplot2::labs(color = "Values")
-
-}
-
-#' @rdname plotSurfaceComparison
-#' @export
-plotSurfaceComparison2 <- function(object,
-                                  of_sample,
+plotSurfaceComparison <- function(object,
+                                  of_sample = "",
                                   variables,
                                   method_gs = "mean",
                                   smooth = FALSE,
@@ -457,10 +395,10 @@ plotSurfaceComparison2 <- function(object,
     )
 
   variables <- check_variables(variables = variables,
-                             all_gene_sets = all_gene_sets,
-                             all_genes = all_genes,
-                             all_features = all_features,
-                             simplify = FALSE)
+                               all_gene_sets = all_gene_sets,
+                               all_genes = all_genes,
+                               all_features = all_features,
+                               simplify = FALSE)
 
   # -----
 
@@ -532,6 +470,76 @@ plotSurfaceComparison2 <- function(object,
     ggplot2::labs(color = "Expr.\nscore")
 
 }
+
+#' @rdname plotSurfaceComparison
+#' @export
+
+plotSurfaceComparison2 <- function(data,
+                                   variables = NULL,
+                                   pt_size = 2,
+                                   pt_alpha = 0.9,
+                                   pt_clrsp = "inferno",
+                                   image = NULL,
+                                   ...){
+
+
+    # 1. Control --------------------------------------------------------------
+
+    stopifnot(base::is.data.frame(data))
+    stopifnot(base::is.null(variables) | base::is.character(variables))
+
+    check_pt(pt_size, pt_alpha, pt_clrsp)
+
+    num_data <- data[,base::sapply(data, base::is.numeric)]
+    num_variables <- base::colnames(num_data)
+
+    if(base::is.null(variables)){
+
+      valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+
+    } else {
+
+      valid_variables <- variables[variables %in% num_variables]
+      valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+
+      invalid_variables <- variables[!variables %in% valid_variables]
+
+      if(base::length(invalid_variables) > 0){
+
+        invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
+
+        base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
+                                     invalid_variables, "'", sep = "" ))
+
+      }
+
+    }
+
+    # -----
+
+    # adjust data.frame for use of ggplot2::facets
+    shifted_data <-
+      tidyr::pivot_longer(
+        data = data,
+        cols = dplyr::all_of(valid_variables),
+        names_to = "aspects",
+        values_to = "values"
+      )
+
+    # plotting
+
+    ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
+      hlpr_image_add_on(image) +
+      ggplot2::geom_point(mapping = ggplot2::aes(color = values),
+                          size = pt_size, alpha = pt_alpha) +
+      ggplot2::scale_color_viridis_c(option = pt_clrsp) +
+      ggplot2::theme_void() +
+      ggplot2::facet_wrap(facets = ~ aspects, ...) +
+      ggplot2::labs(color = "Values")
+
+  }
+
+
 
 
 

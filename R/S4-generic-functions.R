@@ -31,7 +31,15 @@ setGeneric(name = "exprMtr", def = function(object, of_sample = NULL){
 
 #' @rdname image
 #' @export
-setGeneric(name = "coordinates", valueClass = "data.frame", def = function(object, of_sample = "all"){
+setGeneric(name = "countMtr", def = function(object, of_sample = "NULL"){
+
+  standardGeneric(f = "countMtr")
+
+})
+
+#' @rdname image
+#' @export
+setGeneric(name = "coordinates", valueClass = "data.frame", def = function(object, of_sample = ""){
 
   standardGeneric("coordinates")
 
@@ -47,7 +55,7 @@ setGeneric(name = "coordinates<-", def = function(object, value){
 
 #' @rdname image
 #' @export
-setGeneric(name = "featureData", valueClass = "data.frame", def = function(object, of_sample = "all"){
+setGeneric(name = "featureData", valueClass = "data.frame", def = function(object, of_sample = ""){
 
   standardGeneric(f = "featureData")
 
@@ -63,7 +71,7 @@ setGeneric(name = "featureData<-", def = function(object, value){
 
 #' @rdname image
 #' @export
-setGeneric(name = "samples", valueClass = "character", def = function(object){
+setGeneric(name = "samples", def = function(object){
 
   standardGeneric(f = "samples")
 
@@ -71,7 +79,7 @@ setGeneric(name = "samples", valueClass = "character", def = function(object){
 
 #' @rdname image
 #' @export
-setGeneric(name = "trajectory", def = function(object, trajectory_name, of_sample){
+setGeneric(name = "trajectory", def = function(object, trajectory_name, of_sample = ""){
 
   standardGeneric(f = "trajectory")
 
@@ -93,6 +101,7 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
 })
 
+# -----
 
 
 # Methods -----------------------------------------------------------------
@@ -106,7 +115,7 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 #' @export
 #'
 
-setMethod(f = "image", signature = "spata", definition = function(object, of_sample){
+setMethod(f = "image", signature = "spata", definition = function(object, of_sample = ""){
 
   return(object@image[[of_sample]])
 
@@ -114,7 +123,7 @@ setMethod(f = "image", signature = "spata", definition = function(object, of_sam
 
 #' @rdname image
 #' @export
-setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_sample = "all"){
+setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
@@ -125,13 +134,30 @@ setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_s
 
   exprMtr <- object@data@norm_exp[,bc_in_sample]
 
-  return(exprMtr)
+  return(base::as.matrix(exprMtr))
 
 })
 
 #' @rdname image
 #' @export
-setMethod(f = "coordinates", signature = "spata", def = function(object, of_sample = "all"){
+setMethod(f = "countMtr", signature = "spata", definition = function(object, of_sample = ""){
+
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  bc_in_sample <-
+    object@fdata %>%
+    dplyr::filter(sample %in% of_sample) %>%
+    dplyr::pull(barcodes)
+
+  count_mtr <- object@data@counts[,bc_in_sample]
+
+  return(count_mtr)
+
+})
+
+#' @rdname image
+#' @export
+setMethod(f = "coordinates", signature = "spata", def = function(object, of_sample = ""){
 
   of_sample <- check_sample(object, of_sample = of_sample)
 
@@ -158,7 +184,7 @@ setMethod(f = "coordinates<-", signature = "spata", def = function(object, value
 
 #' @rdname image
 #' @export
-setMethod(f = "featureData", signature = "spata", definition = function(object, of_sample = "all"){
+setMethod(f = "featureData", signature = "spata", definition = function(object, of_sample = ""){
 
 
   of_sample <- check_sample(object = object, of_sample = of_sample)
@@ -192,7 +218,7 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 
 #' @rdname image
 #' @export
-setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample){
+setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
@@ -228,7 +254,7 @@ setMethod(f = "ctdf", signature = "spatialTrajectory", definition = function(t_o
 
 #' @rdname image
 #' @export
-setMethod(f = "getTrajectoryComment", signature = "spata", definition = function(object, trajectory_name, of_sample){
+setMethod(f = "getTrajectoryComment", signature = "spata", definition = function(object, trajectory_name, of_sample = ""){
 
 
   if(!is.character(trajectory_name) | length(trajectory_name) != 1){
@@ -260,5 +286,16 @@ setMethod(f = "getTrajectoryComment", signature = "spatialTrajectory", definitio
 
   return(stringr::str_c("Comment: ", object@comment))
 
+
+})
+
+#' @export
+setMethod(f = "show", signature = "spata", definition = function(object){
+
+  num_samples <- base::length(samples(object))
+  samples <- stringr::str_c( samples(object), collapse = "', '")
+  sample_ref <- base::ifelse(num_samples > 1, "samples", "sample")
+
+  base::print(glue::glue("An object of class 'spata' that contains {num_samples} {sample_ref} named '{samples}'."))
 
 })
