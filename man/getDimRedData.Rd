@@ -6,16 +6,17 @@
 \alias{getTsneData}
 \title{Obtain dimensional reduction data}
 \usage{
-getDimRedData(object, of_sample, method_dr = c("UMAP", "TSNE"))
+getDimRedData(object, of_sample = "", method_dr = c("UMAP", "TSNE"))
 
-getUmapData(object, of_sample)
+getUmapData(object, of_sample = "")
 
-getTsneData(object, of_sample)
+getTsneData(object, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently

@@ -22,6 +22,10 @@ plot_family <- function(){}
 
 #' @title normalize
 #' @param normalize Logical. If set to TRUE values will be scaled to 0-1.
+#'
+#' Hint: Variables that are uniformly expressed can not be scaled and are discarded.
+#'
+#'
 
 normalize <- function(normalize){}
 
