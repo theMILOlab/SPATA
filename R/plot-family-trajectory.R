@@ -71,7 +71,7 @@ plotTrajectory <- function(object,
   trajectory_sgmt_df <- t_object@segment_trajectory_df
 
   bc_traj <-
-    coordsTrajectory(object, of_sample = of_sample, trajectory_name = trajectory_name) %>%
+    ctdf(t_object) %>%
     dplyr::pull(barcodes)
 
   background_df <- getCoordinates(object, of_sample = of_sample)
@@ -391,7 +391,7 @@ plotTrajectoryFeatures <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = NULL)
+    ggplot2::labs(x = "Direction", y = NULL, color = "Features")
 
 }
 
