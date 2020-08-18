@@ -23,7 +23,7 @@ which to load the information. These folders must contain the following sub dire
  }}
 
 \item{output_path}{Character value. Specifies the folder in which to store
-the created object.}
+the object.}
 
 \item{gene_set_path}{Character value (or NULL). Specifies the path to a
 .RDS-file containing a data.frame that is to be used as input for slot @used_genesets.

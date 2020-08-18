@@ -12,7 +12,7 @@
 #'  }
 #'
 #' @param output_path Character value. Specifies the folder in which to store
-#' the created object.
+#' the object.
 #' @param gene_set_path Character value (or NULL). Specifies the path to a
 #' .RDS-file containing a data.frame that is to be used as input for slot @@used_genesets.
 #'
@@ -387,21 +387,24 @@ createSpataObject_10X <- function(input_paths,
 
 
 
-#' @title Load a spata-object
+#' @title Load and save a spata-object
 #'
-#' @description A wrapper around \code{base::readRDS()}.
+#' @description Wrapper around \code{base::readRDS()} and \code{base::saveRDS()}.
 #'
-#' @param path Character value. The file directory.
+#' @param input_path Character value. The directory leading to the spata-object.
+#' @inherit check_object params
+#' @inherit createSpataObject_10X params
+#' @param overwrite Logical. Needs to be set to TRUE if the resulting directory from
+#' \code{output_path} and \code{object_name} already exists.
 #'
-#' @return The loaded object.
 #' @export
 
-loadSpataObject <- function(path){
+loadSpataObject <- function(input_path){
 
-  confuns::is_value(path, "character", "path")
-  confuns::check_directories(directories = path, ref = "path", type = "files")
+  confuns::is_value(input_path, "character", "input_path")
+  confuns::check_directories(directories = input_path, ref = "input_path", type = "files")
 
-  spata_obj <- base::readRDS(file = path)
+  spata_obj <- base::readRDS(file = input_path)
 
   if(!methods::is(spata_obj, "spata")){
 
@@ -410,6 +413,54 @@ loadSpataObject <- function(path){
   }
 
   base::return(spata_obj)
+
+}
+
+#' @rdname loadSpataObject
+#' @export
+saveSpataObject <- function(object, output_path, object_name, overwrite = FALSE){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  confuns::is_value(output_path, "character", "output_path")
+  confuns::is_value(object_name, "character", "object_name")
+  confuns::check_directories(output_path, ref = "output_path", type = "folders")
+
+  # -----
+
+  filename <- stringr::str_c(output_path, "/spata-obj-", object_name, ".RDS", sep = "")
+
+  if(base::file.exists(filename) && !base::isTRUE(overwrite)){
+
+    base::stop(glue::glue("The file '{filename}' already exists. Set argument 'overwrite' to TRUE in order to overwrite."))
+
+  } else if(base::file.exists(filename) && base::isTRUE(overwrite)){
+
+    base::message(glue::glue("Argument 'overwrite' set to TRUE - overwriting {filename} with input for argument 'object'."))
+
+    base::file.remove(filename)
+
+    base::saveRDS(object = object, file = filename)
+
+  } else if(!base::file.exists(filename)){
+
+    base::message(glue::glue("Saving object under '{filename}'."))
+    base::saveRDS(object = object, file = filename)
+
+  }
+
+  if(base::file.exists(filename)){
+
+    base::message("Saving successful.")
+    base::return(base::invisible(TRUE))
+
+  } else {
+
+    base::warning("Saving failed.")
+    base::return(base::invisible(FALSE))
+
+  }
 
 }
 
