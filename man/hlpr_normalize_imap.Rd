@@ -4,18 +4,20 @@
 \alias{hlpr_normalize_imap}
 \title{Normalize gene or gene set values}
 \usage{
-hlpr_normalize_imap(variable, var_name, verbose = TRUE, aspect, subset)
+hlpr_normalize_imap(variable, var_name, aspect, subset)
 }
 \arguments{
 \item{variable}{The variable to normalize (if matches requirements).}
 
 \item{var_name}{The name of the variable to smooth.}
 
-\item{verbose}{Logical}
-
 \item{aspect}{Gene or Gene set}
 
 \item{subset}{A character vector of variable names that are to be normalized}
+
+\item{verbose}{Logical}
+
+\item{pb}{An R6 progress bar object.}
 }
 \value{
 A normalized variable (data.frame within \code{purrr::imap()})

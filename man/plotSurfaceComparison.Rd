@@ -42,8 +42,8 @@ plotSurfaceComparison2(
  }}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+specified as a character of length one. This can be either \emph{'mean'} or one
+of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the

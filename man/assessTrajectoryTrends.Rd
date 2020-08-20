@@ -14,7 +14,7 @@ assessTrajectoryTrends(
   verbose = TRUE
 )
 
-assessTrajectoryTrends2(stdf)
+assessTrajectoryTrends2(stdf, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

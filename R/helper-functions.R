@@ -448,16 +448,15 @@ hlpr_labs_add_on <- function(input,
 #' @param verbose Logical
 #' @param aspect Gene or Gene set
 #' @param subset A character vector of variable names that are to be normalized
+#' @param pb An R6 progress bar object.
 #'
 #' @return A normalized variable (data.frame within \code{purrr::imap()})
 #' @export
 
 hlpr_normalize_imap <- function(variable,
                                 var_name,
-                                verbose = TRUE,
                                 aspect,
                                 subset){
-
 
   if(!base::is.numeric(variable) | !var_name %in% subset){
 
@@ -493,18 +492,6 @@ hlpr_normalize_imap <- function(variable,
         (base::max(variable) - base::min(variable))
 
       if(!base::any(base::is.na(res))){
-
-       if(verbose){
-
-         if(var_name == "mean_genes"){
-
-           var_name <- "average"
-
-         }
-
-          base::message(stringr::str_c(aspect,  var_name, "successfully normalized.", sep = " "))
-
-       }
 
       base::return(res)
 
@@ -565,10 +552,16 @@ hlpr_normalize_vctr <- function(variable){
 hlpr_smooth <- function(variable,
                         var_name,
                         coords_df,
-                        verbose = TRUE,
                         smooth_span,
                         aspect,
-                        subset){
+                        subset,
+                        pb = NULL){
+
+  if(!base::is.null(pb)){
+
+    pb$tick()
+
+  }
 
   data <-
     base::cbind(variable, coords_df[, c("x", "y")]) %>%
@@ -586,7 +579,7 @@ hlpr_smooth <- function(variable,
 
     }
 
-    base::warning("Skip smoothing of ", aspect, " ", var_name, " as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
+    base::warning("Skip smoothing of ", aspect, " '", var_name, "' as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
     base::return(variable)
 
   } else if(base::any(base::is.na(data$rv)) |
@@ -611,8 +604,6 @@ hlpr_smooth <- function(variable,
         var_name <- "average"
 
       }
-
-      base::message(stringr::str_c("Smoothing ", aspect, " ", var_name, " with span ", smooth_span, ".", sep = ""))
 
     }
 
@@ -755,16 +746,16 @@ hlpr_summarize_trajectory_df <- function(object,
   # adjusting check
 
   variables <- check_variables(variables = variables,
-                               all_features = getFeatureNames(object),
+                               all_features = getFeatureNames(object, c("numeric", "integer")),
                                all_gene_sets = getGeneSets(object),
-                               all_genes = getGenes(object),
-                               max_slots = 1,
+                               all_genes = getGenes(object, in_sample = of_sample),
+                               max_slots = 3,
                                max_length = Inf)
 
-  if(base::names(variables) == "features"){
+  if("features" %in% base::names(variables)){
 
-    variables[[1]] <- check_features(object = object,
-                                     features = variables[[1]],
+    variables[["features"]] <- check_features(object = object,
+                                     features = variables[["features"]],
                                      valid_classes = c("numeric", "integer"))
 
   }
@@ -789,32 +780,37 @@ hlpr_summarize_trajectory_df <- function(object,
                       verbose = verbose)
 
   # keep only variables that were successfully joined
-  variables[[1]] <- variables[[1]][variables[[1]] %in% base::colnames(joined_df)]
+  variables <- base::unlist(variables, use.names = FALSE)
+  variables <- variables[variables %in% base::colnames(joined_df)]
 
   # summarize data.frame
-  if(base::isTRUE(verbose)){base::message("Summarizing trajectory data.frame...")}
+  if(base::isTRUE(verbose)){base::message("Summarizing trajectory data.frame.")}
 
   summarized_df <-
     dplyr::group_by(.data = joined_df, trajectory_part, order_binned) %>%
-    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = variables[[1]]),
+    dplyr::summarise(dplyr::across(.cols = dplyr::all_of(x = variables),
                                    .fns = ~ mean(., na.rm = TRUE)),
                      .groups = "drop_last") %>%
     dplyr::mutate(trajectory_part_order = dplyr::row_number()) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(trajectory_order = dplyr::row_number()) %>%
     dplyr::select(-order_binned) %>%
-    tidyr::pivot_longer(cols = dplyr::all_of(x = variables[[1]]),
-                        names_to = base::names(variables),
+    tidyr::pivot_longer(cols = dplyr::all_of(x = variables),
+                        names_to = "variables",
                         values_to = "values")
 
   if(base::isTRUE(normalize)){
 
+    if(base::isTRUE(verbose)){base::message("Normalizing values.")}
+
     summarized_df <-
-      dplyr::group_by(.data = summarized_df, !!rlang::sym(base::names(variables))) %>%
+      dplyr::group_by(.data = summarized_df, variables) %>%
       dplyr::mutate(values = confuns::normalize(x = values)) %>%
       dplyr::ungroup()
 
   }
+
+  if(base::isTRUE(verbose)){base::message("Done.")}
 
   # -----
 
@@ -933,7 +929,13 @@ hlpr_add_models <- function(df){
 
 #' @rdname hlpr_add_models
 #' @export
-hlpr_add_residuals <- function(df){
+hlpr_add_residuals <- function(df, pb = NULL){
+
+  if(!base::is.null(pb)){
+
+    pb$tick()
+
+  }
 
     dplyr::transmute(.data = df,
                      trajectory_order = trajectory_order,
@@ -955,7 +957,13 @@ hlpr_add_residuals <- function(df){
 
 #' @rdname hlpr_add_models
 #' @export
-hlpr_summarize_residuals <- function(df){
+hlpr_summarize_residuals <- function(df, pb = NULL){
+
+  if(!base::is.null(pb)){
+
+    pb$tick()
+
+  }
 
   purrr::map_dfc(.x = dplyr::select(df, -trajectory_order),
                  .f = function(y){
@@ -999,7 +1007,7 @@ hlpr_filter_trend <- function(atdf, limit, poi){
 
   res <-
     dplyr::filter(.data = atdf, pattern %in% poi & auc <= limit) %>%
-    dplyr::pull(var = 1) %>% base::unique()
+    dplyr::pull(var = variables) %>% base::unique()
 
   if(base::length(res) == 0){
 

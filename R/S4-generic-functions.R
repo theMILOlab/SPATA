@@ -15,7 +15,7 @@ NULL
 #' @export
 #'
 
-setGeneric(name = "image", def = function(object, of_sample){
+setGeneric(name = "image", def = function(object, of_sample = ""){
 
   standardGeneric(f = "image")
 
@@ -23,7 +23,7 @@ setGeneric(name = "image", def = function(object, of_sample){
 
 #' @rdname image
 #' @export
-setGeneric(name = "exprMtr", def = function(object, of_sample = NULL){
+setGeneric(name = "exprMtr", def = function(object, of_sample = ""){
 
   standardGeneric(f = "exprMtr")
 
@@ -31,7 +31,7 @@ setGeneric(name = "exprMtr", def = function(object, of_sample = NULL){
 
 #' @rdname image
 #' @export
-setGeneric(name = "countMtr", def = function(object, of_sample = "NULL"){
+setGeneric(name = "countMtr", def = function(object, of_sample = ""){
 
   standardGeneric(f = "countMtr")
 
@@ -116,6 +116,8 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 #'
 
 setMethod(f = "image", signature = "spata", definition = function(object, of_sample = ""){
+
+  of_sample <- check_sample(object, of_sample, desired_length = 1)
 
   return(object@image[[of_sample]])
 

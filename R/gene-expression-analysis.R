@@ -10,12 +10,12 @@
 #' @inherit check_method params
 #' @param p_val_adj The maximum adjusted p-value allowed in the output.
 #'
-#' @return A DE-object.
+#' @return A data.frame containing the variables \emph{'p_val', 'avg_logFC', 'pct.1', 'pct.2', 'p_val_adj', 'cluster', 'gene'}.
 #' @export
 #'
 
 findDE <- function(object,
-                   of_sample,
+                   of_sample = "",
                    feature,
                    method_de = "wilcox",
                    p_val_adj = 0.05){
@@ -39,9 +39,7 @@ findDE <- function(object,
   fdata <- getFeatureData(object, of_sample)
 
   barcodes <- dplyr::pull(.data = fdata, var = barcodes)
-  groups <-
-    dplyr::pull(.data = fdata, var = {{feature}}) %>%
-    base::unique()
+  groups <- dplyr::pull(.data = fdata, var = {{feature}})
 
   if(!base::is.factor(groups)){
 
@@ -54,6 +52,10 @@ findDE <- function(object,
   if(num_groups >= 20){
 
     base::stopp(glue::glue("The number of different groups is to high for DE-analysis. Is currently {num_groups}. Must be lower than 20. "))
+
+  } else {
+
+    base::message(glue::glue("Number of groups/clusters: {num_groups}"))
 
   }
 
@@ -70,7 +72,7 @@ findDE <- function(object,
   de <- Seurat::FindAllMarkers(seurat, test.use = method_de)
   base::rm(seurat)
 
-  de <- dplyr::filter(de, p_val_adj < p_val_adj)
+  de <- dplyr::filter(de, p_val_adj < {{p_val_adj}})
 
   # -----
 

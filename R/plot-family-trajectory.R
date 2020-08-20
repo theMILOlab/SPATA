@@ -239,23 +239,12 @@ plotTrajectoryAssessment <- function(atdf,
   confuns::check_data_frame(
     df = atdf,
     var.class = list(
+      variables = c("character"),
       pattern = c("character", "factor"),
       auc = c("numeric", "integer", "double")
     ))
 
-  if("genes" %in% colnames(atdf)){
-
-    var <- "genes"
-
-  } else if("gene_sets" %in% colnames(atdf)){
-
-    var <- "gene_sets"
-
-  } else {
-
-    base::stop("Data.frame 'atdf' must have a variable named 'gene_sets' or 'genes'.")
-
-  }
+  var <- "variables"
 
   base::stopifnot(base::is.character(dplyr::pull(atdf, {{var}})))
 
@@ -362,7 +351,7 @@ plotTrajectoryFeatures <- function(object,
                                  accuracy = 5,
                                  variables = features,
                                  verbose = verbose)  %>%
-    dplyr::group_by(features) %>%
+    dplyr::group_by(variables) %>%
     dplyr::mutate(
       values = confuns::normalize(x = values)
     ) %>%
@@ -372,14 +361,14 @@ plotTrajectoryFeatures <- function(object,
     result_df %>%
     dplyr::group_by(trajectory_part) %>%
     dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                    trajectory_part_order == 1 &
-                    features == features[1])
+                  trajectory_part_order == 1 &
+                  variables == features[1])
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
-                                                           color = features)) +
+                                                           color = variables)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
@@ -492,7 +481,7 @@ plotTrajectoryGenes <- function(object,
     dplyr::mutate(trajectory_order = dplyr::row_number())
 
 
-  if(!average_genes){
+  if(!base::isTRUE(average_genes)){
 
     result_df <-
       tidyr::pivot_longer(data = result_df,
@@ -583,7 +572,7 @@ plotTrajectoryGeneSets <- function(object,
                                  verbose = verbose,
                                  normalize = FALSE) %>%
     dplyr::ungroup() %>%
-    dplyr::group_by(gene_sets) %>%
+    dplyr::group_by(variables) %>%
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
     dplyr::ungroup()
 
@@ -593,13 +582,13 @@ plotTrajectoryGeneSets <- function(object,
     dplyr::group_by(trajectory_part) %>%
     dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
                     trajectory_part_order == 1 &
-                    gene_sets == gene_sets[1])
+                    variables == gene_sets[1])
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
-                                                           color = gene_sets)) +
+                                                           color = variables)) +
     ggplot2::geom_vline(data = vline_df[-1,],
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
@@ -683,7 +672,7 @@ plotTrajectoryHeatmap <- function(object,
                                all_genes = getGenes(object),
                                max_slots = 1)
 
-  var_type <- base::names(variables)
+  var_type <- "variables"
 
   # -----
 
@@ -884,11 +873,14 @@ plotTrajectoryFit <- function(object,
   check_method(method_gs = method_gs)
 
   # adjusting check
+  of_sample <- check_sample(object, of_sample, 1)
+
   variable <- check_variables(variables = variable,
                               all_gene_sets = getGeneSets(object),
-                              all_genes = getGenes(object),
+                              all_genes = getGenes(object, in_sample = of_sample),
                               max_length = 1,
-                              max_slots = 1)
+                              max_slots = 1) %>%
+    base::unlist(use.names = FALSE)
 
   # -----
 

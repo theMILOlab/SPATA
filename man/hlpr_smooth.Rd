@@ -8,10 +8,10 @@ hlpr_smooth(
   variable,
   var_name,
   coords_df,
-  verbose = TRUE,
   smooth_span,
   aspect,
-  subset
+  subset,
+  pb = NULL
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ hlpr_smooth(
 
 \item{coords_df}{Data.frame that contains x and y coordinates}
 
-\item{verbose}{Logical}
-
 \item{smooth_span}{Span to smooth with}
 
 \item{aspect}{Gene or Gene set}
 
 \item{subset}{Vector of variable names to smooth}
+
+\item{verbose}{Logical}
 }
 \value{
 Smoothed variable (data.frame within \code{purrr::imap()})

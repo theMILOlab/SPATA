@@ -120,24 +120,6 @@ getCountMatrix <- function(object,
 }
 
 
-#' Obtain feature data
-#'
-#' @inherit check_sample params
-#'
-#' @return The feature data data.frame of the specfied object and sample(s).
-#' @export
-#'
-
-getFeatureData <- function(object, of_sample = ""){
-
-  check_object(object)
-  of_sample <- check_sample(object, of_sample)
-
-  featureData(object = object,
-              of_sample = of_sample)
-
-}
-
 
 # Dimensional reduction ---------------------------------------------------
 
@@ -236,7 +218,7 @@ getGeneSetOverview <- function(object){
   check_object(object)
 
   # main part
-  gene_sets_df <- object@used_genesets
+  gene_sets_df <- dplyr::ungroup(object@used_genesets)
 
   gene_sets <- object@used_genesets$ont
 
@@ -483,23 +465,122 @@ getGenes <- function(object,
 #' @title Obtain feature names
 #'
 #' @param object A valid spata-object.
+#' @param of_class Character vector. Specify the classes a feature must be of for
+#' it's name to be returned.
 #'
 #' @return A named character vector of the variables in the feature data slot.
 #' @export
 
-getFeatureNames <- function(object){
+getFeatureNames <- function(object, of_class = NULL){
 
   check_object(object)
+  if(!base::is.null(of_class)){confuns::is_vec(of_class, "character", "of_class")}
 
   feature_names <- base::colnames(object@fdata)
 
-  base::names(feature_names) <-
-    base::sapply(object@fdata[,feature_names], base::class)
+  classes <- base::sapply(object@fdata[,feature_names], base::class)
+
+  base::names(feature_names) <- classes
+
+  if(!base::is.null(of_class)){
+    feature_names <- feature_names[classes %in% of_class]
+  }
 
   base::return(feature_names[!feature_names %in% c("sample", "barcodes")])
 
 }
 
+
+#' Obtain feature data
+#'
+#' @inherit check_sample params
+#'
+#' @return The feature data data.frame of the specfied object and sample(s).
+#' @export
+#'
+
+getFeatureData <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample)
+
+  featureData(object = object,
+              of_sample = of_sample)
+
+}
+
+
+#' @title Obtain a feature variable
+#'
+#' @description Extracts the specified feature variables from the
+#' feature data.
+#'
+#' @inherit check_sample params
+#' @inherit check_features params
+#' @param return Character value. Determine the way the variable is returned.
+#'
+#' (Only relevant if input of arugment \code{features} is of length greater than 1.)
+#'
+#' @param unique Logical. If set to TRUE and argument \code{features} is
+#' of length 1 only it's unique values are returned.
+#'
+#' @return A data.frame or a vector.
+#' @export
+#'
+
+getFeatureVariables <- function(object,
+                                features,
+                                of_sample = "",
+                                return = "data.frame",
+                                unique = FALSE){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  features <- check_features(object, features)
+
+  confuns::is_value(return, "character", "return")
+  stopifnot(return %in% c("data.frame", "vector"))
+
+  of_sample <- check_sample(object, of_sample)
+
+  # -----
+
+  # 2. Extracting -----------------------------------------------------------
+
+
+  if(base::length(features) == 1 && return == "vector"){
+
+    var <-
+      getFeatureData(object, of_sample) %>%
+      dplyr::pull(var = {{features}})
+
+    if(base::isTRUE(unique)){
+
+      base::unique(var) %>%
+        base::return()
+
+    } else {
+
+      base::return(var)
+
+    }
+
+  } else if(base::length(features) == 1){
+
+    getFeatureData(object, of_sample) %>%
+      dplyr::select(barcodes, sample, {{features}})
+
+  } else {
+
+    getFeatureData(object, of_sample) %>%
+      dplyr::select(barcodes, sample, dplyr::all_of(features)) %>%
+      base::return()
+
+  }
+
+}
 
 
 # -----

@@ -4,7 +4,7 @@
 \alias{hlpr_assess_trajectory_trends}
 \title{Assess trajectory ranking.}
 \usage{
-hlpr_assess_trajectory_trends(rtdf)
+hlpr_assess_trajectory_trends(rtdf, verbose = TRUE)
 }
 \arguments{
 \item{rtdf}{A ranked trajectory data.frame.}

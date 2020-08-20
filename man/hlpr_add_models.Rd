@@ -10,9 +10,9 @@
 \usage{
 hlpr_add_models(df)
 
-hlpr_add_residuals(df)
+hlpr_add_residuals(df, pb = NULL)
 
-hlpr_summarize_residuals(df)
+hlpr_summarize_residuals(df, pb = NULL)
 
 hlpr_name_models(names)
 

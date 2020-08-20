@@ -74,13 +74,16 @@ joinWithVariables(
 \item{features}{The features of interest specified as a character vector.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+specified as a character of length one. This can be either \emph{'mean'} or one
+of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
 \item{gene_sets}{The gene sets of interest specified as a character vector.}
 
 \item{genes}{The genes of interest specified as a character vector.}
+
+\item{average_genes}{Logical. If set to TRUE the average expression of the
+specified genes is calculated and saved under one variable named 'mean_genes'.}
 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
@@ -113,4 +116,8 @@ Each member of the \code{joinWith()}-family takes a data.frame as
 input that contains at least the variables \emph{barcodes} and \emph{sample}.
 (Easily obtained with the \code{get*()}-family.) It extracts the specified
 variables and joins them over the barcode variable with the provided data.frame.
+}
+\details{
+Hint: Variables of the specified data.frame \code{coords_df} that have equal names as
+the specified features, genes and gene-sets are overwritten!
 }

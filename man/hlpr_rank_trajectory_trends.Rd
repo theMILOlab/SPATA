@@ -4,7 +4,7 @@
 \alias{hlpr_rank_trajectory_trends}
 \title{Rank trajectory trends.}
 \usage{
-hlpr_rank_trajectory_trends(stdf)
+hlpr_rank_trajectory_trends(stdf, verbose = TRUE)
 }
 \arguments{
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by

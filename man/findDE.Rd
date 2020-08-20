@@ -4,7 +4,7 @@
 \alias{findDE}
 \title{Find marker genes}
 \usage{
-findDE(object, of_sample, feature, method_de = "wilcox", p_val_adj = 0.05)
+findDE(object, of_sample = "", feature, method_de = "wilcox", p_val_adj = 0.05)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -22,7 +22,7 @@ separates all barcodes into subgroups for which eventually the marker genes will
 \item{p_val_adj}{The maximum adjusted p-value allowed in the output.}
 }
 \value{
-A DE-object.
+A data.frame containing the variables \emph{'p_val', 'avg_logFC', 'pct.1', 'pct.2', 'p_val_adj', 'cluster', 'gene'}.
 }
 \description{
 Finds the differentially expressed genes of a set of subgroups.

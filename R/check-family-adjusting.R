@@ -398,7 +398,6 @@ check_gene_sets <- function(object,
 }
 
 
-
 #' @title Check sample input
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes a character
@@ -580,14 +579,6 @@ check_variables <- function(variables,
 
   variables <- base::unique(variables)
 
-  if(max_length < base::length(variables)){
-
-    base::stop(stringr::str_c("Maximum length (", max_length,
-                              ") of argument 'variables' exceeded: ",
-                              base::length(variables) ))
-
-  }
-
   if(base::any(variables %in% all_features)){
 
     found_features <- all_features[all_features %in% variables]
@@ -623,11 +614,43 @@ check_variables <- function(variables,
                     "genes" = found_genes)
 
   return_list <-
-    purrr::discard(.x = found_all, .p = base::is.null)
+    purrr::discard(.x = found_all, .p = base::is.null) %>%
+    purrr::imap(.x = .,
+                max_length = max_length,
+                .f = function(slot, name, max_length){
+
+      if(name == "genes"){
+
+        if(max_length == 1 && base::length(slot) != 1){
+
+          base::message("More than 1 gene specified - taking the average.")
+
+        }
+
+        base::return(slot)
+
+      } else {
+
+        if(base::length(slot) > max_length){
+
+          base::stop(glue::glue("Input for {name}-variables exceeds limit. Specified: {base::length(slot)}. Allowed: {max_length}."))
+
+        } else {
+
+          base::return(slot)
+
+        }
+
+      }
+
+    })
+
 
   if(base::length(return_list) > max_slots){
 
-    base::stop(glue::glue("Input of argument 'variables' can only contain elements of {max_slots} different types. Contains elements of {base::length(return_list)} types."))
+    slots <- stringr::str_c(base::names(return_list), collapse = "', '")
+
+    base::stop(glue::glue("Input of argument 'variables' can only contain elements of {max_slots} different types. Contains elements of '{slots}' ."))
 
   }
 
@@ -640,7 +663,7 @@ check_variables <- function(variables,
 
     not_found_string <- stringr::str_c(not_found, collapse = "', '")
 
-    base::warning(stringr::str_c("Did not find input: '", not_found_string, "'" , sep = ""))
+    base::warning(stringr::str_c("Unknown or invalid input: '", not_found_string, "'" , sep = ""))
 
   }
 
@@ -649,9 +672,9 @@ check_variables <- function(variables,
 
     base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s).")
 
-  } else if(max_length == 1 | base::isTRUE(simplify)) {
+  } else if(base::isTRUE(simplify)) {
 
-    return_list <- base::unlist(return_list) %>% base::unname()
+    return_list <- base::unlist(return_list, use.names = FALSE)
 
   }
 

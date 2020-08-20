@@ -53,7 +53,12 @@ plotSurface <- function(object,
   check_display(display_title, display_image)
   check_assign(assign, assign_name)
 
-  all_genes <- getGenes(object)
+  # adjusting check
+  of_sample <- check_sample(object = object,
+                            of_sample = of_sample,
+                            desired_length = 1)
+
+  all_genes <- getGenes(object, in_sample = of_sample)
   all_gene_sets <- getGeneSets(object)
   all_features <- getFeatureNames(object)
 
@@ -72,11 +77,6 @@ plotSurface <- function(object,
     color_to <- list("genes" = color_to)
 
   }
-
-  # adjusting check
-  of_sample <- check_sample(object = object,
-                            of_sample = of_sample,
-                            desired_length = 1)
 
   # -----
 
@@ -388,7 +388,7 @@ plotSurfaceComparison <- function(object,
   of_sample <- check_sample(object, of_sample, 1)
 
   all_gene_sets <- getGeneSets(object, "all")
-  all_genes <- getGenes(object)
+  all_genes <- getGenes(object, in_sample = of_sample)
   all_features <-
     base::suppressWarnings(
       check_features(object, features = getFeatureNames(object), valid_classes = "numeric")

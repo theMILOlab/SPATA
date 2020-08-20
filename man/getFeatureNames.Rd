@@ -4,10 +4,13 @@
 \alias{getFeatureNames}
 \title{Obtain feature names}
 \usage{
-getFeatureNames(object)
+getFeatureNames(object, of_class = NULL)
 }
 \arguments{
 \item{object}{A valid spata-object.}
+
+\item{of_class}{Character vector. Specify the classes a feature must be of for
+it's name to be returned.}
 }
 \value{
 A named character vector of the variables in the feature data slot.

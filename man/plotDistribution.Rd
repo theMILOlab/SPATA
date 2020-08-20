@@ -53,8 +53,8 @@ If set to \emph{""} (the default) the first sample is chosen.}
 a character vector.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
-specified as a character of length one. This can be either \emph{mean} or one
-of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+specified as a character of length one. This can be either \emph{'mean'} or one
+of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
 \item{plot_type}{One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}

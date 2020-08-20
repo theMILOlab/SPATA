@@ -259,8 +259,8 @@ check_feature_df <- function(feature_name,
 #' interest specified as a single character value. (Currently
 #' either \emph{'UMAP'} or \emph{'TSNE'}).
 #' @param method_gs Character value. The method according to which gene sets will be handled
-#' specified as a character of length one. This can be either \emph{mean} or one
-#' of \emph{gsva, ssgsea, zscore, or plage}. The latter four will be given to
+#' specified as a character of length one. This can be either \emph{'mean'} or one
+#' of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 #' \code{gsva::GSVA()}.
 #' @param method_padj Character value. The method according to which the adjusted p-values will
 #' be calculated. Given to \code{stats::p.adjust()}.
@@ -438,20 +438,11 @@ check_atdf <- function(atdf){
   confuns::check_data_frame(
     df = atdf,
     var.class = list(
+      variables = "character",
       pattern = "character",
       auc = c("double", "integer", "numeric")
     )
   )
-
-  # check first column
-  first_column <- base::colnames(atdf)[1]
-
-  if(!"gene_sets" %in% first_column &
-     !"genes" %in% first_column){
-
-    base::stop("First column of data.frame 'atdf' must be 'gene_sets' or 'genes'.")
-
-  }
 
 }
 
@@ -463,34 +454,11 @@ check_rtdf <- function(rtdf, variable = NULL){
   confuns::check_data_frame(df = rtdf,
                              var.class =
                                list(
+                                 variables = "character",
                                  data = "list",
                                  residuals = "list",
                                  auc = "list"),
                              ref = "rtdf")
-
-
-  # check first column
-  first_column <- base::colnames(rtdf)[1]
-
-  if(!"gene_sets" %in% first_column &
-     !"genes" %in% first_column){
-
-    base::stop("First column of data.frame 'rtdf' must be 'gene_sets' or 'genes'.")
-
-  }
-
-
-  # compare variable
-  if(!base::is.null(variable) && confuns::is_value(variable, "character", "variable")){
-
-    if(!variable %in% dplyr::pull(rtdf, {{first_column}})){
-
-      base::stop(glue::glue("Variable '{variable}' does not appear in column '{first_column}'."))
-
-    }
-
-  }
-
 
   base::return(base::invisible(TRUE))
 
@@ -585,7 +553,8 @@ check_summarized_trajectory_df <- function(stdf){
       trajectory_part = "character",
       trajectory_part_order = c("numeric", "integer"),
       trajectory_order = c("numeric", "integer"),
-      values = c("numeric", "integer")
+      values = c("numeric", "integer"),
+      variables = "character"
     ),
     ref = "stdf")
 

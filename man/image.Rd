@@ -25,11 +25,11 @@
 \alias{getTrajectoryComment,spatialTrajectory-method}
 \title{Generics to extract a slots content}
 \usage{
-image(object, of_sample)
+image(object, of_sample = "")
 
-exprMtr(object, of_sample = NULL)
+exprMtr(object, of_sample = "")
 
-countMtr(object, of_sample = "NULL")
+countMtr(object, of_sample = "")
 
 coordinates(object, of_sample = "")
 

@@ -438,7 +438,6 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
             purrr::imap_dfr(.x = smoothed_df(),
                             .f = hlpr_normalize_imap,
                             aspect = "Gene",
-                            verbose = TRUE,
                             subset = variable()
             )
 

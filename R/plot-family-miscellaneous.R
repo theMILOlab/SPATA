@@ -374,7 +374,7 @@ plotFourStates <- function(object,
 #' @export
 #'
 plotFourStates2 <- function(data,
-                           states = "",
+                           states,
                            color_to = NULL,
                            pt_size = 1.5,
                            pt_alpha = 0.9,
@@ -1165,7 +1165,7 @@ plotPseudotime <- function(object,
 #' @export
 
 plotSegmentation <- function(object,
-                             of_sample,
+                             of_sample = "",
                              pt_size = 2){
 
   # control
