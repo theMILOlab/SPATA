@@ -23,7 +23,7 @@ plotFourStates(
 
 plotFourStates2(
   data,
-  states = "",
+  states,
   color_to = NULL,
   pt_size = 1.5,
   pt_alpha = 0.9,

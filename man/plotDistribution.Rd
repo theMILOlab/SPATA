@@ -4,6 +4,7 @@
 \alias{plotDistribution}
 \alias{plotDistribution2}
 \alias{plotDistributionAcross}
+\alias{plotDistributionAcross2}
 \title{Visualize variable distribution}
 \usage{
 plotDistribution(
@@ -22,7 +23,7 @@ plotDistribution(
 
 plotDistribution2(
   data,
-  variables = NULL,
+  variables = "all",
   plot_type = "histogram",
   binwidth = 0.05,
   ...
@@ -34,7 +35,20 @@ plotDistributionAcross(
   variables,
   across,
   method_gs = "mean",
-  plot_type = "histogram",
+  plot_type = "violin",
+  binwidth = 0.05,
+  ...,
+  normalize = TRUE,
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE
+)
+
+plotDistributionAcross2(
+  data,
+  variables = "all",
+  across,
+  plot_type = "violin",
   binwidth = 0.05,
   ...,
   normalize = TRUE,

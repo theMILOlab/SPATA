@@ -374,12 +374,12 @@ plotFourStates <- function(object,
 #' @export
 #'
 plotFourStates2 <- function(data,
-                           states,
-                           color_to = NULL,
-                           pt_size = 1.5,
-                           pt_alpha = 0.9,
-                           pt_clrsp = "inferno",
-                           display_labels = TRUE){
+                            states,
+                            color_to = NULL,
+                            pt_size = 1.5,
+                            pt_alpha = 0.9,
+                            pt_clrsp = "inferno",
+                            display_labels = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
@@ -543,16 +543,16 @@ plotFourStates2 <- function(data,
 #' @export
 
 plotDistribution <- function(object,
-                              of_sample = "",
-                              variables,
-                              method_gs = "mean",
-                              plot_type = "histogram",
-                              binwidth = 0.05,
-                              ... ,
-                              normalize = TRUE,
-                              assign = FALSE,
-                              assign_name,
-                              verbose = TRUE){
+                             of_sample = "",
+                             variables,
+                             method_gs = "mean",
+                             plot_type = "histogram",
+                             binwidth = 0.05,
+                             ... ,
+                             normalize = TRUE,
+                             assign = FALSE,
+                             assign_name,
+                             verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
@@ -677,6 +677,7 @@ plotDistribution <- function(object,
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                                       color = "black", data = data),
         ggridges::theme_ridges(),
+        ggplot2::scale_fill_discrete(labels = base::rev(base::unique(variables))),
         ggplot2::labs(y = NULL)
       )
 
@@ -721,7 +722,15 @@ plotDistribution <- function(object,
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
     facet_add_on +
-    ggplot2::theme(legend.position = "none") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(color = "black"),
+      axis.text.x = ggplot2::element_text(color = "black"),
+      strip.text.y = ggplot2::element_text(angle = 0, face = "italic", size = 14),
+      strip.placement = "outside",
+      strip.background = ggplot2::element_rect(color = "white", fill = "white"),
+      panel.spacing.y = ggplot2::unit(10, "pt"),
+      legend.position = "none"
+    ) +
     ggplot2::labs(x = "Values")
 
 }
@@ -730,17 +739,16 @@ plotDistribution <- function(object,
 #' @rdname plotDistribution
 #' @export
 plotDistribution2 <- function(data,
-                              variables = NULL,
+                              variables = "all",
                               plot_type = "histogram",
                               binwidth = 0.05,
-                              ...
-){
+                              ... ){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
   stopifnot(base::is.data.frame(data))
-  stopifnot(base::is.null(variables) | base::is.character(variables))
+  if(!base::is.null(variables)){confuns::is_vec(variables, "character", "variables")}
 
   if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
 
@@ -748,40 +756,30 @@ plotDistribution2 <- function(data,
 
   }
 
-  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
+  # check variable input
+  confuns::is_vec(variables, "character", "variables")
 
-    max_length = 10
+  if(base::all(variables == "all")){
 
-  } else {
+    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Plotting all numeric variables.")}
 
-    max_length = 25
+    cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
 
-  }
-
-  # adjusting check
-  num_data <- data[,base::sapply(data, base::is.numeric)]
-  num_variables <- base::colnames(num_data)
-
-  if(base::is.null(variables)){
-
-    valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+    variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2")]
 
   } else {
 
-    valid_variables <- variables[variables %in% num_variables]
-    valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+    check_list <-
+      purrr::map(variables, function(i){c("numeric", "integer")}) %>%
+      magrittr::set_names(value = variables)
 
-    invalid_variables <- variables[!variables %in% valid_variables]
+    confuns::check_data_frame(
+      df = data,
+      var.class = check_list,
+      ref = "data"
+    )
 
-
-    if(base::length(invalid_variables) > 0){
-
-      invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
-
-      base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
-                                   invalid_variables, "'", sep = "" ))
-
-    }
+    if(base::isTRUE(verbose)){"All specified variables found."}
 
   }
 
@@ -791,8 +789,8 @@ plotDistribution2 <- function(data,
 
   expr_data <-
     tidyr::pivot_longer(
-      data = data[, valid_variables],
-      cols = dplyr::all_of(x = valid_variables),
+      data = data[, variables],
+      cols = dplyr::all_of(x = variables),
       names_to = "variables",
       values_to = "values"
     )
@@ -811,7 +809,6 @@ plotDistribution2 <- function(data,
         ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
                                 color = "black", binwidth = binwidth,
                                 data = expr_data),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL)
       )
 
@@ -821,7 +818,6 @@ plotDistribution2 <- function(data,
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
                               color = "black", data = expr_data),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = "Density")
       )
 
@@ -831,18 +827,16 @@ plotDistribution2 <- function(data,
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                                       color = "black", data = expr_data),
-        ggridges::theme_ridges(),
+        #ggridges::theme_ridges(),
         ggplot2::labs(y = NULL)
       )
 
   } else if(plot_type == "violin"){
 
-
     display_add_on <-
       list(
         ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                              color = "black", data = expr_data),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
@@ -853,14 +847,13 @@ plotDistribution2 <- function(data,
       list(
         ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
                               color = "black", data = expr_data),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
       )
 
   }
 
-  if(base::length(valid_variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
+  if(base::length(variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
 
     facet_add_on <-
       list(ggplot2::facet_wrap(facets = . ~ variables, ...))
@@ -871,30 +864,42 @@ plotDistribution2 <- function(data,
 
   }
 
+  theme_add_on <- base::ifelse(test = plot_type == "ridgeplot",
+                               yes = list(ggridges::theme_ridges()),
+                               no = list(ggplot2::theme_classic()))
+
   # 4. Plotting -------------------------------------------------------------
 
   ggplot2::ggplot(data = expr_data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
     facet_add_on +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::labs(x = "Values")
+    theme_add_on +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(color = "black"),
+      axis.text.x = ggplot2::element_text(color = "black"),
+      strip.text.y = ggplot2::element_text(angle = 0, face = "italic", size = 14),
+      strip.placement = "outside",
+      strip.background = ggplot2::element_rect(color = "white", fill = "white"),
+      panel.spacing.y = ggplot2::unit(10, "pt"),
+      legend.position = "none"
+    )
 
 }
 
 #' @rdname plotDistribution
 #' @export
 plotDistributionAcross <- function(object,
-                                    of_sample = "",
-                                    variables,
-                                    across,
-                                    method_gs = "mean",
-                                    plot_type = "histogram",
-                                    binwidth = 0.05,
-                                    ... ,
-                                    normalize = TRUE,
-                                    assign = FALSE,
-                                    assign_name,
-                                    verbose = TRUE){
+                                   of_sample = "",
+                                   variables,
+                                   across,
+                                   method_gs = "mean",
+                                   plot_type = "violin",
+                                   binwidth = 0.05,
+                                   ... ,
+                                   normalize = TRUE,
+                                   assign = FALSE,
+                                   assign_name,
+                                   verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
@@ -904,24 +909,14 @@ plotDistributionAcross <- function(object,
 
   }
 
-  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
-
-    max_length = 10
-
-  } else {
-
-    max_length = 25
-
-  }
-
   validation(object)
   check_assign(assign, assign_name)
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   across <- check_features(object, feature = across, valid_classes = c("character", "factor"), max_length = 1)
 
-  all_features <- getFeatureNames(object)
-  all_genes <- getGenes(object)
+  all_features <- getFeatureNames(object, of_class = c("integer", "numeric"))
+  all_genes <- getGenes(object, in_sample = of_sample)
   all_gene_sets <- getGeneSets(object)
 
   variables <-
@@ -929,7 +924,6 @@ plotDistributionAcross <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = TRUE)
 
   # -----
@@ -999,9 +993,7 @@ plotDistributionAcross <- function(object,
 
   # -----
 
-
-
-  # 4. Display add on -------------------------------------------------------
+  # 3. Display add on -------------------------------------------------------
 
   if(plot_type == "histogram"){
 
@@ -1010,7 +1002,6 @@ plotDistributionAcross <- function(object,
         ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
                                 color = "black", binwidth = binwidth,
                                 data = data),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = NULL)
       )
 
@@ -1020,7 +1011,6 @@ plotDistributionAcross <- function(object,
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
                               color = "black", data = data,alpha = 0.75),
-        ggplot2::theme_classic(),
         ggplot2::labs(y = "Density")
       )
 
@@ -1028,14 +1018,13 @@ plotDistributionAcross <- function(object,
 
     display_add_on <-
       list(
-        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = !!rlang::sym(across), fill = !!rlang::sym(across)),
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = as.factor(!!rlang::sym(across)), fill = !!rlang::sym(across)),
                                       color = "black", data = data, alpha = 0.75),
+        ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse = TRUE)),
         ggplot2::labs(y = across, x = NULL)
-
       )
 
   } else if(plot_type == "violin"){
-
 
     display_add_on <-
       list(
@@ -1068,6 +1057,167 @@ plotDistributionAcross <- function(object,
 
   # -----
 
+
+  ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
+    display_add_on +
+    facet_add_on +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(color = "black"),
+      axis.text.x = ggplot2::element_text(color = "black"),
+      strip.text.y = ggplot2::element_text(angle = 0, face = "italic", size = 14),
+      strip.placement = "outside",
+      strip.background = ggplot2::element_rect(color = "white", fill = "white"),
+      panel.spacing.y = ggplot2::unit(10, "pt")
+    )
+
+}
+
+
+#' @rdname plotDistribution
+#' @export
+plotDistributionAcross2 <- function(data,
+                                    variables = "all",
+                                    across,
+                                    plot_type = "violin",
+                                    binwidth = 0.05,
+                                    ... ,
+                                    normalize = TRUE,
+                                    assign = FALSE,
+                                    assign_name,
+                                    verbose = TRUE){
+
+  # 1. Control --------------------------------------------------------------
+
+  if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
+
+    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density', 'ridgeplot', 'boxplot', 'violin'.")
+
+  }
+  if(plot_type %in% c("violin", "ridgeplot", "boxplot")){
+
+    max_length = 10
+
+  } else {
+
+    max_length = 25
+
+  }
+
+
+  # check across input
+  confuns::is_value(across, "character", "across")
+  confuns::check_data_frame(
+    df = data,
+    var.class = list(c("character", "factor")) %>% magrittr::set_names(across),
+    ref = "data"
+  )
+
+  # check variable input
+  confuns::is_vec(variables, "character", "variables")
+
+  if(base::all(variables == "all")){
+
+    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Plotting all numeric variables.")}
+
+    cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+
+    variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2")]
+
+  } else {
+
+    check_list <-
+      purrr::map(variables, function(i){c("numeric", "integer")}) %>%
+      magrittr::set_names(value = variables)
+
+    confuns::check_data_frame(
+      df = data,
+      var.class = check_list,
+      ref = "data"
+    )
+
+    if(base::isTRUE(verbose)){"All specified variables found."}
+
+  }
+
+  # -----
+
+  # 2. Data extraction ------------------------------------------------------
+
+  data <-
+    tidyr::pivot_longer(
+      data = data,
+      cols = dplyr::all_of(x = variables),
+      names_to = "variables",
+      values_to = "values"
+    )
+
+  # -----
+
+  # 3. Display add on -------------------------------------------------------
+
+  if(plot_type == "histogram"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
+                                color = "black", binwidth = binwidth,
+                                data = data),
+        ggplot2::labs(y = NULL)
+      )
+
+  } else if(plot_type == "density"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
+                              color = "black", data = data,alpha = 0.75),
+        ggplot2::labs(y = "Density")
+      )
+
+  } else if(plot_type == "ridgeplot"){
+
+    display_add_on <-
+      list(
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = as.factor(!!rlang::sym(across)), fill = !!rlang::sym(across)),
+                                      color = "black", data = data, alpha = 0.75),
+        ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse = TRUE)),
+        ggplot2::labs(y = across, x = NULL)
+
+      )
+
+  } else if(plot_type == "violin"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_violin(mapping = ggplot2::aes(x = !!rlang::sym(across), y = values, fill = !!rlang::sym(across)),
+                             color = "black", data = data),
+        ggplot2::labs(y = NULL, x = across)
+      )
+
+  } else if(plot_type == "boxplot"){
+
+    display_add_on <-
+      list(
+        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = !!rlang::sym(across), y = values, fill = !!rlang::sym(across)),
+                              color = "black", data = data),
+        ggplot2::labs(y = NULL, x = across)
+      )
+
+  }
+
+  if(base::length(variables) > 1){
+
+    facet_add_on <-
+      list(ggplot2::facet_wrap(facets = . ~ variables, ...))
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # -----
 
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +

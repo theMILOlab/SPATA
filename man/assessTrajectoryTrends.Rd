@@ -8,7 +8,7 @@
 assessTrajectoryTrends(
   object,
   trajectory_name,
-  of_sample,
+  of_sample = "",
   variables,
   accuracy = 5,
   verbose = TRUE

@@ -269,7 +269,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
       sample_coords <- shiny::reactive({
 
         sample_coords <-
-          coordsSpatial(object = object, of_sample = current$sample)
+          getCoordinates(object = object, of_sample = current$sample)
 
         print("sample_coords")
         return(sample_coords)

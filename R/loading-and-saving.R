@@ -1,4 +1,4 @@
-#' @title Create a spata-object
+#' @title Initiate a spata-object
 #'
 #' @description Creates, saves and returns an object of class spata
 #' from scratch.
@@ -32,12 +32,12 @@
 #' @return A spata-object.
 #' @export
 
-createSpataObject_10X <- function(input_paths,
-                                  output_path,
-                                  gene_set_path = NULL,
-                                  sample_names,
-                                  object_name,
-                                  verbose = TRUE){
+initiateSpataObject_10X <- function(input_paths,
+                                    output_path,
+                                    gene_set_path = NULL,
+                                    sample_names,
+                                    object_name,
+                                    verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
@@ -95,8 +95,8 @@ createSpataObject_10X <- function(input_paths,
     base::lapply(X = input_paths,
                  FUN = function(path){
 
-                   data_dir <- base::paste0(path, "\\outs")
-                   file_dir <- base::paste0(path, "\\outs\\filtered_feature_bc_matrix.h5")
+                   data_dir <- base::paste0(path, "/outs")
+                   file_dir <- base::paste0(path, "/outs/filtered_feature_bc_matrix.h5")
 
                    if(base::file.exists(paths = file_dir)){
 

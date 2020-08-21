@@ -108,10 +108,9 @@ calculateDistanceLineplot <- function(object,
                       average_genes = TRUE,
                       verbose = verbose)
 
+  variable <- base::unlist(variable, use.names = FALSE)
+
   # check if variable needs to be converted into a categorical one
-  variable <-
-    dplyr::select(feature_df, -barcodes, -sample, -x, -y) %>%
-    base::colnames()
 
   variable_vls <- dplyr::pull(feature_df, var = {{variable}})
 
@@ -150,16 +149,16 @@ calculateDistanceLineplot <- function(object,
     dplyr::group_by(cluster_origin) %>%
     dplyr::summarise_all(median) %>%
     dplyr::arrange(dplyr::desc(distance)) %>%
-    dplyr::mutate(x = dplyr::row_number()) %>%
+    dplyr::mutate(group = "group",
+                  x = dplyr::row_number()) %>%
     base::as.data.frame()
 
   # -----
-
   p <-
-    ggplot2::ggplot(data = df_distance, mapping = ggplot2::aes(x = x, y = distance)) +
+    ggplot2::ggplot(data = df_distance, mapping = ggplot2::aes(x = as.factor(x), y = distance)) +
     ggplot2::geom_point() +
-    ggplot2::geom_line() +
-    ggplot2::scale_x_discrete(labels = df_distance$cluster_origin) +
+    ggplot2::geom_path(mapping = ggplot2::aes(group = group)) +
+    ggplot2::scale_x_discrete(labels = base::unique(df_distance$cluster_origin), breaks = df_distance$x) +
     ggplot2::theme_classic() +
     ggplot2::labs(x = variable, y = "Relative Median Distance")
 
@@ -221,10 +220,9 @@ calculateDistanceHeatmap <- function(object,
                       average_genes = TRUE,
                       verbose = verbose)
 
+  variable <- base::unlist(variable, use.names = FALSE)
+
   # check if variable needs to be converted into a categorical one
-  variable <-
-    dplyr::select(feature_df, -barcodes, -sample, -x, -y) %>%
-    base::colnames()
 
   variable_vls <- dplyr::pull(feature_df, var = {{variable}})
 

@@ -112,7 +112,7 @@ joinWithFeatures <- function(object,
   # adjusting check
   features <- check_features(object, features = features)
 
-  smooth_string <- base::ifelse(test = base::isTRUE(verbose), yes = " and smoothing ", no = " " )
+  smooth_string <- base::ifelse(test = base::isTRUE(smooth), yes = " and smoothing ", no = " " )
 
   if(base::isTRUE(verbose)){
 
