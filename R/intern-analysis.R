@@ -285,7 +285,9 @@ calculateDistanceHeatmap <- function(object,
 #' @title Clustering with igraph
 #'
 #' @param cor.mtr A correlation matrix.
-#' @param num.nn Numeric value.
+#' @param num.nn Numeric value. The maximum number of nearest neighbours to compute.
+#' The default value is set to the smaller of the number of columnns in data. Given
+#' to \code{RANN::nn2()} as input for argument \code{k}.
 #' @param color.nn Numeric value.
 #'
 #' @return Cluster results.

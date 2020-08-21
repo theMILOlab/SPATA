@@ -202,7 +202,8 @@ initiateSpataObject_10X <- function(input_paths,
                                       x_Slide = (coordinates2$col + 1),
                                       y_Slide = (coordinates2$row + 1),
                                       barcodes = stringr::str_c(barcodes, sample, sep = "_"),
-                                      sample = sample)
+                                      sample = sample,
+                                      stringsAsFactors = FALSE)
 
                   return(fdata)
 
