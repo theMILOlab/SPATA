@@ -1,4 +1,8 @@
 
+#' @import SingleCellExperiment
+
+NULL
+
 #' Assign objects into the global environment
 #'
 #' @param assign Logical.
@@ -69,11 +73,11 @@ hlpr_compare_samples <- function(object, df, messages){
 #' that fits to the provided spata-object.
 #'
 #' @param object A valid spata object.
-#' @param use_cds_file A directory leading to a .rds file containing a valid
+#' @param use_cds_file A file-directory leading to a .rds file containing a valid
 #' cell_data_set-object previously calculated for the specified object. Specified
 #' as a character value. If set to FALSE the cell_data_set object will be created
 #' from scratch.
-#' @param save_cds_file A filename/directory (that does not already exists) under which the used or created cell_data_set-object
+#' @param save_cds_file A file-directory (that does not already exists) under which the used or created cell_data_set-object
 #' is going to be stored specified as a character value. Should end with .rds.
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
 #' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string. Must be one of
@@ -91,29 +95,28 @@ hlpr_compile_cds <- function(object,
                              use_cds_file = FALSE,
                              save_cds_file = FALSE,
                              preprocess_method = "PCA",
-                             cluster_method = c("leiden", "louvain"),
+                             cluster_method = "leiden",
                              verbose = TRUE){
 
 
-  validation(object)
+  check_object(object)
   confuns::is_value(preprocess_method, "character", "preprocess_method")
   confuns::is_value(cluster_method, mode = "character", "cluster_method")
+  if(!base::isFALSE(use_cds_file)){confuns::check_directories(use_cds_file, ref = "use_cds_file", type = "files")}
+  if(!base::isFALSE(save_cds_file)){
 
-  if(base::is.character(use_cds_file) & !base::file.exists(use_cds_file)){
+    confuns::is_value(save_cds_file, "character", "save_cds_file")
+    if(base::file.exists(save_cds_file)){
 
-    base::stop(stringr::str_c("The specified file in argument 'use_cds_file' does not exist."))
+      base::stop(glue::glue("Directory '{save_cds_file}' already exists. "))
+
+    }
 
   }
 
-  if(base::is.character(save_cds_file) & base::file.exists(save_cds_file)){
-
-    base::stop(stringr::str_c("The specified filename in argument 'save_cds_file' already exists."))
-
-  }
 
   # check if valid cds files
-  if(base::is.character(use_cds_file) &
-     base::file.exists(use_cds_file)){
+  if(base::is.character(use_cds_file)){
 
     cds <- base::readRDS(use_cds_file)
 
@@ -140,6 +143,8 @@ hlpr_compile_cds <- function(object,
     base::stopifnot(preprocess_method %in% c("PCA", "LSI"))
     base::stopifnot(cluster_method %in% c("leiden", "louvain"))
 
+    if(base::isTRUE(verbose)){base::message("Step 1/7 Creating 'cell data set'-object.")}
+
     expression_matrix <- base::as.matrix(object@data@counts)
 
     gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
@@ -155,24 +160,24 @@ hlpr_compile_cds <- function(object,
 
     cds <- cds[,Matrix::colSums(monocle3::exprs(cds)) != 0]
 
-    if(base::isTRUE(verbose)){base::message("Estimating size factors...")}
+    if(base::isTRUE(verbose)){base::message("Step 2/7 Estimating size factors.")}
     cds <- monocle3::estimate_size_factors(cds)
 
-    if(base::isTRUE(verbose)){base::message("Preprocessing cell data set...")}
-    cds <- monocle3::preprocess_cds(cds, preprocess_method = preprocess_method, num_dim = 30)
+    if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
+    cds <- monocle3::preprocess_cds(cds, method = preprocess_method, num_dim = 30)
 
-    if(base::isTRUE(verbose)){base::message("Reducing dimensions...")}
+    if(base::isTRUE(verbose)){base::message("Step 4/7 Reducing dimensions.")}
     cds <- monocle3::reduce_dimension(cds, cores = 4)
 
-    if(base::isTRUE(verbose)){base::message("Clustering cells...")}
+    if(base::isTRUE(verbose)){base::message("Step 5/7 Clustering cells.")}
     cds <- monocle3::cluster_cells(cds, cluster_method = cluster_method)
 
-    if(base::isTRUE(verbose)){base::message("Learning trajectory...")}
+    if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
     cds <- monocle3::learn_graph(cds)
 
   }
 
-  if(base::isTRUE(verbose)){base::message("Ordering cells...")}
+  if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
   cds <- monocle3::order_cells(cds)
 
 
@@ -181,7 +186,7 @@ hlpr_compile_cds <- function(object,
 
     if(base::isTRUE(verbose)){
 
-      base::message(stringr::str_c("Saving cell data set object 'cds' as under directory: '", save_cds_file, "'"))
+      base::message(stringr::str_c("Saving cell data set object 'cds' under directory: '", save_cds_file, "'"))
 
     }
 

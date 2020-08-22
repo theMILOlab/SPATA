@@ -14,6 +14,7 @@ plotTrajectoryFeatures(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
+  clrp = "milo",
   verbose = TRUE
 )
 
@@ -22,6 +23,7 @@ plotTrajectoryGenes(
   trajectory_name,
   of_sample = "",
   genes,
+  clrp = "milo",
   average_genes = FALSE,
   smooth_method = "loess",
   smooth_span = 0.2,
@@ -38,6 +40,7 @@ plotTrajectoryGeneSets(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
+  clrp = "milo",
   verbose = TRUE
 )
 }
@@ -56,6 +59,9 @@ single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
 
 \item{smooth_se}{Logical. If set to TRUE the confidence interval will be
 displayed.}
+
+\item{clrp}{Character value. The color panel to be used.
+Run \code{all_colorpanels()} to see valid input.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

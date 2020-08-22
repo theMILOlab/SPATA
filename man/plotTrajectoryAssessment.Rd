@@ -9,6 +9,7 @@ plotTrajectoryAssessment(
   limits = c(0, 10),
   plot_type = "histogram",
   binwidth = 0.5,
+  clrp = "milo",
   ...
 )
 }

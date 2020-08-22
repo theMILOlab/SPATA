@@ -30,6 +30,7 @@ plotTrajectory <- function(object,
                            pt_size = 2.5,
                            pt_alpha = 1,
                            pt_clr = "red",
+                           pt_clrp = "milo",
                            pt_clrsp = "inferno",
                            sgmt_size = 1,
                            display_image = TRUE,
@@ -93,22 +94,12 @@ plotTrajectory <- function(object,
                                     color_str = color_to,
                                     display_title = display_title)
 
-    # colour spectrum
-    if(base::is.numeric(coords_df$feature)){
-
-      scale_color_add_on <- ggplot2::scale_color_viridis_c(option = pt_clrsp)
-
-    } else {
-
-      scale_color_add_on <- NULL
-
-    }
 
     # assemble ggplot add on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      scale_color_add_on,
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$features)),
       labs_add_on
     )
 
@@ -135,7 +126,7 @@ plotTrajectory <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       labs_add_on
     )
 
@@ -164,7 +155,7 @@ plotTrajectory <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = "x", y = "y", color = "mean_genes")),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       labs_add_on
     )
 
@@ -230,11 +221,13 @@ plotTrajectoryAssessment <- function(atdf,
                                      limits = c(0, 10),
                                      plot_type = "histogram",
                                      binwidth = 0.5,
+                                     clrp = "milo",
                                      ...){
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::is_value(x = plot_type, mode = "character", ref = "plot_type")
+  confuns::is_value(plot_type,"character", "plot_type")
+  confuns::is_value(clrp, "character", "clrp")
 
   confuns::check_data_frame(
     df = atdf,
@@ -289,6 +282,7 @@ plotTrajectoryAssessment <- function(atdf,
     ggplot2::theme_classic() +
     ggplot2::labs(x = "Area under the curve [residuals]",
                   y = NULL) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     display_add_on +
     ggplot2::theme(
       strip.background = ggplot2::element_blank(),
@@ -311,6 +305,8 @@ plotTrajectoryAssessment <- function(atdf,
 #' @inherit average_genes params
 #' @inherit check_smooth params
 #' @inherit verbose params
+#' @param clrp Character value. The color panel to be used.
+#'  Run \code{all_colorpanels()} to see valid input.
 #'
 #' @inherit plot_family return
 #'
@@ -323,6 +319,7 @@ plotTrajectoryFeatures <- function(object,
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
+                                   clrp = "milo",
                                    verbose = TRUE){
 
 
@@ -331,6 +328,8 @@ plotTrajectoryFeatures <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
+
+  confuns::is_value(clrp, "character", "clrp")
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -373,6 +372,7 @@ plotTrajectoryFeatures <- function(object,
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
@@ -392,6 +392,7 @@ plotTrajectoryGenes <- function(object,
                                 trajectory_name,
                                 of_sample = "",
                                 genes,
+                                clrp = "milo",
                                 average_genes = FALSE,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
@@ -517,6 +518,7 @@ plotTrajectoryGenes <- function(object,
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
@@ -540,6 +542,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
+                                   clrp = "milo",
                                    verbose = TRUE){
 
 
@@ -549,6 +552,8 @@ plotTrajectoryGeneSets <- function(object,
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_method(method_gs = method_gs)
+
+  confuns::is_value(clrp, "character", "clrp")
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -593,6 +598,7 @@ plotTrajectoryGeneSets <- function(object,
                         mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(

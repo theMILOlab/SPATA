@@ -358,7 +358,6 @@ plot_igraph_heatmap <- function(cor.mtr,
                                 num.nn,
                                 color.nn){
 
-
   # 1. Control --------------------------------------------------------------
 
   confuns::is_value(x = color.nn, mode = "numeric", ref = "color.nn")
@@ -375,7 +374,6 @@ plot_igraph_heatmap <- function(cor.mtr,
 
   my_breaks <- c(seq(0, 0.1, length.out = 10),
                  seq(0.11, 1, length.out = 20))
-
 
   cl <- pheatmap::pheatmap(mat = cor.mtr,
                            color = viridisLite::viridis(n, base::length(mat_breaks) - 1),

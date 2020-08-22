@@ -20,10 +20,10 @@ createPseudotime(
 \item{use_cds_file}{A directory leading to a .rds file containing a valid
 cell_data_set-object previously calculated for the specified object. Specified
 as a character value. If set to FALSE the cell_data_set object will be created
-from scratch.}
+from scratch (which requires interactive node-choosing).}
 
 \item{save_cds_file}{A filename/directory (that does not already exists) under which the used or created cell_data_set-object
-is going to be stored specified as a character value. Should end with .rds.}
+is stored specified as a character value. Should end with \emph{'.rds'} or  \emph{'.RDS'}.}
 
 \item{preprocess_method}{Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.}
 

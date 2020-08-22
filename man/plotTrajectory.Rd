@@ -15,6 +15,7 @@ plotTrajectory(
   pt_size = 2.5,
   pt_alpha = 1,
   pt_clr = "red",
+  pt_clrp = "milo",
   pt_clrsp = "inferno",
   sgmt_size = 1,
   display_image = TRUE,
@@ -56,8 +57,11 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{pt_clr}{The base color of every point displayed in the plot.}
 
+\item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
+color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+
 \item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
+color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
 \item{sgmt_size}{The size of the segment arrrow specified as a numeric value.}
 

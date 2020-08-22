@@ -374,11 +374,11 @@ check_object <- function(object){
 #' @param pt_size The size of the points specified as a single numeric value.
 #' @param pt_alpha The transparency of the points specified as single numeric value.
 #' @param pt_clrsp The color spectrum to be used if the specified variable that is displayed by
-#' color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.
+#' color is continuous. Run \code{all_colorspectra()} to see valid input..
 #' @param pt_clrsp_dir The direction of the color spectrum specified as either \emph{1}
 #' or \emph{-1}.
 #' @param pt_clrp The color panel to be used if the specified variable that is displayed by
-#' colro is categorical.
+#' color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.
 #' @param pt_clr The base color of every point displayed in the plot.
 #'
 #' @inherit lazy_check_dummy description details return
@@ -404,9 +404,15 @@ check_pt <- function(pt_size = NULL,
 
   }
 
-  if(!base::is.null(pt_clrsp) && !pt_clrsp %in% c("inferno", "magma", "plasma", "cividis", "viridis")){
+  if(!base::is.null(pt_clrsp) && !pt_clrsp %in% base::unlist(confuns::all_colorspectra(), use.names = FALSE)){
 
-    base::stop("Argument 'pt_clrsp' needs to be one of 'inferno', 'magma', 'plasma', 'cividis' or 'viridis'.")
+    base::stop("Invalid input for argument 'pt_clrsp'.")
+
+  }
+
+  if(!base::is.null(pt_clrp) && !pt_clrp %in% base::unlist(confuns::all_colorpanels(), use.names = FALSE)){
+
+    base::stop("Invalid input for argument 'pt_clrp'.")
 
   }
 

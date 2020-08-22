@@ -61,3 +61,10 @@ average_genes <- function(average_genes){}
 
 variable <- function(variable){}
 
+
+#' @title clrp
+#' @param clpr Character value. The color panel to be used. Run \code{all_colorpanels()} to see
+#' all valid input options.
+
+clrp <- function(clrp){}
+

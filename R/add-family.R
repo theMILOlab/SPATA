@@ -176,8 +176,8 @@ addFeature <- function(object,
   check_object(object)
   confuns::check_data_frame(df = feature_df,
                             var.class = list(
-                              "barcodes" = "character"
-                            ), ref = "feature_df")
+                              "barcodes" = "character"),
+                            ref = "feature_df")
 
   # extract data
   if(feature_name %in% getFeatureNames(object) &&
@@ -194,7 +194,7 @@ addFeature <- function(object,
 
   } else {
 
-    fdata <- featureData(object)
+    fdata <- base::suppressMessages(featureData(object))
 
   }
 

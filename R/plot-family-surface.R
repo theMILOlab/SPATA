@@ -1,5 +1,4 @@
 
-
 #' @title Plot the sample
 #'
 #' @description Displays the sample and colors the surface according to the
@@ -7,7 +6,7 @@
 #'
 #' \itemize{
 #'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
-#'  necessary data.frame from scratch according to additional paramters.}
+#'  necessary data.frame from scratch according to additional parameters.}
 #'  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
 #'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
 #'  application which allows for interactive plotting.}
@@ -39,6 +38,7 @@ plotSurface <- function(object,
                         pt_size = 2,
                         pt_alpha = 1,
                         pt_clrsp = "inferno",
+                        pt_clrp = "milo",
                         display_image = FALSE,
                         display_title = FALSE,
                         assign = FALSE,
@@ -98,22 +98,11 @@ plotSurface <- function(object,
                                     color_str = color_to,
                                     display_title = display_title)
 
-    # colour spectrum
-    if(base::is.numeric(dplyr::pull(coords_df, var = color_to$features))){
-
-      scale_color_add_on <- ggplot2::scale_color_viridis_c(option = pt_clrsp)
-
-    } else {
-
-      scale_color_add_on <- NULL
-
-    }
-
     # assemble ggplot add on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      scale_color_add_on,
+      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$feature)),
       labs_add_on
     )
 
@@ -136,7 +125,7 @@ plotSurface <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(clrsp = pt_clrsp),
       labs_add_on
     )
 
@@ -164,7 +153,7 @@ plotSurface <- function(object,
                           mapping = ggplot2::aes_string(x = "x",
                                                         y = "y",
                                                         color = "mean_genes")),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(clrsp = pt_clrsp),
       labs_add_on
     )
 
@@ -203,42 +192,42 @@ plotSurface2 <- function(data,
                          pt_size = 2,
                          pt_alpha = 0.9,
                          pt_clrsp = "inferno",
-                         pt_clrsp_dir = 1,
+                         pt_clrp = "milo",
                          image = NULL){
 
-    # 1. Control --------------------------------------------------------------
+   # 1. Control --------------------------------------------------------------
+  confuns::is_value(color_to, "character", "color_to")
 
-    # check lazy
-    if(!base::is.character(color_to) |
-       !base::length(color_to) == 1 |
-       !color_to %in% base::colnames(data)){
+  # check lazy
+  if(!color_to %in% base::colnames(data)){
 
-      base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
-
-    }
-
-    check_pt(pt_size, pt_alpha, pt_clrsp)
-    check_coordinate_variables(data = data, x = "x", y = "y")
-
-    # -----
-
-    # 2. Plotting -------------------------------------------------------------
-
-    ggplot2::ggplot(data = data) +
-      hlpr_image_add_on(image) +
-      ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
-                                                 color = .data[[color_to]]),
-                          size = pt_size, alpha = pt_alpha) +
-      ggplot2::scale_color_viridis_c(option = pt_clrsp, direction = pt_clrsp_dir) +
-      ggplot2::theme_void() +
-      ggplot2::theme(
-        panel.grid = ggplot2::element_blank()
-      ) +
-      ggplot2::labs(x = NULL, y = NULL)
-
-    # -----
+    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
 
   }
+
+  check_pt(pt_size, pt_alpha, pt_clrsp)
+  check_coordinate_variables(data = data, x = "x", y = "y")
+
+  # -----
+
+  # 2. Plotting -------------------------------------------------------------
+
+
+  ggplot2::ggplot(data = data) +
+    hlpr_image_add_on(image) +
+    ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
+                                               color = .data[[color_to]]),
+                        size = pt_size, alpha = pt_alpha) +
+    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(data, {{color_to}})) +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = NULL, y = NULL)
+
+  # -----
+
+}
 
 
 #' @rdname plotSurface
@@ -464,7 +453,7 @@ plotSurfaceComparison <- function(object,
     hlpr_image_add_on2(object, display_image, of_sample) +
     ggplot2::geom_point(mapping = ggplot2::aes(color = values),
                         size = pt_size, alpha = pt_alpha) +
-    ggplot2::scale_color_viridis_c(option = pt_clrsp) +
+    confuns::scale_color_add_on(variable = shifted_data$values, clrsp = pt_clrsp) +
     ggplot2::theme_void() +
     ggplot2::facet_wrap(facets = ~ aspects, ...) +
     ggplot2::labs(color = "Expr.\nscore")
@@ -532,7 +521,7 @@ plotSurfaceComparison2 <- function(data,
       hlpr_image_add_on(image) +
       ggplot2::geom_point(mapping = ggplot2::aes(color = values),
                           size = pt_size, alpha = pt_alpha) +
-      ggplot2::scale_color_viridis_c(option = pt_clrsp) +
+      confuns::scale_color_add_on(variable = shifted_data$values, clrsp = pt_clrsp) +
       ggplot2::theme_void() +
       ggplot2::facet_wrap(facets = ~ aspects, ...) +
       ggplot2::labs(color = "Values")

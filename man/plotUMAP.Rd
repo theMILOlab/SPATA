@@ -13,6 +13,7 @@ plotUMAP(
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
+  pt_clrp = "milo",
   verbose = TRUE
 )
 
@@ -24,6 +25,7 @@ plotTSNE(
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
+  pt_clrp = "milo",
   verbose = TRUE
 )
 }
@@ -52,7 +54,10 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
+color is continuous. Run \code{all_colorspectra()} to see valid input..}
+
+\item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
+color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

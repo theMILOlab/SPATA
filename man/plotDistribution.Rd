@@ -13,6 +13,7 @@ plotDistribution(
   variables,
   method_gs = "mean",
   plot_type = "histogram",
+  clrp = "milo",
   binwidth = 0.05,
   ...,
   normalize = TRUE,
@@ -25,6 +26,7 @@ plotDistribution2(
   data,
   variables = "all",
   plot_type = "histogram",
+  clrp = "milo",
   binwidth = 0.05,
   ...
 )
@@ -37,6 +39,7 @@ plotDistributionAcross(
   method_gs = "mean",
   plot_type = "violin",
   binwidth = 0.05,
+  clrp = "milo",
   ...,
   normalize = TRUE,
   assign = FALSE,
@@ -50,6 +53,7 @@ plotDistributionAcross2(
   across,
   plot_type = "violin",
   binwidth = 0.05,
+  clrp = "milo",
   ...,
   normalize = TRUE,
   assign = FALSE,

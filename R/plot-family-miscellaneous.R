@@ -8,6 +8,7 @@ plotDimRed <- function(object,
                        pt_size = 2,
                        pt_alpha = 1,
                        pt_clrsp = "inferno",
+                       pt_clrp = "milo",
                        verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -47,24 +48,13 @@ plotDimRed <- function(object,
     # ensure bugless ggplot2::aes_string
     base::colnames(dimRed_df)[base::colnames(dimRed_df) == color_to] <- "feature"
 
-    # colour spectrum
-    if(base::is.numeric(dimRed_df$feature)){
-
-      scale_color_add_on <- ggplot2::scale_color_viridis_c(option = pt_clrsp)
-
-    } else {
-
-      scale_color_add_on <- NULL
-
-    }
-
     # assemble ggplot add on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
                                                         color = "feature")),
-      scale_color_add_on,
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(dimRed_df, color_to$features)),
       ggplot2::labs(color = color_to)
     )
 
@@ -87,7 +77,7 @@ plotDimRed <- function(object,
                           mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
                                                         color = "gene_set")),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to, " (", method_gs, ")", sep = ""))
     )
 
@@ -108,7 +98,7 @@ plotDimRed <- function(object,
                           mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
                                                         color = "mean_genes")),
-      ggplot2::scale_color_viridis_c(option = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       ggplot2::labs(color = "Mean expr.\nscore")
     )
 
@@ -182,6 +172,7 @@ plotUMAP <- function(object,
                      pt_size = 2,
                      pt_alpha = 1,
                      pt_clrsp = "inferno",
+                     pt_clrp = "milo",
                      verbose = TRUE){
 
   plotDimRed(object = object,
@@ -192,6 +183,7 @@ plotUMAP <- function(object,
              pt_size = pt_size,
              pt_alpha = pt_alpha,
              pt_clrsp = pt_clrsp,
+             pt_clrp = pt_clrp,
              verbose = verbose)
 
 }
@@ -206,6 +198,7 @@ plotTSNE <- function(object,
                      pt_size = 2,
                      pt_alpha = 1,
                      pt_clrsp = "inferno",
+                     pt_clrp = "milo",
                      verbose = TRUE){
 
   plotDimRed(object = object,
@@ -216,6 +209,7 @@ plotTSNE <- function(object,
              pt_size = pt_size,
              pt_alpha = pt_alpha,
              pt_clrsp = pt_clrsp,
+             pt_clrp = pt_clrp,
              verbose = verbose)
 
 }
@@ -264,6 +258,7 @@ plotFourStates <- function(object,
                            pt_size = 1.5,
                            pt_alpha = 0.9,
                            pt_clrsp = "inferno",
+                           pt_clrp = "milo",
                            display_labels = TRUE,
                            assign = FALSE,
                            assign_name,
@@ -289,7 +284,7 @@ plotFourStates <- function(object,
 
   }
 
-  all_genes <- getGenes(object)
+  all_genes <- getGenes(object, in_sample = of_sample)
   all_gene_sets <- getGeneSets(object)
   all_features <- getFeatureNames(object)
 
@@ -343,7 +338,6 @@ plotFourStates <- function(object,
         joinWithFeatures(object,
                          coords_df = data,
                          features = color_to$features,
-                         normalize = TRUE,
                          verbose = verbose)
 
     }
@@ -358,7 +352,7 @@ plotFourStates <- function(object,
               object = list("point" = data),
               name = assign_name)
 
-  plotFourStates(data = data,
+  plotFourStates2(data = data,
                  states = states,
                  color_to = base::unlist(color_to),
                  pt_size = pt_size,
@@ -379,6 +373,7 @@ plotFourStates2 <- function(data,
                             pt_size = 1.5,
                             pt_alpha = 0.9,
                             pt_clrsp = "inferno",
+                            pt_clrp = "milo",
                             display_labels = TRUE){
 
 
@@ -478,7 +473,7 @@ plotFourStates2 <- function(data,
 
   } else {
 
-    scale_color_add_on <- NULL
+    scale_color_add_on <- ggplot2::scale_color_manual(values = confuns::clrp_milo)
 
   }
 
@@ -493,7 +488,7 @@ plotFourStates2 <- function(data,
                         size = pt_size, alpha = pt_alpha, data = plot_df) +
     ggplot2::scale_x_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
     ggplot2::scale_y_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
-    scale_color_add_on +
+    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(plot_df, var = {{color_to}}))
     ggplot2::theme_bw() +
     ggplot2::theme(
       panel.grid.major = ggplot2::element_blank(),
@@ -539,6 +534,7 @@ plotFourStates2 <- function(data,
 #' @inherit verbose params
 #' @inherit normalize params
 #' @inherit check_assign params
+#' @inherit clrp params
 #'
 #' @export
 
@@ -547,6 +543,7 @@ plotDistribution <- function(object,
                              variables,
                              method_gs = "mean",
                              plot_type = "histogram",
+                             clrp = "milo",
                              binwidth = 0.05,
                              ... ,
                              normalize = TRUE,
@@ -574,6 +571,7 @@ plotDistribution <- function(object,
 
   validation(object)
   check_assign(assign, assign_name)
+  confuns::is_value(clrp, "character", "clrp")
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
@@ -675,7 +673,7 @@ plotDistribution <- function(object,
     display_add_on <-
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
-                                      color = "black", data = data),
+                                      color = "black", alpha = 0.825, data = data),
         ggridges::theme_ridges(),
         ggplot2::scale_fill_discrete(labels = base::rev(base::unique(variables))),
         ggplot2::labs(y = NULL)
@@ -722,6 +720,7 @@ plotDistribution <- function(object,
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
     facet_add_on +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(color = "black"),
       axis.text.x = ggplot2::element_text(color = "black"),
@@ -731,7 +730,7 @@ plotDistribution <- function(object,
       panel.spacing.y = ggplot2::unit(10, "pt"),
       legend.position = "none"
     ) +
-    ggplot2::labs(x = "Values")
+    ggplot2::labs(x = NULL)
 
 }
 
@@ -741,12 +740,15 @@ plotDistribution <- function(object,
 plotDistribution2 <- function(data,
                               variables = "all",
                               plot_type = "histogram",
+                              clrp = "milo",
                               binwidth = 0.05,
                               ... ){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
+  confuns::is_value(clrp, "character", "clrp")
+
   stopifnot(base::is.data.frame(data))
   if(!base::is.null(variables)){confuns::is_vec(variables, "character", "variables")}
 
@@ -826,7 +828,7 @@ plotDistribution2 <- function(data,
     display_add_on <-
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
-                                      color = "black", data = expr_data),
+                                      color = "black", alpha = 0.825, data = expr_data),
         #ggridges::theme_ridges(),
         ggplot2::labs(y = NULL)
       )
@@ -874,6 +876,7 @@ plotDistribution2 <- function(data,
     display_add_on +
     facet_add_on +
     theme_add_on +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(color = "black"),
       axis.text.x = ggplot2::element_text(color = "black"),
@@ -882,7 +885,8 @@ plotDistribution2 <- function(data,
       strip.background = ggplot2::element_rect(color = "white", fill = "white"),
       panel.spacing.y = ggplot2::unit(10, "pt"),
       legend.position = "none"
-    )
+    ) +
+    ggplot2::labs(x = NULL)
 
 }
 
@@ -895,6 +899,7 @@ plotDistributionAcross <- function(object,
                                    method_gs = "mean",
                                    plot_type = "violin",
                                    binwidth = 0.05,
+                                   clrp = "milo",
                                    ... ,
                                    normalize = TRUE,
                                    assign = FALSE,
@@ -911,6 +916,8 @@ plotDistributionAcross <- function(object,
 
   validation(object)
   check_assign(assign, assign_name)
+
+  confuns::is_value(clrp, "character", "clrp")
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
   across <- check_features(object, feature = across, valid_classes = c("character", "factor"), max_length = 1)
@@ -1010,7 +1017,7 @@ plotDistributionAcross <- function(object,
     display_add_on <-
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
-                              color = "black", data = data,alpha = 0.75),
+                              color = "black", data = data,alpha = 0.825),
         ggplot2::labs(y = "Density")
       )
 
@@ -1019,7 +1026,7 @@ plotDistributionAcross <- function(object,
     display_add_on <-
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = as.factor(!!rlang::sym(across)), fill = !!rlang::sym(across)),
-                                      color = "black", data = data, alpha = 0.75),
+                                      color = "black", data = data, alpha = 0.825),
         ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse = TRUE)),
         ggplot2::labs(y = across, x = NULL)
       )
@@ -1058,9 +1065,12 @@ plotDistributionAcross <- function(object,
   # -----
 
 
+  # 4. Plotting -------------------------------------------------------------
+
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
     facet_add_on +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(color = "black"),
@@ -1069,7 +1079,8 @@ plotDistributionAcross <- function(object,
       strip.placement = "outside",
       strip.background = ggplot2::element_rect(color = "white", fill = "white"),
       panel.spacing.y = ggplot2::unit(10, "pt")
-    )
+    ) +
+    ggplot2::labs(x = NULL)
 
 }
 
@@ -1081,6 +1092,7 @@ plotDistributionAcross2 <- function(data,
                                     across,
                                     plot_type = "violin",
                                     binwidth = 0.05,
+                                    clrp = "milo",
                                     ... ,
                                     normalize = TRUE,
                                     assign = FALSE,
@@ -1104,6 +1116,8 @@ plotDistributionAcross2 <- function(data,
 
   }
 
+
+  confuns::is_value(clrp, "character", "clrp")
 
   # check across input
   confuns::is_value(across, "character", "across")
@@ -1171,7 +1185,7 @@ plotDistributionAcross2 <- function(data,
     display_add_on <-
       list(
         ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = !!rlang::sym(across)),
-                              color = "black", data = data,alpha = 0.75),
+                              color = "black", data = data,alpha = 0.825),
         ggplot2::labs(y = "Density")
       )
 
@@ -1180,7 +1194,7 @@ plotDistributionAcross2 <- function(data,
     display_add_on <-
       list(
         ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = as.factor(!!rlang::sym(across)), fill = !!rlang::sym(across)),
-                                      color = "black", data = data, alpha = 0.75),
+                                      color = "black", data = data, alpha = 0.825),
         ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse = TRUE)),
         ggplot2::labs(y = across, x = NULL)
 
@@ -1219,9 +1233,12 @@ plotDistributionAcross2 <- function(data,
 
   # -----
 
+  # 4. Plotting -------------------------------------------------------------
+
   ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = values)) +
     display_add_on +
     facet_add_on +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(color = "black"),
@@ -1230,12 +1247,15 @@ plotDistributionAcross2 <- function(data,
       strip.placement = "outside",
       strip.background = ggplot2::element_rect(color = "white", fill = "white"),
       panel.spacing.y = ggplot2::unit(10, "pt")
-    )
+    ) +
+    ggplot2::labs(x = NULL)
 
 }
 
 
-#' Monocle3 Pseudotime
+#' @title Monocle3 Pseudotime
+#'
+#' @description A wrapper around \code{monocle3::plot_cells()}.
 #'
 #' @param object A valid spata-object.
 #' @param use_cds_file A directory leading to a .rds file containing a valid
@@ -1246,15 +1266,20 @@ plotDistributionAcross2 <- function(data,
 #' is going to be stored specified as a character value. Should end with .rds.
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
 #' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
-#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-#' already existing features of the same name!
+#' @param ... Additional arguments given to \code{monocle3::plot_cells()}.
 #' @param verbose Logical value. If set to TRUE informative messages with respect
 #' to the computational progress made will be printed.
 #'
 #' (Warning messages will always be printed.)
 #'
-#' @return Returns a list of two ggplot-objects that can be additionally customized according
+#' @return Returns a list of one or two ggplot-objects that can be additionally customized according
 #' to the rules of the ggplot2-framework.
+#'
+#' \itemize{
+#'  \item{\emph{"pseudotime"}: Monocle3-Umap colored by feature 'pseudotime'. }
+#'  \item{\emph{\code{color_to}}: Monocle3-Umap colored by input-character-value. (if specified)}
+#' }
+#'
 #' @export
 #'
 
@@ -1262,11 +1287,13 @@ plotPseudotime <- function(object,
                            use_cds_file = FALSE,
                            save_cds_file = FALSE,
                            preprocess_method = "PCA",
-                           cluster_method = c("leiden", "louvain"),
-                           color_to = "pseudotime",
+                           cluster_method = "leiden",
+                           color_to = NULL,
+                           ...,
                            verbose = TRUE){
 
   check_object(object)
+  if(!base::is.null(color_to)){confuns::is_value(color_to, "character", "color_to")}
 
   cds <-
     hlpr_compile_cds(object = object,
@@ -1278,24 +1305,20 @@ plotPseudotime <- function(object,
 
   plot_list <- list()
 
-  plot_list[[1]] <-
-    monocle3::plot_cells(cds = cds,
-                         color_cells_by = color_to,
-                         cell_size = 1,
-                         label_cell_groups = FALSE,
-                         label_leaves = F,
-                         label_branch_points = F,
-                         graph_label_size = 0)
-
-  plot_list[[2]] <-
+  plot_list[["pseudotime"]] <-
     monocle3::plot_cells(cds = cds,
                          color_cells_by = "pseudotime",
-                         cell_size = 1,
-                         label_cell_groups = F,
-                         label_leaves = F,
-                         label_branch_points = F,
-                         graph_label_size = 0)
+                         label_cell_groups = FALSE,
+                         label_groups_by_cluster = FALSE,
+                         label_branch_points = FALSE,
+                         ...)
 
+  if(base::is.null(color_to)){
+    plot_list[[color_to]] <-
+      monocle3::plot_cells(cds = cds,
+                           color_cells_by = color_to,
+                           ...)
+  }
 
   base::return(plot_list)
 

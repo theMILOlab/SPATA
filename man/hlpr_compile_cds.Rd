@@ -9,19 +9,19 @@ hlpr_compile_cds(
   use_cds_file = FALSE,
   save_cds_file = FALSE,
   preprocess_method = "PCA",
-  cluster_method = c("leiden", "louvain"),
+  cluster_method = "leiden",
   verbose = TRUE
 )
 }
 \arguments{
 \item{object}{A valid spata object.}
 
-\item{use_cds_file}{A directory leading to a .rds file containing a valid
+\item{use_cds_file}{A file-directory leading to a .rds file containing a valid
 cell_data_set-object previously calculated for the specified object. Specified
 as a character value. If set to FALSE the cell_data_set object will be created
 from scratch.}
 
-\item{save_cds_file}{A filename/directory (that does not already exists) under which the used or created cell_data_set-object
+\item{save_cds_file}{A file-directory (that does not already exists) under which the used or created cell_data_set-object
 is going to be stored specified as a character value. Should end with .rds.}
 
 \item{preprocess_method}{Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.}

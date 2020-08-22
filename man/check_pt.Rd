@@ -19,13 +19,13 @@ check_pt(
 \item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
+color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
 \item{pt_clrsp_dir}{The direction of the color spectrum specified as either \emph{1}
 or \emph{-1}.}
 
 \item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
-colro is categorical.}
+color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
 \item{pt_clr}{The base color of every point displayed in the plot.}
 }

@@ -16,6 +16,7 @@ plotSurface(
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
+  pt_clrp = "milo",
   display_image = FALSE,
   display_title = FALSE,
   assign = FALSE,
@@ -29,7 +30,7 @@ plotSurface2(
   pt_size = 2,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
-  pt_clrsp_dir = 1,
+  pt_clrp = "milo",
   image = NULL
 )
 
@@ -65,7 +66,10 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
-color is continuous. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
+color is continuous. Run \code{all_colorspectra()} to see valid input..}
+
+\item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
+color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
@@ -86,9 +90,6 @@ the computational progress will be printed.
 
 \item{data}{A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.}
 
-\item{pt_clrsp_dir}{The direction of the color spectrum specified as either \emph{1}
-or \emph{-1}.}
-
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
 }
@@ -98,7 +99,7 @@ expression of genes and gene sets or other featured characteristics.
 
 \itemize{
  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
- necessary data.frame from scratch according to additional paramters.}
+ necessary data.frame from scratch according to additional parameters.}
  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
  application which allows for interactive plotting.}

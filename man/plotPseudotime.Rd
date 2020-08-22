@@ -9,8 +9,9 @@ plotPseudotime(
   use_cds_file = FALSE,
   save_cds_file = FALSE,
   preprocess_method = "PCA",
-  cluster_method = c("leiden", "louvain"),
-  color_to = "pseudotime",
+  cluster_method = "leiden",
+  color_to = NULL,
+  ...,
   verbose = TRUE
 )
 }
@@ -29,18 +30,22 @@ is going to be stored specified as a character value. Should end with .rds.}
 
 \item{cluster_method}{Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.}
 
+\item{...}{Additional arguments given to \code{monocle3::plot_cells()}.}
+
 \item{verbose}{Logical value. If set to TRUE informative messages with respect
 to the computational progress made will be printed.
 
 (Warning messages will always be printed.)}
-
-\item{feature_name}{The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-already existing features of the same name!}
 }
 \value{
-Returns a list of two ggplot-objects that can be additionally customized according
+Returns a list of one or two ggplot-objects that can be additionally customized according
 to the rules of the ggplot2-framework.
+
+\itemize{
+ \item{\emph{"pseudotime"}: Monocle3-Umap colored by feature 'pseudotime'. }
+ \item{\emph{\code{color_to}}: Monocle3-Umap colored by input-character-value. (if specified)}
+}
 }
 \description{
-Monocle3 Pseudotime
+A wrapper around \code{monocle3::plot_cells()}.
 }

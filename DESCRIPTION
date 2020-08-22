@@ -28,7 +28,10 @@ Imports:
     umap,
     tidyr,
     tibble,
-    progress
+    progress,
+    colorspace,
+    GSVA,
+    Seurat
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
@@ -45,6 +48,7 @@ Collate:
     'genes-and-gene-sets.R'
     'get-family.R'
     'helper-functions.R'
+    'imported-functions.R'
     'intern-analysis.R'
     'joinWith-family.R'
     'loading-and-saving.R'

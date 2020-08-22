@@ -12,7 +12,9 @@ plot_igraph_heatmap(cor.mtr, num.nn, color.nn)
 \arguments{
 \item{cor.mtr}{A correlation matrix.}
 
-\item{num.nn}{Numeric value.}
+\item{num.nn}{Numeric value. The maximum number of nearest neighbours to compute.
+The default value is set to the smaller of the number of columnns in data. Given
+to \code{RANN::nn2()} as input for argument \code{k}.}
 
 \item{color.nn}{Numeric value.}
 }
