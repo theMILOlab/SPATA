@@ -421,7 +421,7 @@ check_sample <- function(object,
 
   confuns::is_vec(of_sample, "character", "of_sample")
 
-  if(of_sample == ""){
+  if(of_sample == "" & base::length(samples(object)) > 1){
 
     of_sample <- samples(object)[1]
     base::message(glue::glue("No sample specified. Defaulting back to first sample: '{of_sample}'."))

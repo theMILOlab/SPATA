@@ -253,7 +253,7 @@ plotFourStates <- function(object,
                            of_sample = "",
                            states,
                            color_to = NULL,
-                           method_gs = "gsva",
+                           method_gs = "mean",
                            average_genes = FALSE,
                            pt_size = 1.5,
                            pt_alpha = 0.9,
@@ -272,6 +272,7 @@ plotFourStates <- function(object,
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
   check_assign(assign, assign_name)
+  check_method(method_gs = method_gs)
 
   # adjusting check
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
@@ -354,10 +355,11 @@ plotFourStates <- function(object,
 
   plotFourStates2(data = data,
                  states = states,
-                 color_to = base::unlist(color_to),
+                 color_to = base::unlist(color_to, use.names = FALSE),
                  pt_size = pt_size,
                  pt_alpha = pt_alpha,
                  pt_clrsp = pt_clrsp,
+                 pt_clrp = pt_clrp,
                  display_labels = display_labels)
 
   # -----
@@ -466,14 +468,13 @@ plotFourStates2 <- function(data,
   ylab <- base::bquote(paste("log2(GSV-Score "[.(states[2])]*" - GSV-Score "[.(states[1])]*")"))
 
 
-  # scale color add-on
-  if(!is.null(color_to) && base::is.numeric(dplyr::pull(plot_df, var = {{color_to}}))){
+  if(!base::is.null(color_to)){
 
-    scale_color_add_on <- ggplot2::scale_colour_viridis_c(option = pt_clrsp)
+    variable <- dplyr::pull(plot_df, var = {{color_to}})
 
   } else {
 
-    scale_color_add_on <- ggplot2::scale_color_manual(values = confuns::clrp_milo)
+    variable <- "discrete"
 
   }
 
@@ -481,14 +482,14 @@ plotFourStates2 <- function(data,
 
   max <- base::max(plot_df$pos_x, plot_df$pos_y)
 
-  ggplot2::ggplot() +
+  ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +
     ggplot2::geom_hline(yintercept = 0,  linetype = "dashed", color = "lightgrey") +
     ggplot2::geom_point(mapping = ggplot2::aes_string(x = "pos_x", y = "pos_y", color = color_to),
                         size = pt_size, alpha = pt_alpha, data = plot_df) +
     ggplot2::scale_x_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
     ggplot2::scale_y_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
-    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(plot_df, var = {{color_to}}))
+    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = variable) +
     ggplot2::theme_bw() +
     ggplot2::theme(
       panel.grid.major = ggplot2::element_blank(),

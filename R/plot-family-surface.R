@@ -33,6 +33,7 @@ plotSurface <- function(object,
                         of_sample = "",
                         color_to = NULL,
                         method_gs = "mean",
+                        nornalize = TRUE,
                         smooth = FALSE,
                         smooth_span = 0.02,
                         pt_size = 2,
@@ -92,6 +93,7 @@ plotSurface <- function(object,
                                   features = color_to$features,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
+                                  normalize = normalize,
                                   verbose = verbose)
 
     labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
@@ -115,6 +117,7 @@ plotSurface <- function(object,
                                   method_gs = method_gs,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
+                                  normalize = normalize,
                                   verbose = verbose)
 
     labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets, input_str = "Gene set:",
@@ -137,6 +140,7 @@ plotSurface <- function(object,
                                average_genes = TRUE,
                                smooth = smooth,
                                smooth_span = smooth_span,
+                               normalize = normalize,
                                verbose = verbose)
 
     color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
@@ -356,6 +360,7 @@ plotSurfaceComparison <- function(object,
                                   of_sample = "",
                                   variables,
                                   method_gs = "mean",
+                                  normalize = TRUE,
                                   smooth = FALSE,
                                   smooth_span = 0.02,
                                   pt_size = 2,
@@ -405,6 +410,7 @@ plotSurfaceComparison <- function(object,
                              method_gs = method_gs,
                              smooth = smooth,
                              smooth_span = smooth_span,
+                             normalize = normalize,
                              verbose = verbose)
 
   }
@@ -417,6 +423,7 @@ plotSurfaceComparison <- function(object,
                           average_genes = FALSE,
                           smooth = smooth,
                           smooth_span = smooth_span,
+                          normalize = normalize,
                           verbose = verbose)
 
   }
@@ -428,6 +435,7 @@ plotSurfaceComparison <- function(object,
                              features = variables$features,
                              smooth = smooth,
                              smooth_span = smooth_span,
+                             normalize = normalize,
                              verbose = verbose)
 
   }
