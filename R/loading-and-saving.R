@@ -1,3 +1,9 @@
+#' @include S4-documentation.R
+#'
+NULL
+
+
+
 #' @title Initiate a spata-object
 #'
 #' @description Creates, saves and returns an object of class spata
@@ -338,7 +344,7 @@ initiateSpataObject_10X <- function(input_paths,
 
   if(base::isTRUE(verbose)){
 
-    base::message(glue::glue("SPATA-object has been saved under '{object_file}'."))
+    base::message(glue::glue("The spata-object has been saved under '{object_file}'."))
 
   }
 

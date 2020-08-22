@@ -80,6 +80,7 @@ addGeneSet <- function(object,
 }
 
 #' @rdname addGeneSet
+#' @export
 addGeneSetsInteractive <- function(object){
 
   check_object(object)
