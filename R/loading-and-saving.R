@@ -263,46 +263,6 @@ initiateSpataObject_10X <- function(input_paths,
     dplyr::select(.data = mdata, barcodes, sample, dplyr::everything(), -orig.ident) %>%
     dplyr::mutate(segment = "")
 
-
-  #####----- st_lab classes
-  data_counts <- setClass("data_counts", slots = c(counts = "Matrix",
-                                                   norm_exp  = "matrix"))
-
-
-  dim_red <- setClass("dim_red", slots = c(UMAP =  "data.frame",
-                                           TSNE ="data.frame"))
-
-
-  scvelo <- setClass("scvelo", slots = c(scvelo = "data.frame",
-                                         scvelo1 ="data.frame"))
-
-
-  #####----- spatial trajectory class
-
-  spatialTrajectory <- setClass("spatialTrajectory",
-                                slots = c(
-                                  compiled_trajectory_df = "data.frame",
-                                  segment_trajectory_df = "data.frame",
-                                  comment = "character",
-                                  name = "character",
-                                  sample = "character"
-                                ))
-
-
-  #####----- spata class
-
-  spata <- setClass("spata", slots = c(coordinates ="data.frame", #coordinates: bc, x, y, sample
-                                       fdata = "data.frame", #fdata : bc, ...
-                                       samples = "character",
-                                       data = "data_counts" ,
-                                       image = "list",
-                                       description = "character",
-                                       dim_red = "dim_red", #UMAP & TSNE: bc, umap1, umap2, sample
-                                       scvelo = "scvelo",
-                                       used_genesets = "data.frame",
-                                       trajectories = "list"
-  ))
-
   count_matrix <- test@assays$RNA@counts
   count_mtr <- count_matrix[base::rowSums(base::as.matrix(count_matrix)) != 0, ]
 
