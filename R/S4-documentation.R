@@ -11,7 +11,7 @@
 #'
 
 data_counts <- setClass("data_counts",
-                        slots = c(counts = "matrix",
+                        slots = c(counts = "Matrix",
                                   norm_exp  = "matrix"))
 
 
