@@ -45,15 +45,12 @@ plotDimRed <- function(object,
                                   smooth = FALSE,
                                   verbose = verbose)
 
-    # ensure bugless ggplot2::aes_string
-    base::colnames(dimRed_df)[base::colnames(dimRed_df) == color_to] <- "feature"
-
     # assemble ggplot add on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
-                                                        color = "feature")),
+                                                        color = color_to$features)),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(dimRed_df, color_to$features)),
       ggplot2::labs(color = color_to)
     )
@@ -68,15 +65,12 @@ plotDimRed <- function(object,
                                   smooth = FALSE,
                                   verbose = verbose)
 
-    # ensure bugless ggplot2::aes_string
-    base::colnames(dimRed_df)[base::colnames(dimRed_df) == color_to] <- "gene_set"
-
     # assemble ggplot add-on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
-                                                        color = "gene_set")),
+                                                        color = color_to$gene_sets)),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to, " (", method_gs, ")", sep = ""))
     )
@@ -1309,6 +1303,8 @@ plotPseudotime <- function(object,
                          label_cell_groups = FALSE,
                          label_groups_by_cluster = FALSE,
                          label_branch_points = FALSE,
+                         label_leaves = FALSE,
+                         graph_label_size = 0,
                          ...)
 
   if(base::is.null(color_to)){

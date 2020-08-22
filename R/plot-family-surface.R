@@ -93,7 +93,6 @@ plotSurface <- function(object,
                                   features = color_to$features,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
-                                  normalize = normalize,
                                   verbose = verbose)
 
     labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
@@ -435,7 +434,6 @@ plotSurfaceComparison <- function(object,
                              features = variables$features,
                              smooth = smooth,
                              smooth_span = smooth_span,
-                             normalize = normalize,
                              verbose = verbose)
 
   }
@@ -443,10 +441,14 @@ plotSurfaceComparison <- function(object,
   # -----
 
   # adjust data.frame for use of ggplot2::facets
+
+  variables <- base::unname(base::unlist(variables))
+  nv <- base::length(variables)
+
   shifted_data <-
     tidyr::pivot_longer(
       data = data,
-      cols = dplyr::all_of(base::unname(base::unlist(variables))),
+      cols = dplyr::all_of(variables),
       names_to = "aspects",
       values_to = "values"
     )
@@ -456,6 +458,8 @@ plotSurfaceComparison <- function(object,
   hlpr_assign(assign = assign,
               object = list("point" = shifted_data),
               name = assign_name)
+
+  if(base::isTRUE(verbose)){base::message("Plotting {nv} different variables. (This can take a few seconds.)")}
 
   ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on2(object, display_image, of_sample) +
@@ -514,6 +518,8 @@ plotSurfaceComparison2 <- function(data,
 
     # -----
 
+    nv <- base::length(valid_variables)
+
     # adjust data.frame for use of ggplot2::facets
     shifted_data <-
       tidyr::pivot_longer(
@@ -524,6 +530,8 @@ plotSurfaceComparison2 <- function(data,
       )
 
     # plotting
+
+    if(base::isTRUE(verbose)){base::message("Plotting {nv} different variables. (This can take a few seconds.)")}
 
     ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
       hlpr_image_add_on(image) +

@@ -167,7 +167,7 @@ hlpr_compile_cds <- function(object,
     cds <- monocle3::preprocess_cds(cds, method = preprocess_method, num_dim = 30)
 
     if(base::isTRUE(verbose)){base::message("Step 4/7 Reducing dimensions.")}
-    cds <- monocle3::reduce_dimension(cds, cores = 4)
+    cds <- monocle3::reduce_dimension(cds, cores = 2)
 
     if(base::isTRUE(verbose)){base::message("Step 5/7 Clustering cells.")}
     cds <- monocle3::cluster_cells(cds, cluster_method = cluster_method)
@@ -753,7 +753,7 @@ hlpr_summarize_trajectory_df <- function(object,
   variables <- check_variables(variables = variables,
                                all_features = getFeatureNames(object, c("numeric", "integer")),
                                all_gene_sets = getGeneSets(object),
-                               all_genes = getGenes(object, in_sample = of_sample),
+                               all_genes = getGenes(object),
                                max_slots = 3,
                                max_length = Inf)
 
