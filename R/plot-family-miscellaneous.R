@@ -234,16 +234,13 @@ plotTSNE <- function(object,
 #'
 #' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 #' Whereby the states-variables contain the respective expression values of the specified
-#' gene sets. See 'See also' for how to easily obtain these data.frames.
+#' gene sets.
 #' @param states The gene sets defining the four states specified as a character vector
 #' of length 4.
 #' @inherit check_color_to params
 #' @inherit check_pt params
 #' @inherit check_display params
 #' @inherit verbose params
-#'
-#' @seealso Combine \code{coordsSpatial()} and \code{joinWithGeneSets()} to obtain
-#' a valid input data.frame for \code{data}.
 #'
 #' @inherit plot_family return
 #'

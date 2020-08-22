@@ -10,7 +10,7 @@ plotFourStates(
   of_sample = "",
   states,
   color_to = NULL,
-  method_gs = "gsva",
+  method_gs = "mean",
   average_genes = FALSE,
   pt_size = 1.5,
   pt_alpha = 0.9,
@@ -63,7 +63,7 @@ the computational progress will be printed.
 
 \item{data}{A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 Whereby the states-variables contain the respective expression values of the specified
-gene sets. See 'See also' for how to easily obtain these data.frames.}
+gene sets.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according
@@ -79,8 +79,4 @@ x- and y- coordinates in the state plot. (See details.)
  the necessary data.frame from scratch according to additional parameters.}
  \item{ \code{plotFourStates2()} Takes a data.frame as input.}
  }
-}
-\seealso{
-Combine \code{coordsSpatial()} and \code{joinWithGeneSets()} to obtain
-a valid input data.frame for \code{data}.
 }

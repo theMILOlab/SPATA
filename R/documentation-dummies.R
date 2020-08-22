@@ -68,3 +68,10 @@ variable <- function(variable){}
 
 clrp <- function(clrp){}
 
+
+#' @title getC_joinW_combo
+#' @seealso Combine \code{getCoordinates()} and \code{joinWithGeneSets()} to obtain
+#' a valid input data.frame for \code{data}.
+#'
+getC_joinW_combo <- function(){}
+

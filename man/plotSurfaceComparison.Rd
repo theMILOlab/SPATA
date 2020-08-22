@@ -10,6 +10,7 @@ plotSurfaceComparison(
   of_sample = "",
   variables,
   method_gs = "mean",
+  normalize = TRUE,
   smooth = FALSE,
   smooth_span = 0.02,
   pt_size = 2,
