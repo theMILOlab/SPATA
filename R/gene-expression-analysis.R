@@ -64,6 +64,12 @@ findDE <- function(object,
     fdata <- dplyr::filter(fdata, !!rlang::sym(across) %in% {{ across_subset }})
     groups <- dplyr::pull(.data = fdata, var = {{ across }})
 
+    if(!base::is.factor(groups)){
+
+      groups <- base::as.factor(groups)
+
+    }
+
   }
 
   num_groups <- base::length(base::levels(groups))
@@ -74,7 +80,7 @@ findDE <- function(object,
 
   } else if(!num_groups > 1){
 
-    base::stopp(glue::glue("There is only one unique group in the object's '{across}'-variable. findDE() needs a minimum of two different groups."))
+    base::stop(glue::glue("There is only one unique group in the object's '{across}'-variable. findDE() needs a minimum of two different groups."))
 
   } else {
 
@@ -120,8 +126,7 @@ findDE <- function(object,
 #' the character variables \emph{cluster, gene}.
 #' @param max_FC Numeric value. Denotes the number of genes to keep per \emph{cluster}-group. See details.
 #' @param min_pvalue Numeric value. Affects the number of genes kept per \emph{cluster}-group. See details.
-#' @param across_subset Character vector or NULL. The clusters you are interested in. If set to NULL all clusters
-#' are chosen.
+#' @inherit across params
 #' @param genes_only Logical. If set to TRUE the resulting gene-variable is returned as a character vector.
 #'
 #' @return A filtered data.frame or a character vector of gene names.
@@ -167,6 +172,10 @@ filterDE <- function(data,
         ref.input = " input 'across_subset'",
         ref.against = "variable 'clusters' of input 'data'"
       )
+
+  } else if(base::is.null(across_subset)){
+
+    across_subset <- base::unique(data$cluster)
 
   }
 
