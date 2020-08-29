@@ -70,7 +70,7 @@ findDE <- function(object,
 
   if(num_groups >= 20){
 
-    base::stopp(glue::glue("The number of different groups is to high for DE-analysis. Is currently {num_groups}. Must be lower than 20. "))
+    base::stop(glue::glue("The number of different groups is to high for DE-analysis. Is currently {num_groups}. Must be lower than 20. "))
 
   } else if(!num_groups > 1){
 
