@@ -12,3 +12,6 @@ markdown
 markdown/spata-introduction.html
 markdown/spata-introduction.Rmd
 other
+docs
+vignettes
+SPATA_home.svg

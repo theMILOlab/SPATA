@@ -8,7 +8,8 @@ check_method(
   method_dr = NULL,
   method_gs = NULL,
   method_de = NULL,
-  method_padj = NULL
+  method_padj = NULL,
+  method_ovl = NULL
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{method_padj}{Character value. The method according to which the adjusted p-values will
 be calculated. Given to \code{stats::p.adjust()}.}
+
+\item{method_ovl}{Character value. One of \emph{'classic', 'bayesian'}. Decides
+according to which method the spatial overlap is calculated.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

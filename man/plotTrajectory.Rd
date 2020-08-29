@@ -57,10 +57,10 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{pt_clr}{The base color of every point displayed in the plot.}
 
-\item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
+\item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
-\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
+\item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
 \item{sgmt_size}{The size of the segment arrrow specified as a numeric value.}

@@ -37,6 +37,8 @@ adjustGeneSetDf <- function(object, limit = 50){
 
   # 2. Cleaning -------------------------------------------------------------
 
+  base::message(glue::glue("Calculating percentage of genes found in expression matrix for {dplyr::n_distinct(object@used_genesets$ont)} gene sets."))
+
   all_genes <- getGenes(object, simplify = TRUE, in_sample = "all")
 
   filtered_df <-

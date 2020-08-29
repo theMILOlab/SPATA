@@ -377,6 +377,7 @@ createTrajectories <- function(object){
 
           current <- shiny::reactiveVal(value = list())
 
+          # -----
 
           # Modularized plot surface part -------------------------------------------
 
@@ -449,8 +450,8 @@ createTrajectories <- function(object){
 
               add_on_layer <-
                 list(
-                  ggplot2::geom_point(data = module_return()$smoothed_df(), size = size,
-                                      mapping = ggplot2::aes(x = x, y = y), color = "lightgrey"),
+                  #ggplot2::geom_point(data = module_return()$smoothed_df(), size = size,
+                  #                    mapping = ggplot2::aes(x = x, y = y), alpha = current()$pt_alpha, color = "lightgrey"),
                   ggplot2::geom_point(data = joined_traj_df, size = size,
                                       mapping = ggplot2::aes(x = x, y = y, color = color_var))
                 )
@@ -464,6 +465,8 @@ createTrajectories <- function(object){
             return(add_on_layer)
 
           })
+
+          # -----
 
 
           # Observe events and reactive events --------------------------------------

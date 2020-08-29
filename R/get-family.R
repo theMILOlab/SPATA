@@ -599,7 +599,8 @@ getFeatureVariables <- function(object,
 #' @export
 
 getSegmentNames <- function(object,
-                            of_sample = ""){
+                            of_sample = "",
+                            simplify = TRUE){
 
   # lazy check
   check_object(object)
@@ -633,7 +634,17 @@ getSegmentNames <- function(object,
 
   res_list <- purrr::discard(.x = res_list, .p = base::is.null)
 
-  base::return(res_list)
+
+  if(base::isTRUE(simplify)){
+
+    base::unlist(res_list, use.names = FALSE) %>%
+      base::return()
+
+  } else {
+
+    base::return(res_list)
+
+  }
 
 
 }

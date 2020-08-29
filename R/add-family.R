@@ -79,6 +79,7 @@ addGeneSet <- function(object,
 
 }
 
+
 #' @rdname addGeneSet
 #' @export
 addGeneSetsInteractive <- function(object){
@@ -146,9 +147,8 @@ discardGeneSets <- function(object, gs_names){
 }
 
 
-
-
 # -----
+
 # Feature related ---------------------------------------------------------
 
 

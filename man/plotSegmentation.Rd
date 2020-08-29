@@ -4,7 +4,7 @@
 \alias{plotSegmentation}
 \title{Plot segmentation}
 \usage{
-plotSegmentation(object, of_sample = "", pt_size = 2)
+plotSegmentation(object, of_sample = "", pt_size = 2, pt_clrp = "milo")
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -13,6 +13,9 @@ plotSegmentation(object, of_sample = "", pt_size = 2)
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{pt_size}{The size of the points specified as a single numeric value.}
+
+\item{pt_clrp}{The color panel to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

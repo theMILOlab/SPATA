@@ -50,10 +50,10 @@ of length 4.}
 
 \item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
-\item{pt_clrsp}{The color spectrum to be used if the specified variable that is displayed by
+\item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
-\item{pt_clrp}{The color panel to be used if the specified variable that is displayed by
+\item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding

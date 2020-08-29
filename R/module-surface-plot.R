@@ -110,6 +110,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         method_gs = character(),
         genes = character(),
         feature = character(),
+        clrp = character(),
         clrsp = character(),
         smooth = logical(),
         span = numeric()
@@ -122,6 +123,8 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
       all_features <- getFeatureNames(object) %>% base::unname()
       all_gene_sets <- getGeneSets(object = object)
       all_genes <- getGenes(object = object, in_sample = "all")
+
+      # -----
 
       # Render UIs and Outputs --------------------------------------------------
 
@@ -256,6 +259,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       })
 
+      # -----
 
       # Plot add-ons ------------------------------------------------------------
 
@@ -636,26 +640,21 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
           } else {
 
-            segm_data <-
-              coordinates(object = object, of_sample = current$sample) %>%
-              dplyr::left_join(y = segmentation_df(), by = "barcodes")
-
             segm_layer <-
               list(
-                ggplot2::geom_point(data = segm_data,
-                                    mapping = ggplot2::aes(x = x, y = y, fill = segment),
-                                    size = shiny::isolate(input$pt_size),
-                                    shape = 21,
-                                    color = ggplot2::alpha("white", 0.01)
-                ),
-                ggsci::scale_fill_igv()
+                ggforce::geom_mark_hull(data = segmentation_df(),
+                                       mapping = ggplot2::aes(x = x, y = y, fill = segment)),
+                confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = current$clrp)
+
               )
+
+            base::return(segm_layer)
 
           }
 
         } else {
 
-          return(list())
+          base::return(list())
 
         }
 
@@ -663,15 +662,17 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       segmentation_df <- reactive({
 
-        segm_df <-
-          featureData(object = reactive_object()) %>%
-          dplyr::filter(segment != "") %>%
-          dplyr::select(barcodes, segment)
+        segm_df <- joinWith(reactive_object(),
+                            getCoordinates(reactive_object(), current$sample),
+                            features = "segment",
+                            verbose = FALSE) %>%
+          dplyr::filter(segment != "")
 
         return(segm_df)
 
       })
 
+      # -----
 
       # Assembled plot ----------------------------------------------------------
 
@@ -691,6 +692,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       })
 
+      # -----
 
       # Observe events ----------------------------------------------------------
 
@@ -718,6 +720,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
         current$size = input$pt_size
         current$clrsp = input$clrsp
         current$clrp = input$clrp
+        current$pt_alpha = input$pt_alpha
         current$smooth = input$perform_smoothing
         current$span = input$span_smoothing
         current$normalize = input$perform_normalization
@@ -729,6 +732,7 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       })
 
+      # -----
 
       # Return values -----------------------------------------------------------
 
@@ -747,7 +751,8 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
 
       base::return(return_list)
 
-    })
+      # -----
 
+    })
 
 }

@@ -1333,7 +1333,8 @@ plotPseudotime <- function(object,
 
 plotSegmentation <- function(object,
                              of_sample = "",
-                             pt_size = 2){
+                             pt_size = 2,
+                             pt_clrp = "milo"){
 
   # control
   check_object(object)
@@ -1353,11 +1354,178 @@ plotSegmentation <- function(object,
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
+    ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
+    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
     ggplot2::theme_void() +
-    ggplot2::labs(color = "Segments") +
-    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5)))
+    ggplot2::labs(fill = "Segments")
 
 }
 
 
 
+
+
+# -----
+
+
+# Differential gene expression --------------------------------------------
+
+
+#' @title Plot differentially expressed genes
+#'
+#' @description Takes the results from your differentially gene expression analysis
+#' and uses the expression information of your spata-object to plot a heatmap displaying
+#' the differentially expressed genes of every cluster.
+#'
+#' @inherit check_sampel params
+#' @param data A data.frame containing at least the character or factor variables
+#'  \emph{cluster} and \emph{gene}.
+#' @inherit across params
+#' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
+#' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
+#' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
+#' @inherit verbose params
+#' @param hm_colors A vector of colors to be used by the heatmap.
+#' @param ... Additional parameters given to \code{pheatmap::pheatmap}.
+#'
+#' @return A heatmap of type "pheatmap".
+#' @export
+#'
+
+plotHeatmapDE <- function(object,
+                          of_sample = "",
+                          data,
+                          across,
+                          across_subset = NULL,
+                          n_barcode_spots = 100,
+                          verbose = TRUE,
+                          hm_colors = viridis::viridis(15),
+                          ...){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  #lazy check
+  check_object(object)
+
+  confuns::check_data_frame(
+    df = data,
+    var.class = list(
+      cluster = c("character", "factor"),
+      gene = "character"
+    ),
+    ref = "data"
+  )
+
+
+  # adjusting check
+
+  if(base::is.factor(data$cluster)){
+
+    data$cluster <- S4Vectors::unfactor(data$cluster)
+
+  }
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+
+  # make sure that the cluster variable of 'data' derived from the specified object and is congruent
+  # with the input for 'across' by comparing the unique values of data and object-feature
+
+  object_values <-
+    getFeatureVariables(object, features = across, of_sample = of_sample, return = "vector", unique = TRUE) %>%
+    base::as.vector()
+
+  cluster_values <- base::unique(data$cluster)
+
+  if(!base::any(cluster_values %in% object_values)){
+
+    base::stop(glue::glue("Could not find any clusters of 'data' in the '{across}'-variable of the specified object. Did you confuse any DE-data.frames, samples or spata-objects?"))
+
+  } else if(!base::all(cluster_values %in% object_values)){
+
+    not_found <-
+      cluster_values[!cluster_values %in% object_values] %>%
+      stringr::str_c(collapse = "', '")
+
+    base::warning(glue::glue("Did not find clusters '{not_found}' of input 'data' in the specified spata-object. Did you confuse any DE-data.frames, samples or spata-objects?"))
+
+    data <- dplyr::filter(.data = data, cluster %in% {{ object_values }})
+
+  }
+
+
+  if(!base::is.null(across_subset)){
+
+    confuns::is_vec(across_subset, "character", "across_subset")
+
+    ref.against <-
+      glue::glue("'{across}'-variable of the specified spata-object") %>%
+      base::as.character()
+
+    across_subset <-
+      confuns::check_vector(input = across_subset,
+                            against = object_values,
+                            verbose = TRUE,
+                            ref.input = "'across_subset'",
+                            ref.against = ref.against) %>%
+      base::as.character()
+
+  } else if(base::is.null(across_subset)){
+
+    across_subset <- object_values
+
+  }
+
+
+  # ------
+
+
+  # 2. Pipeline -------------------------------------------------------------
+
+  genes <- dplyr::pull(data, gene)
+
+  barcodes_df <-
+    joinWithFeatures(object, getCoordinates(object, of_sample), features = across, verbose = FALSE) %>%
+    dplyr::filter(!!rlang::sym(across) %in% {{across_subset}}) %>%
+    dplyr::group_by(!!rlang::sym(across)) %>%
+    dplyr::slice_sample(n = n_barcode_spots)
+
+  # heatmap gaps
+  gaps_row <-
+    dplyr::group_by(data, cluster) %>%
+    dplyr::summarise(count = dplyr::n()) %>%
+    dplyr::mutate(positions = base::cumsum(count)) %>%
+    dplyr::pull(positions) %>%
+    base::as.numeric()
+
+  gaps_col <-
+    dplyr::group_by(barcodes_df, !!rlang::sym(across)) %>%
+    dplyr::summarise(count = dplyr::n()) %>%
+    dplyr::mutate(positions = base::cumsum(count)) %>%
+    dplyr::pull(positions) %>%
+    base::as.numeric()
+
+  # heatmap annotation
+  annotation_col <-
+    dplyr::select(.data = barcodes_df, !!rlang::sym(across)) %>%
+    base::as.data.frame()
+
+  base::rownames(annotation_col) <- dplyr::pull(barcodes_df, barcodes)
+
+  # -----
+
+  pheatmap::pheatmap(mat = getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes],
+                     scale = "row",
+                     annotation_col = annotation_col,
+                     cluster_cols = FALSE,
+                     cluster_rows = FALSE,
+                     show_colnames = FALSE,
+                     color = hm_colors,
+                     gaps_row = gaps_row[1:(base::length(gaps_row)-1)],
+                     gaps_col = gaps_col[1:(base::length(gaps_col)-1)],
+                     ...)
+
+}

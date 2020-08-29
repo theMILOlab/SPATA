@@ -75,3 +75,20 @@ clrp <- function(clrp){}
 #'
 getC_joinW_combo <- function(){}
 
+
+#' @title across
+#' @param across Character value. The name of the discrete feature-variable of interest.
+#'
+#' Hint: Character or factor are discrete variables. These functionally assign the barcode spots to distinct
+#' groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
+#' to compare against each other. Use \code{getFeatureNames()} to get an overview of the
+#' features variables your spata-object contains.
+#'
+#' @param across_subset Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
+#' specified in argument \code{across} contains. If set to NULL all of them are chosen.
+#'
+#' Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+#' feature-variable.
+#'
+
+across <- function(across, across_subset){}

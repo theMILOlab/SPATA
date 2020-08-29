@@ -59,8 +59,8 @@ initiateSpataObject_10X <- function(input_paths,
   confuns::is_value(output_path, "character", ref = "output_path")
   confuns::is_value(object_name, "character", ref = "object_name")
 
-  confuns::check_directories(directories = input_paths, ref = "input_paths", type = "files")
-  confuns::check_directories(directories = output_path, ref = "output_path", type = "files")
+  confuns::check_directories(directories = input_paths, ref = "input_paths", type = "folders")
+  confuns::check_directories(directories = output_path, ref = "output_path", type = "folders")
 
   object_file <- base::paste0(output_path, "/spata-obj-", object_name, ".RDS")
 
@@ -182,10 +182,10 @@ initiateSpataObject_10X <- function(input_paths,
                .f = function(so){
 
                  image <-
-                   EBImage::Image(so@images$slice1[1]@image) %>%
+                   EBImage::Image(so@images$slice1[1]@image, colormode = "Color") %>%
                    EBImage::transpose()
 
-                 base::return(image[,,1])
+                 base::return(image)
 
                })
 

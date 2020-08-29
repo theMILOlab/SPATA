@@ -265,14 +265,16 @@ check_feature_df <- function(feature_name,
 #' @param method_padj Character value. The method according to which the adjusted p-values will
 #' be calculated. Given to \code{stats::p.adjust()}.
 #' @param method_de Character value. Given to argument \code{test.use} of \code{Seurat::FindAllMarkers()}.
-#'
+#' @param method_ovl Character value. One of \emph{'classic', 'bayesian'}. Decides
+#' according to which method the spatial overlap is calculated.
 #' @inherit lazy_check_dummy description details return
 #' @export
 
 check_method <- function(method_dr = NULL,
                          method_gs = NULL,
                          method_de = NULL,
-                         method_padj = NULL){
+                         method_padj = NULL,
+                         method_ovl = NULL){
 
   # dimensional reduction methods -------------------------------------------
 
@@ -348,6 +350,22 @@ check_method <- function(method_dr = NULL,
 
   # -----
 
+  # find overlap methods ----------------------------------------------------
+
+  if(!base::is.null(method_ovl)){
+
+    if(!base::is.character(method_ovl) || base::length(method_ovl) != 1){
+
+      stop("Argument 'method_ovl' needs to be a single character value.")
+
+    } else if(!method_ovl %in% c("classic", "bayesian")) {
+
+      stop("Argument 'method_ovl' needs to be  one of: 'classic', 'bayesian'.")
+
+    }
+
+  }
+
 }
 
 
@@ -373,11 +391,11 @@ check_object <- function(object){
 #'
 #' @param pt_size The size of the points specified as a single numeric value.
 #' @param pt_alpha The transparency of the points specified as single numeric value.
-#' @param pt_clrsp The color spectrum to be used if the specified variable that is displayed by
+#' @param pt_clrsp The color spectrum to be used if the specified variable displayed by
 #' color is continuous. Run \code{all_colorspectra()} to see valid input..
 #' @param pt_clrsp_dir The direction of the color spectrum specified as either \emph{1}
 #' or \emph{-1}.
-#' @param pt_clrp The color panel to be used if the specified variable that is displayed by
+#' @param pt_clrp The color panel to be used if the specified variable displayed by
 #' color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.
 #' @param pt_clr The base color of every point displayed in the plot.
 #'
