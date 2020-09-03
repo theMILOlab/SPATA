@@ -25,11 +25,12 @@ plotSurfaceComparison(
 
 plotSurfaceComparison2(
   data,
-  variables = NULL,
+  variables = "all",
   pt_size = 2,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
   image = NULL,
+  verbose = TRUE,
   ...
 )
 }

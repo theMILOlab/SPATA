@@ -11,7 +11,6 @@
 \alias{samples}
 \alias{trajectory}
 \alias{ctdf}
-\alias{getTrajectoryComment}
 \alias{exprMtr,spata-method}
 \alias{countMtr,spata-method}
 \alias{coordinates,spata-method}
@@ -21,8 +20,6 @@
 \alias{samples,spata-method}
 \alias{trajectory,spata-method}
 \alias{ctdf,spatialTrajectory-method}
-\alias{getTrajectoryComment,spata-method}
-\alias{getTrajectoryComment,spatialTrajectory-method}
 \title{Generics to extract a slots content}
 \usage{
 image(object, of_sample = "")
@@ -45,8 +42,6 @@ trajectory(object, trajectory_name, of_sample = "")
 
 ctdf(t_obj)
 
-getTrajectoryComment(object, ...)
-
 \S4method{exprMtr}{spata}(object, of_sample = "")
 
 \S4method{countMtr}{spata}(object, of_sample = "")
@@ -64,17 +59,11 @@ getTrajectoryComment(object, ...)
 \S4method{trajectory}{spata}(object, trajectory_name, of_sample = "")
 
 \S4method{ctdf}{spatialTrajectory}(t_obj)
-
-\S4method{getTrajectoryComment}{spata}(object, trajectory_name, of_sample = "")
-
-\S4method{getTrajectoryComment}{spatialTrajectory}(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
 \item{of_sample}{The sample from which to extract the content.}
-
-\item{trajectory_name}{The trajectory specified as a character value.}
 }
 \value{
 The respective slots content.

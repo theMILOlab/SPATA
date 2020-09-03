@@ -48,7 +48,7 @@ average_genes <- function(average_genes){}
 
 #' @title variable
 #'
-#' @param variabel The variable of interest.
+#' @param variable The variable of interest.
 #'
 #'  \itemize{
 #'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
@@ -60,6 +60,13 @@ average_genes <- function(average_genes){}
 #'
 
 variable <- function(variable){}
+
+
+#' @title variables_num
+#'
+#' @param variables Character vector. The numeric variables of interest.
+
+variables_num <- function(variables){}
 
 
 #' @title clrp
@@ -79,7 +86,7 @@ getC_joinW_combo <- function(){}
 #' @title across
 #' @param across Character value. The name of the discrete feature-variable of interest.
 #'
-#' Hint: Character or factor are discrete variables. These functionally assign the barcode spots to distinct
+#' Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
 #' groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
 #' to compare against each other. Use \code{getFeatureNames()} to get an overview of the
 #' features variables your spata-object contains.

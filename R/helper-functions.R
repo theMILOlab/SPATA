@@ -67,136 +67,6 @@ hlpr_compare_samples <- function(object, df, messages){
 }
 
 
-#' Monocle3 pseudotime accessor
-#'
-#' @description Loads or compiles a valid cell_data_set-object
-#' that fits to the provided spata-object.
-#'
-#' @param object A valid spata object.
-#' @param use_cds_file A file-directory leading to a .rds file containing a valid
-#' cell_data_set-object previously calculated for the specified object. Specified
-#' as a character value. If set to FALSE the cell_data_set object will be created
-#' from scratch.
-#' @param save_cds_file A file-directory (that does not already exists) under which the used or created cell_data_set-object
-#' is going to be stored specified as a character value. Should end with .rds.
-#' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
-#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string. Must be one of
-#' \emph{'leiden', 'louvain'}.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
-#'
-#' @return  A monocle3::cell_data_set object.
-#' @export
-#'
-
-hlpr_compile_cds <- function(object,
-                             use_cds_file = FALSE,
-                             save_cds_file = FALSE,
-                             preprocess_method = "PCA",
-                             cluster_method = "leiden",
-                             verbose = TRUE){
-
-
-  check_object(object)
-  confuns::is_value(preprocess_method, "character", "preprocess_method")
-  confuns::is_value(cluster_method, mode = "character", "cluster_method")
-  if(!base::isFALSE(use_cds_file)){confuns::check_directories(use_cds_file, ref = "use_cds_file", type = "files")}
-  if(!base::isFALSE(save_cds_file)){
-
-    confuns::is_value(save_cds_file, "character", "save_cds_file")
-    if(base::file.exists(save_cds_file)){
-
-      base::stop(glue::glue("Directory '{save_cds_file}' already exists. "))
-
-    }
-
-  }
-
-
-  # check if valid cds files
-  if(base::is.character(use_cds_file)){
-
-    cds <- base::readRDS(use_cds_file)
-
-    if(!methods::is(object = cds, class2 = "cell_data_set")){
-
-      base::stop(stringr::str_c("File '", use_cds_file, "' is not a valid object of class 'cell_data_set'."))
-
-    }
-
-    barcodes_cds <- base::names(monocle3::pseudotime(cds)) %>% base::sort()
-    barcodes_spata <- featureData(object)$barcodes %>% base::sort()
-
-    if(!base::identical(barcodes_cds, barcodes_spata)){
-
-      base::stopp(stringr::str_c("The barcodes of '", use_cds_file, "' and the provided spata-object are not identical."))
-
-    }
-
-
-  } else { # start from scratch
-
-    if(base::isTRUE(verbose)){base::message("No cds-file specified. Performing monocle anylsis from scratch.")}
-
-    base::stopifnot(preprocess_method %in% c("PCA", "LSI"))
-    base::stopifnot(cluster_method %in% c("leiden", "louvain"))
-
-    if(base::isTRUE(verbose)){base::message("Step 1/7 Creating 'cell data set'-object.")}
-
-    expression_matrix <- base::as.matrix(object@data@counts)
-
-    gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
-    base::rownames(gene_metadata) <- base::rownames(expression_matrix)
-
-    cell_metadata <- data.frame(object@fdata)
-    base::rownames(cell_metadata) <- object@fdata$barcodes
-
-    cds <- monocle3::new_cell_data_set(
-      expression_data = expression_matrix,
-      cell_metadata = cell_metadata,
-      gene_metadata = gene_metadata)
-
-    cds <- cds[,Matrix::colSums(monocle3::exprs(cds)) != 0]
-
-    if(base::isTRUE(verbose)){base::message("Step 2/7 Estimating size factors.")}
-    cds <- monocle3::estimate_size_factors(cds)
-
-    if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
-    cds <- monocle3::preprocess_cds(cds, method = preprocess_method, num_dim = 30)
-
-    if(base::isTRUE(verbose)){base::message("Step 4/7 Reducing dimensions.")}
-    cds <- monocle3::reduce_dimension(cds, cores = 2)
-
-    if(base::isTRUE(verbose)){base::message("Step 5/7 Clustering cells.")}
-    cds <- monocle3::cluster_cells(cds, cluster_method = cluster_method)
-
-    if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
-    cds <- monocle3::learn_graph(cds)
-
-  }
-
-  if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
-  cds <- monocle3::order_cells(cds)
-
-
-  # save cds file if save_cds_file is specified as a character
-  if(base::is.character(save_cds_file)){
-
-    if(base::isTRUE(verbose)){
-
-      base::message(stringr::str_c("Saving cell data set object 'cds' under directory: '", save_cds_file, "'"))
-
-    }
-
-    base::saveRDS(cds, file = save_cds_file)
-
-  }
-
-  base::return(cds)
-
-}
 
 
 #' @title Compiles a trajectory data.frame
@@ -295,8 +165,8 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
       dplyr::group_by(barcodes) %>%
       dplyr::mutate(projection_length = hlpr_vector_projection(lcs = lcs, x, y),
                     trajectory_part = stringr::str_c("Part", i, sep = " ")) %>%
-      dplyr::arrange(projection_length) # arrange barcodes according to their projection value
-
+      dplyr::arrange(projection_length) %>%  # arrange barcodes according to their projection value
+      dplyr::ungroup()
 
     all_trajectories_list[[i]] <- points_of_interest
 
@@ -538,6 +408,29 @@ hlpr_normalize_vctr <- function(variable){
 }
 
 
+#' @title Number of distinct values equal to 1?
+#'
+#' @description Helper function to use within purrr::map_lgl. Returns
+#' TRUE if the gene row of the provided rna assay is uniformly expressed.
+#'
+#' @param x Input variable.
+#' @param rna_assay Expression matrix
+#' @param pb Progress bar object
+#'
+#' @return
+#' @export
+#'
+
+hlpr_one_distinct <- function(x, rna_assay, pb = NULL, verbose = TRUE){
+
+  if(!base::is.null(pb)){pb$tick()}
+
+  res <- dplyr::n_distinct(rna_assay[x,]) == 1
+
+  base::return(res)
+
+}
+
 
 #' @title Smooth variables spatially
 #'
@@ -550,6 +443,7 @@ hlpr_normalize_vctr <- function(variable){
 #' @param smooth_span Span to smooth with
 #' @param aspect Gene or Gene set
 #' @param subset Vector of variable names to smooth
+#' @param pb A progress-bar or NULL.
 #'
 #' @return Smoothed variable (data.frame within \code{purrr::imap()})
 #' @export
@@ -687,6 +581,54 @@ hlpr_smooth_shiny <- function(variable,
 }
 
 
+#' Subset the across-variables
+#'
+#' @description Checks across and across_subset input and if at least one
+#' of the across_subset values exists filters the data accordingly.
+#'
+#' @param data A data.frame that contains the variable specified in \code{across}.
+#' @param across Character value. Denotes the discrete variable in the data.frame
+#' across which something is to be analyzed or displayed.
+#' @param across_subset Character vector. The groups of interest that the \code{across}-
+#' variable contains.
+#'
+#' @return A filtered data.frame, informative messages or an error.
+#' @export
+#'
+
+hlpr_subset_across <- function(data, across, across_subset){
+
+
+  if(base::is.null(across_subset)){
+
+    base::return(data)
+
+  } else {
+
+    data[[across]] <- confuns::unfactor(data[[across]])
+
+    ref.against <-
+      glue::glue("'{across}'-variable of the specified spata-object") %>%
+      base::as.character()
+
+    across_subset <-
+      confuns::check_vector(
+        input = across_subset,
+        against = base::unique(data[[across]]),
+        verbose = TRUE,
+        ref.input = "'across_subset'",
+        ref.against = ref.against) %>%
+      base::as.character()
+
+    data <- dplyr::filter(.data = data, !!rlang::sym(across) %in% {{across_subset}})
+
+    base::return(data)
+
+  }
+
+}
+
+
 
 #' @title Join and summarize compiled trajectory data.frames
 #'
@@ -712,7 +654,7 @@ hlpr_smooth_shiny <- function(variable,
 #' determine the length and width of the sub-rectangles in which the rectangle the
 #' trajectory embraces are splitted and in which all barcode-spots are binned.
 #' Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
-#' These means are then arranged according to the trajectory's direction.
+#' These mean-values are then arranged according to the trajectory's direction.
 #'
 #' Eventually the data.frame is shifted via \code{tidyr::pivot_longer()} to a data.frame in which
 #' every observation refers to the mean-value of one of the specified variable-elements (e.g. a specified
@@ -927,7 +869,9 @@ hlpr_add_models <- function(df){
                    p_lin_asc = confuns::fit_curve(trajectory_order, "linear"),
                    p_lin_desc = confuns::fit_curve(trajectory_order, "linear", rev = TRUE),
                    p_sin = confuns::fit_curve(trajectory_order, "sinus"),
-                   p_sin_rev = confuns::fit_curve(trajectory_order, "sinus", rev = TRUE)
+                   p_sin_rev = confuns::fit_curve(trajectory_order, "sinus", rev = TRUE),
+                   p_early_peak = confuns::fit_curve(trajectory_order, "early_peak"),
+                   p_late_peak = confuns::fit_curve(trajectory_order, "late_peak")
   )
 
 }
@@ -955,8 +899,9 @@ hlpr_add_residuals <- function(df, pb = NULL){
                      p_lin_asc = (values - confuns::fit_curve(trajectory_order, "linear"))^2,
                      p_lin_desc = (values - confuns::fit_curve(trajectory_order, "linear", rev = TRUE))^2,
                      p_sin = (values - confuns::fit_curve(trajectory_order, "sinus"))^2,
-                     p_sin_rev = (values - confuns::fit_curve(trajectory_order, "sinus", rev = TRUE))^2
-    )
+                     p_sin_rev = (values - confuns::fit_curve(trajectory_order, "sinus", rev = TRUE))^2,
+                     p_early_peak = (values - confuns::fit_curve(trajectory_order, "early_peak"))^2,
+                     p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2)
 
 }
 
@@ -997,7 +942,9 @@ hlpr_name_models <- function(names){
       "sin_rev" = "Sinus (reversed)",
       "sin" = "Sinus",
       "two_peaks_rev" = "Two peaks (reversed)",
-      "two_peaks" = "Two peaks"
+      "two_peaks" = "Two peaks",
+      "early_peak" = "Early peak",
+      "late_peak" = "Late peak"
     )
   )
 

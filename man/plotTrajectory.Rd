@@ -13,14 +13,14 @@ plotTrajectory(
   smooth = FALSE,
   smooth_span = 0.02,
   pt_size = 2.5,
-  pt_alpha = 1,
+  pt_alpha = 0.4,
   pt_clr = "red",
   pt_clrp = "milo",
   pt_clrsp = "inferno",
   sgmt_size = 1,
   display_image = TRUE,
   display_title = FALSE,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{
@@ -32,7 +32,7 @@ as a single character value.}
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{color_to}{The variable to be displayed by color specified as .
+\item{color_to}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

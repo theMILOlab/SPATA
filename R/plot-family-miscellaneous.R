@@ -9,6 +9,7 @@ plotDimRed <- function(object,
                        pt_alpha = 1,
                        pt_clrsp = "inferno",
                        pt_clrp = "milo",
+                       pt_clr = "black",
                        verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -19,11 +20,19 @@ plotDimRed <- function(object,
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample)
-  color_to <- check_color_to(color_to = color_to,
-                             max_length = 1,
-                             all_genes = getGenes(object, in_sample = of_sample),
-                             all_gene_sets = getGeneSets(object),
-                             all_features = getFeatureNames(object))
+
+  if(!base::is.null(color_to)){
+
+    color_to <- check_color_to(color_to = color_to,
+                               all_genes = getGenes(object, in_sample = of_sample),
+                               all_gene_sets = getGeneSets(object),
+                               all_features = getFeatureNames(object))
+
+  } else {
+
+    color_to$color <- pt_clr
+
+  }
 
   # -----
 
@@ -77,8 +86,6 @@ plotDimRed <- function(object,
 
   } else if("genes" %in% base::names(color_to)){
 
-    rna_assay <- exprMtr(object, of_sample = of_sample)
-
     dimRed_df <- joinWithGenes(object = object,
                                coords_df = dimRed_df,
                                genes = color_to$genes,
@@ -97,11 +104,12 @@ plotDimRed <- function(object,
     )
 
 
-  } else {
+  } else if("color" %in% base::names(color_to)){
 
-    base::warning("Could not map color to specified argument 'color_to'! (Hint: Features and Gene sets need to be of length one.)")
-
-    ggplot_add_on <- NULL
+    ggplot_add_on <-
+      list(ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha, color = color_to$color,
+                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
+                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""))))
 
   }
 
@@ -109,7 +117,6 @@ plotDimRed <- function(object,
 
   # 4. Plotting -------------------------------------------------------------
 
-  if(base::is.list(ggplot_add_on)){
 
     ggplot2::ggplot(data = dimRed_df) +
       ggplot_add_on +
@@ -121,24 +128,6 @@ plotDimRed <- function(object,
         panel.grid.major = ggplot2::element_blank(),
         panel.grid.minor = ggplot2::element_blank()
       )
-
-  } else if(base::is.null(ggplot_add_on)) {
-
-    ggplot2::ggplot(data = dimRed_df) +
-      ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
-                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""))
-      ) +
-      ggplot2::theme_bw() +
-      ggplot2::theme(
-        axis.text = ggplot2::element_blank(),
-        axis.ticks = ggplot2::element_blank(),
-        axis.title = ggplot2::element_blank(),
-        panel.grid.major = ggplot2::element_blank(),
-        panel.grid.minor = ggplot2::element_blank()
-      )
-
-  }
 
   # -----
 
@@ -497,26 +486,20 @@ plotFourStates2 <- function(data,
 # Plot distribution -------------------------------------------------------
 
 
-#' @title Visualize variable distribution
+#' @title Visualize value distribution
 #'
-#' @description Visualizes the distribution of values of a set of variables for the
-#' whole sample across specific subgroups.
+#' @description Visualizes the distribution of values of a set of variables.
 #'
 #' \itemize{
 #'  \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
 #'  \item{ \code{plotDistribution2()} Takes a data.frame as the starting point.}
-#'  \item{ \code{plotDistributionAcross()} Takes the spata-object as the starting point and creates the
-#'  necessary data.frame from scratch according to additional parameters. It takes an additional
-#'  argument which allows to display the variables value-distribution across subgroups.}
-#' }
+#'  }
 #'
 #'
 #' @param data The data.frame containing numeric variables.
-#' @param variables The numeric variables whose distribution you want to display. Specified as
-#' a character vector.
-#' @param across A categorical feature across which the value-distribution is displayed. Must be
-#' a \emph{character or factor}-element of \code{SPATA::getFeatureNames()}.
+#' @inherit variables_num params
+#' @inherit across params
 #' @param plot_type One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.
 #' @param binwidth The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.
 #' @param ... additional arguments to \code{ggplot2::facet_wrap()}
@@ -734,6 +717,7 @@ plotDistribution2 <- function(data,
                               plot_type = "histogram",
                               clrp = "milo",
                               binwidth = 0.05,
+                              verbose = TRUE,
                               ... ){
 
   # 1. Control --------------------------------------------------------------
@@ -755,11 +739,11 @@ plotDistribution2 <- function(data,
 
   if(base::all(variables == "all")){
 
-    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Plotting all numeric variables.")}
+    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
     cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
 
-    variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2")]
+    valid_variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
   } else {
 
@@ -773,9 +757,17 @@ plotDistribution2 <- function(data,
       ref = "data"
     )
 
+    valid_variables <- variables
+
     if(base::isTRUE(verbose)){"All specified variables found."}
 
   }
+
+  n_valid_variables <- base::length(valid_variables)
+  ref <- base::ifelse(n_valid_variables > 1,
+                      yes = "different variables. (This can take a few seconds.)",
+                      no = "variable.")
+  if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_valid_variables} {ref}"))}
 
   # -----
 
@@ -783,9 +775,9 @@ plotDistribution2 <- function(data,
 
   expr_data <-
     tidyr::pivot_longer(
-      data = data[, variables],
-      cols = dplyr::all_of(x = variables),
-      names_to = "variables",
+      data = data[, valid_variables],
+      cols = dplyr::all_of(x = valid_variables),
+      names_to = "valid_variables",
       values_to = "values"
     )
 
@@ -794,13 +786,13 @@ plotDistribution2 <- function(data,
 
   # 3. Display add on -------------------------------------------------------
 
-  expr_data$variables <- hlpr_gene_set_name(string = expr_data$variables)
+  expr_data$valid_variables <- hlpr_gene_set_name(string = expr_data$valid_variables)
 
   if(plot_type == "histogram"){
 
     display_add_on <-
       list(
-        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = variables),
+        ggplot2::geom_histogram(mapping = ggplot2::aes(x = values, fill = valid_variables),
                                 color = "black", binwidth = binwidth,
                                 data = expr_data),
         ggplot2::labs(y = NULL)
@@ -810,7 +802,7 @@ plotDistribution2 <- function(data,
 
     display_add_on <-
       list(
-        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = variables),
+        ggplot2::geom_density(mapping = ggplot2::aes(x = values, fill = valid_variables),
                               color = "black", data = expr_data),
         ggplot2::labs(y = "Density")
       )
@@ -819,7 +811,7 @@ plotDistribution2 <- function(data,
 
     display_add_on <-
       list(
-        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+        ggridges::geom_density_ridges(mapping = ggplot2::aes(x = values, y = valid_variables, fill = valid_variables),
                                       color = "black", alpha = 0.825, data = expr_data),
         #ggridges::theme_ridges(),
         ggplot2::labs(y = NULL)
@@ -829,7 +821,7 @@ plotDistribution2 <- function(data,
 
     display_add_on <-
       list(
-        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+        ggplot2::geom_violin(mapping = ggplot2::aes(x = values, y = valid_variables, fill = valid_variables),
                              color = "black", data = expr_data),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
@@ -839,7 +831,7 @@ plotDistribution2 <- function(data,
 
     display_add_on <-
       list(
-        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = variables, fill = variables),
+        ggplot2::geom_boxplot(mapping = ggplot2::aes(x = values, y = valid_variables, fill = valid_variables),
                               color = "black", data = expr_data),
         ggplot2::labs(y = NULL),
         ggplot2::coord_flip()
@@ -847,10 +839,10 @@ plotDistribution2 <- function(data,
 
   }
 
-  if(base::length(variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
+  if(base::length(valid_variables) > 1 && !plot_type  %in% c("ridgeplot", "violin", "boxplot")){
 
     facet_add_on <-
-      list(ggplot2::facet_wrap(facets = . ~ variables, ...))
+      list(ggplot2::facet_wrap(facets = . ~ valid_variables, ...))
 
   } else {
 
@@ -882,12 +874,30 @@ plotDistribution2 <- function(data,
 
 }
 
-#' @rdname plotDistribution
+
+#' @title Visualize value distribution across groups & clusters
+#'
+#' @description Visualizes the distribution of values of a set of variables for the
+#' whole sample across specific subgroups.
+#'
+#' \itemize{
+#'  \item{ \code{plotDistributionAcross()} Takes the spata-object as the starting point and creates the
+#'  necessary data.frame from scratch according to additional parameters.}
+#'  \item{ \code{plotDistributionAcross2()} Takes a data.frame as the starting point.}
+#'  }
+#'
+#' @inherit plotDistribution params return
+#' @inherit across params
+#'
+#' @return
 #' @export
+#'
+
 plotDistributionAcross <- function(object,
                                    of_sample = "",
                                    variables,
                                    across,
+                                   across_subset = NULL,
                                    method_gs = "mean",
                                    plot_type = "violin",
                                    binwidth = 0.05,
@@ -990,6 +1000,9 @@ plotDistributionAcross <- function(object,
       values_to = "values"
     )
 
+  data <- hlpr_subset_across(data, across, across_subset)
+
+
   # -----
 
   # 3. Display add on -------------------------------------------------------
@@ -1077,11 +1090,12 @@ plotDistributionAcross <- function(object,
 }
 
 
-#' @rdname plotDistribution
+#' @rdname plotDistributionAcross
 #' @export
 plotDistributionAcross2 <- function(data,
                                     variables = "all",
                                     across,
+                                    across_subset = NULL,
                                     plot_type = "violin",
                                     binwidth = 0.05,
                                     clrp = "milo",
@@ -1124,11 +1138,11 @@ plotDistributionAcross2 <- function(data,
 
   if(base::all(variables == "all")){
 
-    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Plotting all numeric variables.")}
+    if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
     cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
 
-    variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2")]
+    variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
   } else {
 
@@ -1157,6 +1171,8 @@ plotDistributionAcross2 <- function(data,
       names_to = "variables",
       values_to = "values"
     )
+
+  data <- hlpr_subset_across(data, across, across_subset)
 
   # -----
 
@@ -1268,8 +1284,8 @@ plotDistributionAcross2 <- function(data,
 #' to the rules of the ggplot2-framework.
 #'
 #' \itemize{
-#'  \item{\emph{"pseudotime"}: Monocle3-Umap colored by feature 'pseudotime'. }
-#'  \item{\emph{\code{color_to}}: Monocle3-Umap colored by input-character-value. (if specified)}
+#'  \item{\emph{pseudotime}: Monocle3-Umap colored by feature 'pseudotime'. }
+#'  \item{\emph{\code{color_to}}: Monocle3-Umap colored by input of \code{color_to}. (if specified)}
 #' }
 #'
 #' @export
@@ -1288,12 +1304,12 @@ plotPseudotime <- function(object,
   if(!base::is.null(color_to)){confuns::is_value(color_to, "character", "color_to")}
 
   cds <-
-    hlpr_compile_cds(object = object,
-                     use_cds_file = use_cds_file,
-                     save_cds_file = save_cds_file,
-                     preprocess_method = preprocess_method,
-                     cluster_method = cluster_method,
-                     verbose = verbose)
+    compileCellDataSet(object = object,
+                       use_cds_file = use_cds_file,
+                       save_cds_file = save_cds_file,
+                       preprocess_method = preprocess_method,
+                       cluster_method = cluster_method,
+                       verbose = verbose)
 
   plot_list <- list()
 
@@ -1307,7 +1323,7 @@ plotPseudotime <- function(object,
                          graph_label_size = 0,
                          ...)
 
-  if(base::is.null(color_to)){
+  if(!base::is.null(color_to)){
     plot_list[[color_to]] <-
       monocle3::plot_cells(cds = cds,
                            color_cells_by = color_to,
@@ -1353,7 +1369,7 @@ plotSegmentation <- function(object,
   # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
-    ggplot2::geom_point(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
+    ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
     ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
     confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
@@ -1378,9 +1394,11 @@ plotSegmentation <- function(object,
 #' and uses the expression information of your spata-object to plot a heatmap displaying
 #' the differentially expressed genes of every cluster.
 #'
-#' @inherit check_sampel params
+#' @inherit check_sample params
 #' @param data A data.frame containing at least the character or factor variables
 #'  \emph{cluster} and \emph{gene}.
+#'
+#'  Hint: Use the resulting data.frame of \code{SPATA::findDE()} as input.
 #' @inherit across params
 #' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster

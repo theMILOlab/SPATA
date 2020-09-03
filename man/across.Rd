@@ -9,7 +9,7 @@ across(across, across_subset)
 \arguments{
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
-Hint: Character or factor are discrete variables. These functionally assign the barcode spots to distinct
+Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
 groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
 to compare against each other. Use \code{getFeatureNames()} to get an overview of the
 features variables your spata-object contains.}

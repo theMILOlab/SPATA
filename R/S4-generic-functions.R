@@ -9,7 +9,6 @@ NULL
 #'
 #' @param object A valid spata-object.
 #' @param of_sample The sample from which to extract the content.
-#' @param trajectory_name The trajectory specified as a character value.
 #'
 #' @return The respective slots content.
 #' @export
@@ -93,8 +92,14 @@ setGeneric(name = "ctdf", def = function(t_obj){
 
 })
 
-#' @rdname image
+#' @title Obtain a trajectory comment
+#'
+#' @param object A valid spata-object.
+#' @param of_sample The sample from which to extract the content.
+#' @param trajectory_name The trajectory specified as a character value.
+#'
 #' @export
+
 setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
   standardGeneric(f = "getTrajectoryComment")
@@ -110,7 +115,6 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
 #' @param object A valid spata-object.
 #' @param of_sample The sample from which to extract the content.
-#' @param trajectory_name The trajectory specified as a character value.
 #'
 #' @export
 #'
@@ -254,44 +258,6 @@ setMethod(f = "ctdf", signature = "spatialTrajectory", definition = function(t_o
 
 })
 
-#' @rdname image
-#' @export
-setMethod(f = "getTrajectoryComment", signature = "spata", definition = function(object, trajectory_name, of_sample = ""){
-
-
-  if(!is.character(trajectory_name) | length(trajectory_name) != 1){
-
-    stop("Argument 'trajectory_name' needs to be a character vector of length 1.")
-
-  }
-
-  of_sample <- check_sample(object = object, of_sample = of_sample)
-
-  t_names <- base::names(object@trajectories[[of_sample]])
-
-  if(trajectory_name %in% t_names){
-
-    trajectory_object <- object@trajectories[[of_sample]][[trajectory_name]]
-
-    return(trajectory_object@comment)
-
-  } else {
-
-    stop(stringr::str_c("Could not find trajectory '", trajectory_name, "' in sample '", of_sample, "'.", sep = ""))
-
-  }
-
-})
-
-#' @rdname image
-#' @export
-setMethod(f = "getTrajectoryComment", signature = "spatialTrajectory", definition = function(object){
-
-
-  return(stringr::str_c("Comment: ", object@comment))
-
-
-})
 
 #' @export
 setMethod(f = "show", signature = "spata", definition = function(object){
@@ -301,5 +267,40 @@ setMethod(f = "show", signature = "spata", definition = function(object){
   sample_ref <- base::ifelse(num_samples > 1, "samples", "sample")
 
   base::print(glue::glue("An object of class 'spata' that contains {num_samples} {sample_ref} named '{samples}'."))
+
+})
+
+
+
+
+
+#' @title Obtain a trajectory comment
+#'
+#' @param object A valid spata-object or a valid spatialTrajectory-object.
+#' @param of_sample The sample from which to extract the content.
+#' @param trajectory_name The trajectory specified as a character value.
+#'
+#' @export
+#'
+
+setMethod(f = "getTrajectoryComment", signature = "spata", definition = function(object, trajectory_name, of_sample = ""){
+
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+  check_trajectory(object, trajectory_name, of_sample)
+
+  t_names <- base::names(object@trajectories[[of_sample]])
+
+  trajectory_object <- object@trajectories[[of_sample]][[trajectory_name]]
+
+  return(trajectory_object@comment)
+
+
+})
+
+#' @rdname getTrajectoryComment
+#' @export
+setMethod(f = "getTrajectoryComment", signature = "spatialTrajectory", definition = function(object){
+
+  return(object@comment)
 
 })

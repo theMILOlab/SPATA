@@ -15,6 +15,7 @@
 #' @inherit verbose params
 #' @inherit check_variables params
 #' @inherit normalize params
+#' @inherit check_uniform_genes params
 #' @param average_genes Logical. If set to TRUE the average expression of the
 #' specified genes is calculated and saved under one variable named 'mean_genes'.
 #'
@@ -30,58 +31,61 @@
 joinWith <- function(object,
                      coords_df,
                      features = NULL,
-                     method_gs = "mean",
                      gene_sets = NULL,
+                     method_gs = "mean",
                      genes = NULL,
                      average_genes = FALSE,
+                     uniform_genes = "discard",
                      smooth = FALSE,
                      smooth_span = 0.02,
                      verbose = TRUE,
                      normalize = TRUE){
 
 
+# 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_uniform_genes(uniform_genes)
+
   confuns::check_data_frame(
     df = coords_df,
     var.class = list(
       "barcodes" = "character",
-      "sample" = "character"
-    ),
+      "sample" = "character"),
     ref = "coords_df")
 
+  input_list <- list("gene_sets" = gene_sets,
+                     "genes" = genes,
+                     "features" = features)
+
   input_list <-
-    purrr::map2(.x = list(gene_sets, genes, features),
+    purrr::map2(.x = input_list,
                 .y = c("gene_sets", "genes", "features"),
-                .f = function(x, y){
+                .f = function(input, type){
 
-                  if(!base::is.null(x)){
+                  if(!base::is.null(input)){
 
-                    confuns::is_vec(x = x, mode = "character", ref = y)
+                    confuns::is_vec(x = input, mode = "character", ref = type)
 
-                    return(x)
+                    fn <- stringr::str_c("check", type, sep = "_")
+                    input <- base::do.call(fn, list(object, input))
 
-                  } else {
-
-                    return(x)
+                    base::return(input)
 
                   }
 
-                })
+                }) %>% purrr::discard(.p = base::is.null)
 
-
-  variables <- check_variables(
-    variables = input_list,
-    all_features = getFeatureNames(object),
-    all_gene_sets = getGeneSets(object),
-    all_genes = getGenes(object, in_sample = base::unique(coords_df$sample))
-  )
+  # -----
 
   output_df <-
   joinWithVariables(
     object = object,
     coords_df = coords_df,
-    variables = variables,
+    variables = input_list,
     method_gs = method_gs,
     average_genes = average_genes,
+    uniform_genes = uniform_genes,
     smooth = smooth,
     smooth_span = smooth_span,
     verbose = verbose,
@@ -112,13 +116,13 @@ joinWithFeatures <- function(object,
   # adjusting check
   features <- check_features(object, features = features)
 
-  smooth_string <- base::ifelse(test = base::isTRUE(smooth), yes = " and smoothing ", no = " " )
+  smooth_ref <- base::ifelse(test = base::isTRUE(smooth), yes = " and smoothing ", no = " " )
 
   if(base::isTRUE(verbose)){
 
-    feature_string <- base::ifelse(base::length(features) == 1, "feature", "features")
+    feature_ref <- base::ifelse(base::length(features) == 1, "feature", "features")
 
-    base::message(glue::glue("Joining{smooth_string}{base::length(features)} {feature_string}."))
+    base::message(glue::glue("Joining{smooth_ref}{base::length(features)} {feature_ref}."))
 
     }
 
@@ -128,9 +132,9 @@ joinWithFeatures <- function(object,
 
   if(n_discard > 0){
 
-    variable_string <- base::ifelse(n_discard == 1, "variable", "variables")
+    var_ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
-    base::message(glue::glue("Overwriting {n_discard} feature-{variable_string}."))
+    base::message(glue::glue("Overwriting {n_discard} feature-{var_ref}."))
 
     coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
 
@@ -178,6 +182,7 @@ joinWithGenes <- function(object,
                           coords_df,
                           genes,
                           average_genes = FALSE,
+                          uniform_genes = "discard",
                           smooth = FALSE,
                           smooth_span = 0.02,
                           normalize = TRUE,
@@ -190,6 +195,7 @@ joinWithGenes <- function(object,
   check_object(object)
   check_coords_df(coords_df)
   check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
+  check_uniform_genes(uniform_genes)
 
   # adjusting check
   rna_assay <- exprMtr(object, of_sample = base::unique(coords_df$sample))
@@ -197,56 +203,117 @@ joinWithGenes <- function(object,
 
   # -----
 
-  # 2. Extract expression values and join with coords_df ---------------------
 
   barcodes <- coords_df$barcodes
-  num_genes <- base::length(genes)
+  rna_assay <- base::as.matrix(rna_assay[genes, barcodes])
 
-  # compute mean if necessary
-  if(num_genes > 1 && average_genes){
+# 2. Discard uniformly expressed genes ------------------------------------
 
-    if(base::isTRUE(verbose) && base::isTRUE(smooth)){
+  n_genes <- base::length(genes)
 
-      gene_string <- base::ifelse(num_genes == 1, "gene", "genes")
+  if(uniform_genes == "discard"){
 
-      base::message(glue::glue("Averaging, joining and smoothing {num_genes} {gene_string}."))
+    ref <- base::ifelse(n_genes > 1, "genes", "gene")
+
+    if(base::isTRUE(verbose)){
+
+      base::message(glue::glue("Checking {n_genes} {ref} for uniform expression across all barcode-spots."))
+
+      pb <-
+        progress::progress_bar$new(
+          format = "Progress: [:bar] :percent eta: :eta",
+          total = n_genes, clear = FALSE, width = 100)
+
+    } else {
+
+      pb <- NULL
+
+    }
+
+    uniformly_expressed <-
+      purrr::map_lgl(.x = 1:n_genes,
+                     .f = hlpr_one_distinct,
+                     rna_assay = rna_assay,
+                     pb = pb,
+                     verbose = verbose)
+
+    n_uniformly_expressed <- base::sum(uniformly_expressed)
+
+    if(n_uniformly_expressed >= 1){
+
+      genes <- genes[!uniformly_expressed]
+      n_genes <- base::length(genes)
+
+      if(base::isTRUE(verbose)){
+
+        base::message(glue::glue("Discarded {n_uniformly_expressed} genes."))
+
+      }
+
+      if(n_genes < 1){
+
+        base::stop("All genes have been discarded due to uniform expression.")
+
+      }
 
     } else if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Averaging and joining {num_genes} genes."))
+      base::message("No uniformly expressed genes found.")
+
+    }
+
+  }
+
+  # -----
+
+
+# 3. Extract genes and join values with coords_df -------------------------
+
+  ref <- base::ifelse(n_genes == 1, "gene", "genes")
+
+  if(n_genes > 1 && average_genes){
+
+    if(base::isTRUE(verbose) && base::isTRUE(smooth)){
+
+      base::message(glue::glue("Averaging, joining and smoothing {n_genes} {ref}."))
+
+    } else if(base::isTRUE(verbose)){
+
+      base::message(glue::glue("Averaging and joining {n_genes} {ref}."))
 
     }
 
     rna_assay <- base::colMeans(rna_assay[genes, barcodes])
     col_names <- "mean_genes"
-    num_genes <- "averaged"
+    n_genes <- "averaged"
 
-  } else if(num_genes > 1){
+  } else if(n_genes > 1){
 
     if(base::isTRUE(verbose) && base::isTRUE(smooth)){
 
-      base::message(glue::glue("Joining and smoothing {num_genes} genes."))
+      base::message(glue::glue("Joining and smoothing {n_genes} {ref}."))
 
     } else if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Joining {num_genes} genes."))
+      base::message(glue::glue("Joining {n_genes} {ref}."))
 
     }
 
-    rna_assay <- t(rna_assay[genes, barcodes])
+    rna_assay <- base::t(rna_assay[genes, barcodes])
     col_names <- genes
 
-  } else if(num_genes == 1){
-
-    rna_assay <- rna_assay[genes, barcodes]
+  } else if(n_genes == 1){
 
     if(base::isTRUE(average_genes)){
-      col_names <- "mean_genes"
-      num_genes <- "averaged"
-    } else {
-      col_names <- genes
-    }
 
+      col_names <- "mean_genes"
+      n_genes <- "averaged"
+
+    } else {
+
+      col_names <- genes
+
+    }
 
   }
 
@@ -254,9 +321,7 @@ joinWithGenes <- function(object,
   gene_vls <-
     base::as.data.frame(rna_assay, row.names = NULL) %>%
     magrittr::set_colnames(value = col_names) %>%
-    dplyr::mutate(
-      barcodes = coords_df$barcodes
-    )
+    dplyr::mutate(barcodes = coords_df$barcodes)
 
 
   # overwrite check
@@ -265,21 +330,21 @@ joinWithGenes <- function(object,
 
   if(n_discard > 0){
 
-    variable_string <- base::ifelse(n_discard == 1, "variable", "variables")
+    ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
-    base::message(glue::glue("Overwriting {n_discard} gene-{variable_string}."))
+    base::message(glue::glue("Overwriting {n_discard} gene-{ref}."))
     coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
 
   }
-
 
   # join both
   joined_df <-
     dplyr::left_join(x = coords_df, y = gene_vls, by = "barcodes")
 
+
   # -----
 
-  # 3. Smooth and normalize if specified ------------------------------------
+  # 4. Smooth and normalize if specified ------------------------------------
 
   if(base::isTRUE(smooth)){
 
@@ -362,9 +427,9 @@ joinWithGeneSets <- function(object,
 
   if(n_discard > 0){
 
-    variable_string <- base::ifelse(n_discard == 1, "variable", "variables")
+    ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
-    base::message(glue::glue("Overwriting {n_discard} gene-set-{variable_string}."))
+    base::message(glue::glue("Overwriting {n_discard} gene-set-{ref}."))
     coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
 
   }
@@ -380,11 +445,11 @@ joinWithGeneSets <- function(object,
 
     x <- dplyr::pull(coords_df, var = x)
     y <- dplyr::pull(coords_df, var = y)
-    smooth_string <- glue::glue(" and smoothing ")
+    smooth_ref <- glue::glue(" and smoothing ")
 
   } else {
 
-    smooth_string <- " "
+    smooth_ref <- " "
 
   }
 
@@ -396,12 +461,11 @@ joinWithGeneSets <- function(object,
 
   num_gs <- base::length(gene_sets)
 
-
   if(base::isTRUE(verbose)){
 
-    gene_set_string <- base::ifelse(num_gs == 1, "gene-set", "gene-sets")
+    ref <- base::ifelse(num_gs == 1, "gene-set", "gene-sets")
 
-    base::message(glue::glue("Calculating{smooth_string}expression score for {base::length(gene_sets)} {gene_set_string} according to method '{method_gs}'."))
+    base::message(glue::glue("Calculating{smooth_ref}expression score for {base::length(gene_sets)} {ref} according to method '{method_gs}'."))
 
   }
 
@@ -412,7 +476,6 @@ joinWithGeneSets <- function(object,
       total = num_gs, clear = FALSE, width = 100)
 
   }
-
 
   for(i in base::seq_along(gene_sets)){
 
@@ -530,6 +593,7 @@ joinWithVariables <- function(object,
                               variables,
                               method_gs = "mean",
                               average_genes = FALSE,
+                              uniform_genes = "discard",
                               smooth = FALSE,
                               smooth_span = 0.02,
                               normalize = TRUE,
@@ -557,6 +621,7 @@ joinWithVariables <- function(object,
                     coords_df = coords_df,
                     genes = variables$genes,
                     average_genes = average_genes,
+                    uniform_genes = uniform_genes,
                     smooth = smooth,
                     smooth_span = smooth_span,
                     normalize = normalize,

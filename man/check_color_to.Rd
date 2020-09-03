@@ -8,12 +8,11 @@ check_color_to(
   color_to,
   all_features = character(),
   all_gene_sets = character(),
-  all_genes = character(),
-  max_length = 25
+  all_genes = character()
 )
 }
 \arguments{
-\item{color_to}{The variable to be displayed by color specified as .
+\item{color_to}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
@@ -27,8 +26,6 @@ check_color_to(
 \item{all_gene_sets}{The valid gene sets specified as a character vector.}
 
 \item{all_genes}{The valid genes specified as a character vector.}
-
-\item{max_length}{The maximum number of elements the resulting list can have.}
 }
 \value{
 The original input, an adjusted version of it or an error. In the latter two
@@ -39,7 +36,7 @@ A member of the \code{adjusting-check_*()}-family. Takes a character
 vector and sorts its elements into a list depending on whether it was found in
 the input of \code{all_features}, \code{all_genes} or \code{all_gene_sets}.
 
-Returns a list with three slots named \emph{features}, \emph{genes} and \emph{gene_sets}
+Returns a list with one slot named \emph{features}, \emph{genes} or \emph{gene_sets}
 containing the respective found/valid input of \code{color_to}.
 }
 \details{

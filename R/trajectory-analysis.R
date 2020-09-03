@@ -5,7 +5,7 @@
 #' @export
 trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient descending", "Logarithmic descending",
                          "Logarithmic ascending", "Gradient ascending","Sinus",  "Sinus (reversed)", "One peak",
-                         "One peak (reversed)", "Two peaks (reversed)", "Two peaks")
+                         "One peak (reversed)", "Two peaks (reversed)", "Two peaks", "Early peak", "Late peak")
 
 # -----
 
@@ -172,7 +172,13 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 #' patterns to the specified degree.
 #' @export
 
-filterTrends <- function(atdf, limit = 2, trends){
+filterTrends <- function(atdf, limit = 2, trends = "all"){
+
+  if(base::all(trends == "all")){
+
+    trends <- trajectory_patterns
+
+  }
 
   confuns::is_vec(x = trends, mode = "character", "trends")
   trends <- confuns::check_vector(input = trends,

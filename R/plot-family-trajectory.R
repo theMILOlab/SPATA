@@ -28,14 +28,14 @@ plotTrajectory <- function(object,
                            smooth = FALSE,
                            smooth_span = 0.02,
                            pt_size = 2.5,
-                           pt_alpha = 1,
+                           pt_alpha = 0.4,
                            pt_clr = "red",
                            pt_clrp = "milo",
                            pt_clrsp = "inferno",
                            sgmt_size = 1,
                            display_image = TRUE,
                            display_title = FALSE,
-                           verbose = T){
+                           verbose = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
@@ -82,13 +82,14 @@ plotTrajectory <- function(object,
   # if of length one and feature
   if("features" %in% base::names(color_to)){
 
-    coords_df <- joinWithFeatures(object = object,
+    background_df <- joinWithFeatures(object = object,
                                   coords_df = background_df,
                                   features = color_to$features,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
-                                  verbose = verbose) %>%
-      dplyr::filter(barcodes %in% bc_traj)
+                                  verbose = verbose)
+
+    coords_df <- dplyr::filter(background_df, barcodes %in% bc_traj)
 
     labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
                                     color_str = color_to,
@@ -97,7 +98,10 @@ plotTrajectory <- function(object,
 
     # assemble ggplot add on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = background_df,
+                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
+                          alpha = pt_alpha, size = pt_size),
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$features)),
       labs_add_on
@@ -106,14 +110,15 @@ plotTrajectory <- function(object,
     # if of length one and gene set
   } else if("gene_sets" %in% base::names(color_to)){
 
-    coords_df <- joinWithGeneSets(object = object,
+    background_df <- joinWithGeneSets(object = object,
                                   coords_df = background_df,
                                   gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
-                                  verbose = verbose) %>%
-      dplyr::filter(barcodes %in% bc_traj)
+                                  verbose = verbose)
+
+    coords_df <-   dplyr::filter(background_df, barcodes %in% bc_traj)
 
 
     # labs-add-on
@@ -124,7 +129,10 @@ plotTrajectory <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = background_df,
+                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
+                          alpha = pt_alpha, size = pt_size),
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       labs_add_on
@@ -132,14 +140,15 @@ plotTrajectory <- function(object,
 
   } else if("genes" %in% base::names(color_to)){
 
-    coords_df <- joinWithGenes(object = object,
+    background_df <- joinWithGenes(object = object,
                                coords_df = background_df,
                                genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = smooth,
                                smooth_span = smooth_span,
-                               verbose = verbose) %>%
-      dplyr::filter(barcodes %in% bc_traj)
+                               verbose = verbose)
+
+    coords_df <-  dplyr::filter(background_df, barcodes %in% bc_traj)
 
     color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
                               yes = color_to$genes,
@@ -153,7 +162,10 @@ plotTrajectory <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = background_df,
+                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
+                          alpha = pt_alpha, size = pt_size),
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
                           mapping = ggplot2::aes_string(x = "x", y = "y", color = "mean_genes")),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
       labs_add_on
@@ -175,9 +187,13 @@ plotTrajectory <- function(object,
 
     }
 
-    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = background_df,
+                          mapping = ggplot2::aes(x = x, y = y),
+                          alpha = pt_alpha, size = pt_size, color = pt_clr),
+      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
                                               mapping = ggplot2::aes(x = x, y = y)),
-                          labs_add_on)
+      labs_add_on)
 
   }
 
@@ -185,9 +201,6 @@ plotTrajectory <- function(object,
 
   ggplot2::ggplot() +
     hlpr_image_add_on2(object, display_image, of_sample) +
-    ggplot2::geom_point(data = background_df, ggplot2::aes(x = x, y = y),
-                        alpha = base::ifelse(display_image, 0.1, 0.75),
-                        color = base::ifelse(display_image, "white", "lightgrey")) +
     ggplot_add_on +
     ggplot2::geom_segment(data = trajectory_sgmt_df,
                           mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
@@ -848,10 +861,10 @@ plotTrajectoryHeatmap <- function(object,
 #' @title Display trajectory fit
 #'
 #' @description Displays the trend of a trajectory in comparison to a variety
-#' of models / mathematical curves..
+#' of models / mathematical curves.
 #'
-#'
-#' @param rtdf A ranked trajectory data.frame.
+#' @inherit check_sample params
+#' @inherit check_trajectory params
 #' @param variable The gene or gene set of interest specified as a character value.
 #' @param display_residuals Logical. If set to TRUE the residuals are displayed
 #' via a red line.

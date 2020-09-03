@@ -724,8 +724,8 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 
 #' @title Obtain a summarized trajectory data.frame
 #'
-#' @description A wrapper arround \code{getTrajectoryObject()} and
-#' \code{hlpr_sumamrize_trajectory_df()}.
+#' @description Computes the expression trends of all specified variables
+#' along the direction of the spatial trajectory.
 #'
 #' @inherit check_sample params
 #' @inherit check_trajectory params
@@ -737,34 +737,6 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 #'
 #' @export
 
-getSummarizedTrajectoryDf <- function(object,
-                                      trajectory_name,
-                                      of_sample = "",
-                                      variables,
-                                      method_gs = "mean",
-                                      accuracy = 5,
-                                      verbose = TRUE){
-
-  warning("getSummarizedTrajectoryDf is deprecated. Use getTrajectoryDf instead")
-
-  tobj <-
-    getTrajectoryObject(object, trajectory_name, of_sample)
-
-  stdf <-
-  hlpr_summarize_trajectory_df(object,
-                               ctdf = tobj@compiled_trajectory_df,
-                               accuracy = accuracy,
-                               variables = variables,
-                               method_gs = method_gs,
-                               verbose = verbose)
-
-  base::return(stdf)
-
-}
-
-
-#' @rdname getSummarizedTrajectoryDf
-#' @export
 getTrajectoryDf <- function(object,
                             trajectory_name,
                             of_sample = "",

@@ -39,7 +39,7 @@ moduleSurfacePlotUI <- function(id){
                                     shiny::actionButton(ns("update_plot"), label = "Plot & Update"),
                                     shinyWidgets::dropdownButton(
                                       shiny::sliderInput(ns("pt_size"), label = "Size of points", min = 1, max = 5, step = 0.01, value = 2.75),
-                                      shiny::sliderInput(ns("pt_alpha"), label = "Transparency of points", min = 0.01, max = 0.99, step = 0.01, value = 0.1),
+                                      shiny::sliderInput(ns("pt_alpha"), label = "Transparency of points", min = 0.01, max = 0.99, step = 0.01, value = 0.15),
                                       shinyWidgets::materialSwitch(ns("perform_smoothing"), value = FALSE, label = "Smooth values:", status = "success"),
                                       shiny::conditionalPanel(condition = "input.perform_smoothing == 1", ns = ns,
                                                               shiny::sliderInput(ns("span_smoothing"),
@@ -90,7 +90,11 @@ moduleSurfacePlotUI <- function(id){
 #' \code{shiny::reactive(*module_return_variable*()$assembled_plot())}
 #'
 
-moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
+moduleSurfacePlotServer <- function(id,
+                                    object,
+                                    final_plot,
+                                    reactive_object,
+                                    highlighted = shiny::reactive( FALSE )){
 
   shiny::moduleServer(
     id = id,
@@ -127,6 +131,35 @@ moduleSurfacePlotServer <- function(id, object, final_plot, reactive_object){
       # -----
 
       # Render UIs and Outputs --------------------------------------------------
+
+      # update transparency
+
+      shiny::observeEvent(eventExpr = highlighted(), {
+
+        if(base::isTRUE(highlighted())){
+
+          shiny::updateSliderInput(session,
+                                   inputId = "pt_alpha",
+                                   label = "Transparency of points",
+                                   min = 0.01,
+                                   max = 0.99,
+                                   step = 0.01,
+                                   value = 0.75)
+
+        } else if(base::isFALSE(highlighted())){
+
+          shiny::updateSliderInput(session,
+                                   inputId = "pt_alpha",
+                                   label = "Transparency of points",
+                                   min = 0.01,
+                                   max = 0.99,
+                                   step = 0.01,
+                                   value = 0.15)
+
+        }
+
+
+      })
 
       # select outputs
       output$sample_opts <- shiny::renderUI({

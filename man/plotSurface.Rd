@@ -43,7 +43,7 @@ plotSurfaceInteractive(object)
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{color_to}{The variable to be displayed by color specified as .
+\item{color_to}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

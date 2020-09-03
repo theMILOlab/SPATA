@@ -29,8 +29,9 @@ is stored specified as a character value. Should end with \emph{'.rds'} or  \emp
 
 \item{cluster_method}{Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.}
 
-\item{feature_name}{The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-already existing features of the same name!}
+\item{feature_name}{The name under which the created pseudotime-variable is stored in the provided object.
+
+Warning: Will overwrite already existing features of the same name!}
 
 \item{verbose}{Logical value. If set to TRUE informative messages with respect
 to the computational progress made will be printed.

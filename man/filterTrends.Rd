@@ -4,7 +4,7 @@
 \alias{filterTrends}
 \title{Trajectory trends}
 \usage{
-filterTrends(atdf, limit = 2, trends)
+filterTrends(atdf, limit = 2, trends = "all")
 }
 \arguments{
 \item{atdf}{An assessed trajectory data.frame (easily accessed via

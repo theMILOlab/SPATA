@@ -11,7 +11,7 @@
 #'
 #' @export
 
-createSegmentation <- function(object = NULL){
+createSegmentation <- function(object){
 
   validation(x = object)
 
@@ -82,8 +82,9 @@ createSegmentation <- function(object = NULL){
 
         # df and ggplot layer of the currently drawn segment
         vertices_df <-
-          shiny::reactiveVal(value = data.frame(x = numeric(0),
-                                                y = numeric(0)))
+          shiny::reactiveVal(value = data.frame(x = base::numeric(0),
+                                                y = base::numeric(0),
+                                                segm = base::character(0)))
 
         vertices_layer <- shiny::reactiveVal(value = list())
 
@@ -135,16 +136,18 @@ createSegmentation <- function(object = NULL){
           vrtcs_list <- module_return()$dblclick()
           new_df <- dplyr::add_row(.data = vertices_df(),
                                    x = vrtcs_list$x,
-                                   y = vrtcs_list$y)
+                                   y = vrtcs_list$y,
+                                   segm = "segm")
 
           ## 2.1 update vertices df
           vertices_df(new_df)
 
           ## 2.2 update vertices geom layer
-          if(nrow(vertices_df()) != 0){
+          if(base::nrow(vertices_df()) != 0){
 
             new_layer <- list(ggplot2::geom_point(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 3.5, color = "black"),
-                              ggplot2::geom_path(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1, color = "black"))
+                              ggplot2::geom_line(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y, group = segm), size = 1.25, color = "black")
+                                )
 
             vertices_layer(new_layer)
 
@@ -173,7 +176,7 @@ createSegmentation <- function(object = NULL){
         ##--- 2.2 reset current() vertices
         oe <- shiny::observeEvent(input$reset_segment, {
 
-          vertices_df(data.frame(x = numeric(0), y = numeric(0)))
+          vertices_df(data.frame(x = numeric(0), y = numeric(0), segm = "segm"))
           vertices_layer(list())
 
         })
@@ -183,7 +186,7 @@ createSegmentation <- function(object = NULL){
 
           checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name")
           checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
-          checkpoint(evaluate = nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
+          checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
 
           sample_coords <- coordinates(objec = spata_obj(), of_sample = current()$sample)
 
@@ -230,7 +233,7 @@ createSegmentation <- function(object = NULL){
 
 
           ## 3. reset vertices values
-          vertices_df(data.frame(x = numeric(0), y = numeric(0)))
+          vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0), base::character(0)))
           vertices_layer(list())
 
         })
@@ -352,6 +355,7 @@ createTrajectories <- function(object){
 
           # Reactive values ---------------------------------------------------------
           spata_obj <- shiny::reactiveVal(value = object)
+          highlighted <- shiny::reactiveVal(value = FALSE)
 
           vertices_df <-
             shiny::reactiveVal(value = data.frame(x = numeric(0),
@@ -384,7 +388,8 @@ createTrajectories <- function(object){
           module_return <- moduleSurfacePlotServer(id = "trajectories",
                                                    object = object,
                                                    final_plot = shiny::reactive(final_plot()),
-                                                   reactive_object = shiny::reactive(spata_obj()))
+                                                   reactive_object = shiny::reactive(spata_obj()),
+                                                   highlighted = highlighted)
 
           # update current()
           oe <- shiny::observeEvent(module_return()$current_setting(), {
@@ -410,7 +415,7 @@ createTrajectories <- function(object){
             new_layer <- list()
 
             # update geom_point layer
-            if(nrow(vertices_df()) >= 1){
+            if(base::nrow(vertices_df()) >= 1){
 
               new_layer[[1]] <-
                 ggplot2::geom_point(data = vertices_df(),
@@ -450,9 +455,7 @@ createTrajectories <- function(object){
 
               add_on_layer <-
                 list(
-                  #ggplot2::geom_point(data = module_return()$smoothed_df(), size = size,
-                  #                    mapping = ggplot2::aes(x = x, y = y), alpha = current()$pt_alpha, color = "lightgrey"),
-                  ggplot2::geom_point(data = joined_traj_df, size = size,
+                  ggplot2::geom_point(data = joined_traj_df, size = size, alpha = 1,
                                       mapping = ggplot2::aes(x = x, y = y, color = color_var))
                 )
 
@@ -497,7 +500,6 @@ createTrajectories <- function(object){
                   part = stringr::str_c("part", n_vrt-1 , sep = "_")
                 )
 
-              print(stdf)
               segment_trajectory_df(stats::na.omit(stdf))
 
             } else {
@@ -525,6 +527,7 @@ createTrajectories <- function(object){
                                       object = spata_obj(),
                                       sample = current()$sample)
 
+            highlighted(TRUE)
             compiled_trajectory_df(compiled_trajectory_df)
 
           })
@@ -550,6 +553,8 @@ createTrajectories <- function(object){
                                               projection_length = numeric(0),
                                               trajectory_part = character(0),
                                               stringsAsFactors = F))
+
+            highlighted(FALSE)
 
           })
 
@@ -603,6 +608,8 @@ createTrajectories <- function(object){
                                                 trajectory_part = character(0),
                                                 stringsAsFactors = F))
 
+              highlight(FALSE)
+
             } else {
 
               shiny::showNotification(ui = "Could not save trajectory.")
@@ -641,8 +648,9 @@ createTrajectories <- function(object){
 #' is stored specified as a character value. Should end with \emph{'.rds'} or  \emph{'.RDS'}.
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
 #' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
-#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object. Will overwrite
-#' already existing features of the same name!
+#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object.
+#'
+#' Warning: Will overwrite already existing features of the same name!
 #' @param verbose Logical value. If set to TRUE informative messages with respect
 #' to the computational progress made will be printed.
 #'
@@ -663,12 +671,12 @@ createPseudotime <- function(object,
   check_object(object)
 
   cds <-
-    hlpr_compile_cds(object = object,
-                     use_cds_file = use_cds_file,
-                     save_cds_file = save_cds_file,
-                     preprocess_method = preprocess_method,
-                     cluster_method = cluster_method,
-                     verbose = verbose)
+    compileCellDataSet(object = object,
+                      use_cds_file = use_cds_file,
+                      save_cds_file = save_cds_file,
+                      preprocess_method = preprocess_method,
+                      cluster_method = cluster_method,
+                      verbose = verbose)
 
   ps_time <-
     as.data.frame(monocle3::pseudotime(cds)) %>%

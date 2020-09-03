@@ -27,6 +27,8 @@ hlpr_smooth(
 
 \item{subset}{Vector of variable names to smooth}
 
+\item{pb}{A progress-bar or NULL.}
+
 \item{verbose}{Logical}
 }
 \value{

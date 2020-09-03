@@ -29,10 +29,10 @@ adjusting_check_dummy <- function(){}
 #' vector and sorts its elements into a list depending on whether it was found in
 #' the input of \code{all_features}, \code{all_genes} or \code{all_gene_sets}.
 #'
-#' Returns a list with three slots named \emph{features}, \emph{genes} and \emph{gene_sets}
+#' Returns a list with one slot named \emph{features}, \emph{genes} or \emph{gene_sets}
 #' containing the respective found/valid input of \code{color_to}.
 #'
-#' @param color_to The variable to be displayed by color specified as .
+#' @param color_to The variable to be displayed by color:
 #'
 #'  \itemize{
 #'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
@@ -44,7 +44,6 @@ adjusting_check_dummy <- function(){}
 #' @param all_features The valid features specified as a character vector.
 #' @param all_genes The valid genes specified as a character vector.
 #' @param all_gene_sets The valid gene sets specified as a character vector.
-#' @param max_length The maximum number of elements the resulting list can have.
 #'
 #' @inherit adjusting_check_dummy details return
 #' @export
@@ -52,79 +51,45 @@ adjusting_check_dummy <- function(){}
 check_color_to <- function(color_to,
                            all_features = character(),
                            all_gene_sets = character(),
-                           all_genes = character(),
-                           max_length = 25){
+                           all_genes = character()){
 
-  if(base::is.list(color_to) & !base::is.data.frame(color_to)){
+  confuns::is_vec(color_to, "character", "color_to")
 
-    color_to <- base::unlist(color_to)
-
-  } else if(!base::is.character(color_to)){
-
-    stop("Argument 'color_to' needs to be of class 'character' or of class 'list'.")
-
-  }
-
-  if(base::length(color_to) > max_length){
-
-    base::stop(stringr::str_c("Maximum length (", max_length,
-                              ") of argument 'color_to' exceeded: ",
-                              base::length(color_to) ))
-
-  }
-
-  if(base::any(color_to %in% all_features)){
-
-    found_features <- all_features[all_features %in% color_to]
-
-  } else {
-
-    found_features <- NULL
-
-  }
-
-  if(base::any(color_to %in% all_gene_sets)){
-
-    found_gene_sets <- all_gene_sets[all_gene_sets %in% color_to]
-
-  } else {
-
-    found_gene_sets <- NULL
-
-  }
+  return_list <- list()
 
   if(base::any(color_to %in% all_genes)){
 
-    found_genes <- all_genes[all_genes %in% color_to]
+    return_list[["genes"]] <-
+      confuns::check_vector(
+        input = color_to,
+        against = all_genes,
+        verbose = TRUE,
+        ref.input = "input for argumet 'color to'",
+        ref.against = "all known genes."
+      )
+
+  } else if(base::any(color_to %in% all_features)){
+
+    if(base::length(color_to) != 1){
+
+      base::stop("Features have to be specified as a single character value.")
+
+    }
+
+    return_list[["features"]] <- all_features[all_features %in% color_to]
+
+  } else if(base::any(color_to %in% all_gene_sets)){
+
+    if(base::length(color_to) != 1){
+
+      base::stop("Gene-sets have to be specified as a single character value.")
+    }
+
+    return_list["gene_sets"] <- all_gene_sets[all_gene_sets %in% color_to]
 
   } else {
 
-    found_genes <- NULL
-
-  }
-
-  found_all <- list("features" = found_features,
-                    "gene_sets" = found_gene_sets,
-                    "genes" = found_genes)
-
-  if(base::length(base::unlist(found_all)) != base::length(color_to)){
-
-    not_found <- color_to[!color_to %in% base::unlist(found_all)]
-
-    not_found_string <- stringr::str_c(not_found, collapse = "', '")
-
-    base::warning(stringr::str_c("Did not find '", not_found_string,
-                                 "' of argument 'color_to' in the provided spata object.",
-                                 sep = ""))
-
-  }
-
-  return_list <-
-    purrr::discard(.x = found_all, .p = base::is.null)
-
-  if(base::length(return_list) == 0){
-
-    base::stop("Could not find any element of argument 'color_to' in the provided spata-object..")
+    base::stop(glue::glue("Could not find '{color_to}' among all genes, gene-sets and features."))
 
   }
 
@@ -176,15 +141,20 @@ check_features <- function(object,
 
   } else if(base::all(features %in% fnames)){
 
-    fnames <- getFeatureNames(object)[getFeatureNames(object) %in% features]
+    fnames <- fnames[fnames %in% features]
 
   } else if(base::any(features %in% fnames)){
 
     fnames_found <- fnames[fnames %in% features]
 
-    not_found <- stringr::str_c(features[!features %in% fnames_found], collapse = ", ")
+    not_found <- features[!features %in% fnames]
+    n_not_found <- base::length(not_found)
 
-    base::warning(stringr::str_c("Did not find feature(s):", not_found, sep = " "))
+    ref <- base::ifelse(n_not_found > 1, "features", "feature")
+
+    not_found <- stringr::str_c(not_found, collapse = "', '")
+
+    base::warning(glue::glue("Did not find {n_not_found} {ref}: '{not_found}'"))
 
     fnames <- fnames_found
 
@@ -192,7 +162,7 @@ check_features <- function(object,
 
   # -----
 
-  # 3. Check which of the provided features are of valid classes ------------
+  # 3. Check which of the specified features are of valid classes ------------
 
   if(!base::is.null(valid_classes)){
 
@@ -210,10 +180,15 @@ check_features <- function(object,
 
     } else if(base::length(fnames) != base::length(valid_fnames)){
 
-      not_valid <- stringr::str_c(fnames[!fnames %in% valid_fnames], collapse = ", ")
-      valid_classes_string <- stringr::str_c(valid_classes, collapse = "' or '")
+      not_valid <- fnames[!fnames %in% valid_fnames]
+      n_not_valid <- base::length(not_valid)
 
-      base::warning(stringr::str_c("Ignoring feature(s) that are not of class '" ,valid_classes_string, "': ", not_valid, sep = ""))
+      ref1 <- base::ifelse(n_not_valid > 1, "features", "feature")
+      ref2 <- stringr::str_c(valid_classes, collapse = "' or '")
+
+      not_valid <- stringr::str_c(not_valid, collapse = "', '")
+
+      base::warning(glue::glue("Ignoring {ref1} that are not of class '{ref2}': '{not_valid}'"))
 
     }
 
@@ -251,7 +226,7 @@ check_features <- function(object,
 #'
 #' @param genes The genes of interest specified as a character vector.
 #' @param rna_assay The rna-assay you want to
-#' look in. If set to NULL the whole rna_assay of the provided object will be used
+#' look in. If set to NULL the whole rna_assay of the specified object will be used
 #' with \code{exprMtr()}.
 #'
 #' @inherit adjusting_check_dummy details return
@@ -293,10 +268,14 @@ check_genes <- function(object,
 
     genes_found <- base::rownames(rna_assay)[base::rownames(rna_assay) %in% genes]
 
-    not_found <-
-      genes[!genes %in% genes_found] %>% stringr::str_c(collapse = ", ")
+    not_found <- genes[!genes %in% genes_found]
+    n_not_found <- base::length(not_found)
 
-    base::warning(stringr::str_c("Did not find genes: ", not_found, ".", sep = ""))
+    ref <- base::ifelse(n_not_found > 1, "genes", "gene")
+
+    not_found <- stringr::str_c(not_found, collapse = "', '")
+
+    base::warning(glue::glue("Did not find {n_not_found} {ref}: '{not_found}'"))
 
   }
 
@@ -349,31 +328,36 @@ check_gene_sets <- function(object,
 
   gene_set_df <- object@used_genesets
 
+  all_gene_sets <-
+    dplyr::pull(object@used_genesets, ont) %>%
+    base::unique()
+
   # 2.1 Check if/how many gene sets actually exists ---------
 
   if(base::all(gene_sets == "all")){
 
-    gene_sets_found <- gene_set_df$ont %>% base::unique()
+    gene_sets_found <- all_gene_sets
 
-  } else if(!any(gene_sets %in% gene_set_df$ont)){
+  } else if(!any(gene_sets %in% all_gene_sets)){
 
     stop("Could not find any specified geneset.")
 
-  } else if(base::all(gene_sets %in% gene_set_df$ont)){
+  } else if(base::all(gene_sets %in% all_gene_sets)){
 
     gene_sets_found <- gene_sets
 
-  } else if(base::any(gene_sets %in% gene_set_df$ont)){
+  } else if(base::any(gene_sets %in% all_gene_sets)){
 
-    unique_gs <-
-      dplyr::pull(gene_set_df, "ont") %>%
-      base::unique()
+    gene_sets_found <- all_gene_sets[all_gene_sets %in% gene_sets]
 
-    gene_sets_found <- unique_gs[unique_gs %in% gene_sets]
+    not_found <- gene_sets[!gene_sets %in% all_gene_sets]
+    n_not_found <- base::length(not_found)
 
-    not_found <- stringr::str_c(gene_sets[!gene_sets %in% gene_sets_found], collapse = ", ")
+    ref <- base::ifelse(n_not_found > 1, "gene-sets", "gene-set")
 
-    base::warning(stringr::str_c("Could not find gene_sets:", not_found, sep = " "))
+    not_found <- stringr::str_c(not_found, collapse = "', '")
+
+    base::warning(glue::glue("Did not find {n_not_found} {ref}: '{not_found}'"))
 
   }
 
@@ -455,25 +439,22 @@ check_sample <- function(object,
 
   }  else if(!base::any(of_sample %in% object@samples)){
 
-    stop("Could not find any of the specified samples in provided object.")
+    stop("Could not find any of the specified samples in specified object.")
 
   } else if(base::any(of_sample %in% samples(object))){
 
     samples_found <- object@samples[object@samples %in% of_sample]
 
-    if(base::length(of_sample) > 1){
-
-      samples_found_string <- stringr::str_c(samples_found, collapse = ", ")
-
-    } else if(base::length(of_sample) == 1){
-
-      samples_found_string <- samples_found
-
-    }
-
     if(base::length(samples_found) != base::length(of_sample)){
 
-      base::warning(stringr::str_c("Did only find samples: ", samples_found_string, "."))
+      not_found <- of_sample[!of_sample %in% object@samples]
+      n_not_found <- base::length(not_found)
+
+      not_found <- stringr::str_c(not_found, collapse = "', '")
+
+      ref <- base::ifelse(n_not_found > 1, "samples", "sample")
+
+      base::warning(glue::glue("Did not find {n_not_found} {ref}: {not_found}"))
 
     }
 
@@ -502,7 +483,7 @@ check_sample <- function(object,
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes the
 #' segment name as a single character value, check whether such a segment
-#' exists in the provided spata-object. If no an error is raised. Else the
+#' exists in the specified spata-object. If no an error is raised. Else the
 #' barcodes of spots belonging to the specified segment are returned.
 #'
 #' @param object A valid spata-object.
@@ -675,7 +656,7 @@ check_variables <- function(variables,
 
   if(base::length(return_list) == 0){
 
-    base::stop("Could not find any of the specified feature(s), gene set(s) and/or gene(s).")
+    base::stop("Could not find any of the specified input of 'variables' among genes, gene-sets and features..")
 
   } else if(base::isTRUE(simplify)) {
 

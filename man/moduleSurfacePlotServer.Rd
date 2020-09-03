@@ -4,7 +4,13 @@
 \alias{moduleSurfacePlotServer}
 \title{Server of surface plot module}
 \usage{
-moduleSurfacePlotServer(id, object, final_plot, reactive_object)
+moduleSurfacePlotServer(
+  id,
+  object,
+  final_plot,
+  reactive_object,
+  highlighted = shiny::reactive(FALSE)
+)
 }
 \arguments{
 \item{id}{The namespace id.}

@@ -4,7 +4,7 @@
 \alias{createSegmentation}
 \title{Spatial Segmentation}
 \usage{
-createSegmentation(object = NULL)
+createSegmentation(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}

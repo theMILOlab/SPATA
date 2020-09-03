@@ -19,7 +19,7 @@ cases they print an informative message about what was going on.
 \description{
 A member of the \code{adjusting-check_*()}-family. Takes the
 segment name as a single character value, check whether such a segment
-exists in the provided spata-object. If no an error is raised. Else the
+exists in the specified spata-object. If no an error is raised. Else the
 barcodes of spots belonging to the specified segment are returned.
 }
 \details{

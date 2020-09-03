@@ -14,6 +14,12 @@ saveSpataObject(object, output_path, object_name, overwrite = FALSE)
 
 \item{object}{A valid spata-object.}
 
+\item{output_path}{Character value. Specifies the folder in which to store
+the object.}
+
+\item{object_name}{Character value. The name-suffix for the file name under which the
+spata-object is stored. Is prefixed with \emph{'spata-obj-'}.}
+
 \item{overwrite}{Logical. Needs to be set to TRUE if the resulting directory from
 \code{output_path} and \code{object_name} already exists.}
 }

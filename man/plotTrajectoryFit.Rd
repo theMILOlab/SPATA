@@ -19,6 +19,12 @@ plotTrajectoryFit(
 \arguments{
 \item{object}{A valid spata-object.}
 
+\item{trajectory_name}{The trajectory of interest specified
+as a single character value.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
 \item{variable}{The gene or gene set of interest specified as a character value.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
@@ -39,8 +45,6 @@ the computational progress will be printed.
 (Warning messages will always be printed.)}
 
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
-
-\item{rtdf}{A ranked trajectory data.frame.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according
@@ -48,5 +52,5 @@ to the rules of the ggplot2-framework.
 }
 \description{
 Displays the trend of a trajectory in comparison to a variety
-of models / mathematical curves..
+of models / mathematical curves.
 }

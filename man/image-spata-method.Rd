@@ -10,8 +10,6 @@
 \item{object}{A valid spata-object.}
 
 \item{of_sample}{The sample from which to extract the content.}
-
-\item{trajectory_name}{The trajectory specified as a character value.}
 }
 \description{
 Methods

@@ -360,7 +360,7 @@ initiateSpataObject_10X <- function(input_paths,
 #'
 #' @param input_path Character value. The directory leading to the spata-object.
 #' @inherit check_object params
-#' @inherit createSpataObject_10X params
+#' @inherit initiateSpataObject_10X params
 #' @param overwrite Logical. Needs to be set to TRUE if the resulting directory from
 #' \code{output_path} and \code{object_name} already exists.
 #'

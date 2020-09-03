@@ -37,7 +37,7 @@ plotFourStates2(
 \item{states}{The gene sets defining the four states specified as a character vector
 of length 4.}
 
-\item{color_to}{The variable to be displayed by color specified as .
+\item{color_to}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

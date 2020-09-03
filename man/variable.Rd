@@ -7,7 +7,7 @@
 variable(variable)
 }
 \arguments{
-\item{variabel}{The variable of interest.
+\item{variable}{The variable of interest.
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

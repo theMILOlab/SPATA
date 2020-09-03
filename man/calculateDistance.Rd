@@ -40,6 +40,15 @@ calculateDistanceHeatmap(
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
+\item{variable}{The variable of interest.
+
+ \itemize{
+  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
+  \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  }}
+
 \item{plot_type}{Character value. Either \emph{'heatmap'} or \emph{'lineplot'}.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled

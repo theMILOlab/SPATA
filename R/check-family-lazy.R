@@ -615,6 +615,31 @@ check_trajectory <- function(object,
 }
 
 
+#' @title Check uniform genes input
+#'
+#' @param uniform_genes Character value. If set to \emph{'discard'} genes that are
+#' uniformly expressed across all barcode-spots of the specified coordinates
+#' data.frame are discarded. If set to \emph{'keep'} they are kept.
+#'
+#' @return
+#' @export
+#'
+
+check_uniform_genes <- function(uniform_genes){
+
+  confuns::is_value(uniform_genes, "character", "uniform_genes")
+
+  if(!uniform_genes %in% c("keep", "discard")){
+
+    base::stop("Argument 'uniform genes' must be set to 'keep' or 'discard'.")
+
+  } else {
+
+    base::return(base::invisible(TRUE))
+  }
+
+}
+
 
 
 

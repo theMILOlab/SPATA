@@ -1,7 +1,7 @@
 Package: SPATA
 Type: Package
 Title: A Toolbox for Spatial Gene Expression Analysis
-Version: 0.1.0
+Version: 0.0.9000
 Author: Dieter Henrik Heiland, Jan Kueckelhaus
 Maintainer: Jan Kueckelhaus <jankueckelhaus@gmx.de>
 Description: This package provides a framework of functions and shiny-applications to make it as easy  and intuitive as possible to work with spatial gene expression data. 
@@ -44,7 +44,6 @@ Collate:
     'check-family-lazy.R'
     'check-family-validation.R'
     'checkpoint.R'
-    'coords-family.R'
     'create_family.R'
     'deprecated-functions.R'
     'documentation-dummies.R'
@@ -63,5 +62,6 @@ Collate:
     'plot-family-miscellaneous.R'
     'plot-family-surface.R'
     'plot-family-trajectory.R'
+    'pseudotime-embedding.R'
     'trajectory-analysis.R'
     'validation.R'

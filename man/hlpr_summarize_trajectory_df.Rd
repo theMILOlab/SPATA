@@ -60,7 +60,7 @@ The amount of \code{accuracy} and the previously specified 'trajectory width' in
 determine the length and width of the sub-rectangles in which the rectangle the
 trajectory embraces are splitted and in which all barcode-spots are binned.
 Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
-These means are then arranged according to the trajectory's direction.
+These mean-values are then arranged according to the trajectory's direction.
 
 Eventually the data.frame is shifted via \code{tidyr::pivot_longer()} to a data.frame in which
 every observation refers to the mean-value of one of the specified variable-elements (e.g. a specified

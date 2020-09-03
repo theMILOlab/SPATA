@@ -17,14 +17,28 @@ plotHeatmapDE(
 )
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
 \item{data}{A data.frame containing at least the character or factor variables
-\emph{cluster} and \emph{gene}.}
+ \emph{cluster} and \emph{gene}.
 
-\item{across}{Character value. Denotes feature-variable used to perform the differentially
-gene expression analysis.}
+ Hint: Use the resulting data.frame of \code{SPATA::findDE()} as input.}
 
-\item{across_subset}{Character vector or NULL. The elements of the \emph{cluster}-variable
-\code{data} you want to subset. If set to NULL no subsetting takes place.}
+\item{across}{Character value. The name of the discrete feature-variable of interest.
+
+Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
+groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
+to compare against each other. Use \code{getFeatureNames()} to get an overview of the
+features variables your spata-object contains.}
+
+\item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
+specified in argument \code{across} contains. If set to NULL all of them are chosen.
+
+Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+feature-variable.}
 
 \item{n_barcode_spots}{The number of barcode-spots belonging to each cluster you want to
 include in the matrix. Should be lower than the total number of barcode-spots of every cluster

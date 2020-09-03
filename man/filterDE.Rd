@@ -20,8 +20,11 @@ the character variables \emph{cluster, gene}.}
 
 \item{min_pvalue}{Numeric value. Affects the number of genes kept per \emph{cluster}-group. See details.}
 
-\item{across_subset}{Character vector or NULL. The clusters you are interested in. If set to NULL all clusters
-are chosen.}
+\item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
+specified in argument \code{across} contains. If set to NULL all of them are chosen.
+
+Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+feature-variable.}
 
 \item{genes_only}{Logical. If set to TRUE the resulting gene-variable is returned as a character vector.}
 }

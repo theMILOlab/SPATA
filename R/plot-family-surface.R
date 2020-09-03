@@ -443,7 +443,7 @@ plotSurfaceComparison <- function(object,
   # adjust data.frame for use of ggplot2::facets
 
   variables <- base::unname(base::unlist(variables))
-  nv <- base::length(variables)
+  n_variables <- base::length(variables)
 
   shifted_data <-
     tidyr::pivot_longer(
@@ -459,7 +459,7 @@ plotSurfaceComparison <- function(object,
               object = list("point" = shifted_data),
               name = assign_name)
 
-  if(base::isTRUE(verbose)){base::message("Plotting {nv} different variables. (This can take a few seconds.)")}
+  if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"))}
 
   ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on2(object, display_image, of_sample) +
@@ -476,49 +476,57 @@ plotSurfaceComparison <- function(object,
 #' @export
 
 plotSurfaceComparison2 <- function(data,
-                                   variables = NULL,
+                                   variables = "all",
                                    pt_size = 2,
                                    pt_alpha = 0.9,
                                    pt_clrsp = "inferno",
                                    image = NULL,
+                                   verbose = TRUE,
                                    ...){
 
 
     # 1. Control --------------------------------------------------------------
 
     stopifnot(base::is.data.frame(data))
-    stopifnot(base::is.null(variables) | base::is.character(variables))
+    confuns::is_vec(variables, "character", "variables")
 
     check_pt(pt_size, pt_alpha, pt_clrsp)
 
-    num_data <- data[,base::sapply(data, base::is.numeric)]
-    num_variables <- base::colnames(num_data)
+    if(base::all(variables == "all")){
 
-    if(base::is.null(variables)){
+      if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
-      valid_variables <- num_variables[!num_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+      cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+
+      valid_variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
     } else {
 
-      valid_variables <- variables[variables %in% num_variables]
-      valid_variables <- valid_variables[!valid_variables %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
+      check_list <-
+        purrr::map(variables, function(i){c("numeric", "integer")}) %>%
+        magrittr::set_names(value = variables)
 
-      invalid_variables <- variables[!variables %in% valid_variables]
+      confuns::check_data_frame(
+        df = data,
+        var.class = check_list,
+        ref = "data"
+      )
 
-      if(base::length(invalid_variables) > 0){
+      valid_variables <- variables
 
-        invalid_variables <- stringr::str_c(invalid_variables, collapse = "', '")
-
-        base::warning(stringr::str_c("Ignoring non-numeric, invalid or not found variables: '",
-                                     invalid_variables, "'", sep = "" ))
-
-      }
+      if(base::isTRUE(verbose)){"All specified variables found."}
 
     }
 
     # -----
 
-    nv <- base::length(valid_variables)
+
+    n_valid_variables <- base::length(valid_variables)
+    ref <- base::ifelse(n_valid_variables > 1,
+                        yes = "different variables. (This can take a few seconds.)",
+                        no = "variable.")
+    if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_valid_variables} {ref}"))}
+
 
     # adjust data.frame for use of ggplot2::facets
     shifted_data <-
@@ -530,8 +538,6 @@ plotSurfaceComparison2 <- function(data,
       )
 
     # plotting
-
-    if(base::isTRUE(verbose)){base::message("Plotting {nv} different variables. (This can take a few seconds.)")}
 
     ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
       hlpr_image_add_on(image) +

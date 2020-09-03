@@ -10,7 +10,7 @@ check_genes(object, genes, rna_assay = NULL, max_length = NULL)
 \item{genes}{The genes of interest specified as a character vector.}
 
 \item{rna_assay}{The rna-assay you want to
-look in. If set to NULL the whole rna_assay of the provided object will be used
+look in. If set to NULL the whole rna_assay of the specified object will be used
 with \code{exprMtr()}.}
 }
 \value{

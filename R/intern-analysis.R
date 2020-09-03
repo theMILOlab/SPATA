@@ -282,6 +282,53 @@ calculateDistanceHeatmap <- function(object,
 
 
 
+
+#' @title Convert a numeric variable to a discrete one
+#'
+#' @description A wrapper around \code{dplyr::ntile()} to bin a numeric feature
+#' into a discrete one.
+#'
+#' @param data A data.frame containing at least the character variables \emph{barcodes}
+#' and \code{sample} and the numeric variable specified in \code{num_variable}.
+#' @param num_variable Character value. The name of the numeric variable that you want
+#' to convert.
+#' @param discr_variable Character value. The name the new discrete variable wil have.
+#' @param n_bins Numeric value. The number of bins you want to distribute the
+#' values of \code{num_variable} to. Given to argument \code{n} of \code{dplyr::ntile()}.
+#'
+#' @return The data.frame specified in \code{data} with the additional discrete variable.
+#' @export
+#'
+
+convertToDiscrete <- function(data,
+                              num_variable,
+                              discr_variable,
+                              n_bins){
+
+  confuns::is_value(num_variable, "character", "num_variable")
+  confuns::is_value(discr_variable, "character", "discr_variable")
+
+  check_list <-
+    list(c("character"),
+         c("character"),
+         c("numeric", "integer", "double")) %>%
+    magrittr::set_names(value = c("barcodes", "sample", num_variable))
+
+  confuns::check_data_frame(
+    df = data,
+    var.class = check_list,
+    ref = "data")
+
+  res_data <-
+    dplyr::mutate(.data = data,
+                  !!discr_variable := dplyr::ntile(x = !!rlang::sym(num_variable), n = n_bins))
+
+  res_data[[discr_variable]] <- base::as.character(res_data[[discr_variable]])
+
+  base::return(res_data)
+
+}
+
 #' @title Clustering with igraph
 #'
 #' @param cor.mtr A correlation matrix.

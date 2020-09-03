@@ -12,10 +12,11 @@ joinWith(
   object,
   coords_df,
   features = NULL,
-  method_gs = "mean",
   gene_sets = NULL,
+  method_gs = "mean",
   genes = NULL,
   average_genes = FALSE,
+  uniform_genes = "discard",
   smooth = FALSE,
   smooth_span = 0.02,
   verbose = TRUE,
@@ -36,6 +37,7 @@ joinWithGenes(
   coords_df,
   genes,
   average_genes = FALSE,
+  uniform_genes = "discard",
   smooth = FALSE,
   smooth_span = 0.02,
   normalize = TRUE,
@@ -59,6 +61,7 @@ joinWithVariables(
   variables,
   method_gs = "mean",
   average_genes = FALSE,
+  uniform_genes = "discard",
   smooth = FALSE,
   smooth_span = 0.02,
   normalize = TRUE,
@@ -73,17 +76,21 @@ joinWithVariables(
 
 \item{features}{The features of interest specified as a character vector.}
 
+\item{gene_sets}{The gene sets of interest specified as a character vector.}
+
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{gene_sets}{The gene sets of interest specified as a character vector.}
-
 \item{genes}{The genes of interest specified as a character vector.}
 
 \item{average_genes}{Logical. If set to TRUE the average expression of the
 specified genes is calculated and saved under one variable named 'mean_genes'.}
+
+\item{uniform_genes}{Character value. If set to \emph{'discard'} genes that are
+uniformly expressed across all barcode-spots of the specified coordinates
+data.frame are discarded. If set to \emph{'keep'} they are kept.}
 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
