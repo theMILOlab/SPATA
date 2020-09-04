@@ -182,7 +182,7 @@ joinWithGenes <- function(object,
                           coords_df,
                           genes,
                           average_genes = FALSE,
-                          uniform_genes = "discard",
+                          uniform_genes = "keep",
                           smooth = FALSE,
                           smooth_span = 0.02,
                           normalize = TRUE,
@@ -203,11 +203,10 @@ joinWithGenes <- function(object,
 
   # -----
 
-
   barcodes <- coords_df$barcodes
   rna_assay <- base::as.matrix(rna_assay[genes, barcodes])
 
-# 2. Discard uniformly expressed genes ------------------------------------
+  # 2. Discard uniformly expressed genes ------------------------------------
 
   n_genes <- base::length(genes)
 
@@ -230,12 +229,20 @@ joinWithGenes <- function(object,
 
     }
 
-    uniformly_expressed <-
-      purrr::map_lgl(.x = 1:n_genes,
-                     .f = hlpr_one_distinct,
-                     rna_assay = rna_assay,
-                     pb = pb,
-                     verbose = verbose)
+    if(n_genes == 1){
+
+      uniformly_expressed <- hlpr_one_distinct(x = 1, base::t(rna_assay), pb = NULL, verbose = FALSE)
+
+    } else {
+
+      uniformly_expressed <-
+        purrr::map_lgl(.x = 1:n_genes,
+                       .f = hlpr_one_distinct,
+                       rna_assay = rna_assay,
+                       pb = pb,
+                       verbose = verbose)
+
+    }
 
     n_uniformly_expressed <- base::sum(uniformly_expressed)
 
@@ -267,7 +274,7 @@ joinWithGenes <- function(object,
   # -----
 
 
-# 3. Extract genes and join values with coords_df -------------------------
+  # 3. Extract genes and join values with coords_df -------------------------
 
   ref <- base::ifelse(n_genes == 1, "gene", "genes")
 
@@ -396,6 +403,7 @@ joinWithGenes <- function(object,
   base::return(joined_df)
 
 }
+
 
 
 #' @rdname joinWith

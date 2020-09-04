@@ -16,22 +16,22 @@ spata object
 \describe{
 \item{\code{coordinates}}{data.frame.}
 
-\item{\code{fdata}}{data.frame.}
-
-\item{\code{samples}}{character.}
-
 \item{\code{data}}{data_counts.}
-
-\item{\code{image}}{list.}
-
-\item{\code{description}}{character.}
 
 \item{\code{dim_red}}{dim_red.}
 
+\item{\code{fdata}}{data.frame.}
+
+\item{\code{image}}{list.}
+
+\item{\code{samples}}{character.}
+
 \item{\code{scvelo}}{scvelo.}
+
+\item{\code{trajectories}}{list.}
 
 \item{\code{used_genesets}}{data.frame.}
 
-\item{\code{trajectories}}{list.}
+\item{\code{version}}{character.}
 }}
 

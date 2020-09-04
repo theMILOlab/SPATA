@@ -67,8 +67,7 @@ plotSurface <- function(object,
     color_to <- check_color_to(color_to = color_to,
                                all_features = all_features,
                                all_gene_sets = all_gene_sets,
-                               all_genes = all_genes,
-                               max_length = 1)
+                               all_genes = all_genes)
   } else if(base::is.null(color_to)){
 
     base::message("No specification for argument 'color_to'. Color according to sample belonging.")

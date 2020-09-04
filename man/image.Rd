@@ -19,7 +19,7 @@
 \alias{featureData<-,spata-method}
 \alias{samples,spata-method}
 \alias{trajectory,spata-method}
-\alias{ctdf,spatialTrajectory-method}
+\alias{ctdf,spatial_trajectory-method}
 \title{Generics to extract a slots content}
 \usage{
 image(object, of_sample = "")
@@ -58,7 +58,7 @@ ctdf(t_obj)
 
 \S4method{trajectory}{spata}(object, trajectory_name, of_sample = "")
 
-\S4method{ctdf}{spatialTrajectory}(t_obj)
+\S4method{ctdf}{spatial_trajectory}(t_obj)
 }
 \arguments{
 \item{object}{A valid spata-object.}

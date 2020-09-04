@@ -8,7 +8,8 @@ check_color_to(
   color_to,
   all_features = character(),
   all_gene_sets = character(),
-  all_genes = character()
+  all_genes = character(),
+  max_length = NULL
 )
 }
 \arguments{

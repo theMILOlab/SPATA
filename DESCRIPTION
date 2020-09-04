@@ -45,6 +45,7 @@ Collate:
     'check-family-validation.R'
     'checkpoint.R'
     'create_family.R'
+    'data.R'
     'deprecated-functions.R'
     'documentation-dummies.R'
     'find-overlap.R'
@@ -65,3 +66,5 @@ Collate:
     'pseudotime-embedding.R'
     'trajectory-analysis.R'
     'validation.R'
+Depends: 
+    R (>= 2.10)

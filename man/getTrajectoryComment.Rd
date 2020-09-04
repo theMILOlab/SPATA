@@ -2,12 +2,12 @@
 % Please edit documentation in R/S4-generic-functions.R
 \name{getTrajectoryComment}
 \alias{getTrajectoryComment}
-\alias{getTrajectoryComment,spatialTrajectory-method}
+\alias{getTrajectoryComment,spatial_trajectory-method}
 \title{Obtain a trajectory comment}
 \usage{
 getTrajectoryComment(object, ...)
 
-\S4method{getTrajectoryComment}{spatialTrajectory}(object)
+\S4method{getTrajectoryComment}{spatial_trajectory}(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}

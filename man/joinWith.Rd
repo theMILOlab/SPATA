@@ -37,7 +37,7 @@ joinWithGenes(
   coords_df,
   genes,
   average_genes = FALSE,
-  uniform_genes = "discard",
+  uniform_genes = "keep",
   smooth = FALSE,
   smooth_span = 0.02,
   normalize = TRUE,

@@ -3,7 +3,7 @@
 \name{check_slot_coordinates}
 \alias{check_slot_coordinates}
 \alias{check_slot_data}
-\alias{check_slot_description}
+\alias{check_slot_version}
 \alias{check_slot_scvelo}
 \alias{check_slot_trajectories}
 \alias{check_trajectory_object}
@@ -18,7 +18,7 @@ check_slot_coordinates(object)
 
 check_slot_data(object)
 
-check_slot_description(object)
+check_slot_version(object)
 
 check_slot_scvelo(object)
 

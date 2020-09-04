@@ -19,8 +19,6 @@ trajectory with variables \code{x, y, xend, yend}.}
 trajectory.}
 
 \item{object}{A valid spata-object.}
-
-\item{sample}{The sample specified as a character string of length one.}
 }
 \value{
 A data.frame containing the variables \emph{barcodes, sample, x, y}

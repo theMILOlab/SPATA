@@ -19,8 +19,8 @@ validateSpataObject <- function(object){
 # 1. Examine the slot names -----------------------------------------------
 
   input_slots <- methods::slotNames(object) %>% sort()
-  spata_slots <- c("coordinates", "data", "description", "dim_red", "fdata",
-                   "image", "samples", "scvelo", "trajectories", "used_genesets")
+  spata_slots <- c("coordinates", "data", "dim_red", "fdata",
+                   "image", "samples", "scvelo", "trajectories", "used_genesets", "version")
 
   # check for missing input_slots
   if(!base::all(spata_slots %in% input_slots)){
@@ -199,12 +199,11 @@ check_slot_data <- function(object){
 #' @rdname check_slot_coordinates
 #' @export
 
-check_slot_description <- function(object){
+check_slot_version <- function(object){
 
-  base::return("Valid!")
+  base::return("Valid! (Currently not in use!)")
 
 }
-
 
 
 #' @rdname check_slot_coordinates
@@ -212,7 +211,7 @@ check_slot_description <- function(object){
 
 check_slot_scvelo <- function(object){
 
-  "Valid!"
+  base::return("Valid! (Currently not in use!)")
 
 }
 

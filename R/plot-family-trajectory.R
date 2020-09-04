@@ -57,8 +57,7 @@ plotTrajectory <- function(object,
     color_to <- check_color_to(color_to = color_to,
                                all_gene_sets = getGeneSets(object),
                                all_genes = getGenes(object),
-                               all_features = getFeatureNames(object),
-                               max_length = 1)
+                               all_features = getFeatureNames(object))
 
   }
 
@@ -783,6 +782,17 @@ plotTrajectoryHeatmap <- function(object,
   row_info <- dplyr::pull(.data = wide_tdf, var_type)
 
   mtr <- as.matrix(dplyr::select(.data = wide_tdf, -{{var_type}}))
+  base::rownames(mtr) <- row_info
+
+  keep <- base::apply(mtr, MARGIN = 1,
+                     FUN = function(x){
+
+                       dplyr::n_distinct(x) != 1
+
+                     })
+
+  mtr <- mtr[keep, ]
+
   mtr_smoothed <- matrix(0, nrow = nrow(mtr), ncol = ncol(mtr) * 10)
 
   if(verbose){
@@ -805,17 +815,10 @@ plotTrajectoryHeatmap <- function(object,
 
   }
 
-  plot_df <-
-    base::as.data.frame(mtr_smoothed) %>%
-    dplyr::mutate({{var_type}} := row_info)
-
   # -----
 
 
   # Plot heatmap ------------------------------------------------------------
-
-  row_labels <- row_info
-  mtr_smoothed <- as.matrix(plot_df[,base::sapply(plot_df, base::is.numeric)])
 
   base::colnames(mtr_smoothed) <- column_names
 
@@ -844,7 +847,7 @@ plotTrajectoryHeatmap <- function(object,
       cluster_columns = F,
       show_column_names = show_column_names,
       show_row_names = show_row_names,
-      row_labels = row_labels,
+      row_labels = base::rownames(mtr_smoothed),
       col = viridisLite::viridis(n = 1000, option = clrsp),
       border = TRUE,
       column_split = column_split_vec

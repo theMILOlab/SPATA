@@ -75,8 +75,7 @@ hlpr_compare_samples <- function(object, df, messages){
 #' trajectory with variables \code{x, y, xend, yend}.
 #' @param trajectory_width Numeric value that determines the width of the
 #' trajectory.
-#' @param object A valid spata-object.
-#' @param sample The sample specified as a character string of length one.
+#' @inherit check_sample params
 #'
 #' @return A data.frame containing the variables \emph{barcodes, sample, x, y}
 #' as well as

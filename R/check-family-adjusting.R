@@ -51,7 +51,12 @@ adjusting_check_dummy <- function(){}
 check_color_to <- function(color_to,
                            all_features = character(),
                            all_gene_sets = character(),
-                           all_genes = character()){
+                           all_genes = character(),
+                           max_length = NULL){
+
+  if(!base::is.null(max_length)){
+    base::warning("max_length is deprecated. ")
+  }
 
   confuns::is_vec(color_to, "character", "color_to")
 

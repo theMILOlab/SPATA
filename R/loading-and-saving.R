@@ -249,6 +249,7 @@ initiateSpataObject_10X <- function(input_paths,
   test <- Seurat::FindNeighbors(test, dims = 1:30)
   test <- Seurat::FindClusters(test, resolution = 0.8)
   test <- Seurat::RunUMAP(test, dims = 1:30, n.components = 2, n.neighbors = 50)
+  test <- Seurat::RunTSNE(test, dims = 1:30)
 
   # -----
 
@@ -288,10 +289,10 @@ initiateSpataObject_10X <- function(input_paths,
                      stringsAsFactors = F
                    ),
                    TSNE = data.frame(
-                     barcodes = character(),
-                     sample = character(),
-                     tsne1 = numeric(),
-                     tsne2 = numeric(),
+                     barcodes = fdata_n$barcodes,
+                     sample = fdata_n$sample,
+                     tsne1 = test@reductions$tsne@cell.embeddings[,1],
+                     tsne2 = test@reductions$tsne@cell.embeddings[,2],
                      stringsAsFactors = F
                    ))
 
@@ -299,7 +300,7 @@ initiateSpataObject_10X <- function(input_paths,
   # get gene set data.frame
   if(!base::is.null(gene_set_path)){
 
-    if(base::isTRUE(verbose)){base::message("Reading in gene set data.frame.")}
+    if(base::isTRUE(verbose)){base::message(glue::glue("Reading in specified gene-set data.frame from directory '{gene_set_path}'."))}
 
     gene_set_df <- base::readRDS(file = gene_set_path)
 
@@ -313,7 +314,9 @@ initiateSpataObject_10X <- function(input_paths,
 
   } else {
 
-    gene_set_df <- data.frame(ont = base::character(0), gene = base::character(0))
+    if(base::isTRUE(verbose)){base::message("Using SPATA's default gene set data.frame.")}
+
+    gene_set_df <- gsdf
 
   }
 
@@ -325,13 +328,17 @@ initiateSpataObject_10X <- function(input_paths,
   # final object
   new_object <- new(Class = "spata",
                     coordinates= coords_n,
-                    fdata = fdata_n,
-                    samples = sample_names,
-                    data = data_counts_n,
-                    image = list_images,
                     dim_red = dim_red_n,
+                    data = data_counts_n,
+                    fdata = fdata_n,
+                    image = list_images,
+                    samples = sample_names,
                     trajectories = trajectory_list,
-                    used_genesets = gene_set_df)
+                    used_genesets = gene_set_df,
+                    version = list(major = 0,
+                                   minor = 0,
+                                   patch = 0,
+                                   dev = 9000))
 
   # -----
 

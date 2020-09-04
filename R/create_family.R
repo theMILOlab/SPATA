@@ -571,7 +571,7 @@ createTrajectories <- function(object){
             spata_obj <- spata_obj()
 
             spata_obj@trajectories[[current()$sample]][[input$name_trajectory]] <-
-              methods::new("spatialTrajectory",
+              methods::new("spatial_trajectory",
                            compiled_trajectory_df = compiled_trajectory_df(),
                            segment_trajectory_df = segment_trajectory_df(),
                            comment = input$comment_trajectory,
@@ -608,7 +608,7 @@ createTrajectories <- function(object){
                                                 trajectory_part = character(0),
                                                 stringsAsFactors = F))
 
-              highlight(FALSE)
+              highlighted(FALSE)
 
             } else {
 

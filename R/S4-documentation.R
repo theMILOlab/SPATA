@@ -35,24 +35,12 @@ dim_red <- setClass("dim_red",
 
 # single cell velocity ----------------------------------------------------
 
-#' scvelo object
-#'
-#' @slot scvelo data.frame.
-#' @slot scvelo1 data.frame.
-#'
-#' @return S4 object
-#' @export
-#'
-
-scvelo <- setClass("scvelo",
-                   slots = c(scvelo = "data.frame",
-                             scvelo1 ="data.frame"))
 
 
 
 # spatial trajectory ------------------------------------------------------
 
-#' spatialTrajectory object
+#' spatial_trajectory object
 #'
 #' @slot compiled_trajectory_df data.frame.
 #' @slot segment_trajectory_df data.frame.
@@ -65,15 +53,14 @@ scvelo <- setClass("scvelo",
 #' @export
 #'
 
-spatialTrajectory <- setClass("spatialTrajectory",
-                              slots = c(
-                                compiled_trajectory_df = "data.frame",
-                                segment_trajectory_df = "data.frame",
-                                ranked_genes_df = "data.frame",
-                                comment = "character",
-                                name = "character",
-                                sample = "character"
-                              ))
+spatial_trajectory <- setClass("spatial_trajectory",
+                                slots = c(
+                                  compiled_trajectory_df = "data.frame",
+                                  segment_trajectory_df = "data.frame",
+                                  assessed_trajectory_df = "data.frame",
+                                  comment = "character",
+                                  name = "character",
+                                  sample = "character"))
 
 
 
@@ -82,15 +69,15 @@ spatialTrajectory <- setClass("spatialTrajectory",
 #' spata object
 #'
 #' @slot coordinates data.frame.
-#' @slot fdata data.frame.
-#' @slot samples character.
 #' @slot data data_counts.
-#' @slot image list.
-#' @slot description character.
 #' @slot dim_red dim_red.
+#' @slot fdata data.frame.
+#' @slot image list.
+#' @slot samples character.
 #' @slot scvelo scvelo.
-#' @slot used_genesets data.frame.
 #' @slot trajectories list.
+#' @slot used_genesets data.frame.
+#' @slot version list.
 #'
 #' @return S4 object
 #' @export
@@ -98,13 +85,12 @@ spatialTrajectory <- setClass("spatialTrajectory",
 
 spata <- setClass("spata",
                   slots = c(coordinates ="data.frame", #coordinates: bc, x, y, sample
-                            fdata = "data.frame", #fdata : bc, ...
-                            samples = "character",
-                            data = "data_counts" ,
-                            image = "list",
-                            description = "character",
+                            data = "data_counts",
                             dim_red = "dim_red", #UMAP & TSNE: bc, umap1, umap2, sample
-                            scvelo = "scvelo",
+                            fdata = "data.frame", #fdata : bc, ...
+                            image = "list",
+                            samples = "character",
+                            scvelo = "list",
                             used_genesets = "data.frame",
-                            trajectories = "list"
-))
+                            trajectories = "list",
+                            version = "list"))

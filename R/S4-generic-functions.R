@@ -252,7 +252,7 @@ setMethod(f = "trajectory", signature = "spata", definition = function(object, t
 
 #' @rdname image
 #' @export
-setMethod(f = "ctdf", signature = "spatialTrajectory", definition = function(t_obj){
+setMethod(f = "ctdf", signature = "spatial_trajectory", definition = function(t_obj){
 
   t_obj@compiled_trajectory_df
 
@@ -299,7 +299,7 @@ setMethod(f = "getTrajectoryComment", signature = "spata", definition = function
 
 #' @rdname getTrajectoryComment
 #' @export
-setMethod(f = "getTrajectoryComment", signature = "spatialTrajectory", definition = function(object){
+setMethod(f = "getTrajectoryComment", signature = "spatial_trajectory", definition = function(object){
 
   return(object@comment)
 
