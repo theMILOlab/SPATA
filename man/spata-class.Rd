@@ -32,6 +32,6 @@ spata object
 
 \item{\code{used_genesets}}{data.frame.}
 
-\item{\code{version}}{character.}
+\item{\code{version}}{list.}
 }}
 

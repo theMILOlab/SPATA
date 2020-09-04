@@ -8,9 +8,9 @@
 \alias{hlpr_filter_trend}
 \title{Helper functions for trajectory ranking}
 \usage{
-hlpr_add_models(df)
+hlpr_add_models(df, custom_fit = NULL)
 
-hlpr_add_residuals(df, pb = NULL)
+hlpr_add_residuals(df, pb = NULL, custom_fit = NULL)
 
 hlpr_summarize_residuals(df, pb = NULL)
 

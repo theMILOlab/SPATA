@@ -853,7 +853,7 @@ hlpr_widen_trajectory_df <- function(stdf,
 #' @export
 #'
 
-hlpr_add_models <- function(df){
+hlpr_add_models <- function(df, custom_fit = NULL){
 
   dplyr::transmute(.data = df,
                    trajectory_order = trajectory_order,
@@ -870,14 +870,15 @@ hlpr_add_models <- function(df){
                    p_sin = confuns::fit_curve(trajectory_order, "sinus"),
                    p_sin_rev = confuns::fit_curve(trajectory_order, "sinus", rev = TRUE),
                    p_early_peak = confuns::fit_curve(trajectory_order, "early_peak"),
-                   p_late_peak = confuns::fit_curve(trajectory_order, "late_peak")
+                   p_late_peak = confuns::fit_curve(trajectory_order, "late_peak"),
+                   p_custom = custom_fit
   )
 
 }
 
 #' @rdname hlpr_add_models
 #' @export
-hlpr_add_residuals <- function(df, pb = NULL){
+hlpr_add_residuals <- function(df, pb = NULL, custom_fit = NULL){
 
   if(!base::is.null(pb)){
 
@@ -900,7 +901,8 @@ hlpr_add_residuals <- function(df, pb = NULL){
                      p_sin = (values - confuns::fit_curve(trajectory_order, "sinus"))^2,
                      p_sin_rev = (values - confuns::fit_curve(trajectory_order, "sinus", rev = TRUE))^2,
                      p_early_peak = (values - confuns::fit_curve(trajectory_order, "early_peak"))^2,
-                     p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2)
+                     p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2,
+                     p_custom = (values - custom_fit))
 
 }
 
@@ -943,7 +945,8 @@ hlpr_name_models <- function(names){
       "two_peaks_rev" = "Two peaks (reversed)",
       "two_peaks" = "Two peaks",
       "early_peak" = "Early peak",
-      "late_peak" = "Late peak"
+      "late_peak" = "Late peak",
+      "custom_fit" = "Custom fit"
     )
   )
 
