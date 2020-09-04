@@ -18,7 +18,7 @@ A data.frame with 936.495 rows and two variables.
 \url{https://www.gsea-msigdb.org/gsea/index.jsp}
 }
 \usage{
-gsdf
+data(gsdf)
 }
 \description{
 This data.frame contains all gene-sets SPATA offers by

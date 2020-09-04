@@ -28,4 +28,7 @@
 #'   \item{gene}{Character. The genes that belong to the respective gene-set denoted as character values.}
 #' }
 #'
+#' @docType data
+#' @usage data(gsdf)
+#'
 "gsdf"
