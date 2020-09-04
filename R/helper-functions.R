@@ -293,7 +293,7 @@ hlpr_labs_add_on <- function(input,
 
     if(base::length(input) > 5){
 
-      input <- c(input[1:5], stringr::str_c("... +", (length(input)-5), sep = " "))
+      input <- c(input[1:5], stringr::str_c("... +", (base::length(input)-5), sep = " "))
 
     }
 
@@ -901,8 +901,7 @@ hlpr_add_residuals <- function(df, pb = NULL, custom_fit = NULL){
                      p_sin = (values - confuns::fit_curve(trajectory_order, "sinus"))^2,
                      p_sin_rev = (values - confuns::fit_curve(trajectory_order, "sinus", rev = TRUE))^2,
                      p_early_peak = (values - confuns::fit_curve(trajectory_order, "early_peak"))^2,
-                     p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2,
-                     p_custom = (values - custom_fit))
+                     p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2)
 
 }
 

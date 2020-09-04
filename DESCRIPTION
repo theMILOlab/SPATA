@@ -19,6 +19,8 @@ Imports:
     readr,
     stringr,
     stringi,
+    broom,
+    magick,
     purrr,
     shiny,
     shinyWidgets,
@@ -35,7 +37,8 @@ Imports:
     ggforce,
     concaveman,
     cowplot,
-    pheatmap
+    pheatmap,
+    shinybusy
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'

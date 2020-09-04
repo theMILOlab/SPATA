@@ -83,8 +83,7 @@ createSegmentation <- function(object){
         # df and ggplot layer of the currently drawn segment
         vertices_df <-
           shiny::reactiveVal(value = data.frame(x = base::numeric(0),
-                                                y = base::numeric(0),
-                                                segm = base::character(0)))
+                                                y = base::numeric(0)))
 
         vertices_layer <- shiny::reactiveVal(value = list())
 
@@ -136,8 +135,7 @@ createSegmentation <- function(object){
           vrtcs_list <- module_return()$dblclick()
           new_df <- dplyr::add_row(.data = vertices_df(),
                                    x = vrtcs_list$x,
-                                   y = vrtcs_list$y,
-                                   segm = "segm")
+                                   y = vrtcs_list$y)
 
           ## 2.1 update vertices df
           vertices_df(new_df)
@@ -146,7 +144,7 @@ createSegmentation <- function(object){
           if(base::nrow(vertices_df()) != 0){
 
             new_layer <- list(ggplot2::geom_point(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 3.5, color = "black"),
-                              ggplot2::geom_line(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y, group = segm), size = 1.25, color = "black")
+                              ggplot2::geom_line(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1.25, color = "black")
                                 )
 
             vertices_layer(new_layer)
@@ -176,7 +174,7 @@ createSegmentation <- function(object){
         ##--- 2.2 reset current() vertices
         oe <- shiny::observeEvent(input$reset_segment, {
 
-          vertices_df(data.frame(x = numeric(0), y = numeric(0), segm = "segm"))
+          vertices_df(data.frame(x = numeric(0), y = numeric(0)))
           vertices_layer(list())
 
         })
@@ -233,7 +231,7 @@ createSegmentation <- function(object){
 
 
           ## 3. reset vertices values
-          vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0), base::character(0)))
+          vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0)))
           vertices_layer(list())
 
         })

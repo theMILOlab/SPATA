@@ -70,7 +70,7 @@ check_color_to <- function(color_to,
         against = all_genes,
         verbose = TRUE,
         ref.input = "input for argumet 'color to'",
-        ref.against = "all known genes."
+        ref.against = "all known genes"
       )
 
   } else if(base::any(color_to %in% all_features)){

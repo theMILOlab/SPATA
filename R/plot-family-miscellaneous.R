@@ -81,7 +81,7 @@ plotDimRed <- function(object,
                                                         y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
                                                         color = color_to$gene_sets)),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
-      ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to, " (", method_gs, ")", sep = ""))
+      ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to$gene_sets, " (", method_gs, ")", sep = ""))
     )
 
   } else if("genes" %in% base::names(color_to)){
@@ -273,8 +273,7 @@ plotFourStates <- function(object,
     color_to <- check_color_to(color_to = color_to,
                                all_features = all_features,
                                all_gene_sets = all_gene_sets,
-                               all_genes = all_genes,
-                               max_length = 1)
+                               all_genes = all_genes)
   }
 
   # -----
@@ -374,12 +373,18 @@ plotFourStates2 <- function(data,
 
   if(!base::is.null(color_to)){
 
-    if(!base::length(color_to) == 1 |
-       !color_to %in% base::colnames(data)){
+    confuns::is_value(color_to, "character", "color_to")
 
-      base::stop("Argument 'color_to' is not a variable of 'data'.")
+    ref.input <- base::as.character(glue::glue("'color_to'-input: '{color_to}'"))
 
-    }
+    ref.against <- base::as.character(glue::glue("'data'-variables"))
+
+    color_to <- confuns::check_vector(
+      input = color_to,
+      against = base::colnames(data),
+      verbose = TRUE,
+      ref.input = ref.input,
+      ref.against = ref.against)
 
   }
 
@@ -1534,6 +1539,8 @@ plotHeatmapDE <- function(object,
   base::rownames(annotation_col) <- dplyr::pull(barcodes_df, barcodes)
 
   # -----
+
+  base::message("Plotting heatmap. This can take a few seconds.")
 
   pheatmap::pheatmap(mat = getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes],
                      scale = "row",

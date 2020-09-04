@@ -201,7 +201,7 @@ check_slot_data <- function(object){
 
 check_slot_version <- function(object){
 
-  base::return("Valid! (Currently not in use!)")
+  base::return("(Currently not in use!)")
 
 }
 
@@ -211,7 +211,7 @@ check_slot_version <- function(object){
 
 check_slot_scvelo <- function(object){
 
-  base::return("Valid! (Currently not in use!)")
+  base::return("(Currently not in use!)")
 
 }
 

@@ -353,8 +353,15 @@ getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE)
   }
 
   # -----
+  if(base::is.null(res_list)){
 
-  base::return(res_list)
+    base::stop("Did not find any gene-set.")
+
+  } else {
+
+    base::return(res_list)
+
+  }
 
 }
 

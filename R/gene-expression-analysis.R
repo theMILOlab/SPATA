@@ -14,7 +14,7 @@
 findDE <- function(object,
                    of_sample = "",
                    across,
-                   across_subset,
+                   across_subset = NULL,
                    method_de = "wilcox",
                    p_val_adj = 0.05){
 
@@ -36,7 +36,7 @@ findDE <- function(object,
 
   fdata <- getFeatureData(object, of_sample)
 
-  groups <- dplyr::pull(.data = fdata, var = {{ across }})
+  groups <- dplyr::pull(.data = fdata, var = {{across}})
 
   if(!base::is.factor(groups)){
 
@@ -46,22 +46,25 @@ findDE <- function(object,
 
   levels_groups <- base::levels(groups)
 
-
   if(!is.null(across_subset)){
 
     confuns::is_vec(across_subset, "character", ref = "across_subset")
+
+    ref.against <-
+      glue::glue("variable '{across}' of feature data in the specified spata-object") %>%
+      base::as.character()
 
     across_subset <-
       confuns::check_vector(
         input = across_subset,
         against = levels_groups,
         verbose = TRUE,
-        ref.input = " input 'across_subset'",
-        ref.against = "variable '{across}' of feature data in the specified spata-object."
+        ref.input = "input 'across_subset'",
+        ref.against = ref.against
       )
 
     # update feature data
-    fdata <- dplyr::filter(fdata, !!rlang::sym(across) %in% {{ across_subset }})
+    fdata <- dplyr::filter(fdata, !!rlang::sym(across) %in% {{across_subset}})
     groups <- dplyr::pull(.data = fdata, var = {{ across }})
 
     if(!base::is.factor(groups)){
@@ -72,7 +75,7 @@ findDE <- function(object,
 
   }
 
-  num_groups <- base::length(base::levels(groups))
+  num_groups <- dplyr::n_distinct(groups)
 
   if(num_groups >= 20){
 

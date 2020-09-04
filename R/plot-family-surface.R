@@ -145,7 +145,7 @@ plotSurface <- function(object,
                               yes = color_to$genes,
                               no = "Mean expr.\nscore")
 
-    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Genes:",
+    labs_add_on <- hlpr_labs_add_on(input = color_to$genes, input_str = "Genes:",
                                     color_str = color_str,
                                     display_title = display_title)
 

@@ -8,7 +8,7 @@ findDE(
   object,
   of_sample = "",
   across,
-  across_subset,
+  across_subset = NULL,
   method_de = "wilcox",
   p_val_adj = 0.05
 )
