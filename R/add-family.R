@@ -195,7 +195,7 @@ addFeature <- function(object,
 
   } else {
 
-    fdata <- getfeatureData(object)
+    fdata <- getFeatureData(object)
 
   }
 
