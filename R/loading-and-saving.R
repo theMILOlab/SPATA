@@ -3,7 +3,6 @@
 NULL
 
 
-
 #' @title Initiate a spata-object
 #'
 #' @description Creates, saves and returns an object of class spata

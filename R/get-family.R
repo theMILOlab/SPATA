@@ -248,7 +248,7 @@ getGeneSetOverview <- function(object){
 
 #' @title Obtain gene set names
 #'
-#' @param object A valid spata-object.
+#' @inherit check_object params
 #' @param of_class A character vector indicating the classes from which to obtain
 #' the gene set names. (Which classes exist in the current gene set data.frame can
 #' be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
@@ -365,11 +365,76 @@ getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE)
 
 }
 
+#' @rdname getGeneSets
+#' @export
+getGeneSetsInteractive <- function(object){
+
+  check_object(object)
+
+  gene_sets <-
+    shiny::runGadget(
+      shiny::shinyApp(
+        ui = {shiny::fluidPage(
+
+          shiny::fluidRow(
+
+            shiny::HTML("<br><br><br>"),
+
+            shiny::fluidRow(
+              shiny::column(width = 6,
+                            shiny::tags$h5(shiny::strong("Chosen gene-sets:")),
+                            shiny::verbatimTextOutput("display_gene_sets"),
+                            shiny::actionButton("return_gene_sets", "Return gene-sets")),
+              shiny::column(width = 6,
+                            shiny::tags$h5(shiny::strong("Choose gene-sets:")),
+                            shiny::uiOutput("select_gene_sets"))
+            )
+
+          ),
+
+
+
+        )},
+        server = function(input, output, session){
+
+
+          output$select_gene_sets <- shiny::renderUI({
+
+            shinyWidgets::pickerInput("select_gene_sets",
+                                      label = NULL ,
+                                      choices = getGeneSets(object),
+                                      selected = NULL,
+                                      options = list(`live-search` = TRUE),
+                                      inline = FALSE,
+                                      multiple = TRUE)
+
+          })
+
+          output$display_gene_sets <- shiny::renderPrint({
+
+            input$select_gene_sets
+
+          })
+
+          oe <- shiny::observeEvent(input$return_gene_sets, {
+
+            shiny::stopApp(returnValue = input$select_gene_sets)
+
+          })
+
+        }
+      )
+    )
+
+  base::return(gene_sets)
+
+}
+
 
 
 #' @title Obtain gene names
 #'
-#' @param object A valid spata-object.
+#' @inherit check_object params
 #' @param of_gene_sets A character vector specifying the gene sets from which to
 #' return the gene names.
 #' @param in_sample The sample(s) in which the genes have to be expressed in order
@@ -459,6 +524,68 @@ getGenes <- function(object,
   }
 
   # -----
+
+}
+
+#' @rdname getGenes
+#' @export
+getGenesInteractive <- function(object){
+
+  check_object(object)
+
+  genes <-
+    shiny::runGadget(
+      shiny::shinyApp(
+        ui = {shiny::fluidPage(
+
+          shiny::fluidRow(
+
+            shiny::HTML("<br><br><br>"),
+
+            shiny::fluidRow(
+              shiny::column(width = 6,
+                            shiny::tags$h5(shiny::strong("Chosen genes:")),
+                            shiny::verbatimTextOutput("display_genes"),
+                            shiny::actionButton("return_genes", "Return genes")),
+              shiny::column(width = 6,
+                            shiny::tags$h5(shiny::strong("Choose genes:")),
+                            shiny::uiOutput("select_genes"))
+            )
+
+          )
+
+        )},
+        server = function(input, output, session){
+
+          output$select_genes <- shiny::renderUI({
+
+            shinyWidgets::pickerInput("select_genes",
+                                      label = NULL ,
+                                      choices = getGenes(object),
+                                      selected = NULL,
+                                      options = list(`live-search` = TRUE),
+                                      inline = FALSE,
+                                      multiple = TRUE)
+
+          })
+
+          output$display_genes <- shiny::renderPrint({
+
+            input$select_genes
+
+          })
+
+          oe <- shiny::observeEvent(input$return_genes, {
+
+            shiny::stopApp(returnValue = input$select_genes)
+
+          })
+
+        }
+      )
+    )
+
+  base::return(genes)
 
 }
 

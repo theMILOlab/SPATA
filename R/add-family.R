@@ -195,21 +195,23 @@ addFeature <- function(object,
 
   } else {
 
-    fdata <- base::suppressMessages(featureData(object))
+    fdata <- getfeatureData(object)
 
   }
 
   # make sure that feature_df$barcdoes si complete
-  barcodes_obj <- fdata$barcodes
   barcodes_feature_df <- feature_df$barcodes
+  barcodes_obj <- fdata$barcodes
+
+  n_bc_feat <- base::length(barcodes_feature_df)
+  n_bc_obj <- base::length(barcodes_obj)
 
   if(!base::all(barcodes_obj %in% barcodes_feature_df)){
 
     not_found <- barcodes_obj[!barcodes_obj %in% barcodes_feature_df]
     n_not_found <- base::length(not_found)
 
-    stop(stringr::str_c("Barcodes of input and of object have to match entirely. ",
-                        n_not_found, " barcodes of pbject were not found in 'feature_df'."))
+    base::warning(glue::glue("Only {n_bc_feat} barcode-spots of {n_bc_obj} were found in 'feature_df'. Not found barcode-spots obtain NAs for feature '{feature_name}'."))
 
   }
 

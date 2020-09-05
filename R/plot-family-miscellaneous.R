@@ -1409,14 +1409,14 @@ plotSegmentation <- function(object,
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
 #' @inherit verbose params
-#' @param hm_colors A vector of colors to be used by the heatmap.
+#' @param hm_colors A vector of colors to be used.
 #' @param ... Additional parameters given to \code{pheatmap::pheatmap}.
 #'
 #' @return A heatmap of type "pheatmap".
 #' @export
 #'
 
-plotHeatmapDE <- function(object,
+plotDeHeatmap <- function(object,
                           of_sample = "",
                           data,
                           across,
