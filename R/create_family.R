@@ -144,7 +144,7 @@ createSegmentation <- function(object){
           if(base::nrow(vertices_df()) != 0){
 
             new_layer <- list(ggplot2::geom_point(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 3.5, color = "black"),
-                              ggplot2::geom_line(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1.25, color = "black")
+                              ggplot2::geom_path(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1.25, color = "black")
                                 )
 
             vertices_layer(new_layer)

@@ -331,25 +331,27 @@ convertToDiscrete <- function(data,
 
 #' @title Clustering with igraph
 #'
-#' @param cor.mtr A correlation matrix.
-#' @param num.nn Numeric value. The maximum number of nearest neighbours to compute.
+#' @param cor_mtr A correlation matrix.
+#' @param num_nn Numeric value. The maximum number of nearest neighbours to compute.
 #' The default value is set to the smaller of the number of columnns in data. Given
 #' to \code{RANN::nn2()} as input for argument \code{k}.
-#' @param color.nn Numeric value.
+#' @param color_nn Numeric value.
+#' @param k Numeric value.
 #'
 #' @return Cluster results.
 #' @export
 #'
 
-igraph_cluster <- function(cor.mtr, num.nn = 20){
+findIgraphCluster <- function(cor_mtr,
+                              num_nn = 20){
 
   # 1. Control  -------------------------------------------------------------
 
-  if(!base::is.matrix(cor.mtr) ||
-     !base::is.numeric(cor.mtr) ||
-     !base::identical(base::colnames(cor.mtr), base::rownames(cor.mtr))){
+  if(!base::is.matrix(cor_mtr) ||
+     !base::is.numeric(cor_mtr) ||
+     !base::identical(base::colnames(cor_mtr), base::rownames(cor_mtr))){
 
-    base::stop("Input for argument 'cor.mtr' needs to be a correlation matrix.
+    base::stop("Input for argument 'cor_mtr' needs to be a correlation matrix.
                In order to proceed. Make sure that row- and columnames are identical and that
                all values numeric.")
 
@@ -359,13 +361,13 @@ igraph_cluster <- function(cor.mtr, num.nn = 20){
 
   # 2. Data wrangling
 
-  nearest <- RANN::nn2(data = cor.mtr,
-                       k = num.nn,
+  nearest <- RANN::nn2(data = cor_mtr,
+                       k = num_nn,
                        treetype = "bd",
                        searchtype = "priority")
 
   edges_n <-
-    reshape::melt(base::t(nearest$nn.idx[, 1:num.nn])) %>%
+    reshape::melt(base::t(nearest$nn.idx[, 1:num_nn])) %>%
     magrittr::set_colnames(value = c("B", "A", "C")) %>%
     dplyr::select(A, B = C) %>%
     dplyr::transmute(
@@ -377,21 +379,21 @@ igraph_cluster <- function(cor.mtr, num.nn = 20){
 
   graph_out <-
     dplyr::transmute(.data = edges_n,
-                     V1 = base::rownames(cor.mtr)[edges_n$V1],
-                     V2 = base::rownames(cor.mtr)[edges_n$V2],
+                     V1 = base::rownames(cor_mtr)[edges_n$V1],
+                     V2 = base::rownames(cor_mtr)[edges_n$V2],
                      weight = weight
     ) %>%
     igraph::graph.data.frame(d = ., directed = FALSE) %>%
     igraph::cluster_louvain()
 
-  cluster_assign <- base::factor(graph_out$membership, levels = base::sort(base::unique(graph.out$membership)))
+  cluster_assign <- base::factor(graph_out$membership, levels = base::sort(base::unique(graph_out$membership)))
 
   cluster_out <-
     base::data.frame(
-      id = base::rownames(cor.mtr),
+      id = base::rownames(cor_mtr),
       cluster = cluster_assign
     ) %>%
-    magrittr::set_rownames(value = base::rownames(cor.mtr))
+    magrittr::set_rownames(value = base::rownames(cor_mtr))
 
   # -----
 
@@ -399,49 +401,53 @@ igraph_cluster <- function(cor.mtr, num.nn = 20){
 
 }
 
-#' @rdname igraph_cluster
+
+#' @rdname computeIgraphCluster
 #' @export
-plot_igraph_heatmap <- function(cor.mtr,
-                                num.nn,
-                                color.nn){
+plotIgraphHeatmap <- function(cor_mtr,
+                              num_nn = 20,
+                              color_nn,
+                              k = 6){
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::is_value(x = color.nn, mode = "numeric", ref = "color.nn")
+  confuns::is_value(x = color_nn, mode = "numeric", ref = "color_nn")
 
   # -----
 
 
   # 2. Data wrangling -------------------------------------------------------
 
-  cluster <- igrap_cluster(cor.mtr = cor.mtr, num.nn = num.nn)
+  cluster <- findIgraphCluster(cor_mtr = cor_mtr, num_nn = num_nn)
 
-  prel_breaks <- stats::quantile(x = cor.mtr, probs = base::seq(0, 1, length.out = color.nn))
-  mat_breaks <- prel_breaks[!base::duplicated(breaks)]
+  prel_breaks <- stats::quantile(x = cor_mtr, probs = base::seq(0, 1, length.out = color_nn))
+  mat_breaks <- prel_breaks[!base::duplicated(prel_breaks)]
 
   my_breaks <- c(seq(0, 0.1, length.out = 10),
                  seq(0.11, 1, length.out = 20))
 
-  cl <- pheatmap::pheatmap(mat = cor.mtr,
-                           color = viridisLite::viridis(n, base::length(mat_breaks) - 1),
+  cl <- pheatmap::pheatmap(mat = cor_mtr,
+                           color = viridisLite::viridis(base::length(mat_breaks) - 1),
                            annotation_col = cluster,
                            show_colnames = F,
-                           cutree_rows = base::max(base::as.numeric(cluster$Cluster)),
-                           cutree_cols = base::max(base::as.numeric(cluster$Cluster)),
+                           cutree_rows = base::max(base::as.numeric(cluster$cluster)),
+                           cutree_cols = base::max(base::as.numeric(cluster$cluster)),
                            fontsize = 2,
                            border_color = NA,
                            breaks = my_breaks)
 
-  cluster <- data.frame(Cluster = base::sort(stats::cutree(cl$tree_row, k = 6)))
-  cluster$Cluster <- paste0("Cluster_",cluster$Cluster)
-  cluster$ID - base::rownames(cluster)
+  cluster <- data.frame(Cluster = base::sort(stats::cutree(cl$tree_row, k = k)))
+  cluster$Cluster <- paste0("Cluster_",cluster$cluster)
+  cluster$ID <- base::rownames(cluster)
   cluster <- cluster[,2:1]
 
   # -----
 
   # Return heatmap ----------------------------------------------------------
 
-  pheatmap::pheatmap(mtr = cor.mtr,
+  if(base::isTRUE(verbose)){base::message("Plotting heatmap. This might take a few seconds.")}
+
+  pheatmap::pheatmap(mtr = cor_mtr,
                      color = viridisLite::viridis(length(mat_breaks) - 1),
                      annotation_col = cluster,
                      show_colnames = F,
@@ -450,6 +456,5 @@ plot_igraph_heatmap <- function(cor.mtr,
                      fontsize = 4,
                      border_color = NA,
                      breaks = my_breaks)
-
 
 }
