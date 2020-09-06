@@ -14,6 +14,8 @@ The default value is set to the smaller of the number of columnns in data. Given
 to \code{RANN::nn2()} as input for argument \code{k}.}
 
 \item{color_nn}{Numeric value.}
+
+\item{k}{Numeric value.}
 }
 \value{
 Cluster results.

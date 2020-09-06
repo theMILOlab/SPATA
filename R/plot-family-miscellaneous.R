@@ -465,7 +465,7 @@ plotFourStates2 <- function(data,
 
   # -----
 
-  max <- base::max(plot_df$pos_x, plot_df$pos_y)
+  max <- base::max(base::abs(plot_df$pos_x), base::abs(plot_df$pos_y))
 
   ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +

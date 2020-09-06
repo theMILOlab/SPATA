@@ -71,7 +71,7 @@ getCoordinatesSegment <- function(object,
   coords <-
     coordinates(object = object, of_sample = of_sample) %>%
     dplyr::filter(barcodes %in% bc_segm) %>%
-    dplyr::mutate(segment_name = {{of_segment}})
+    dplyr::mutate(segment = {{of_segment}})
 
   # -----
 

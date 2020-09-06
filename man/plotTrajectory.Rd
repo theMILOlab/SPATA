@@ -20,6 +20,7 @@ plotTrajectory(
   sgmt_size = 1,
   display_image = TRUE,
   display_title = FALSE,
+  uniform_genes = "discard",
   verbose = TRUE
 )
 }
