@@ -278,12 +278,16 @@ plotTrajectoryAssessment <- function(atdf,
 #'
 #' @inherit check_sample params
 #' @inherit check_features params
+#' @param discrete_feature Character value. The discrete feature of interest.
 #' @inherit check_gene_sets params
 #' @inherit check_method params
 #' @inherit check_genes params
 #' @inherit average_genes params
 #' @inherit check_smooth params
 #' @inherit verbose params
+#' @param display_trajectory_parts Logical. If set to TRUE the returned plot
+#' visualizes the parts in which the trajectory has been partitioned while beeing
+#' drawn.
 #' @param clrp Character value. The color panel to be used.
 #'  Run \code{all_colorpanels()} to see valid input.
 #'
@@ -359,8 +363,77 @@ plotTrajectoryFeatures <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = NULL, color = "Features")
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features")
 
+}
+
+#' @rdname plotTrajectoryFeatures
+#' @export
+plotTrajectoryFeaturesDiscrete <- function(object,
+                                           trajectory_name,
+                                           of_sample = "",
+                                           discrete_feature,
+                                           clrp = "milo",
+                                           display_trajectory_parts = FALSE,
+                                           verbose = TRUE,
+                                           ...){
+
+
+# 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, 1)
+  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
+
+  feature <- check_features(object, discrete_feature, valid_classes = c("character", "factor"), 1)
+
+  # -----
+
+
+# 2. Data wrangling -------------------------------------------------------
+
+  cns_trajectory <-
+    getTrajectoryObject(object, trajectory_name = trajectory_name)
+
+  compiled_trajectory_df <- cns_trajectory@compiled_trajectory_df
+
+  joined_df <- joinWith(object,
+                        coords_df = compiled_trajectory_df,
+                        features = feature,
+                        verbose = verbose)
+
+  plot_df <-
+    dplyr::mutate(.data = joined_df,
+                  order_binned = plyr::round_any(x = projection_length, accuracy = 5, f = base::floor),
+                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
+
+  if(base::isTRUE(display_trajectory_parts)){
+
+    facet_add_on <- list(
+      ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
+    )
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # -----
+
+  ggplot2::ggplot(data = plot_df) +
+    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = seurat_clusters), position = "fill", width = 0.9) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    facet_add_on +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches"))),
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = "Trajectory Direction", y = NULL)
 }
 
 
@@ -375,8 +448,9 @@ plotTrajectoryGenes <- function(object,
                                 average_genes = FALSE,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
-                                smooth_se = T,
-                                verbose = T){
+                                smooth_se = TRUE,
+                                display_trajectory_parts = TRUE,
+                                verbose = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
@@ -480,20 +554,31 @@ plotTrajectoryGenes <- function(object,
 
   }
 
-  vline_df <-
-    result_df %>%
-    dplyr::group_by(trajectory_part) %>%
-    dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                    trajectory_part_order == 1 &
-                    genes == genes[1])
+  if(base::isTRUE(display_trajectory_parts)){
+
+    vline_df <-
+      result_df %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
+                      trajectory_part_order == 1 &
+                      genes == genes[1])
+
+    trajectory_part_add_on <- list(
+      ggplot2::geom_vline(data = vline_df[-1,],
+                          mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
+    )
+
+  } else {
+
+    trajectory_part_add_on <- NULL
+  }
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = genes)) +
-    ggplot2::geom_vline(data = vline_df[-1,],
-                        mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
+    trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
@@ -505,7 +590,7 @@ plotTrajectoryGenes <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = y_title, color = "Genes") +
+    ggplot2::labs(x = "Trajectory Direction", y = y_title, color = "Genes") +
     labs_add_on
 
 }
@@ -522,6 +607,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
                                    clrp = "milo",
+                                   display_trajectory_parts = TRUE,
                                    verbose = TRUE){
 
 
@@ -560,21 +646,31 @@ plotTrajectoryGeneSets <- function(object,
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
     dplyr::ungroup()
 
+  if(base::isTRUE(display_trajectory_parts)){
 
-  vline_df <-
-    result_df %>%
-    dplyr::group_by(trajectory_part) %>%
-    dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                    trajectory_part_order == 1 &
-                    variables == gene_sets[1])
+    vline_df <-
+      result_df %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
+                      trajectory_part_order == 1 &
+                      genes == genes[1])
+
+    trajectory_part_add_on <- list(
+      ggplot2::geom_vline(data = vline_df[-1,],
+                          mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
+    )
+
+  } else {
+
+    trajectory_part_add_on <- NULL
+  }
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = variables)) +
-    ggplot2::geom_vline(data = vline_df[-1,],
-                        mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
+    trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
@@ -586,7 +682,7 @@ plotTrajectoryGeneSets <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = "Expression score", color = "Gene sets")
+    ggplot2::labs(x = "Trajectory Direction", y = "Expression score", color = "Gene sets")
 
 
 }

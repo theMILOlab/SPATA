@@ -167,12 +167,14 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 #' @param limit Numeric value. The maximum area-under-the-curve value the
 #' trajectory-trend-assessment might have.
 #' @param trend Character vector. The patterns of interest.
+#' @param variables_only Logical. If set to TRUE a character of variable-names is returned.
+#' If set to FALSE the filtered data.frame is returned.
 #'
 #' @return A character vector of gene or gene-set names that follow the specified
 #' patterns to the specified degree.
 #' @export
 
-filterTrends <- function(atdf, limit = 2, trends = "all"){
+filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE){
 
   if(base::all(trends == "all")){
 
@@ -186,10 +188,22 @@ filterTrends <- function(atdf, limit = 2, trends = "all"){
                         verbose = TRUE,
                         ref.input = "argument 'trends'",
                         ref.against = "known trajectory trends")
-  res <-
-    hlpr_filter_trend(atdf = atdf,
-                      limit = limit,
-                      poi = trends) # poi = patterns of interest
+
+  if(base::isTRUE(variables_only)){
+
+    res <-
+      hlpr_filter_trend(atdf = atdf,
+                        limit = limit,
+                        poi = trends) # poi = patterns of interest
+
+  } else {
+    res <-
+      dplyr::filter(.data = atdf, pattern %in% trends) %>%
+      dplyr::filter(auc <= limit) %>%
+      dplyr::group_by(variables) %>%
+      dplyr::slice_head(n = 1)
+
+  }
 
   base::return(res)
 

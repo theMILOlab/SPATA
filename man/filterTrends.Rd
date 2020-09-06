@@ -4,7 +4,7 @@
 \alias{filterTrends}
 \title{Trajectory trends}
 \usage{
-filterTrends(atdf, limit = 2, trends = "all")
+filterTrends(atdf, limit = 5, trends = "all", variables_only = TRUE)
 }
 \arguments{
 \item{atdf}{An assessed trajectory data.frame (easily accessed via
@@ -12,6 +12,9 @@ filterTrends(atdf, limit = 2, trends = "all")
 
 \item{limit}{Numeric value. The maximum area-under-the-curve value the
 trajectory-trend-assessment might have.}
+
+\item{variables_only}{Logical. If set to TRUE a character of variable-names is returned.
+If set to FALSE the filtered data.frame is returned.}
 
 \item{trend}{Character vector. The patterns of interest.}
 }
