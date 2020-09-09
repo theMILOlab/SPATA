@@ -29,6 +29,7 @@
 
 
 joinWith <- function(object,
+                     coords_df = NULL,
                      spata_df,
                      features = NULL,
                      gene_sets = NULL,
@@ -40,7 +41,6 @@ joinWith <- function(object,
                      smooth_span = 0.02,
                      verbose = TRUE,
                      normalize = TRUE){
-
 
 # 1. Control --------------------------------------------------------------
 

@@ -141,7 +141,7 @@ plotTrajectory <- function(object,
 
     background_df <-
       joinWithVariables(object = object,
-                        coords_df = background_df,
+                        spata_df = background_df,
                         variables = color_to,
                         method_gs = method_gs,
                         average_genes = TRUE,
@@ -399,7 +399,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
   compiled_trajectory_df <- cns_trajectory@compiled_trajectory_df
 
   joined_df <- joinWith(object,
-                        coords_df = compiled_trajectory_df,
+                        spata_df = compiled_trajectory_df,
                         features = feature,
                         verbose = verbose)
 
@@ -510,7 +510,7 @@ plotTrajectoryGenes <- function(object,
     t_object@compiled_trajectory_df %>%
     dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = 5, f = floor)) %>%
     joinWithGenes(object = object,
-                  coords_df = .,
+                  spata_df = .,
                   genes = genes,
                   average_genes = average_genes,
                   verbose = verbose)

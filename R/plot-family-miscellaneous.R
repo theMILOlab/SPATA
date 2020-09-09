@@ -49,7 +49,7 @@ plotDimRed <- function(object,
   if("features" %in% base::names(color_to)){
 
     dimRed_df <- joinWithFeatures(object = object,
-                                  coords_df = dimRed_df,
+                                  spata_df = dimRed_df,
                                   features = color_to$features,
                                   smooth = FALSE,
                                   verbose = verbose)
@@ -68,7 +68,7 @@ plotDimRed <- function(object,
   } else if("gene_sets" %in% base::names(color_to)){
 
     dimRed_df <- joinWithGeneSets(object = object,
-                                  coords_df = dimRed_df,
+                                  spata_df = dimRed_df,
                                   gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = FALSE,
@@ -87,7 +87,7 @@ plotDimRed <- function(object,
   } else if("genes" %in% base::names(color_to)){
 
     dimRed_df <- joinWithGenes(object = object,
-                               coords_df = dimRed_df,
+                               spata_df = dimRed_df,
                                genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = FALSE,
@@ -284,7 +284,7 @@ plotFourStates <- function(object,
     getCoordinates(object = object,
                    of_sample = of_sample) %>%
     joinWithGeneSets(object,
-                     coords_df = .,
+                     spata_df = .,
                      gene_sets = states,
                      normalize = TRUE,
                      method_gs = method_gs,
@@ -296,7 +296,7 @@ plotFourStates <- function(object,
 
       data <-
         joinWithGenes(object,
-                      coords_df = data,
+                      spata_df = data,
                       genes = color_to$genes,
                       average_genes = FALSE,
                       normalize = TRUE,
@@ -306,7 +306,7 @@ plotFourStates <- function(object,
 
       data <-
         joinWithGeneSets(object,
-                         coords_df = data,
+                         spata_df = data,
                          gene_sets = color_to$gene_sets,
                          method_gs = method_gs,
                          normalize = TRUE,
@@ -316,7 +316,7 @@ plotFourStates <- function(object,
 
       data <-
         joinWithFeatures(object,
-                         coords_df = data,
+                         spata_df = data,
                          features = color_to$features,
                          verbose = verbose)
 
@@ -580,7 +580,7 @@ plotDistribution <- function(object,
 
     data <-
       joinWithFeatures(object = object,
-                       coords_df = data,
+                       spata_df = data,
                        features = variables[variables %in% all_features],
                        smooth = FALSE,
                        verbose = verbose
@@ -592,7 +592,7 @@ plotDistribution <- function(object,
 
     data <-
       joinWithGeneSets(object = object,
-                       coords_df = data,
+                       spata_df = data,
                        gene_sets = variables[variables %in% all_gene_sets],
                        method_gs = method_gs,
                        smooth = FALSE,
@@ -604,7 +604,7 @@ plotDistribution <- function(object,
 
     data <-
       joinWithGenes(object = object,
-                    coords_df = data,
+                    spata_df = data,
                     genes = variables[variables %in% all_genes],
                     average_genes = FALSE,
                     verbose = verbose)
@@ -953,7 +953,7 @@ plotDistributionAcross <- function(object,
 
     data <-
       joinWithFeatures(object = object,
-                       coords_df = data,
+                       spata_df = data,
                        features = across,
                        smooth = FALSE,
                        verbose = verbose
@@ -966,7 +966,7 @@ plotDistributionAcross <- function(object,
 
     data <-
       joinWithFeatures(object = object,
-                       coords_df = data,
+                       spata_df = data,
                        features = c(variables[variables %in% all_features]),
                        smooth = FALSE,
                        verbose = verbose
@@ -978,7 +978,7 @@ plotDistributionAcross <- function(object,
 
     data <-
       joinWithGeneSets(object = object,
-                       coords_df = data,
+                       spata_df = data,
                        gene_sets = variables[variables %in% all_gene_sets],
                        method_gs = method_gs,
                        smooth = FALSE,
@@ -990,7 +990,7 @@ plotDistributionAcross <- function(object,
 
     data <-
       joinWithGenes(object = object,
-                    coords_df = data,
+                    spata_df = data,
                     genes = variables[variables %in% all_genes],
                     average_genes = FALSE,
                     verbose = verbose)
@@ -1365,7 +1365,7 @@ plotSegmentation <- function(object,
   # data extraction
   plot_df <-
     getCoordinates(object, of_sample = of_sample) %>%
-    joinWithFeatures(object, coords_df = ., features = "segment", verbose = FALSE)
+    joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
 
   segment_df <- dplyr::filter(plot_df, segment != "")
 

@@ -81,15 +81,15 @@ plotSurface <- function(object,
 
   # -----
 
-  coords_df <- getCoordinates(object, of_sample = of_sample)
+  spata_df <- getCoordinates(object, of_sample = of_sample)
 
   # 2. Join data and prepare ggplot add-ons ---------------------------------
 
   # if of length one and feature
   if("features" %in% base::names(color_to)){
 
-    coords_df <- joinWithFeatures(object = object,
-                                  coords_df = coords_df,
+    spata_df <- joinWithFeatures(object = object,
+                                  spata_df = spata_df,
                                   features = color_to$features,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
@@ -101,17 +101,17 @@ plotSurface <- function(object,
 
     # assemble ggplot add on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$feature)),
+      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(spata_df, color_to$feature)),
       labs_add_on
     )
 
     # if of length one and gene set
   } else if("gene_sets" %in% base::names(color_to)){
 
-    coords_df <- joinWithGeneSets(object = object,
-                                  coords_df = coords_df,
+    spata_df <- joinWithGeneSets(object = object,
+                                  spata_df = spata_df,
                                   gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = smooth,
@@ -125,7 +125,7 @@ plotSurface <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
       confuns::scale_color_add_on(clrsp = pt_clrsp),
       labs_add_on
@@ -133,8 +133,8 @@ plotSurface <- function(object,
 
   } else if("genes" %in% base::names(color_to)){
 
-    coords_df <- joinWithGenes(object = object,
-                               coords_df = coords_df,
+    spata_df <- joinWithGenes(object = object,
+                               spata_df = spata_df,
                                genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = smooth,
@@ -152,7 +152,7 @@ plotSurface <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = "x",
                                                         y = "y",
                                                         color = "mean_genes")),
@@ -163,7 +163,7 @@ plotSurface <- function(object,
 
   } else if(base::is.null(color_to)){
 
-    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha, color = pt_clr,
+    ggplot_add_on <- list(ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha, color = pt_clr,
                                               mapping = ggplot2::aes(x = x, y = y)))
 
   }
@@ -174,7 +174,7 @@ plotSurface <- function(object,
   # 5. Plotting --------------------------------------------------------------
 
   hlpr_assign(assign = assign,
-              object = list("point" = coords_df),
+              object = list("point" = spata_df),
               name = assign_name)
 
   ggplot2::ggplot() +
@@ -404,7 +404,7 @@ plotSurfaceComparison <- function(object,
   if("gene_sets" %in% base::names(variables)){
 
     data <- joinWithGeneSets(object,
-                             coords_df = data,
+                             spata_df = data,
                              gene_sets = variables$gene_sets,
                              method_gs = method_gs,
                              smooth = smooth,
@@ -417,7 +417,7 @@ plotSurfaceComparison <- function(object,
   if("genes" %in% base::names(variables)){
 
     data <- joinWithGenes(object,
-                          coords_df = data,
+                          spata_df = data,
                           genes = variables$genes,
                           average_genes = FALSE,
                           smooth = smooth,
@@ -430,7 +430,7 @@ plotSurfaceComparison <- function(object,
   if("features" %in% base::names(variables)){
 
     data <- joinWithFeatures(object,
-                             coords_df = data,
+                             spata_df = data,
                              features = variables$features,
                              smooth = smooth,
                              smooth_span = smooth_span,
