@@ -437,7 +437,7 @@ hlpr_one_distinct <- function(x, rna_assay, pb = NULL, verbose = TRUE){
 #'
 #' @param variable The variable to smooth
 #' @param var_name Name of the variable to smooth
-#' @param coords_df Data.frame that contains x and y coordinates
+#' @param spata_df Data.frame that contains x and y coordinates
 #' @param verbose Logical
 #' @param smooth_span Span to smooth with
 #' @param aspect Gene or Gene set
@@ -449,7 +449,7 @@ hlpr_one_distinct <- function(x, rna_assay, pb = NULL, verbose = TRUE){
 
 hlpr_smooth <- function(variable,
                         var_name,
-                        coords_df,
+                        spata_df,
                         smooth_span,
                         aspect,
                         subset,
@@ -462,7 +462,7 @@ hlpr_smooth <- function(variable,
   }
 
   data <-
-    base::cbind(variable, coords_df[, c("x", "y")]) %>%
+    base::cbind(variable, spata_df[, c("x", "y")]) %>%
     magrittr::set_colnames(value = c("rv", "x", "y"))
 
   if(!var_name %in% subset){
@@ -523,21 +523,21 @@ hlpr_smooth <- function(variable,
 #' @return Data.frame with the smoothed variable specified in \code{variable}.
 #'
 hlpr_smooth_shiny <- function(variable,
-                              coords_df,
+                              spata_df,
                               smooth_span){
 
-  base::colnames(coords_df)[base::which(base::colnames(coords_df) == variable)] <- "response_variable"
+  base::colnames(spata_df)[base::which(base::colnames(spata_df) == variable)] <- "response_variable"
 
-  if(base::is.numeric(coords_df$response_variable)){
+  if(base::is.numeric(spata_df$response_variable)){
 
-    model <- stats::loess(formula = response_variable ~ x * y, span = smooth_span, data = coords_df)
+    model <- stats::loess(formula = response_variable ~ x * y, span = smooth_span, data = spata_df)
 
     smoothed_df_prel <-
       broom::augment(model) %>%
       dplyr::select(x, y, .fitted) %>%
       magrittr::set_colnames(value = c("x", "y", variable))
 
-    selected_df <- dplyr::select(coords_df, -c("x", "y", "response_variable"))
+    selected_df <- dplyr::select(spata_df, -c("x", "y", "response_variable"))
 
     smoothed_df <-
       base::cbind(smoothed_df_prel, selected_df) %>%
@@ -545,14 +545,14 @@ hlpr_smooth_shiny <- function(variable,
       as.data.frame()
 
 
-    # if coords_df derived from trajectory analysis
-    if("trajectory_order" %in% base::colnames(coords_df)){
+    # if spata_df derived from trajectory analysis
+    if("trajectory_order" %in% base::colnames(spata_df)){
 
-      smoothed_df$trajectory_order <- coords_df$trajectory_order
+      smoothed_df$trajectory_order <- spata_df$trajectory_order
 
     }
 
-    if(base::nrow(smoothed_df) == base::nrow(coords_df)){
+    if(base::nrow(smoothed_df) == base::nrow(spata_df)){
 
       return(smoothed_df)
 
@@ -561,7 +561,7 @@ hlpr_smooth_shiny <- function(variable,
       shiny::showNotification(ui = "Smoothing failed. Return original values.",
                               type = "warning")
 
-      return(coords_df)
+      return(spata_df)
 
     }
 
@@ -571,9 +571,9 @@ hlpr_smooth_shiny <- function(variable,
     shiny::showNotification(ui = "Can not smooth features that aren't of class 'numeric'. Skip smoothing.",
                             type = "warning")
 
-    base::colnames(coords_df)[base::which(base::colnames(coords_df) == "response_variable")] <- variable
+    base::colnames(spata_df)[base::which(base::colnames(spata_df) == "response_variable")] <- variable
 
-    return(coords_df)
+    return(spata_df)
 
   }
 
@@ -717,7 +717,7 @@ hlpr_summarize_trajectory_df <- function(object,
                                                  accuracy = accuracy,
                                                  f = base::floor)) %>%
     joinWithVariables(object = object,
-                      coords_df = .,
+                      spata_df = .,
                       variables = variables,
                       method_gs = method_gs,
                       average_genes = FALSE,

@@ -4,12 +4,12 @@
 \alias{hlpr_smooth_shiny}
 \title{Smooth variable spatially in mini-shiny-apps}
 \usage{
-hlpr_smooth_shiny(variable, coords_df, smooth_span)
+hlpr_smooth_shiny(variable, spata_df, smooth_span)
 }
 \arguments{
 \item{variable}{The variable to smooth}
 
-\item{coords_df}{Data.frame that contains x and y coordinates}
+\item{spata_df}{Data.frame that contains x and y coordinates}
 
 \item{smooth_span}{Span to smooth with}
 }

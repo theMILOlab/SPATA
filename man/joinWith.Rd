@@ -10,6 +10,7 @@
 \usage{
 joinWith(
   object,
+  coords_df = NULL,
   spata_df,
   features = NULL,
   gene_sets = NULL,
