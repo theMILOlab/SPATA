@@ -124,7 +124,8 @@ moduleSurfacePlotServer <- function(id,
       reset_select_gene_sets <- shiny::reactiveVal(value = 0)
       reset_select_genes <- shiny::reactiveVal(value = 0)
 
-      all_features <- getFeatureNames(object) %>% base::unname()
+      all_features <- getFeatureNames(object) %>%
+        base::unname()
       all_gene_sets <- getGeneSets(object = object)
       all_genes <- getGenes(object = object, in_sample = "all")
 
@@ -220,7 +221,10 @@ moduleSurfacePlotServer <- function(id,
 
         shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
                                   label = "Choose feature:",
-                                  choices = all_features,
+                                  choices = all_features[all_features != "sample"],
+                                  options = shinyWidgets::pickerOptions(
+                                    liveSearch = TRUE,
+                                    actionsBox = TRUE),
                                   multiple = F)
 
       })

@@ -2,12 +2,15 @@ Package: SPATA
 Type: Package
 Title: A Toolbox for Spatial Gene Expression Analysis
 Version: 0.0.9000
-Author: Dieter Henrik Heiland, Jan Kueckelhaus
-Maintainer: Jan Kueckelhaus <jankueckelhaus@gmx.de>
+Authors@R: as.person(c(
+    "Jan Kueckelhaus <jan.kueckelhaus@uniklinik-freiburg.de> [aut, cre]", 
+    "Dieter-Henrik Heiland <dr.dieter.henrik.heiland@uniklinik-freiburg.de> [aut]"
+  ))
 Description: This package provides a framework of functions and shiny-applications to make it as easy  and intuitive as possible to work with spatial gene expression data. 
-License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+License: GPL-3
+BugReports: themilolab-spata@webmail.com
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
@@ -71,3 +74,4 @@ Collate:
     'validation.R'
 Depends: 
     R (>= 2.10)
+URL: https://themilolab.com/

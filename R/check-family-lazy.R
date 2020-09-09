@@ -86,7 +86,7 @@ check_assign <- function(assign = FALSE,
 
 check_compiled_trajectory_df <- function(ctdf){
 
-  check_coords_df(coords_df = ctdf)
+  check_spata_df(spata_df = ctdf)
   check_coordinate_variables(data = ctdf, x = "x", y = "y")
 
   vc <- confuns::variable_classes2(data = ctdf)
@@ -139,25 +139,58 @@ check_coordinate_variables <- function(data, x = "x", y = "y"){
 
 #' @title Check coordinate data.frame
 #'
-#' @param coords_df A data.frame that contains at least the character variables
+#' @param spata_df A data.frame that contains at least the character variables
 #' \emph{samples} and \emph{barcodes}.
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
 
-check_coords_df <- function(coords_df){
+check_spata_df <- function(spata_df){
 
-  if(!base::is.data.frame(coords_df)){
+  if(!base::is.data.frame(spata_df)){
 
-    base::stop("Argument 'coords_df' needs to be a data.frame.")
+    base::stop("Argument 'spata_df' needs to be a data.frame.")
 
-  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(coords_df))){
+  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(spata_df))){
 
-    base::stop("'coords_df' needs to have 'barcodes' and 'sample' variables.")
+    base::stop("'spata_df' needs to have 'barcodes' and 'sample' variables.")
 
   } else {
 
-    classes <- base::sapply(X = coords_df[,c("barcodes", "sample")],
+    classes <- base::sapply(X = spata_df[,c("barcodes", "sample")],
+                            FUN = base::class)
+
+    if(!base::all(classes == "character")){
+
+      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
+
+    } else {
+
+      base::return(TRUE)
+
+    }
+
+  }
+
+}
+
+#' @rdname check_spata_df
+#' @export
+check_coords_df <- function(coords_df){
+
+  warning("check_coords_df() is deprecated")
+
+  if(!base::is.data.frame(spata_df)){
+
+    base::stop("Argument 'spata_df' needs to be a data.frame.")
+
+  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(spata_df))){
+
+    base::stop("'spata_df' needs to have 'barcodes' and 'sample' variables.")
+
+  } else {
+
+    classes <- base::sapply(X = spata_df[,c("barcodes", "sample")],
                             FUN = base::class)
 
     if(!base::all(classes == "character")){
@@ -207,10 +240,9 @@ check_display <- function(display_title = FALSE,
 
 #' @title Check feature data.frame
 #'
-#' @param feature_name The name of the feature that is to be added
-#'  to the obejct specified as a single character value.
-#' @param feature_df A data.frame that contains the variables
-#'  \emph{barcodes, samples, \code{feature_name}}.
+#' @param feature_name Character value. The name of the feature that is to be added
+#'  to the object.
+#' @param feature_df A data.frame that contains the feature and the key-variables.
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
@@ -368,6 +400,89 @@ check_method <- function(method_dr = NULL,
 
 }
 
+
+
+#' @title Check monocle input
+#'
+#' @param preprocess_method Monocle3 - description:
+#'
+#' A string specifying the initial dimension method to use,
+#' currently either PCA or LSI. For LSI (latent semantic
+#' indexing), it converts the (sparse) expression matrix into
+#' tf-idf matrix and then performs SVD to decompose the gene
+#' expression / cells into certain modules / topics. Default
+#' is "PCA".
+#'
+#' @param reduction_method Monocle3 - description:
+#'
+#' A character string specifying the algorithm to use for
+#' dimensionality reduction. Currently "UMAP", "tSNE", "PCA"
+#' and "LSI" are supported.
+#'
+#' @param cluster_method Monocle3 - description:
+#'
+#' String indicating the clustering method to use. Options are
+#' "louvain" or "leiden". Default is "leiden". Resolution parameter
+#' is ignored if set to "louvain".
+#'
+#' @param k Monocle3 - description:
+#'
+#' Integer number of nearest neighbors to use when creating the k
+#' nearest neighbor graph for Louvain/Leiden clustering. k is related
+#' to the resolution of the clustering result, a bigger k will result
+#' in lower resolution and vice versa. Default is 20.
+#'
+#' @param num_iter Monocle3 - description:
+#'
+#' Integer number of iterations used for Louvain/Leiden clustering.
+#' The clustering result giving the largest modularity score will be
+#' used as the final clustering result. Default is 1. Note that if
+#' num_iter is greater than 1, the random_seed argument will be ignored
+#' for the louvain method.
+#'
+#' @return
+#'
+#' @details With respect to the arguments \code{preprocess_method},
+#' \code{reduction_method} and \code{cluster_method}:
+#'
+#' If you provide a vector instead of a single character value (string)
+#' the function will iterate over all inputs via a for-loop to compute all
+#' valid combinations.
+#'
+#' @export
+#'
+
+check_monocle_input <- function(preprocess_method,
+                                reduction_method,
+                                cluster_method,
+                                k = base::numeric(1),
+                                num_iter = base::numeric(1)){
+
+  confuns::is_value(k, "numeric", "k")
+  confuns::is_value(num_iter, "numeric", "num_iter")
+
+  if(!base::is.null(preprocess_method) &&
+     base::any(!preprocess_method %in% c("PCA", "LSI"))){
+
+    base::stop("Invalid input for argument 'preprocess_method'. Valid inputs are: 'PCA', 'LSI'")
+
+  }
+
+  if(!base::is.null(reduction_method) &&
+     base::any(!reduction_method %in% c("UMAP", "tSNE", "PCA", "LSI"))){
+
+    base::stop("Invalid input for argument 'reduction_method'. Valid inputs are: 'UMAP', 'tSNE', 'PCA', 'LSI'")
+
+  }
+
+  if(!base::is.null(cluster_method) &&
+     base::any(!cluster_method %in% c("louvain", "leiden"))){
+
+    base::stop("Invalid input for argument 'cluster_method'. Valid inputs are: 'louvain', 'leiden'")
+
+  }
+
+}
 
 
 #' Check spata object input

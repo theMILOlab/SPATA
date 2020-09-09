@@ -502,7 +502,7 @@ plotFourStates2 <- function(data,
 #'  }
 #'
 #'
-#' @param data The data.frame containing numeric variables.
+#' @param data The data.frame containing the numeric variables of interest.
 #' @inherit variables_num params
 #' @inherit across params
 #' @param plot_type One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.

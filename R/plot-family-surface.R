@@ -40,6 +40,7 @@ plotSurface <- function(object,
                         pt_alpha = 1,
                         pt_clrsp = "inferno",
                         pt_clrp = "milo",
+                        pt_clr = "lightgrey",
                         display_image = FALSE,
                         display_title = FALSE,
                         assign = FALSE,
@@ -162,8 +163,8 @@ plotSurface <- function(object,
 
   } else if(base::is.null(color_to)){
 
-    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
-                                              mapping = ggplot2::aes(x = x, y = y, color = sample)))
+    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha, color = pt_clr,
+                                              mapping = ggplot2::aes(x = x, y = y)))
 
   }
 

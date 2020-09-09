@@ -201,7 +201,10 @@ filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE)
       dplyr::filter(.data = atdf, pattern %in% trends) %>%
       dplyr::filter(auc <= limit) %>%
       dplyr::group_by(variables) %>%
-      dplyr::slice_head(n = 1)
+      dplyr::slice_head(n = 1) %>%
+      dplyr::ungroup() %>%
+      dplyr::group_by(pattern) %>%
+      dplyr::arrange(auc, .by_group = TRUE)
 
   }
 

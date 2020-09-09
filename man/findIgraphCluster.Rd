@@ -10,7 +10,7 @@ findIgraphCluster(cor_mtr, num_nn = 20)
 \item{cor_mtr}{A correlation matrix.}
 
 \item{num_nn}{Numeric value. The maximum number of nearest neighbours to compute.
-The default value is set to the smaller of the number of columnns in data. Given
+The default value is set to the smaller of the number of columns in data. Given
 to \code{RANN::nn2()} as input for argument \code{k}.}
 
 \item{color_nn}{Numeric value.}

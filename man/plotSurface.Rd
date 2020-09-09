@@ -18,6 +18,7 @@ plotSurface(
   pt_alpha = 1,
   pt_clrsp = "inferno",
   pt_clrp = "milo",
+  pt_clr = "lightgrey",
   display_image = FALSE,
   display_title = FALSE,
   assign = FALSE,
@@ -71,6 +72,8 @@ color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
 \item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+
+\item{pt_clr}{The base color of every point displayed in the plot.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}

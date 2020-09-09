@@ -1,3 +1,3 @@
-- plotTrajectory interactive
+- cluster-distance auf anzahl der barode-spots normalisieren
 
-
+- getCorrMatrix() correlation matrix for igraph cluster?

@@ -10,7 +10,7 @@
 \usage{
 joinWith(
   object,
-  coords_df,
+  spata_df,
   features = NULL,
   gene_sets = NULL,
   method_gs = "mean",
@@ -25,7 +25,7 @@ joinWith(
 
 joinWithFeatures(
   object,
-  coords_df,
+  spata_df,
   features,
   smooth = FALSE,
   smooth_span = 0.02,
@@ -34,7 +34,7 @@ joinWithFeatures(
 
 joinWithGenes(
   object,
-  coords_df,
+  spata_df,
   genes,
   average_genes = FALSE,
   uniform_genes = "keep",
@@ -46,7 +46,7 @@ joinWithGenes(
 
 joinWithGeneSets(
   object,
-  coords_df,
+  spata_df,
   gene_sets,
   method_gs = "mean",
   smooth = FALSE,
@@ -57,7 +57,7 @@ joinWithGeneSets(
 
 joinWithVariables(
   object,
-  coords_df,
+  spata_df,
   variables,
   method_gs = "mean",
   average_genes = FALSE,
@@ -71,7 +71,7 @@ joinWithVariables(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{coords_df}{A data.frame that contains at least the character variables
+\item{spata_df}{A data.frame that contains at least the character variables
 \emph{samples} and \emph{barcodes}.}
 
 \item{features}{The features of interest specified as a character vector.}
@@ -115,7 +115,7 @@ Hint: Variables that are uniformly expressed can not be scaled and are discarded
  }}
 }
 \value{
-The input data.frame of \code{coords_df} joined with all the
+The input data.frame of \code{spata_df} joined with all the
 specified variable-elements (by the key-variable \emph{barcodes}).
 }
 \description{
@@ -125,6 +125,6 @@ input that contains at least the variables \emph{barcodes} and \emph{sample}.
 variables and joins them over the barcode variable with the provided data.frame.
 }
 \details{
-Hint: Variables of the specified data.frame \code{coords_df} that have equal names as
+Hint: Variables of the specified data.frame \code{spata_df} that have equal names as
 the specified features, genes and gene-sets are overwritten!
 }

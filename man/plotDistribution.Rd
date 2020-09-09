@@ -65,7 +65,7 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{data}{The data.frame containing numeric variables.}
+\item{data}{The data.frame containing the numeric variables of interest.}
 }
 \description{
 Visualizes the distribution of values of a set of variables.

@@ -683,7 +683,7 @@ createPseudotime <- function(object,
 
   ps_time[base::is.infinite(ps_time[,feature_name]), feature_name] <- NA
 
-  object <- addFeature(object, feature_df = ps_time, feature_name = feature_name, overwrite = TRUE)
+  object <- addFeatures(object, feature_df = ps_time, feature_names = feature_name, overwrite = TRUE)
 
   base::return(object)
 

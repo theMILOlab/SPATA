@@ -4,35 +4,40 @@
 #' that fits to the provided spata-object.
 #'
 #' @inherit check_object params
-#' @param use_cds_file A file-directory leading to a .rds file containing a valid
+#' @inherit check_monocle_input params details
+#' @param use_cds_file Character string or NULL. A file-directory leading to a .rds file containing a valid
 #' cell_data_set-object previously calculated for the specified object. Specified
-#' as a character value. If set to FALSE the cell_data_set object will be created
+#' as a character value. If set to NULL the cell_data_set object will be created
 #' from scratch.
-#' @param save_cds_file A file-directory (that does not already exists) under which the used or created cell_data_set-object
+#' @param save_cds_file Character string or NULL. A file-directory (that does not already exists) under which the used or created cell_data_set-object
 #' is going to be stored specified as a character value. Should end with .rds.
-#' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
-#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string. Must be one of
-#' \emph{'leiden', 'louvain'}.
-#' @param inherit verbose
-#'
-#' (Warning messages will always be printed.)
+#' @inherit verbose params
 #'
 #' @return A monocle3::cell_data_set object.
 #' @export
 
 compileCellDataSet <- function(object,
-                               use_cds_file = FALSE,
-                               save_cds_file = FALSE,
                                preprocess_method = "PCA",
+                               reduction_method = "PCA",
                                cluster_method = "leiden",
+                               k = 20,
+                               num_iter = 2,
+                               use_cds_file = NULL,
+                               save_cds_file = NULL,
                                verbose = TRUE){
-
 
   check_object(object)
   confuns::is_value(preprocess_method, "character", "preprocess_method")
   confuns::is_value(cluster_method, mode = "character", "cluster_method")
-  if(!base::isFALSE(use_cds_file)){confuns::check_directories(use_cds_file, ref = "use_cds_file", type = "files")}
-  if(!base::isFALSE(save_cds_file)){
+
+  check_monocle_input(preprocess_method = preprocess_method,
+                      reduction_method = reduction_method,
+                      cluster_method = cluster_method,
+                      k = k,
+                      num_iter = num_iter)
+
+  if(!base::is.null(use_cds_file)){confuns::check_directories(use_cds_file, ref = "use_cds_file", type = "files")}
+  if(!base::is.null(save_cds_file)){
 
     confuns::is_value(save_cds_file, "character", "save_cds_file")
     if(base::file.exists(save_cds_file)){
@@ -42,7 +47,6 @@ compileCellDataSet <- function(object,
     }
 
   }
-
 
   # check if valid cds files
   if(base::is.character(use_cds_file)){
@@ -93,18 +97,79 @@ compileCellDataSet <- function(object,
     cds <- monocle3::estimate_size_factors(cds)
 
     if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
-    cds <- monocle3::preprocess_cds(cds, method = preprocess_method, num_dim = 30)
+
+    for(p in base::seq_along(preprocess_method)){
+
+      if(base::isTRUE(verbose)){
+
+        base::message(glue::glue("Preprocessing cells with method {p}/{base::length(preprocess_method)} '{preprocess_method[p]}'"))
+
+      }
+
+      cds <- monocle3::preprocess_cds(cds, method = preprocess_method[p])
+
+    }
 
     if(base::isTRUE(verbose)){base::message("Step 4/7 Reducing dimensions.")}
-    cds <- monocle3::reduce_dimension(cds, cores = 2)
+
+    for(p in base::seq_along(preprocess_method)){
+
+      base::message(glue::glue("Using preprocess method '{preprocess_method[p]}':"))
+
+      for(r in base::seq_along(reduction_method)){
+
+        base::message(glue::glue("Reducing dimensions with reduction method {r}/{base::length(reduction_method)}: '{reduction_method[r]}' "))
+
+        if(reduction_method[r] == "LSI" && preprocess_method[p] != "LSI"){
+
+          base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+
+        } else if(reduction_method[r] == "PCA" && preprocess_method[p] != "PCA") {
+
+          base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+
+        } else {
+
+          cds <- monocle3::reduce_dimension(cds = cds, reduction_method = reduction_method[r], preprocess_method = preprocess_method[p], verbose = FALSE)
+
+        }
+
+      }
+
+    }
 
     if(base::isTRUE(verbose)){base::message("Step 5/7 Clustering cells.")}
-    cds <- monocle3::cluster_cells(cds, cluster_method = cluster_method)
 
-    if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
-    cds <- monocle3::learn_graph(cds)
+    for(r in base::seq_along(reduction_method)){
 
-  }
+      if(base::isTRUE(verbose)){
+
+        base::message(glue::glue("Using reduction method {reduction_method[r]}:"))
+
+      }
+
+      for(c in base::seq_along(cluster_method)){
+
+        if(base::isTRUE(verbose)){
+
+          base::message(glue::glue("Clustering barcode-spots with method {c}/{base::length(cluster_method)}: {cluster_method[c]}"))
+
+        }
+
+        cds <- monocle3::cluster_cells(cds = cds,
+                                       reduction_method = reduction_method[r],
+                                       k = k,
+                                       num_iter = num_iter,
+                                       cluster_method = cluster_method[c],
+                                       verbose = FALSE)
+
+      }
+
+    }
+
+  if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
+  cds <- monocle3::learn_graph(cds)
+
 
   if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
   cds <- monocle3::order_cells(cds)
@@ -124,5 +189,7 @@ compileCellDataSet <- function(object,
   }
 
   base::return(cds)
+
+  }
 
 }

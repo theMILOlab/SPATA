@@ -11,7 +11,7 @@
 #' @inherit check_pt params
 #' @inherit check_display params
 #' @inherit verbose params
-#' @inheirt check_uniform_genes params
+#' @inherit check_uniform_genes params
 #' @param sgmt_size The size of the segment arrrow specified as a numeric value.
 #'
 #' @inherit plot_family return

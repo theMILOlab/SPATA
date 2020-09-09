@@ -121,6 +121,36 @@ getCountMatrix <- function(object,
 
 
 
+#' @title Obtain a spata-data.frame
+#'
+#' @description This function is most basic start if you want
+#' to extract your analysis.
+#'
+#' (In order to extract the coordinates as well use \code{getCoordinates()}.)
+#'
+#' @inherit check_sample params
+#'
+#' @return A tidy data.frame containing the character variables \emph{barcodes}
+#' and \emph{sample}.
+#'
+#' @seealso joinWith
+#'
+#' @export
+#'
+
+getSpataDf <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample)
+
+  getFeatureVariables(object,
+                      features = "sample",
+                      of_sample = of_sample,
+                      return = "data.frame")
+
+}
+
+
 # Dimensional reduction ---------------------------------------------------
 
 #' @title Obtain dimensional reduction data
@@ -598,6 +628,9 @@ getGenesInteractive <- function(object){
 
 #' @title Obtain feature names
 #'
+#' @description An easy way to obtain all features of interest along with their
+#' class.
+#'
 #' @param object A valid spata-object.
 #' @param of_class Character vector. Specify the classes a feature must be of for
 #' it's name to be returned.
@@ -620,7 +653,7 @@ getFeatureNames <- function(object, of_class = NULL){
     feature_names <- feature_names[classes %in% of_class]
   }
 
-  base::return(feature_names[!feature_names %in% c("sample", "barcodes")])
+  base::return(feature_names[feature_names != "barcodes"])
 
 }
 
