@@ -503,8 +503,8 @@ plotSurfaceComparison2 <- function(data,
     } else {
 
       check_list <-
-        purrr::map(variables, function(i){c("numeric", "integer")}) %>%
-        magrittr::set_names(value = variables)
+        purrr::map(c("x", "y", variables), function(i){c("numeric", "integer")}) %>%
+        magrittr::set_names(value = c("x", "y", variables))
 
       confuns::check_data_frame(
         df = data,
@@ -525,6 +525,7 @@ plotSurfaceComparison2 <- function(data,
     ref <- base::ifelse(n_valid_variables > 1,
                         yes = "different variables. (This can take a few seconds.)",
                         no = "variable.")
+
     if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_valid_variables} {ref}"))}
 
 
