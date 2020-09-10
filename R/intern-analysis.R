@@ -467,6 +467,9 @@ plotIgraphHeatmap <- function(cor_mtr,
 #'
 #' @inherit check_object params
 #' @inherit check_monocle_input params details
+#' @param prefix Character value. Clustering algorithms often return only numbers as
+#' names for the clusters they generate. If you want to these numbers to have a certain
+#' prefix (like \emph{'Cluster'}, the default) you can specify it with this argument.
 #'
 #' @details This functions is a wrapper around monocle3-cluster algorithms which
 #' take several options for dimensional reduction upon which the subsequent clustering bases.
@@ -510,6 +513,7 @@ findMonocleClusters <- function(object,
                                 cluster_method = c("leiden", "louvain"),
                                 k = 20,
                                 num_iter = 5,
+                                prefix = "Cluster",
                                 verbose = TRUE){
 
   check_object(object)
@@ -613,8 +617,10 @@ findMonocleClusters <- function(object,
 
   }
 
-  cluster_df <- purrr::map_df(.x = cluster_df,
+  cluster_df <- purrr::map_df(.x = dplyr::select(cluster_df, -barcodes),
                               .f = function(i){
+
+                                i <- stringr::str_c(prefix, i, sep = "")
 
                                 if(base::is.factor(i)){
 
@@ -627,7 +633,8 @@ findMonocleClusters <- function(object,
 
                                 }
 
-                              })
+                              }) %>%
+    dplyr::mutate(barcodes = cluster_df$barcodes)
 
   if(base::isTRUE(verbose)){base::message("Done.")}
 

@@ -251,7 +251,6 @@ addFeatures <- function(object,
 
   }
 
-
   # join over coordinates
   if(key_variable == "coordinates"){
 

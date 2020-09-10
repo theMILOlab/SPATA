@@ -1308,7 +1308,6 @@ plotDistributionDiscrete <- function(object,
     confuns::scale_color_add_on(aes = "fill", variable = "discrtete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
-      plot.margin = ggplot2::margin(t = 50, r = 100, b = 50, l = 100, unit = "pt"),
       axis.text.y = ggplot2::element_text(color="black"),
       axis.text.x = ggplot2::element_text(color="black")
     ) +
@@ -1406,7 +1405,8 @@ plotPseudotime <- function(object,
 plotSegmentation <- function(object,
                              of_sample = "",
                              pt_size = 2,
-                             pt_clrp = "milo"){
+                             pt_clrp = "milo",
+                             display_labels = FALSE){
 
   # control
   check_object(object)
@@ -1422,15 +1422,27 @@ plotSegmentation <- function(object,
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
 
+  if(base::isTRUE(display_labels)){
+
+    ggforce_add_on <-
+      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment))
+
+  } else {
+
+    ggforce_add_on <-
+      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment))
+
+  }
+
   # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
-    ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
+    ggforce_add_on +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
     confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
     ggplot2::theme_void() +
-    ggplot2::labs(fill = "Segments")
+    ggplot2::labs(fill = "Segmentation")
 
 }
 

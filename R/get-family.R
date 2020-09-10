@@ -7,7 +7,7 @@
 
 getBarcodes <- function(object, of_sample = "all"){
 
-  cdf <- coordinates(object = object, of_sample = of_sample)
+  cdf <- getCoordinates(object = object, of_sample = of_sample)
 
   return(dplyr::pull(cdf, barcodes))
 
