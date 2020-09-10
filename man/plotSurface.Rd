@@ -11,7 +11,7 @@ plotSurface(
   of_sample = "",
   color_to = NULL,
   method_gs = "mean",
-  nornalize = TRUE,
+  normalize = TRUE,
   smooth = FALSE,
   smooth_span = 0.02,
   pt_size = 2,

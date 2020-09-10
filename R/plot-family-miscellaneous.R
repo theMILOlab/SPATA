@@ -1266,6 +1266,57 @@ plotDistributionAcross2 <- function(data,
 }
 
 
+#' @title Distribution of discrete features
+#'
+#' @description Visualize the distribution of two grouping variables with
+#' a barplot.
+#'
+#' @inherit check_sample params
+#' @param discrete_x Character value. The discrete feature of interest to be mapped onto the x-axis.
+#' @param discrete_y Character value. The discrete feature of interest to be mapped onto the y-axis.
+#' @param clrp clrp params
+#' @param position Character value. Given to \code{position} of \code{ggplot2::geom_bar()}.
+#' @param ... Additional parameter given to \code{ggplot2::geom_bar()}.
+#' @inherit plotDistribution params return
+#'
+#' @export
+#'
+
+plotDistributionDiscrete <- function(object,
+                                     of_sample = "",
+                                     discrete_x,
+                                     discrete_y,
+                                     clrp = "milo",
+                                     position = "fill",
+                                     ...){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample)
+  discrete_x <- check_features(object, discrete_x, c("character", "factor"), 1)
+  discrete_y <- check_features(object, discrete_y, c("character", "factor"), 1)
+
+  check_pt(pt_clrp = clrp)
+
+  plot_df <-
+    joinWithFeatures(object = object,
+                     spata_df = getSpataDf(object, of_sample),
+                     features = c(discrete_x, discrete_y))
+
+  ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[discrete_x]], fill = .data[[discrete_y]]))+
+    ggplot2::geom_bar(position = position, ...) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrtete", clrp = clrp) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      plot.margin = ggplot2::margin(t = 50, r = 100, b = 50, l = 100, unit = "pt"),
+      axis.text.y = ggplot2::element_text(color="black"),
+      axis.text.x = ggplot2::element_text(color="black")
+    ) +
+    ggplot2::labs(y = NULL)
+
+}
+
+
 #' @title Monocle3 Pseudotime
 #'
 #' @description A wrapper around \code{monocle3::plot_cells()}.

@@ -599,7 +599,7 @@ findMonocleClusters <- function(object,
                                      cluster_method = cluster_method[c],
                                      verbose = FALSE)
 
-      cluster_name <- stringr::str_c("mncl_cluster", reduction_method[r], cluster_method[c], base::paste0("k", k), sep = "_")
+      cluster_name <- stringr::str_c("cluster", cluster_method[c], reduction_method[r],base::paste0("k", k), sep = "_")
 
       cluster_df <-
         monocle3::clusters(x = cds, reduction_method = reduction_method[r]) %>%
