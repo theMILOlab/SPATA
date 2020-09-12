@@ -29,7 +29,6 @@
 
 
 joinWith <- function(object,
-                     coords_df = NULL,
                      spata_df,
                      features = NULL,
                      gene_sets = NULL,
@@ -46,6 +45,7 @@ joinWith <- function(object,
 
   check_object(object)
   check_uniform_genes(uniform_genes)
+  check_smooth(df = spata_df, smooth = smooth, smooth_span = smooth_span)
 
   confuns::check_data_frame(
     df = spata_df,
