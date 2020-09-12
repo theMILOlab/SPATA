@@ -27,7 +27,7 @@ plotSurface(
 )
 
 plotSurface2(
-  data,
+  coords_df,
   color_to,
   pt_size = 2,
   pt_alpha = 0.9,
@@ -92,7 +92,13 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{data}{A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.}
+\item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
+\describe{
+ \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+ \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
+ \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+}}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}

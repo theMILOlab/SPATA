@@ -12,62 +12,65 @@ moduleSurfacePlotUI <- function(id){
                   shiny::wellPanel(
                     shiny::fluidRow(
                       shiny::column(width = 4,
-                                    shiny::uiOutput(ns("sample_opts")),
-                                    shiny::uiOutput(ns("aes_clr_opts")),
-                                    shiny::uiOutput(ns("aes_clr_opts_detailed")),
-                                    shiny::conditionalPanel(
-                                      condition = "input.aes_clr_opts == 'gene_set'", ns = ns,
-                                      shinyWidgets::pickerInput(ns("method_gs"),
-                                                                 label = "Gene set method",
-                                                                 choices = c("Mean" = "mean",
-                                                                             "Gene Set Variation Analysis" = "gsva",
-                                                                             "Gene Set Enrichment Analysis" = "ssgsea",
-                                                                             "Z-Score" = "zscore",
-                                                                             "Plage" = "plage" ))),
-                                    shiny::uiOutput(ns("clrsp")),
-                                    shiny::uiOutput(ns("clrp")),
+                                    shiny::fluidRow(
+                                      shiny::column(width = 6, shiny::uiOutput(ns("sample_opts"))),
+                                      shiny::column(width = 6, shiny::uiOutput(ns("aes_clr_opts")))
+                                    ),
+                                    shiny::fluidRow(
+                                      shiny::uiOutput(ns("aes_clr_opts_detailed")),
+                                      shiny::conditionalPanel(
+                                        condition = "input.aes_clr_opts == 'gene_sets'", ns = ns,
+                                        shinyWidgets::pickerInput(ns("method_gs"),
+                                                                   label = "Gene-set method:",
+                                                                   choices = c("Mean" = "mean",
+                                                                               "Gene Set Variation Analysis" = "gsva",
+                                                                               "Gene Set Enrichment Analysis" = "ssgsea",
+                                                                               "Z-Score" = "zscore",
+                                                                               "Plage" = "plage" )))
+                                    ),
+                                    shiny::fluidRow(
+                                      shiny::column(width = 6, shiny::uiOutput(ns("pt_clrsp"))),
+                                      shiny::column(width = 6, shiny::uiOutput(ns("pt_clrp")))
+                                      ),
+                                    shiny::fluidRow(
+                                      shiny::column(width = 6,
+                                                    shiny::sliderInput(ns("pt_size"), label = "Size of points:", min = 1, max = 10, step = 0.05, value = 2.75),
+                                                    shiny::sliderInput(ns("pt_alpha"), label = "Transparency of points:", min = 0.01, max = 0.99, step = 0.01, value = 0.15),
+                                                    shiny::uiOutput(ns("pt_smooth"))
+                                      ),
+                                      shiny::column(width = 6,
+                                                    shiny::uiOutput(ns("scale_color_min")),
+                                                    shiny::uiOutput(ns("scale_color_mid")),
+                                                    shiny::uiOutput(ns("scale_color_max"))
+                                      )
+                                    ),
                                     shiny::HTML("<br>")
                       ),
                       shiny::column(width = 8,
-                                    shiny::plotOutput(ns("surface_plot"), dblclick = ns("surface_plot_dblclick"))
-                      )
-
-                    ),
-                    shiny::HTML("<br>"),
-                    shiny::fluidRow(
-                      shiny::column(width = 4, align = "center",
-                                    shiny::actionButton(ns("update_plot"), label = "Plot & Update"),
-                                    shinyWidgets::dropdownButton(
-                                      shiny::sliderInput(ns("pt_size"), label = "Size of points", min = 1, max = 5, step = 0.01, value = 2.75),
-                                      shiny::sliderInput(ns("pt_alpha"), label = "Transparency of points", min = 0.01, max = 0.99, step = 0.01, value = 0.15),
-                                      shinyWidgets::materialSwitch(ns("perform_smoothing"), value = FALSE, label = "Smooth values:", status = "success"),
-                                      shiny::conditionalPanel(condition = "input.perform_smoothing == 1", ns = ns,
-                                                              shiny::sliderInput(ns("span_smoothing"),
-                                                                                 label = "Smoothing Degree",
-                                                                                 min = 0.01, max = 0.1, step = 0.001, value = 0.015)
-                                      ),
-                                      shinyWidgets::materialSwitch(ns("perform_normalization"), value = TRUE, label = "Normalize values:", status = "success"),
-                                      label = NULL,
-                                      up = T,
-                                      circle = F,
-                                      icon = shiny::icon("gear"),
-                                      inline = T
+                                      shiny::plotOutput(ns("surface_plot"), dblclick = ns("surface_plot_dblclick")),
+                                      shiny::HTML("<br>"),
+                                      shiny::fluidRow(
+                                        shiny::column(width = 4,
+                                                      shiny::actionButton(ns("update_plot"), label = "Plot & Update")),
+                                        shiny::column(width = 8,
+                                                      shinyWidgets::checkboxGroupButtons(inputId = ns("display_add_ons"),
+                                                                                         label = NULL,
+                                                                                         selected = "legend",
+                                                                                         choices = c("Legend" = "legend",
+                                                                                                    "Image" = "image",
+                                                                                                    "Title" = "title",
+                                                                                                    "Coordinates" = "coords",
+                                                                                                    "Segmentation" = "segmentation"),
+                                                                                         direction = "horizontal",
+                                                                                         justified = FALSE,
+                                                                                         individual = FALSE)
+                                                      )
+                                        )
                                     )
-                      ),
-                      shiny::column(width = 8, align = "center",
-                                    shinyWidgets::checkboxGroupButtons(
-                                      inputId = ns("display_add_ons"),
-                                      label = NULL,
-                                      choices = c("Legend" = "legend", "Image" = "image", "Title" = "title", "Coordinates" = "coords", "Segmentation" = "segmentation"),
-                                      direction = "horizontal", justified = F, individual = F)
-                      )
                     )
                   )
     )
   )
-
-
-
 
 }
 
@@ -109,25 +112,31 @@ moduleSurfacePlotServer <- function(id,
       current <- shiny::reactiveValues(
 
         sample = samples(object)[1],
-        color_code = "gene_set",
-        gene_set = character(),
-        method_gs = character(),
-        genes = character(),
-        feature = character(),
-        clrp = character(),
-        clrsp = character(),
-        smooth = logical(),
-        span = numeric()
+        color_code = "gene_sets",
+        gene_set = base::character(1),
+        method_gs = base::character(1),
+        genes = base::character(1),
+        feature = base::character(1),
+        pt_size = base::numeric(1),
+        pt_clrp = base::character(1),
+        pt_clrsp = base::character(1),
+        smooth = base::logical(1),
+        span = base::numeric()
 
       )
 
       reset_select_gene_sets <- shiny::reactiveVal(value = 0)
       reset_select_genes <- shiny::reactiveVal(value = 0)
 
-      all_features <- getFeatureNames(object) %>%
-        base::unname()
+      all_features <- getFeatureNames(object) %>% base::unname()
       all_gene_sets <- getGeneSets(object = object)
       all_genes <- getGenes(object = object, in_sample = "all")
+
+      smooth_values <- base::seq(0.01, 0.25, by = 0.01) %>%
+        base::round(digits = 3) %>%
+        base::unique()
+
+      all_values <- c(0, smooth_values)
 
       # -----
 
@@ -159,10 +168,10 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-
       })
 
-      # select outputs
+# Main select input -------------------------------------------------------
+
       output$sample_opts <- shiny::renderUI({
 
         ns <- session$ns
@@ -180,7 +189,9 @@ moduleSurfacePlotServer <- function(id,
 
         shinyWidgets::pickerInput(ns("aes_clr_opts"),
                                   label = "Choose colour code:",
-                                  choices = c("Gene set" = "gene_set", "Genes" = "genes", "Feature" = "feature"),
+                                  choices = c("Gene set" = "gene_sets",
+                                              "Genes" = "genes",
+                                              "Feature" = "feature"),
                                   selected = "features")
 
       })
@@ -197,6 +208,7 @@ moduleSurfacePlotServer <- function(id,
                                   multiple = F)
 
       })
+
       select_genes <- shiny::eventReactive(reset_select_genes(),{
 
         ns <- session$ns
@@ -205,16 +217,17 @@ moduleSurfacePlotServer <- function(id,
           shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
                                     label = "Choose gene(s):",
                                     choices = all_genes,
-                                    #selected = all_genes()[1],
+                                    selected = all_genes[1],
                                     options = shinyWidgets::pickerOptions(
                                       liveSearch = TRUE,
                                       actionsBox = TRUE),
                                     multiple = TRUE),
           shiny::checkboxInput(ns("reset_select_genes"),
                                label = "Automatic reset",
-                               value = TRUE))
+                               value = FALSE))
 
       })
+
       select_features <- shiny::reactive({
 
         ns <- session$ns
@@ -233,7 +246,7 @@ moduleSurfacePlotServer <- function(id,
 
         shiny::req(input$aes_clr_opts)
 
-        if(input$aes_clr_opts == "gene_set"){
+        if(input$aes_clr_opts == "gene_sets"){
 
           return(select_gene_sets())
 
@@ -249,11 +262,15 @@ moduleSurfacePlotServer <- function(id,
 
       })
 
-      output$clrsp <- shiny::renderUI({
+  # -----
+
+# Color select input ------------------------------------------------------
+
+      output$pt_clrsp <- shiny::renderUI({
 
         ns <- session$ns
 
-        shinyWidgets::pickerInput(ns("clrsp"),
+        shinyWidgets::pickerInput(ns("pt_clrsp"),
                                   label = "Color spectrum:",
                                   choices = all_colorspectra(),
                                   options = list(
@@ -262,13 +279,13 @@ moduleSurfacePlotServer <- function(id,
                                   multiple = FALSE,
                                   selected = "inferno")
 
-
       })
-      output$clrp <- shiny::renderUI({
+
+      output$pt_clrp <- shiny::renderUI({
 
         ns <- session$ns
 
-        shinyWidgets::pickerInput(ns("clrp"),
+        shinyWidgets::pickerInput(ns("pt_clrp"),
                            choices = c(
                              "MILO Research Group" = "milo",
                              "Journal of Oncology" = "jco",
@@ -287,7 +304,71 @@ moduleSurfacePlotServer <- function(id,
                            selected = "milo")
       })
 
-      # plot output
+  # -----
+
+
+
+# Plot tweaking slider inputs ---------------------------------------------
+
+      output$scale_color_min <- shiny::renderUI({
+
+        ns <- session$ns
+
+          shiny::sliderInput(ns("scale_color_min"),
+                             label = "Color scale minimum:",
+                             min = 0,
+                             max = 1,
+                             value = 0,
+                             step = 0.01)
+
+      })
+
+      output$scale_color_max <- shiny::renderUI({
+
+        ns <- session$ns
+
+          shiny::sliderInput(ns("scale_color_max"),
+                             label = "Color scale maximum:",
+                             min = 0,
+                             max = 1,
+                             value = 1,
+                             step = 0.01)
+
+      })
+
+      output$scale_color_mid <- shiny::renderUI({
+
+        ns <- session$ns
+
+          shiny::sliderInput(ns("scale_color_mid"),
+                             label = "Color scale mid:",
+                             min = 0.01,
+                             max = 0.99,
+                             value = 0.5,
+                             step = 0.01)
+
+      })
+
+      output$pt_smooth <- shiny::renderUI({
+
+        ns <- session$ns
+
+        shinyWidgets::sliderTextInput(
+          inputId = ns("pt_smooth"),
+          label = "Spatial smoothing:",
+          choices = all_values,
+          grid = TRUE,
+          selected = 0
+        )
+
+      })
+
+  # -----
+
+
+
+# Plot assembling ---------------------------------------------------------
+
       output$surface_plot <- shiny::renderPlot({
 
         shiny::req(final_plot())
@@ -333,7 +414,6 @@ moduleSurfacePlotServer <- function(id,
 
 
       })
-
 
       #----- Geom point add-on -----#
 
@@ -412,7 +492,6 @@ moduleSurfacePlotServer <- function(id,
           geneset_vls <-
             GSVA::gsva(expr = rna_assay()[genes,], gset.idx.list = gene_set_df, mx.diff = 1, parallel.sz = 2, method = current$method_gs, verbose = F) %>%
             t() %>%
-            hlpr_normalize_vctr() %>%
             as.data.frame() %>%
             magrittr::set_colnames(value = "expr_score") %>%
             tibble::rownames_to_column(var = "barcodes")
@@ -442,7 +521,7 @@ moduleSurfacePlotServer <- function(id,
           joined_df <-
             dplyr::left_join(x = sample_coords(), y = gene_vls(), by = "barcodes")
 
-        } else if(current$color_code == "gene_set"){
+        } else if(current$color_code == "gene_sets"){
 
           joined_df <-
             dplyr::left_join(x = sample_coords(), y = geneset_vls(), by = "barcodes")
@@ -461,7 +540,7 @@ moduleSurfacePlotServer <- function(id,
       # variable
       variable <- shiny::reactive({
 
-        if(current$color_code %in% c("genes", "gene_set")){
+        if(current$color_code %in% c("genes", "gene_sets")){
 
           variable <- "expr_score"
 
@@ -478,55 +557,53 @@ moduleSurfacePlotServer <- function(id,
       # smoothed_df
       smoothed_df <- shiny::reactive({
 
-        if(base::isTRUE(current$smooth)){
+        shiny::validate(
+          shiny::need(joined_df(), message = "Click on 'Plot & Update' to display the plot.")
+        )
+
+        if(base::as.numeric(input$pt_smooth) != 0){
 
           smoothed_df <-
             hlpr_smooth_shiny(coords_df = joined_df(),
                               variable = variable(),
-                              smooth_span = current$span)
+                              smooth_span = base::as.numeric(input$pt_smooth)) %>%
+            purrr::imap_dfr(.f = hlpr_normalize_imap,
+                            aspect = "",
+                            subset = variable()
+            )
 
-          return(smoothed_df)
+          base::return(smoothed_df)
 
         } else {
 
-          return(joined_df())
+          base::return(
+            purrr::imap_dfr(.x = joined_df(),
+                            .f = hlpr_normalize_imap,
+                            aspect = "",
+                            subset = variable()
+            )
+          )
+
 
         }
 
       })
 
-      #normalized_df
-      normalized_df <- shiny::reactive({
+      # color variable
+      color_variable <- shiny::reactive({
 
-        if(base::isTRUE(current$normalize) & current$color_code != "feature"){
-
-          normalized_df <-
-            purrr::imap_dfr(.x = smoothed_df(),
-                            .f = hlpr_normalize_imap,
-                            aspect = "Gene",
-                            subset = variable()
-            )
-
-          return(normalized_df)
-
-
-        } else {
-
-          return(smoothed_df())
-
-        }
-
+        dplyr::pull(smoothed_df(), variable())
 
       })
 
       # geom_point_add_on
       geom_point_add_on <- shiny::reactive({
 
-        color <- dplyr::pull(.data = normalized_df(), variable())
+        color <- dplyr::pull(.data = smoothed_df(), variable())
 
         add_on <-
           list(
-            ggplot2::geom_point(data = normalized_df(),
+            ggplot2::geom_point(data = smoothed_df(),
                                 mapping = ggplot2::aes(x = x, y = y, color = color),
                                 size = input$pt_size,
                                 alpha = (1-input$pt_alpha))
@@ -536,31 +613,35 @@ moduleSurfacePlotServer <- function(id,
 
       })
 
-
       #----- Scale color add-on -----#
       scale_color_add_on <- shiny::reactive({
 
-        if(current$color_code %in% c("genes", "gene_set")){
+        if(base::is.numeric(color_variable())){
 
-          add_on <-
-            confuns::scale_color_add_on(clrsp = current$clrsp)
-
-        } else {
-
-          feature <-
-            dplyr::pull(featureData(object, of_sample = current$sample), current$feature)
-
-          if(base::is.numeric(feature)){
+          if(current$pt_clrsp %in% all_colorspectra()[["Diverging"]]){
 
             add_on <-
-              confuns::scale_color_add_on(clrsp = current$clrsp)
+              confuns::scale_color_add_on(clrsp = current$pt_clrsp,
+                                          limits = c(input$scale_color_min,
+                                                     input$scale_color_max),
+                                          mid = input$scale_color_mid,
+                                          oob = scales::squish)
 
           } else {
 
             add_on <-
-              confuns::scale_color_add_on(variable = "discrete", clrp = current$clrp)
+              confuns::scale_color_add_on(clrsp = current$pt_clrsp,
+                                          limits = c(input$scale_color_min,
+                                                     input$scale_color_max),
+                                          oob = scales::squish)
 
           }
+
+        } else if(!base::is.numeric(color_variable())){
+
+            add_on <-
+              list(confuns::scale_color_add_on(variable = "discrete", clrp = current$pt_clrp),
+                   ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5))))
 
         }
 
@@ -596,7 +677,7 @@ moduleSurfacePlotServer <- function(id,
 
         if("legend" %in% input$display_add_ons){
 
-          if(current$color_code %in% c("gene_set", "genes")){
+          if(current$color_code %in% c("gene_sets", "genes")){
 
             legend_title = "Expr.\nscore"
 
@@ -639,7 +720,7 @@ moduleSurfacePlotServer <- function(id,
 
             plot_title <- stringr::str_c("Genes:", genes_string, sep = " ")
 
-          } else if(current$color_code == "gene_set"){
+          } else if(current$color_code == "gene_sets"){
 
             gene_set <- current$gene_set
 
@@ -679,9 +760,9 @@ moduleSurfacePlotServer <- function(id,
 
             segm_layer <-
               list(
-                ggforce::geom_mark_hull(data = segmentation_df(),
-                                       mapping = ggplot2::aes(x = x, y = y, fill = segment)),
-                confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = current$clrp)
+                ggalt::geom_encircle(data = segmentation_df(), alpha = 0.75, expand = 0.025,
+                                     mapping = ggplot2::aes(x = x, y = y, group = segment, fill = segment)),
+                confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = "milo", guide = FALSE)
 
               )
 
@@ -731,7 +812,7 @@ moduleSurfacePlotServer <- function(id,
 
       # -----
 
-      # Observe events ----------------------------------------------------------
+# Observe events ----------------------------------------------------------
 
       # update plot by updating reactive values
       oe <- shiny::observeEvent(input$update_plot, {
@@ -743,7 +824,7 @@ moduleSurfacePlotServer <- function(id,
 
           current$genes = input$aes_clr_opts_detailed
 
-        } else if(current$color_code == "gene_set"){
+        } else if(current$color_code == "gene_sets"){
 
           current$gene_set = input$aes_clr_opts_detailed
           current$method_gs = input$method_gs
@@ -754,13 +835,10 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        current$size = input$pt_size
-        current$clrsp = input$clrsp
-        current$clrp = input$clrp
+        current$pt_size = input$pt_size
+        current$pt_clrsp = input$pt_clrsp
+        current$pt_clrp = input$pt_clrp
         current$pt_alpha = input$pt_alpha
-        current$smooth = input$perform_smoothing
-        current$span = input$span_smoothing
-        current$normalize = input$perform_normalization
 
         if(base::isTRUE(input$reset_select_genes) &&
            current$color_code == "genes"){
@@ -780,7 +858,9 @@ moduleSurfacePlotServer <- function(id,
           dblclick = shiny::reactive({input$surface_plot_dblclick}),
           current_setting = shiny::reactive({current}),
           smoothed_df = shiny::reactive({smoothed_df()}),
-          variable = shiny::reactive({variable()})
+          variable = shiny::reactive({variable()}),
+          variable_name = shiny::reactive(input$aes_clr_opts_detailed),
+          pt_size_reactive = shiny::reactive(input$pt_size)
         )
 
       })

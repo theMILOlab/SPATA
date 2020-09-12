@@ -22,6 +22,168 @@ lazy_check_dummy <- function(){}
 #################################################################################################
 
 
+# Recurring data.frame input ----------------------------------------------
+
+#' @title Check assessed trajectory data.frame
+#'
+#' @param atdf A data.frame containing the results of trajectory-modelling. Must contain the variables:
+#'
+#'  \describe{
+#'   \item{\emph{variables}}{Character. The genes, gene-sets and features that have been assessed.}
+#'   \item{\emph{pattern}}{Character. The respective trajectory pattern.}
+#'   \item{\emph{auc}}{Numeric. The assessment value which is the residual's area under the curve.}
+#'  }
+#'
+#' @inherit lazy_check_dummy description details return
+
+
+check_atdf <- function(atdf){
+
+  confuns::check_data_frame(
+    df = atdf,
+    var.class = list(
+      variables = c("character"),
+      pattern = c("character", "factor"),
+      auc = c("numeric", "integer", "double")
+    ),
+    ref = "atdf")
+
+}
+
+#' @rdname check_atdf
+check_rtdf <- function(rtdf, variable = NULL){
+
+  # check classes
+  confuns::check_data_frame(df = rtdf,
+                            var.class =
+                              list(
+                                variables = "character",
+                                data = "list",
+                                residuals = "list",
+                                auc = "list"),
+                            ref = "rtdf")
+
+  base::return(base::invisible(TRUE))
+
+}
+
+#' @title Check coordinate data.frame
+#'
+#' @param spata_df A data.frame containing information of barcode-spots. Must contain the variables.
+#'
+#' \describe{
+#'  \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+#'  \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+#'  }
+#'
+#' @inherit lazy_check_dummy description details return
+
+check_spata_df <- function(spata_df){
+
+  confuns::check_data_frame(
+    df = spata_df,
+    var.class = list(
+      barcodes = c("character"),
+      sample = c("character")
+    ),
+    ref = "spata_df"
+  )
+
+}
+
+
+#' @title Check summarized trajectory data.frame
+#'
+#' @param stdf A data.frame containing information about a spatial trajectory. Must contain the variables:
+#'
+#'  \describe{
+#'   \item{\emph{trajectory_part}}{Character. The trajectory's subparts.}
+#'   \item{\emph{trajectory_part_order}}{Numeric. Denotes every trajectory-bin's position along the trajectory's subpart.}
+#'   \item{\emph{trajectory_order}}{Numeric. Denotes every trajectory-bin's position along the whole trajectory.}
+#'   \item{\emph{variables}}{Character. The genes, gene-sets and features that have been summarized along the trajectory.}
+#'   \item{\emph{values}}{Numeric. The binned values of every gene, gene-set and feature that has been summarized along the trajectory.}
+#'   }
+#'
+#' @inherit lazy_check_dummy description details return
+
+check_stdf <- function(stdf){
+
+  confuns::check_data_frame(
+    df = stdf,
+    var.class = list(
+      trajectory_part = c("character"),
+      trajectory_part_order = c("integer", "numeric", "double"),
+      trajectory_order = c("integer", "numeric", "double"),
+      variables = c("character"),
+      values = c("integer", "numeric", "double")
+    ),
+    ref = "stdf"
+  )
+
+}
+
+
+#' @title Check de data.frame
+#' @param de_df A data.frame containing information about differentially expressed genes. Must contain the variables:
+#'
+#'  \describe{
+#'   \item{\emph{gene}}{Character. The differentially expressed genes.}
+#'   \item{\emph{cluster}}{Character. The clusters (or experimental groups) across which the analysis was performed.}
+#'   \item{\emph{avg_logFC}}{Numeric. The average log-fold change to which the belonging gene was differentially expressed..}
+#'   \item{\emph{p_val}}{Numeric. The p-values.}
+#'   \item{\emph{p_val_adj}}{Numeric. The adjusted p-values.}
+#'  }
+#'
+#'Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants as input.
+#'
+#' @inherit lazy_check_dummy description details return
+
+check_de_df <- function(de_df){
+
+  confuns::check_data_frame(
+    df = de_df,
+    var.class = list(
+      p_val = "numeric",
+      avg_logFC = "numeric",
+      p_val_adj = "numeric",
+      cluster = c("character", "factor"),
+      gene = "character"
+    ),
+    ref = "de_df"
+  )
+
+}
+
+
+#' @title Check coords data.frame
+#'
+#' @param coords_df A data.frame containing information about every barcode-spot. Must contain the variables:
+#'  \describe{
+#'   \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+#'   \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+#'   \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
+#'   \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+#'  }
+#'
+#' @inherit lazy_check_dummy description details return
+
+check_coords_df <- function(coords_df){
+
+  confuns::check_data_frame(
+    df = coords_df,
+    var.class = list(
+      barcodes = "character",
+      sample = "character",
+      x = c("numeric", "integer", "double"),
+      y = c("numeric", "integer", "double")
+    ),
+    ref = "coords_df"
+  )
+
+}
+
+
+# -----
 
 #' @title Check assign input
 #'
@@ -32,7 +194,6 @@ lazy_check_dummy <- function(){}
 #' a single character value.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
 
 check_assign <- function(assign = FALSE,
                          assign_name = character(1)){
@@ -75,14 +236,13 @@ check_assign <- function(assign = FALSE,
 
 
 
+
 #' @title Check compiled trajectory data.frame
 #'
 #' @param ctdf A compiled trajectory data.frame containing the variables
 #' \emph{'barcodes', 'sample', 'x', 'y', 'projection_length', 'trajectory_part'}.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
-#'
 
 check_compiled_trajectory_df <- function(ctdf){
 
@@ -115,7 +275,6 @@ check_compiled_trajectory_df <- function(ctdf){
 #' @param y The name of the numeric variable to be plotted on the y axis.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
 
 check_coordinate_variables <- function(data, x = "x", y = "y"){
 
@@ -137,77 +296,6 @@ check_coordinate_variables <- function(data, x = "x", y = "y"){
 
 
 
-#' @title Check coordinate data.frame
-#'
-#' @param spata_df A data.frame that contains at least the character variables
-#' \emph{samples} and \emph{barcodes}.
-#'
-#' @inherit lazy_check_dummy description details return
-#' @export
-
-check_spata_df <- function(spata_df){
-
-  if(!base::is.data.frame(spata_df)){
-
-    base::stop("Argument 'spata_df' needs to be a data.frame.")
-
-  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(spata_df))){
-
-    base::stop("'spata_df' needs to have 'barcodes' and 'sample' variables.")
-
-  } else {
-
-    classes <- base::sapply(X = spata_df[,c("barcodes", "sample")],
-                            FUN = base::class)
-
-    if(!base::all(classes == "character")){
-
-      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
-
-    } else {
-
-      base::return(TRUE)
-
-    }
-
-  }
-
-}
-
-#' @rdname check_spata_df
-#' @export
-check_coords_df <- function(coords_df){
-
-  warning("check_coords_df() is deprecated")
-
-  if(!base::is.data.frame(spata_df)){
-
-    base::stop("Argument 'spata_df' needs to be a data.frame.")
-
-  } else if(!base::all(c("barcodes", "sample") %in% base::colnames(spata_df))){
-
-    base::stop("'spata_df' needs to have 'barcodes' and 'sample' variables.")
-
-  } else {
-
-    classes <- base::sapply(X = spata_df[,c("barcodes", "sample")],
-                            FUN = base::class)
-
-    if(!base::all(classes == "character")){
-
-      base::stop("Variables 'barcodes' and 'sample' need to be of class character.")
-
-    } else {
-
-      base::return(TRUE)
-
-    }
-
-  }
-
-}
-
-
 
 #' @title Check display input
 #'
@@ -217,7 +305,6 @@ check_coords_df <- function(coords_df){
 #' @param display_title Logical. If set to TRUE an informative title is displayed.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
 
 check_display <- function(display_title = FALSE,
                           display_image = FALSE){
@@ -245,7 +332,6 @@ check_display <- function(display_title = FALSE,
 #' @param feature_df A data.frame that contains the feature and the key-variables.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
 
 check_feature_df <- function(feature_name,
                              feature_df){
@@ -449,8 +535,6 @@ check_method <- function(method_dr = NULL,
 #' the function will iterate over all inputs via a for-loop to compute all
 #' valid combinations.
 #'
-#' @export
-#'
 
 check_monocle_input <- function(preprocess_method,
                                 reduction_method,
@@ -560,51 +644,6 @@ check_pt <- function(pt_size = NULL,
 }
 
 
-
-#' @title Check ranked trajectory data.frame input
-#'
-#' @param atdf An assessed trajectory data.frame.
-#' @param rtdf A ranked trajectory data.frame.
-#' @param variable The gene or gene set of interest specified as a character
-#' value.
-#'
-#' @inherit lazy_check_dummy description details return
-#' @export
-#'
-
-check_atdf <- function(atdf){
-
-  confuns::check_data_frame(
-    df = atdf,
-    var.class = list(
-      variables = "character",
-      pattern = "character",
-      auc = c("double", "integer", "numeric")
-    )
-  )
-
-}
-
-#' @rdname check_atdf
-#' @export
-check_rtdf <- function(rtdf, variable = NULL){
-
-  # check classes
-  confuns::check_data_frame(df = rtdf,
-                             var.class =
-                               list(
-                                 variables = "character",
-                                 data = "list",
-                                 residuals = "list",
-                                 auc = "list"),
-                             ref = "rtdf")
-
-  base::return(base::invisible(TRUE))
-
-}
-
-
-
 #' @title Check smooth input
 #'
 #' @param df A data.frame that is to be smoothed spatially. That data frame must have
@@ -618,8 +657,6 @@ check_rtdf <- function(rtdf, variable = NULL){
 #' displayed.
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
-#'
 
 check_smooth <- function(df = NULL,
                          smooth = NULL,
@@ -682,10 +719,10 @@ check_smooth <- function(df = NULL,
 #' @param stdf A summarized trajectory data.frame
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
-#'
 
 check_summarized_trajectory_df <- function(stdf){
+
+  warning("check_summarized_trajectory_df is deprecated. Use check_stdf()")
 
   confuns::check_data_frame(
     df = stdf, var.class = list(
@@ -709,7 +746,6 @@ check_summarized_trajectory_df <- function(stdf){
 #'
 #'
 #' @inherit lazy_check_dummy description details return
-#' @export
 
 check_trajectory <- function(object,
                              trajectory_name,
@@ -737,8 +773,6 @@ check_trajectory <- function(object,
 #' data.frame are discarded. If set to \emph{'keep'} they are kept.
 #'
 #' @return
-#' @export
-#'
 
 check_uniform_genes <- function(uniform_genes){
 

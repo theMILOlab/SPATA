@@ -502,10 +502,10 @@ plotFourStates2 <- function(data,
 #'  }
 #'
 #'
-#' @param data The data.frame containing the numeric variables of interest.
+#' @param df A data.frame that contains the numeric variables specified in \code{variables}.
 #' @inherit variables_num params
 #' @inherit across params
-#' @param plot_type One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.
+#' @param plot_type Character value. One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.
 #' @param binwidth The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.
 #' @param ... additional arguments to \code{ggplot2::facet_wrap()}
 #'
@@ -717,7 +717,7 @@ plotDistribution <- function(object,
 
 #' @rdname plotDistribution
 #' @export
-plotDistribution2 <- function(data,
+plotDistribution2 <- function(df,
                               variables = "all",
                               plot_type = "histogram",
                               clrp = "milo",
@@ -730,7 +730,7 @@ plotDistribution2 <- function(data,
   # lazy check
   confuns::is_value(clrp, "character", "clrp")
 
-  stopifnot(base::is.data.frame(data))
+  stopifnot(base::is.data.frame(df))
   if(!base::is.null(variables)){confuns::is_vec(variables, "character", "variables")}
 
   if(!plot_type %in% c("histogram", "density", "ridgeplot", "boxplot", "violin")){
@@ -746,7 +746,7 @@ plotDistribution2 <- function(data,
 
     if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
-    cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+    cnames <- base::colnames(dplyr::select_if(.tbl = df, .predicate = base::is.numeric))
 
     valid_variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
@@ -757,9 +757,9 @@ plotDistribution2 <- function(data,
       magrittr::set_names(value = variables)
 
     confuns::check_data_frame(
-      df = data,
+      df = df,
       var.class = check_list,
-      ref = "data"
+      ref = "df"
     )
 
     valid_variables <- variables
@@ -780,7 +780,7 @@ plotDistribution2 <- function(data,
 
   expr_data <-
     tidyr::pivot_longer(
-      data = data[, valid_variables],
+      data = df[, valid_variables],
       cols = dplyr::all_of(x = valid_variables),
       names_to = "valid_variables",
       values_to = "values"
@@ -1097,7 +1097,7 @@ plotDistributionAcross <- function(object,
 
 #' @rdname plotDistributionAcross
 #' @export
-plotDistributionAcross2 <- function(data,
+plotDistributionAcross2 <- function(df,
                                     variables = "all",
                                     across,
                                     across_subset = NULL,
@@ -1133,9 +1133,9 @@ plotDistributionAcross2 <- function(data,
   # check across input
   confuns::is_value(across, "character", "across")
   confuns::check_data_frame(
-    df = data,
+    df = df,
     var.class = list(c("character", "factor")) %>% magrittr::set_names(across),
-    ref = "data"
+    ref = "df"
   )
 
   # check variable input
@@ -1145,7 +1145,7 @@ plotDistributionAcross2 <- function(data,
 
     if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
-    cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+    cnames <- base::colnames(dplyr::select_if(.tbl = df, .predicate = base::is.numeric))
 
     variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
@@ -1156,9 +1156,9 @@ plotDistributionAcross2 <- function(data,
       magrittr::set_names(value = variables)
 
     confuns::check_data_frame(
-      df = data,
+      df = df,
       var.class = check_list,
-      ref = "data"
+      ref = "df"
     )
 
     if(base::isTRUE(verbose)){"All specified variables found."}
@@ -1171,7 +1171,7 @@ plotDistributionAcross2 <- function(data,
 
   data <-
     tidyr::pivot_longer(
-      data = data,
+      data = df,
       cols = dplyr::all_of(x = variables),
       names_to = "variables",
       values_to = "values"
@@ -1405,8 +1405,7 @@ plotPseudotime <- function(object,
 plotSegmentation <- function(object,
                              of_sample = "",
                              pt_size = 2,
-                             pt_clrp = "milo",
-                             display_labels = FALSE){
+                             pt_clrp = "milo"){
 
   # control
   check_object(object)
@@ -1422,27 +1421,18 @@ plotSegmentation <- function(object,
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
 
-  if(base::isTRUE(display_labels)){
-
-    ggforce_add_on <-
-      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment))
-
-  } else {
-
-    ggforce_add_on <-
-      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment))
-
-  }
+  n_segments <- base::length(getSegmentNames(object))
 
   # plotting
   ggplot2::ggplot() +
-    ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
+    ggplot2::geom_point(data = plot_df, size = pt_size, color = "lightgrey", mapping = ggplot2::aes(x = x, y = y)) +
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
-    ggforce_add_on +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
-    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
+    ggalt::geom_encircle(data = segment_df, alpha = 0.5, expand = 0.025, mapping = ggplot2::aes(x = x, y = y, group = segment, color = segment, fill = segment)) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
+    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp) +
     ggplot2::theme_void() +
-    ggplot2::labs(fill = "Segmentation")
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5, linetype = c(base::rep(0, n_segments))))) +
+    ggplot2::labs(color = "Segments")
 
 }
 
@@ -1458,30 +1448,26 @@ plotSegmentation <- function(object,
 
 #' @title Plot differentially expressed genes
 #'
-#' @description Takes the results from your differentially gene expression analysis
+#' @description Takes the results from your de-analysis
 #' and uses the expression information of your spata-object to plot a heatmap displaying
 #' the differentially expressed genes of every cluster.
 #'
 #' @inherit check_sample params
-#' @param data A data.frame containing at least the character or factor variables
-#'  \emph{cluster} and \emph{gene}.
-#'
-#'  Hint: Use the resulting data.frame of \code{SPATA::findDE()} as input.
+#' @inherit check_de_df params
 #' @inherit across params
 #' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
 #' @inherit verbose params
 #' @param hm_colors A vector of colors to be used.
-#' @param ... Additional parameters given to \code{pheatmap::pheatmap}.
+#' @param ... Additional parameters given to \code{pheatmap::pheatmap()}.
 #'
-#' @return A heatmap of type "pheatmap".
+#' @return A heatmap of class 'pheatmap'.
 #' @export
-#'
 
 plotDeHeatmap <- function(object,
                           of_sample = "",
-                          data,
+                          de_df,
                           across,
                           across_subset = NULL,
                           n_barcode_spots = 100,
@@ -1489,27 +1475,18 @@ plotDeHeatmap <- function(object,
                           hm_colors = viridis::viridis(15),
                           ...){
 
-
   # 1. Control --------------------------------------------------------------
 
   #lazy check
   check_object(object)
-
-  confuns::check_data_frame(
-    df = data,
-    var.class = list(
-      cluster = c("character", "factor"),
-      gene = "character"
-    ),
-    ref = "data"
-  )
+  check_de_df(de_df)
 
 
   # adjusting check
 
-  if(base::is.factor(data$cluster)){
+  if(base::is.factor(de_df$cluster)){
 
-    data$cluster <- S4Vectors::unfactor(data$cluster)
+    de_df$cluster <- S4Vectors::unfactor(de_df$cluster)
 
   }
 
@@ -1517,18 +1494,18 @@ plotDeHeatmap <- function(object,
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
 
-  # make sure that the cluster variable of 'data' derived from the specified object and is congruent
-  # with the input for 'across' by comparing the unique values of data and object-feature
+  # make sure that the cluster variable of 'de_df' derived from the specified object and is congruent
+  # with the input for 'across' by comparing the unique values of de_df and object-feature
 
   object_values <-
     getFeatureVariables(object, features = across, of_sample = of_sample, return = "vector", unique = TRUE) %>%
     base::as.vector()
 
-  cluster_values <- base::unique(data$cluster)
+  cluster_values <- base::unique(de_df$cluster)
 
   if(!base::any(cluster_values %in% object_values)){
 
-    base::stop(glue::glue("Could not find any clusters of 'data' in the '{across}'-variable of the specified object. Did you confuse any DE-data.frames, samples or spata-objects?"))
+    base::stop(glue::glue("Could not find any clusters of 'de_df' in the '{across}'-variable of the specified object. Did you confuse any DE-data.frames, samples or spata-objects?"))
 
   } else if(!base::all(cluster_values %in% object_values)){
 
@@ -1536,9 +1513,9 @@ plotDeHeatmap <- function(object,
       cluster_values[!cluster_values %in% object_values] %>%
       stringr::str_c(collapse = "', '")
 
-    base::warning(glue::glue("Did not find clusters '{not_found}' of input 'data' in the specified spata-object. Did you confuse any DE-data.frames, samples or spata-objects?"))
+    base::warning(glue::glue("Did not find clusters '{not_found}' of input 'de_df' in the specified spata-object. Did you confuse any DE-data.frames, samples or spata-objects?"))
 
-    data <- dplyr::filter(.data = data, cluster %in% {{ object_values }})
+    de_df <- dplyr::filter(.data = de_df, cluster %in% {{ object_values }})
 
   }
 
@@ -1571,7 +1548,7 @@ plotDeHeatmap <- function(object,
 
   # 2. Pipeline -------------------------------------------------------------
 
-  genes <- dplyr::pull(data, gene)
+  genes <- dplyr::pull(de_df, gene)
 
   barcodes_df <-
     joinWithFeatures(object, getCoordinates(object, of_sample), features = across, verbose = FALSE) %>%
@@ -1581,7 +1558,7 @@ plotDeHeatmap <- function(object,
 
   # heatmap gaps
   gaps_row <-
-    dplyr::group_by(data, cluster) %>%
+    dplyr::group_by(de_df, cluster) %>%
     dplyr::summarise(count = dplyr::n()) %>%
     dplyr::mutate(positions = base::cumsum(count)) %>%
     dplyr::pull(positions) %>%

@@ -7,7 +7,7 @@
 plotDeHeatmap(
   object,
   of_sample = "",
-  data,
+  de_df,
   across,
   across_subset = NULL,
   n_barcode_spots = 100,
@@ -22,10 +22,17 @@ plotDeHeatmap(
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{data}{A data.frame containing at least the character or factor variables
- \emph{cluster} and \emph{gene}.
+\item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:
 
- Hint: Use the resulting data.frame of \code{SPATA::findDE()} as input.}
+ \describe{
+  \item{\emph{gene}}{Character. The differentially expressed genes.}
+  \item{\emph{cluster}}{Character. The clusters (or experimental groups) across which the analysis was performed.}
+  \item{\emph{avg_logFC}}{Numeric. The average log-fold change to which the belonging gene was differentially expressed..}
+  \item{\emph{p_val}}{Numeric. The p-values.}
+  \item{\emph{p_val_adj}}{Numeric. The adjusted p-values.}
+ }
+
+Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants as input.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
@@ -51,13 +58,13 @@ the computational progress will be printed.
 
 \item{hm_colors}{A vector of colors to be used.}
 
-\item{...}{Additional parameters given to \code{pheatmap::pheatmap}.}
+\item{...}{Additional parameters given to \code{pheatmap::pheatmap()}.}
 }
 \value{
-A heatmap of type "pheatmap".
+A heatmap of class 'pheatmap'.
 }
 \description{
-Takes the results from your differentially gene expression analysis
+Takes the results from your de-analysis
 and uses the expression information of your spata-object to plot a heatmap displaying
 the differentially expressed genes of every cluster.
 }

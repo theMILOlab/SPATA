@@ -2,23 +2,32 @@
 % Please edit documentation in R/gene-expression-analysis.R
 \name{filterDE}
 \alias{filterDE}
-\title{Filter differential genes}
+\title{Postprocess de-results}
 \usage{
 filterDE(
-  data,
-  max_FC = 100,
-  min_pvalue = 100,
+  de_df,
+  n_highest_FC = 100,
+  n_lowest_pvalue = 100,
   across_subset = NULL,
-  genes_only = FALSE
+  return = "data.frame"
 )
 }
 \arguments{
-\item{data}{A data.frame containing the numeric variables \emph{p_val, avg_logFC, p_val_adj} and
-the character variables \emph{cluster, gene}.}
+\item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:
 
-\item{max_FC}{Numeric value. Denotes the number of genes to keep per \emph{cluster}-group. See details.}
+ \describe{
+  \item{\emph{gene}}{Character. The differentially expressed genes.}
+  \item{\emph{cluster}}{Character. The clusters (or experimental groups) across which the analysis was performed.}
+  \item{\emph{avg_logFC}}{Numeric. The average log-fold change to which the belonging gene was differentially expressed..}
+  \item{\emph{p_val}}{Numeric. The p-values.}
+  \item{\emph{p_val_adj}}{Numeric. The adjusted p-values.}
+ }
 
-\item{min_pvalue}{Numeric value. Affects the number of genes kept per \emph{cluster}-group. See details.}
+Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants as input.}
+
+\item{n_highest_FC}{Numeric value. Affects the number of genes that are kept. See details.}
+
+\item{n_lowest_pvalue}{Numeric value. Affects the number of genes that are kept. See details.}
 
 \item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 specified in argument \code{across} contains. If set to NULL all of them are chosen.
@@ -26,11 +35,34 @@ specified in argument \code{across} contains. If set to NULL all of them are cho
 Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
 feature-variable.}
 
-\item{genes_only}{Logical. If set to TRUE the resulting gene-variable is returned as a character vector.}
+\item{return}{Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}}
 }
 \value{
-A filtered data.frame or a character vector of gene names.
+Depends on input of arguemnt \code{return}:
+
+ \itemize{
+   \item{ \code{return} = \emph{'data.frame'}: The filtered data.frame of \code{de_df} with all it's variables.}
+   \item{ \code{return} = \emph{'vector'}: A named vector of all genes that remain. Named by the experimental
+   group in which they were differentially expressed.}
+   \item{ \code{return} = \emph{'list}: A list named according to the experimental groups. Every slot of that list is
+   a character vector containing the differentially expressed genes of the respective experimental group.}
+  }
 }
 \description{
-Post-process the results of \code{findDE()} according to your needs.
+Processes the results of \code{findDE()}. See details.
+}
+\details{
+\code{filterDE()} processes the input by grouping the data.frame according to the unique
+values of the \emph{cluster}-variable such that the following steps are performed for every experimental
+group. (With "genes" we refer to the rows (observations) of \code{data}.)
+
+\enumerate{
+ \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
+ \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+ \enumerate{
+  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_FC}}
+  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pvalue}}
+  }
+ \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
+ }
 }

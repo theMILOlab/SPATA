@@ -41,7 +41,8 @@ Imports:
     concaveman,
     cowplot,
     pheatmap,
-    shinybusy
+    shinybusy,
+    CONICSmat
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
@@ -63,6 +64,7 @@ Collate:
     'intern-analysis.R'
     'joinWith-family.R'
     'loading-and-saving.R'
+    'miscellaneous-helper-functions.R'
     'module-add-gene-sets.R'
     'module-surface-plot.R'
     'package-dependencies.R'
@@ -70,6 +72,7 @@ Collate:
     'plot-family-surface.R'
     'plot-family-trajectory.R'
     'pseudotime-embedding.R'
+    'shiny-dashboard-tab-items.R'
     'trajectory-analysis.R'
     'validation.R'
 Depends: 

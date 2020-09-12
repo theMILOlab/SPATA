@@ -99,3 +99,12 @@ getC_joinW_combo <- function(){}
 #'
 
 across <- function(across, across_subset){}
+
+
+
+#' @title de_df
+#' @param de_df A data.frame containing information about differentially expressed genes.
+#' This includes the numeric variables \emph{p_val, avg_logFC, p_val_adj} and the character
+#' variables \emph{cluster, gene}.
+
+pheatmap <- function(de_df){}

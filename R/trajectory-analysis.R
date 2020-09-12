@@ -6,6 +6,17 @@
 trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient descending", "Logarithmic descending",
                          "Logarithmic ascending", "Gradient ascending","Sinus",  "Sinus (reversed)", "One peak",
                          "One peak (reversed)", "Two peaks (reversed)", "Two peaks", "Early peak", "Late peak")
+#' @export
+linear_trends <- c("Linear descending", "Linear ascending")
+
+#' @export
+gradient_trends <- c("Gradient descending", "Gradient ascending")
+
+#' @export
+peak_trends <- c("One peak", "Late peak", "Early peak")
+
+#' @export
+logarithmic_trends <- c("Logarithmic descending", "Logarithmic ascending")
 
 # -----
 
@@ -31,7 +42,7 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
-  check_summarized_trajectory_df(stdf)
+  check_stdf(stdf)
 
   var <- "variables"
 
@@ -288,7 +299,7 @@ assessTrajectoryTrends2 <- function(stdf, verbose = TRUE){
 
   # 2. Main part ------------------------------------------------------------
 
-  check_summarized_trajectory_df(stdf = stdf)
+  check_stdf(stdf = stdf)
 
   rtdf <- hlpr_rank_trajectory_trends(stdf = stdf, verbose = verbose)
 

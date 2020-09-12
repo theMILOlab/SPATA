@@ -223,6 +223,8 @@ initiateSpataObject_10X <- function(input_paths,
   fdata <- purrr::map_df(.x = fdata_list, .f = function(f){ base::return(f) })
 
   test <- Seurat::CreateSeuratObject(counts = flt_counts)
+  test@meta.data$sample <- fdata$sample
+
   test[["percent.mt"]] <- Seurat::PercentageFeatureSet(test, pattern = "^MT.")
   test[["percent.RB"]] <- Seurat::PercentageFeatureSet(test, pattern = "^RPS")
 
@@ -235,6 +237,15 @@ initiateSpataObject_10X <- function(input_paths,
   feat_keep <- base::rownames(test@assays$RNA[!(base::rownames(test@assays$RNA) %in% exclude), ])
 
   test <- base::subset(x = test, features = feat_keep)
+
+  if(dplyr::n_distinct(fdata$sample) > 1){
+
+    if(base::isTRUE(verbose)){glue::glue("NOrmalizing for all different samples.")}
+
+    test <- Seurat::SCTransform(test, vars.to.regress = "sample")
+
+  }
+
   test <- Seurat::NormalizeData(test, normalization.method = "LogNormalize", scale.factor = 1000)
   test <- Seurat::FindVariableFeatures(test, selection.method = "vst", nfeatures = 2000)
 

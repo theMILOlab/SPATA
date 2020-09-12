@@ -7,7 +7,7 @@
 hlpr_smooth(
   variable,
   var_name,
-  spata_df,
+  coords_df,
   smooth_span,
   aspect,
   subset,
@@ -19,7 +19,7 @@ hlpr_smooth(
 
 \item{var_name}{Name of the variable to smooth}
 
-\item{spata_df}{Data.frame that contains x and y coordinates}
+\item{coords_df}{Data.frame that contains x and y coordinates}
 
 \item{smooth_span}{Span to smooth with}
 

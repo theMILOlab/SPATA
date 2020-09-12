@@ -102,7 +102,7 @@ calculateDistanceLineplot <- function(object,
 
   feature_df <-
     joinWithVariables(object = object,
-                      coords_df = coords_df,
+                      spata_df = coords_df,
                       variables = variable,
                       method_gs = method_gs,
                       average_genes = TRUE,
@@ -214,7 +214,7 @@ calculateDistanceHeatmap <- function(object,
 
   feature_df <-
     joinWithVariables(object = object,
-                      coords_df = coords_df,
+                      spata_df = coords_df,
                       variables = variable,
                       method_gs = method_gs,
                       average_genes = TRUE,
@@ -513,7 +513,7 @@ findMonocleClusters <- function(object,
                                 cluster_method = c("leiden", "louvain"),
                                 k = 20,
                                 num_iter = 5,
-                                prefix = "Cluster",
+                                prefix = "Cluster ",
                                 verbose = TRUE){
 
   check_object(object)
@@ -539,6 +539,7 @@ findMonocleClusters <- function(object,
     cell_metadata = cell_metadata,
     gene_metadata = gene_metadata)
 
+  # preprocess
   for(p in base::seq_along(preprocess_method)){
 
     if(base::isTRUE(verbose)){
@@ -548,6 +549,16 @@ findMonocleClusters <- function(object,
     }
 
     cds <- monocle3::preprocess_cds(cds, method = preprocess_method[p])
+
+  }
+
+  # align
+
+  if(base::length(samples(object)) > 1){
+
+  if(base::isTRUE(verbose)){ base::message(glue::glue("Aligning for {base::length(samples(object))} samples belonging"))}
+
+    cds <- monocle3::align_cds(cds = cds, alignment_group = "sample")
 
   }
 
@@ -562,11 +573,11 @@ findMonocleClusters <- function(object,
 
       if(reduction_method[r] == "LSI" && preprocess_method[p] != "LSI"){
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"))
 
       } else if(reduction_method[r] == "PCA" && preprocess_method[p] != "PCA") {
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"))
 
       } else {
 

@@ -13,8 +13,7 @@
 #'
 #' }
 #'
-#' @param data A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.
-#'
+#' @inherit check_coords_df params
 #' @inherit check_sample params
 #' @inherit check_color_to params
 #' @inherit check_smooth params
@@ -190,7 +189,7 @@ plotSurface <- function(object,
 
 #' @rdname plotSurface
 #' @export
-plotSurface2 <- function(data,
+plotSurface2 <- function(coords_df,
                          color_to,
                          pt_size = 2,
                          pt_alpha = 0.9,
@@ -202,26 +201,26 @@ plotSurface2 <- function(data,
   confuns::is_value(color_to, "character", "color_to")
 
   # check lazy
-  if(!color_to %in% base::colnames(data)){
+  if(!color_to %in% base::colnames(coords_df)){
 
-    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+    base::stop("Argument 'color_to' needs be a variable of 'coords_df' specified as a character value.")
 
   }
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_coordinate_variables(data = data, x = "x", y = "y")
+  check_coords_df(coords_df)
 
   # -----
 
   # 2. Plotting -------------------------------------------------------------
 
 
-  ggplot2::ggplot(data = data) +
+  ggplot2::ggplot(data = coords_df) +
     hlpr_image_add_on(image) +
     ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
                                                color = .data[[color_to]]),
                         size = pt_size, alpha = pt_alpha) +
-    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(data, {{color_to}})) +
+    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(coords_df, {{color_to}})) +
     ggplot2::theme_void() +
     ggplot2::theme(
       panel.grid = ggplot2::element_blank()
@@ -244,29 +243,60 @@ plotSurfaceInteractive <- function(object){
       shiny::shinyApp(
         ui = function(){
 
-          shiny::fluidPage(
+          shinydashboard::dashboardPage(
 
-            #----- title
-            shiny::titlePanel(title = "Surface Plot"),
+            shinydashboard::dashboardHeader(title = "Surface Plots"),
 
-            #----- shiny add-ons
-            shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0,10), color = "red"),
-
-            #----- main panel
-            shiny::mainPanel(
-              shiny::column(width = 12, align = "center",
-                            moduleSurfacePlotUI(id = "isp"),
-                            shiny::textInput("plot_name", label = NULL, value = "", placeholder = "Plot name"),
-                            shiny::actionButton("save_plot", label = "Save Plot"),
-                            shiny::actionButton("return_plot", label = "Return Plots")
+            shinydashboard::dashboardSidebar(
+              collapsed = TRUE,
+              shinydashboard::sidebarMenu(
+                shinydashboard::menuItem(
+                  text = "Surface Plots",
+                  tabName = "surface_plots",
+                  selected = TRUE
+                )
               )
+            ),
+
+            shinydashboard::dashboardBody(
+
+              #----- busy indicator
+              shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0,10), color = "red"),
+
+              #----- tab items
+              shinydashboard::tabItems(
+                tab_surface_plots_return()
+              )
+
             )
 
-          )},
+          )
+
+        },
         server = function(input, output, session){
 
-          # plot list
+          # render uis
+
+          output$saved_plots <- shiny::renderUI({
+
+            saved_plots <- base::names(plot_list())
+
+            shiny::validate(
+              shiny::need(base::length(saved_plots) != 0, message = "No plots have been saved yet.")
+            )
+
+            shinyWidgets::checkboxGroupButtons(
+              inputId = "saved_plots",
+              label = "Choose plots to export",
+              choices = saved_plots,
+              selected = saved_plots,
+              checkIcon = list(yes = icon("ok", lib = "glyphicon")))
+
+          })
+
+          #  reactive
           plot_list <- shiny::reactiveVal(value = list())
+          plot_df <- shiny::reactiveVal(value = data.frame())
 
           # module return list
           module_return <-
@@ -301,23 +331,62 @@ plotSurfaceInteractive <- function(object){
 
           })
 
+
           # return last plot
           oe <- shiny::observeEvent(input$return_plot, {
 
             plot_list <- plot_list()
 
-            if(base::length(plot_list) == 1){
+            shiny::stopApp(returnValue = plot_list[base::names(plot_list) %in% input$saved_plots])
 
-              shiny::stopApp(returnValue = plot_list[[1]])
+          })
+
+
+
+          # Distribution plotting ---------------------------------------------------
+
+          output$surface_variable <- shiny::renderPlot({
+
+            plot_df <- module_return()$smoothed_df()
+            var_name <- base::colnames(plot_df)[5]
+
+            if(base::is.numeric(dplyr::pull(plot_df, var_name))){
+
+              plot_type <- input$surface_variable_plot_type
+
+              if(plot_type == "violin"){
+
+                add_on <- ggplot2::theme(
+                  axis.text.x = ggplot2::element_blank(),
+                  axis.ticks.x = ggplot2::element_blank()
+                )
+
+              } else {
+
+                add_on <- list()
+              }
+
+              plotDistribution2(data = plot_df,
+                                variables = var_name,
+                                plot_type = plot_type,
+                                binwidth = 0.05,
+                                verbose = FALSE) + add_on
 
             } else {
 
-              shiny::stopApp(returnValue = plot_list)
+              ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = .data[[var_name]])) +
+                ggplot2::geom_bar(mapping = ggplot2::aes(fill = .data[[var_name]]), color = "black") +
+                ggplot2::theme_classic() +
+                ggplot2::theme(legend.position = "none") +
+                confuns::scale_color_add_on(aes = "fill",
+                                            variable = "discrete",
+                                            clrp = module_return()$current_setting()$pt_clrp) +
+                ggplot2::labs(y = "Count")
 
             }
 
-
           })
+
 
         }
       )
@@ -327,6 +396,7 @@ plotSurfaceInteractive <- function(object){
   return(surface_plots)
 
 }
+
 
 
 

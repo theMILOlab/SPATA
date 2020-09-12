@@ -18,258 +18,249 @@ createSegmentation <- function(object){
   ##----- launch application
   new_object <-
     shiny::runApp(
-      shiny::shinyApp(ui = {shiny::fluidPage(
+      shiny::shinyApp(ui = function(){
 
-        ##----- title
-        shiny::titlePanel(title = "Spatial Segmentation"),
+        shinydashboard::dashboardPage(
 
-        shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0, 10), color = "red"),
+          shinydashboard::dashboardHeader(title = "Create Segmentation"),
 
-        ##----- main panel
-        shiny::mainPanel(
-          shiny::fluidRow(
-            shiny::column(width = 4,
-                          shiny::wellPanel(
-                            shiny::tags$h3(shiny::strong("Instructions")),
-                            shiny::HTML("<br>"),
-                            shiny::helpText("1. Click on 'Plot & Update' to display the sample according to the adjustments you set up or changed."),
-                            shiny::HTML("<br>"),
-                            shiny::helpText("2. Determine the vertices of the segment by 'double - clicking' the position on the plot. Be aware of the order of the vertices."),
-                            shiny::HTML("<br>"),
-                            shiny::helpText("3. Highlight or reset the segment by clicking the respective button below."),
-                            shiny::splitLayout(
-                              shiny::actionButton("highlight_segment", label = "Highlight", width = "100%"),
-                              shiny::actionButton("reset_segment", label = "Reset ", width = "100%"),
-                              cellWidths = c("50%", "50%")
-                            ),
-                            shiny::HTML("<br><br>"),
-                            shiny::helpText("4. Enter the name you want to give the highlighted segment and click the 'Save'-button."),
-                            shiny::splitLayout(
-                              shiny::actionButton("save_segment", "Save Segment", width = "100%"),
-                              shiny::textInput("name_segment", label = NULL, placeholder = "Name segment", value = ""),
-                              cellWidths = c("50%", "50%")
-                            ),
-                            shiny::HTML("<br>"),
-                            shiny::helpText("5. If you want to remove certain segments type in the respective name and click the 'Remove'-button.
-                                          Choose 'Feature' as color code and then 'segment' to see the current segmentation."),
-                            shiny::splitLayout(
-                              shiny::actionButton("remove_segment", "Remove Segment", width = "100%"),
-                              shiny::textInput("name_segment_rmv", label = NULL, placeholder = "Name segment", value = "")
-                            ),
-                            shiny::HTML("<br>"),
-                            shiny::helpText("6. If you are done click on 'Close application'."),
-                            shiny::HTML("<br>"),
-                            shiny::fluidRow(
-                              shiny::column(width = 12, align = "center",
-                                            shiny::actionButton("close_app", label = "Close application", width = "50%")
-                              )
-                            )
-                          )),
-            shiny::column(width = 8,
-                          moduleSurfacePlotUI(id = "segmentation")
+          shinydashboard::dashboardSidebar(
+            collapsed = TRUE,
+            shinydashboard::sidebarMenu(
+              shinydashboard::menuItem(
+                text = "Segmentation",
+                tabName = "create_segmentation",
+                selected = TRUE
+              )
             )
+          ),
 
+          shinydashboard::dashboardBody(
+
+            #----- busy indicator
+            shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0,10), color = "red"),
+
+            #----- tab items
+            shinydashboard::tabItems(
+              tab_create_segmentation_return()
+            )
           )
-        )
 
-      )},
-      server = function(input, output, session){
+        )},
+        server = function(input, output, session){
 
-        # Reactive values -----------------------------------------------------------
+          # Reactive values -----------------------------------------------------------
 
-        # a reactive spata object
-        spata_obj <- shiny::reactiveVal(value = object)
+          # a reactive spata object
+          spata_obj <- shiny::reactiveVal(value = object)
 
-        # df and ggplot layer of the currently drawn segment
-        vertices_df <-
-          shiny::reactiveVal(value = data.frame(x = base::numeric(0),
-                                                y = base::numeric(0)))
+          # df and ggplot layer of the currently drawn segment
+          vertices_df <-
+            shiny::reactiveVal(value = data.frame(x = base::numeric(0),
+                                                  y = base::numeric(0)))
 
-        vertices_layer <- shiny::reactiveVal(value = list())
+          vertices_layer <- shiny::reactiveVal(value = list())
 
-        # a list about the parameters of the currently displayed surface plot
-        current <- reactiveVal(value = list())
+          # a list about the parameters of the currently displayed surface plot
+          current <- reactiveVal(value = list())
 
-        #
-        segmentation_df <- reactive({
+          #
+          segmentation_df <- reactive({
 
-          segm_df <-
-            featureData(object = spata_obj()) %>%
-            dplyr::filter(sample == current()$sample) %>%
-            dplyr::filter(segment != "") %>%
-            dplyr::select(barcodes, segment)
+            segm_df <-
+              featureData(object = spata_obj()) %>%
+              dplyr::filter(sample == current()$sample) %>%
+              dplyr::filter(segment != "") %>%
+              dplyr::select(barcodes, segment)
 
-          return(segm_df)
+            return(segm_df)
 
-        })
+          })
 
 
-        # Modularized plot surface part -------------------------------------------
+          # Modularized plot surface part -------------------------------------------
 
-        module_return <- moduleSurfacePlotServer(id = "segmentation",
-                                                 object = object,
-                                                 final_plot = shiny::reactive(final_plot()),
-                                                 reactive_object = shiny::reactive(spata_obj()))
+          module_return <- moduleSurfacePlotServer(id = "segmentation",
+                                                   object = object,
+                                                   final_plot = shiny::reactive(final_plot()),
+                                                   reactive_object = shiny::reactive(spata_obj()))
 
-        # update current()
-        oe <- shiny::observeEvent(module_return()$current_setting(), {
+          # update current()
+          oe <- shiny::observeEvent(module_return()$current_setting(), {
 
-          current(module_return()$current_setting())
+            current(module_return()$current_setting())
 
-        })
+          })
 
-        # final plot
-        final_plot <- shiny::reactive({
+          # final plot
+          final_plot <- shiny::reactive({
 
-          module_return()$assembled_plot() +
-            vertices_layer()
+            module_return()$assembled_plot() +
+              vertices_layer()
 
-        })
+          })
 
-        # Observe events ----------------------------------------------------------
+          # Observe events ----------------------------------------------------------
 
-        ##--- 1. grow vertices data and update vertices layer frame with every click
-        oe <- shiny::observeEvent(module_return()$dblclick(), {
+          ##--- 1. grow vertices data and update vertices layer frame with every click
+          oe <- shiny::observeEvent(module_return()$dblclick(), {
 
-          ## 1. computation
-          vrtcs_list <- module_return()$dblclick()
-          new_df <- dplyr::add_row(.data = vertices_df(),
-                                   x = vrtcs_list$x,
-                                   y = vrtcs_list$y)
+            ## 1. computation
+            vrtcs_list <- module_return()$dblclick()
+            new_df <- dplyr::add_row(.data = vertices_df(),
+                                     x = vrtcs_list$x,
+                                     y = vrtcs_list$y)
 
-          ## 2.1 update vertices df
-          vertices_df(new_df)
+            ## 2.1 update vertices df
+            vertices_df(new_df)
 
-          ## 2.2 update vertices geom layer
-          if(base::nrow(vertices_df()) != 0){
+            ## 2.2 update vertices geom layer
+            if(base::nrow(vertices_df()) != 0){
 
-            new_layer <- list(ggplot2::geom_point(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 3.5, color = "black"),
-                              ggplot2::geom_path(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1.25, color = "black")
-                                )
+              new_layer <- list(ggplot2::geom_point(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 3.5, color = "black"),
+                                ggplot2::geom_path(data = vertices_df(), mapping = ggplot2::aes(x = x, y = y), size = 1.25, color = "black")
+              )
 
+              vertices_layer(new_layer)
+
+            } else {
+
+              new_layer <- NULL
+              vertices_layer(list())
+
+            }
+
+          })
+
+          ##--- 2.1 convert vertices layer to geom_polygon to highlight the segment
+          oe <- shiny::observeEvent(input$highlight_segment, {
+
+            checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
+
+            new_layer <- list(ggplot2::geom_polygon(data = vertices_df(),
+                                                    mapping = ggplot2::aes(x = x, y = y),
+                                                    alpha = 0.75, colour = "orange", fill = "orange",
+                                                    size = 1))
             vertices_layer(new_layer)
 
-          } else {
+          })
 
-            new_layer <- NULL
+          ##--- 2.2 reset current() vertices
+          oe <- shiny::observeEvent(input$reset_segment, {
+
+            vertices_df(data.frame(x = numeric(0), y = numeric(0)))
             vertices_layer(list())
 
-          }
+          })
+
+          ##--- 3. save the highlighted segment
+          oe <- shiny::observeEvent(input$save_segment, {
+
+            checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name")
+            checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
+            checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
+
+            sample_coords <- coordinates(objec = spata_obj(), of_sample = current()$sample)
+
+            ## 1. determine positions of each point with respect to the defined segment
+            positions <-  sp::point.in.polygon(point.x = sample_coords$x, # x coordinates of all spatial positions
+                                               point.y = sample_coords$y, # y coordaintes of all spatial positions
+                                               pol.x = vertices_df()$x, # x coordinates of the segments vertices
+                                               pol.y = vertices_df()$y) # y coordinates of the segments vertices
+
+            ## 2. update spata obj
+
+            # 2.1 extract object
+            spata_obj <- spata_obj()
+
+            # 2.2 update fdata
+
+            # extract feature data
+            fdata <- featureData(spata_obj)
+
+            # update sample subset
+            fdata_subset <-
+              fdata %>%
+              dplyr::filter(sample == current()$sample) %>%
+              dplyr::mutate(
+                positions = positions,
+                segment = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segment)
+              ) %>%
+              dplyr::select(-positions)
+
+            # exchange sample subset
+            fdata[fdata$sample == current()$sample, ] <- fdata_subset
+
+            featureData(spata_obj) <- fdata
+
+
+            # 2.4 update and check
+            spata_obj(spata_obj)
+
+            if(input$name_segment %in% base::unique(featureData(spata_obj(), of_sample = current()$sample)$segment)){
+
+              shiny::showNotification(ui = stringr::str_c(input$name_segment, "has been saved.", sep = " "), type = "message")
+
+            }
+
+
+            ## 3. reset vertices values
+            vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0)))
+            vertices_layer(list())
+
+          })
+
+          ##--- 4. remove segments
+          oe <- shiny::observeEvent(input$remove_segment, {
+
+            spata_obj <- spata_obj()
+            fdata <- featureData(spata_obj)
+
+            checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segment), case_false = "segment_name_not_found")
+
+            fdata_new <-
+              fdata %>%
+              dplyr::filter(sample == current()$sample) %>%
+              dplyr::mutate(segment = dplyr::if_else(segment == input$name_segment_rmv, "", segment))
+
+            fdata[fdata$sample == current()$sample, ] <- fdata_new
+            featureData(spata_obj) <- fdata
+
+            spata_obj(spata_obj)
+
+            if(!input$name_segment_rmv %in% featureData(spata_obj(), of_sample = current()$sample)$segment){
+
+              shiny::showNotification(ui = stringr::str_c("Segment '", input$name_segment_rmv, "' has been successfully removed.", sep = ""), type = "message")
+
+            }
+
+          })
+
+          ##--- 5. close application and return spata object
+          oe <- shiny::observeEvent(input$close_app, {
+
+            shiny::stopApp(returnValue = spata_obj())
+
+          })
+
+
+
+          # Outputs -----------------------------------------------------------------
+
+          output$current_segmentation <- shiny::renderPlot({
+
+            sample <- module_return()$current_setting()$sample
+            segmentation_done <- (base::length(getSegmentNames(object = spata_obj(),
+                                                               of_sample = sample)) != 0)
+
+            shiny::validate(shiny::need(segmentation_done, message = glue::glue("Sample '{sample}' has not been segmented yet.")))
+
+            plotSegmentation(object = spata_obj(),
+                             pt_size = module_return()$pt_size_reactive())
+
+          })
 
         })
-
-        ##--- 2.1 convert vertices layer to geom_polygon to highlight the segment
-        oe <- shiny::observeEvent(input$highlight_segment, {
-
-          checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
-
-          new_layer <- list(ggplot2::geom_polygon(data = vertices_df(),
-                                                  mapping = ggplot2::aes(x = x, y = y),
-                                                  alpha = 0.75, colour = "orange", fill = "orange",
-                                                  size = 1))
-          vertices_layer(new_layer)
-
-        })
-
-        ##--- 2.2 reset current() vertices
-        oe <- shiny::observeEvent(input$reset_segment, {
-
-          vertices_df(data.frame(x = numeric(0), y = numeric(0)))
-          vertices_layer(list())
-
-        })
-
-        ##--- 3. save the highlighted segment
-        oe <- shiny::observeEvent(input$save_segment, {
-
-          checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name")
-          checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
-          checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
-
-          sample_coords <- coordinates(objec = spata_obj(), of_sample = current()$sample)
-
-          ## 1. determine positions of each point with respect to the defined segment
-          positions <-  sp::point.in.polygon(point.x = sample_coords$x, # x coordinates of all spatial positions
-                                             point.y = sample_coords$y, # y coordaintes of all spatial positions
-                                             pol.x = vertices_df()$x, # x coordinates of the segments vertices
-                                             pol.y = vertices_df()$y) # y coordinates of the segments vertices
-
-          ## 2. update spata obj
-
-          # 2.1 extract object
-          spata_obj <- spata_obj()
-
-          # 2.2 update fdata
-
-          # extract feature data
-          fdata <- featureData(spata_obj)
-
-          # update sample subset
-          fdata_subset <-
-            fdata %>%
-            dplyr::filter(sample == current()$sample) %>%
-            dplyr::mutate(
-              positions = positions,
-              segment = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segment)
-            ) %>%
-            dplyr::select(-positions)
-
-          # exchange sample subset
-          fdata[fdata$sample == current()$sample, ] <- fdata_subset
-
-          featureData(spata_obj) <- fdata
-
-
-          # 2.4 update and check
-          spata_obj(spata_obj)
-
-          if(input$name_segment %in% base::unique(featureData(spata_obj(), of_sample = current()$sample)$segment)){
-
-            shiny::showNotification(ui = stringr::str_c(input$name_segment, "has been saved.", sep = " "), type = "message")
-
-          }
-
-
-          ## 3. reset vertices values
-          vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0)))
-          vertices_layer(list())
-
-        })
-
-        ##--- 4. remove segments
-        oe <- shiny::observeEvent(input$remove_segment, {
-
-          spata_obj <- spata_obj()
-          fdata <- featureData(spata_obj)
-
-          checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segment), case_false = "segment_name_not_found")
-
-          fdata_new <-
-            fdata %>%
-            dplyr::filter(sample == current()$sample) %>%
-            dplyr::mutate(segment = dplyr::if_else(segment == input$name_segment_rmv, "", segment))
-
-          fdata[fdata$sample == current()$sample, ] <- fdata_new
-          featureData(spata_obj) <- fdata
-
-          spata_obj(spata_obj)
-
-          if(!input$name_segment_rmv %in% featureData(spata_obj(), of_sample = current()$sample)$segment){
-
-            shiny::showNotification(ui = stringr::str_c("Segment '", input$name_segment_rmv, "' has been successfully removed.", sep = ""), type = "message")
-
-          }
-
-        })
-
-        ##--- 5. close application and return spata object
-        oe <- shiny::observeEvent(input$close_app, {
-
-          shiny::stopApp(returnValue = spata_obj())
-
-        })
-
-      })
     )
 
   return(new_object)
@@ -297,57 +288,33 @@ createTrajectories <- function(object){
   new_object <-
     shiny::runApp(
       shiny::shinyApp(
-        ui = {shiny::fluidPage(
+        ui = function(){
 
-          ##----- title
-          shiny::titlePanel(title = "Spatial Trajectories"),
+          shinydashboard::dashboardPage(
 
-          shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0, 10), color = "red"),
+            shinydashboard::dashboardHeader(title = "Create Trajectories"),
 
-          ##----- main panel
-          shiny::mainPanel(
-            shiny::fluidRow(
-              shiny::column(width = 4,
-                            shiny::wellPanel(
-                              shiny::tags$h3(shiny::strong("Instructions")),
-                              shiny::HTML("<br>"),
-                              shiny::helpText("1. Click on 'Plot & Update' to display the sample according to the adjustments you set up or changed."),
-                              shiny::HTML("<br>"),
-                              shiny::helpText("2. Determine the vertices of the trajectory by 'double - clicking' the position on the plot."),
-                              shiny::HTML("<br>"),
-                              shiny::helpText("3. Highlight or reset the trajectory by clicking the respective button below."),
-                              shiny::sliderInput("trajectory_width", label = "Determine width of trajectory", value = 20, min = 5, max = 100, step = 1),
-                              shiny::HTML("<br>"),
-                              shiny::splitLayout(
-                                shiny::actionButton("highlight_trajectory", label = "Highlight", width = "100%"),
-                                shiny::actionButton("reset_trajectory", label = "Reset ", width = "100%"),
-                                cellWidths = c("50%", "50%")
-                              ),
-                              shiny::HTML("<br>"),
-                              shiny::helpText("4. Enter the name you want to give the trajectory as well as a 'guiding comment' and click the 'Save'-button."),
-                              shiny::splitLayout(
-                                shiny::actionButton("save_trajectory", "Save Trajectory", width = "100%"),
-                                shiny::textInput("name_trajectory", label = NULL, placeholder = "Name trajectory", value = ""),
-                                cellWidths = c("50%", "50%")
-                              ),
-                              shiny::textInput("comment_trajectory", label = NULL, placeholder = "A guiding comment.", value = ""),
-                              shiny::HTML("<br>"),
-                              shiny::helpText("5. If you are done click on 'Close application'."),
-                              shiny::HTML("<br>"),
-                              shiny::fluidRow(
-                                shiny::column(width = 12, align = "center",
-                                              shiny::actionButton("close_app", label = "Close application", width = "50%")
-                                )
-                              )
-                            )),
-              shiny::column(width = 8,
-                            moduleSurfacePlotUI(id = "trajectories")
+            shinydashboard::dashboardSidebar(
+              collapsed = TRUE,
+              shinydashboard::sidebarMenu(
+                shinydashboard::menuItem(
+                  text = "Trajectories",
+                  tabName = "create_trajectories",
+                  selected = TRUE
+                )
               )
+            ),
 
+            shinydashboard::dashboardBody(
+
+              #----- busy indicator
+              shinybusy::add_busy_spinner(spin = "cube-grid", color = "red", margins = c(0,10)),
+
+              #----- trajectory tab
+              tab_create_trajectories_return()
             )
-          )
 
-        )},
+          )},
         server = function(input, output, session){
 
 
@@ -449,7 +416,7 @@ createTrajectories <- function(object){
                                  by = "barcodes")
 
               color_var <- dplyr::pull(.data = joined_traj_df, module_return()$variable())
-              size <- module_return()$current_setting()$size
+              size <- module_return()$current_setting()$pt_size
 
               add_on_layer <-
                 list(

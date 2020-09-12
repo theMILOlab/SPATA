@@ -160,7 +160,7 @@ joinWithFeatures <- function(object,
     joined_df <-
       purrr::imap_dfr(.x = joined_df,
                       .f = hlpr_smooth,
-                      spata_df = joined_df,
+                      coords_df = joined_df,
                       smooth_span = smooth_span,
                       aspect = "feature",
                       subset = features)
@@ -370,7 +370,7 @@ joinWithGenes <- function(object,
     joined_df <-
       purrr::imap_dfr(.x = joined_df,
                       .f = hlpr_smooth,
-                      spata_df = joined_df,
+                      coords_df = joined_df,
                       smooth_span = smooth_span,
                       aspect = "gene",
                       subset = col_names,

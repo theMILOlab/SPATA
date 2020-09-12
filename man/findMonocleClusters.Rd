@@ -11,6 +11,7 @@ findMonocleClusters(
   cluster_method = c("leiden", "louvain"),
   k = 20,
   num_iter = 5,
+  prefix = "Cluster ",
   verbose = TRUE
 )
 }
@@ -52,6 +53,10 @@ The clustering result giving the largest modularity score will be
 used as the final clustering result. Default is 1. Note that if
 num_iter is greater than 1, the random_seed argument will be ignored
 for the louvain method.}
+
+\item{prefix}{Character value. Clustering algorithms often return only numbers as
+names for the clusters they generate. If you want to these numbers to have a certain
+prefix (like \emph{'Cluster'}, the default) you can specify it with this argument.}
 }
 \value{
 A tidy spata-data.frame
