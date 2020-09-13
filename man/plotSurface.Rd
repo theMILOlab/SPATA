@@ -111,7 +111,7 @@ expression of genes and gene sets or other featured characteristics.
  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters.}
  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
- \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
+ \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a shiny
  application which allows for interactive plotting.}
 
 }
