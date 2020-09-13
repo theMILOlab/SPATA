@@ -143,10 +143,7 @@ getSpataDf <- function(object, of_sample = ""){
   check_object(object)
   of_sample <- check_sample(object, of_sample)
 
-  getFeatureVariables(object,
-                      features = "sample",
-                      of_sample = of_sample,
-                      return = "data.frame")
+  getCoordinates(object, of_sample)[,c("barcodes", "sample")]
 
 }
 

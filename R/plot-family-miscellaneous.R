@@ -411,27 +411,39 @@ plotFourStates2 <- function(data,
   abs <- base::abs
   log2 <- base::log2
 
-  plot_df <-
+  shifted_df <-
     tidyr::pivot_longer(
       data = data,
       cols = dplyr::all_of(states),
       names_to = "gene_set",
       values_to = "gene_set_expr"
-    ) %>%
-    dplyr::group_by(barcodes) %>%
+    )
+
+  # figure out which of the four states is a barcode's maximum
+  # by filtering for it groupwise
+  max_localisation <-
+    dplyr::group_by(shifted_df, barcodes) %>%
     dplyr::filter(gene_set_expr == max(gene_set_expr)) %>%
     dplyr::ungroup() %>%
+    # rename the remaining gene sets to 'max_gene_set'
     dplyr::select(barcodes, max_gene_set = gene_set, max_expr = gene_set_expr) %>%
-    dplyr::mutate(max_loc = dplyr::if_else(max_gene_set %in% states[1:2], true = "top", false = "bottom")) %>%
-    dplyr::left_join(x = dplyr::select(data, -x, -y), y = ., by = "barcodes") %>%
-    dplyr::mutate(
-      pos_x = dplyr::case_when(
-        max_loc == "top" & !!sym(states[1]) > !!sym(states[2]) ~ (log2(abs((!!sym(states[1]) - !!sym(states[2])) + 1)) * -1),
-        max_loc == "top" & !!sym(states[2]) > !!sym(states[1]) ~ log2(abs((!!sym(states[2]) - !!sym(states[1])) + 1)),
-        max_loc == "bottom" & !!sym(states[3]) > !!sym(states[4]) ~ (log2(abs((!!sym(states[3]) - !!sym(states[4])) + 1)) * -1),
-        max_loc == "bottom" & !!sym(states[4]) > !!sym(states[3]) ~ log2(abs((!!sym(states[4]) - !!sym(states[3])) + 1)))
-    ) %>%
-    dplyr::group_by(barcodes) %>%
+    # assign the vertical localistion of the state plot depending on where the maximum occured
+    dplyr::mutate(max_loc = dplyr::if_else(max_gene_set %in% states[1:2], true = "top", false = "bottom"))
+
+  # calculate the x-position
+  with_x_positions <-
+    dplyr::left_join(x = data, y = max_localisation, by = "barcodes") %>%
+      dplyr::mutate(
+        pos_x = dplyr::case_when(
+          max_loc == "top" & !!sym(states[1]) > !!sym(states[2]) ~ (log2(abs((!!sym(states[1]) - !!sym(states[2])) + 1)) * -1),
+          max_loc == "top" & !!sym(states[2]) > !!sym(states[1]) ~ log2(abs((!!sym(states[2]) - !!sym(states[1])) + 1)),
+          max_loc == "bottom" & !!sym(states[3]) > !!sym(states[4]) ~ (log2(abs((!!sym(states[3]) - !!sym(states[4])) + 1)) * -1),
+          max_loc == "bottom" & !!sym(states[4]) > !!sym(states[3]) ~ log2(abs((!!sym(states[4]) - !!sym(states[3])) + 1)))
+      )
+
+  # calculate the y-position
+  plot_df <-
+    dplyr::group_by(with_x_positions, barcodes) %>%
     dplyr::mutate(
       pos_y = dplyr::case_when(
         max_loc == "bottom" ~ (log2(abs(max(c(!!sym(states[3]), !!sym(states[4]))) - max(!!sym(states[1]), !!sym(states[2])) + 1)) * -1),
