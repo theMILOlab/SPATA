@@ -733,7 +733,7 @@ getFeatureVariables <- function(object,
 
     res <-
       getFeatureData(object, of_sample) %>%
-        dplyr::select({{features}})
+        dplyr::select(barcodes, sample, dplyr::all_of(features))
 
   } else if(return == "list"){
 
