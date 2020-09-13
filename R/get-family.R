@@ -691,6 +691,7 @@ getFeatureData <- function(object, of_sample = ""){
 #' @param return Character value. One of \emph{'vector', 'data.frame'} or
 #' \emph{'list'}. In order to return a vector input of \code{features} must
 #' be of length one.
+#' @param unique Deprecated.
 #'
 #' @return A data.frame or a vector.
 #' @export
@@ -698,7 +699,12 @@ getFeatureData <- function(object, of_sample = ""){
 getFeatureVariables <- function(object,
                                 features,
                                 of_sample = "",
-                                return = "data.frame"){
+                                return = "data.frame",
+                                unique = "deprecated"){
+
+  if(unique != "deprecated"){
+    base::warning("Argument 'unique' is deprecated.")
+  }
 
   # 1. Control --------------------------------------------------------------
 

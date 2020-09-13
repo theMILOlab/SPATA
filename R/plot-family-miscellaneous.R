@@ -1510,7 +1510,7 @@ plotDeHeatmap <- function(object,
   # with the input for 'across' by comparing the unique values of de_df and object-feature
 
   object_values <-
-    getFeatureVariables(object, features = across, of_sample = of_sample, return = "vector", unique = TRUE) %>%
+    getFeatureVariables(object, features = across, of_sample = of_sample, return = "vector") %>%
     base::as.vector()
 
   cluster_values <- base::unique(de_df$cluster)
