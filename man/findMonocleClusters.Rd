@@ -91,11 +91,3 @@ will return a data.frame of the following variables:
 Due to the \emph{barcodes}-variable it can be easily joined to your-spata object via `addFeature()`.
 and thus be made available for all spata-functions.
 }
-\note{
-With respect to the arguments \code{preprocess_method},
-\code{reduction_method} and \code{cluster_method}:
-
-If a vector of character values is prvodided instead of a single character value (string)
-the function will iterate over all inputs via a for-loop to compute all
-valid combinations.
-}

@@ -3,7 +3,7 @@
 \name{plotDistribution}
 \alias{plotDistribution}
 \alias{plotDistribution2}
-\title{Visualize value distribution}
+\title{Distribution of continuous values}
 \usage{
 plotDistribution(
   object,

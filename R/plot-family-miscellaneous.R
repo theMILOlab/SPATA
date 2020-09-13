@@ -503,7 +503,7 @@ plotFourStates2 <- function(data,
 # Plot distribution -------------------------------------------------------
 
 
-#' @title Visualize value distribution
+#' @title Distribution of continuous values
 #'
 #' @description Visualizes the distribution of values of a set of variables.
 #'
@@ -892,7 +892,7 @@ plotDistribution2 <- function(df,
 }
 
 
-#' @title Visualize value distribution across groups & clusters
+#' @title Distribution of continuous values
 #'
 #' @description Visualizes the distribution of values of a set of variables for the
 #' whole sample across specific subgroups.
@@ -1280,50 +1280,112 @@ plotDistributionAcross2 <- function(df,
 
 #' @title Distribution of discrete features
 #'
-#' @description Visualize the distribution of two grouping variables with
-#' a barplot.
+#' @description Visualize the distribution of discrete features.
 #'
 #' @inherit check_sample params
-#' @param discrete_x Character value. The discrete feature of interest to be mapped onto the x-axis.
-#' @param discrete_y Character value. The discrete feature of interest to be mapped onto the y-axis.
+#' @inherit check_features params
+#' @param feature_compare Character vector or NULL. The discrete feature you want to compare the
+#' features of \code{features} to.
 #' @param clrp clrp params
-#' @param position Character value. Given to \code{position} of \code{ggplot2::geom_bar()}.
-#' @param ... Additional parameter given to \code{ggplot2::geom_bar()}.
+#' @param position Character value. Given to \code{position} of \code{ggplot2::geom_bar()}. One of
+#' \emph{'stack', 'dodge'} or \emph{'fill'}.
+#' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
 #' @inherit plotDistribution params return
 #'
 #' @export
-#'
 
 plotDistributionDiscrete <- function(object,
                                      of_sample = "",
-                                     discrete_x,
-                                     discrete_y,
+                                     features,
+                                     feature_compare = NULL,
                                      clrp = "milo",
                                      position = "fill",
                                      ...){
 
+  # 1. Control --------------------------------------------------------------
+
   check_object(object)
+  confuns::check_one_of(input = position,
+                        against = c("fill", "dodge", "stack"),
+                        ref.input = "argument 'position'")
 
   of_sample <- check_sample(object, of_sample = of_sample)
-  discrete_x <- check_features(object, discrete_x, c("character", "factor"), 1)
-  discrete_y <- check_features(object, discrete_y, c("character", "factor"), 1)
+  features <- check_features(object, features = features, c("character", "factor"))
 
-  check_pt(pt_clrp = clrp)
+  if(!base::is.null(feature_compare)){
+
+    feature_compare <- check_features(object, features = feature_compare, c("character", "factor"), 1)
+
+    if(feature_compare %in% features){
+
+      base::stop("Input of argument 'feature_compare' must not be in input of argument 'features'.")
+
+    }
+  }
+
+  # ----
+
+
+  # Additional checks and data extraction -----------------------------------
+
+  if(base::is.character(feature_compare)){
+
+    all_features <- c(features, fill)
+    facet_add_on <- list(ggplot2::facet_wrap(facets = . ~ features, scales = "free_x"))
+    fill <- feature_compare
+    theme_add_on <- list()
+
+
+  } else {
+
+    all_features <- features
+
+    facet_add_on <- list(ggplot2::facet_wrap(facets = . ~ features, scales = "free_x", ...))
+
+    if(base::length(all_features) > 1){
+
+      fill = "features"
+
+    } else {
+
+      fill = "values"
+
+    }
+
+    theme_add_on <- list(ggplot2::theme(legend.position = "none"))
+
+    if(position == "fill" & base::length(all_features) > 1){
+
+      position <- "stack"
+
+      base::warning("Argument 'position' is NULL. Using 'stack' for argument 'position'.")
+
+    }
+
+  }
+
 
   plot_df <-
     joinWithFeatures(object = object,
-                     spata_df = getSpataDf(object, of_sample),
-                     features = c(discrete_x, discrete_y))
+                     spata_df = getSpataDf(object),
+                     features = all_features,
+                     verbose = FALSE) %>%
+    tidyr::pivot_longer(data = .,
+                        cols = dplyr::all_of(features),
+                        names_to = "features",
+                        values_to = "values")
 
-  ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[discrete_x]], fill = .data[[discrete_y]]))+
-    ggplot2::geom_bar(position = position, ...) +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrtete", clrp = clrp) +
+  # ----
+
+  ggplot2::ggplot(data = plot_df) +
+    ggplot2::geom_bar(position = position, color = "black",
+                      mapping = ggplot2::aes(x = values, fill = .data[[fill]])) +
+    facet_add_on +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
-    ggplot2::theme(
-      axis.text.y = ggplot2::element_text(color="black"),
-      axis.text.x = ggplot2::element_text(color="black")
-    ) +
-    ggplot2::labs(y = NULL)
+    theme_add_on +
+    ggplot2::theme(strip.background = ggplot2::element_blank()) +
+    ggplot2::labs(y = NULL, x = "Groups / Clusters")
 
 }
 

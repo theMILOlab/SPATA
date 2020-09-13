@@ -7,8 +7,8 @@
 plotDistributionDiscrete(
   object,
   of_sample = "",
-  discrete_x,
-  discrete_y,
+  features,
+  feature_compare = NULL,
   clrp = "milo",
   position = "fill",
   ...
@@ -20,17 +20,18 @@ plotDistributionDiscrete(
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{discrete_x}{Character value. The discrete feature of interest to be mapped onto the x-axis.}
+\item{features}{The features of interest specified as a character vector.}
 
-\item{discrete_y}{Character value. The discrete feature of interest to be mapped onto the y-axis.}
+\item{feature_compare}{Character vector or NULL. The discrete feature you want to compare the
+features of \code{features} to.}
 
 \item{clrp}{clrp params}
 
-\item{position}{Character value. Given to \code{position} of \code{ggplot2::geom_bar()}.}
+\item{position}{Character value. Given to \code{position} of \code{ggplot2::geom_bar()}. One of
+\emph{'stack', 'dodge'} or \emph{'fill'}.}
 
-\item{...}{Additional parameter given to \code{ggplot2::geom_bar()}.}
+\item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
 }
 \description{
-Visualize the distribution of two grouping variables with
-a barplot.
+Visualize the distribution of discrete features.
 }

@@ -32,7 +32,7 @@ Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants
 \item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 specified in argument \code{across} contains. If set to NULL all of them are chosen.
 
-Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
 \item{return}{Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}}

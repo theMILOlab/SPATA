@@ -3,7 +3,7 @@
 \name{plotDistributionAcross}
 \alias{plotDistributionAcross}
 \alias{plotDistributionAcross2}
-\title{Visualize value distribution across groups & clusters}
+\title{Distribution of continuous values}
 \usage{
 plotDistributionAcross(
   object,
@@ -55,7 +55,7 @@ features variables your spata-object contains.}
 \item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 specified in argument \code{across} contains. If set to NULL all of them are chosen.
 
-Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled

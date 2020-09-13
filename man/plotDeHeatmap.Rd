@@ -44,7 +44,7 @@ features variables your spata-object contains.}
 \item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 specified in argument \code{across} contains. If set to NULL all of them are chosen.
 
-Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
 \item{n_barcode_spots}{The number of barcode-spots belonging to each cluster you want to
