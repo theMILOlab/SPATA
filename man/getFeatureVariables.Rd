@@ -4,7 +4,13 @@
 \alias{getFeatureVariables}
 \title{Obtain a feature variable}
 \usage{
-getFeatureVariables(object, features, of_sample = "", return = "data.frame")
+getFeatureVariables(
+  object,
+  features,
+  of_sample = "",
+  return = "data.frame",
+  unique = "deprecated"
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -17,6 +23,8 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{return}{Character value. One of \emph{'vector', 'data.frame'} or
 \emph{'list'}. In order to return a vector input of \code{features} must
 be of length one.}
+
+\item{unique}{Deprecated.}
 }
 \value{
 A data.frame or a vector.
