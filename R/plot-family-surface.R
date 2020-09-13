@@ -8,7 +8,7 @@
 #'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
 #'  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
-#'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
+#'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a shiny
 #'  application which allows for interactive plotting.}
 #'
 #' }
@@ -366,7 +366,7 @@ plotSurfaceInteractive <- function(object){
                 add_on <- list()
               }
 
-              plotDistribution2(data = plot_df,
+              plotDistribution2(df = plot_df,
                                 variables = var_name,
                                 plot_type = plot_type,
                                 binwidth = 0.05,

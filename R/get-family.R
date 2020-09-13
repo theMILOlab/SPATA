@@ -653,7 +653,15 @@ getFeatureNames <- function(object, of_class = NULL){
     feature_names <- feature_names[classes %in% of_class]
   }
 
-  base::return(feature_names[feature_names != "barcodes"])
+  if(base::length(samples(object)) > 1){
+
+    base::return(feature_names[feature_names != c("barcodes")])
+
+  } else {
+
+    base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
+
+  }
 
 }
 
@@ -664,7 +672,6 @@ getFeatureNames <- function(object, of_class = NULL){
 #'
 #' @return The feature data data.frame of the specfied object and sample(s).
 #' @export
-#'
 
 getFeatureData <- function(object, of_sample = ""){
 
@@ -684,23 +691,17 @@ getFeatureData <- function(object, of_sample = ""){
 #'
 #' @inherit check_sample params
 #' @inherit check_features params
-#' @param return Character value. Determine the way the variable is returned.
-#'
-#' (Only relevant if input of arugment \code{features} is of length greater than 1.)
-#'
-#' @param unique Logical. If set to TRUE and argument \code{features} is
-#' of length 1 only it's unique values are returned.
+#' @param return Character value. One of \emph{'vector', 'data.frame'} or
+#' \emph{'list'}. In order to return a vector input of \code{features} must
+#' be of length one.
 #'
 #' @return A data.frame or a vector.
 #' @export
-#'
 
 getFeatureVariables <- function(object,
                                 features,
                                 of_sample = "",
-                                return = "data.frame",
-                                unique = FALSE){
-
+                                return = "data.frame"){
 
   # 1. Control --------------------------------------------------------------
 
@@ -708,7 +709,9 @@ getFeatureVariables <- function(object,
   features <- check_features(object, features)
 
   confuns::is_value(return, "character", "return")
-  stopifnot(return %in% c("data.frame", "vector"))
+  confuns::check_one_of(input = return,
+                        against = c("data.frame", "vector"),
+                        ref.input = "return")
 
   of_sample <- check_sample(object, of_sample)
 
@@ -719,36 +722,82 @@ getFeatureVariables <- function(object,
 
   if(base::length(features) == 1 && return == "vector"){
 
-    var <-
+    res <-
       getFeatureData(object, of_sample) %>%
-      dplyr::pull(var = {{features}})
+        dplyr::pull(var = {{features}})
 
-    if(base::isTRUE(unique)){
+  } else if(return == "data.frame"){
 
-      base::unique(var) %>%
-        base::return()
+    res <-
+      getFeatureData(object, of_sample) %>%
+        dplyr::select({{features}})
 
-    } else {
+  } else if(return == "list"){
 
-      base::return(var)
+    res <-
+      purrr::map(.x = features,
+                 .f = function(f){
 
-    }
+                   getFeatureData(object, of_sample) %>%
+                     dplyr::pull(var = {{f}})
 
-  } else if(base::length(features) == 1){
-
-    getFeatureData(object, of_sample) %>%
-      dplyr::select(barcodes, sample, {{features}})
-
-  } else {
-
-    getFeatureData(object, of_sample) %>%
-      dplyr::select(barcodes, sample, dplyr::all_of(features)) %>%
-      base::return()
+                 }) %>%
+      magrittr::set_names(value = features)
 
   }
 
+  base::return(res)
+
 }
 
+
+#' @title Obtain unique categorical feature values
+#'
+#' @description Extracts the unique values of discrete features.
+#'
+#' @inherit check_sample params
+#' @inherit check_features params
+#'
+#' @return A vector or a named list according to the length of \code{features}.
+#' @export
+
+getFeatureValues <- function(object, of_sample = "", features){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  features <- check_features(object, features, valid_classes = c("character", "factor"))
+
+  of_sample <- check_sample(object, of_sample)
+
+  # -----
+
+  # 2. Main part ------------------------------------------------------------
+
+  if(base::length(features) == 1){
+
+    getFeatureData(object, of_sample) %>%
+      dplyr::pull(var = {{features}}) %>%
+      base::unique() %>%
+      base::return()
+
+  } else {
+
+    purrr::map(.x = features,
+               .f = function(f){
+
+                 getFeatureData(object, of_sample) %>%
+                   dplyr::pull(var = {{f}}) %>%
+                   base::unique() %>%
+                   base::return()
+
+               }) %>%
+      magrittr::set_names(features) %>%
+      base::return()
+  }
+
+
+}
 
 # -----
 

@@ -614,7 +614,12 @@ moduleSurfacePlotServer <- function(id,
       })
 
       #----- Scale color add-on -----#
-      scale_color_add_on <- shiny::reactive({
+
+      color_add_on <- shiny::reactive({
+
+        color_min <- input$scale_color_min
+        color_max <- input$scale_color_max
+        color_mid <- input$scale_color_mid
 
         if(base::is.numeric(color_variable())){
 
@@ -622,17 +627,17 @@ moduleSurfacePlotServer <- function(id,
 
             add_on <-
               confuns::scale_color_add_on(clrsp = current$pt_clrsp,
-                                          limits = c(input$scale_color_min,
-                                                     input$scale_color_max),
-                                          mid = input$scale_color_mid,
+                                          limits = c(color_min,
+                                                     color_max),
+                                          mid = color_mid,
                                           oob = scales::squish)
 
           } else {
 
             add_on <-
               confuns::scale_color_add_on(clrsp = current$pt_clrsp,
-                                          limits = c(input$scale_color_min,
-                                                     input$scale_color_max),
+                                          limits = c(color_min,
+                                                     color_max),
                                           oob = scales::squish)
 
           }
@@ -801,7 +806,7 @@ moduleSurfacePlotServer <- function(id,
         ggplot2::ggplot() +
           image_add_on() +
           geom_point_add_on() +
-          scale_color_add_on() +
+          color_add_on() +
           segmentation_add_on() +
           coords_add_on() +
           legend_add_on() +
