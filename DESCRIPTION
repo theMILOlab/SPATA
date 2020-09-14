@@ -35,12 +35,10 @@ Imports:
     colorspace,
     GSVA,
     Seurat,
-    ggforce,
-    concaveman,
     shinybusy,
-    CONICSmat,
     shinydashboard,
-    pheatmap
+    pheatmap, 
+    ggalt
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
