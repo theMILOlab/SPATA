@@ -16,6 +16,7 @@ data_counts object
 \describe{
 \item{\code{counts}}{A sparse matrix containing the original counts.}
 
-\item{\code{norm_exp}}{A processed expression matrix.}
+\item{\code{norm_exp}}{A processed expression matrix. Rownames must be the gene-names.
+Column names must be the barcodes.}
 }}
 

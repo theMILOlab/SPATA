@@ -42,7 +42,8 @@ Imports:
     cowplot,
     pheatmap,
     shinybusy,
-    CONICSmat
+    CONICSmat,
+    shinydashboard
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'

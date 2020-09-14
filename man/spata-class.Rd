@@ -40,7 +40,7 @@ spata object
 \item{\code{scvelo}}{Currently not in use.}
 
 \item{\code{trajectories}}{A list named according to the samples the object contains. Each slot in
-that list contains another list of all spatialTrajectory-objects created for that sample.}
+that list contains another list of all 'spatial_trajectory'-objects created for that sample.}
 
 \item{\code{used_genesets}}{A data.frame containing the defined gene-sets. Must contain the variables:
 
