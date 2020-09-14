@@ -14,16 +14,27 @@ spatial_trajectory object
 \section{Slots}{
 
 \describe{
-\item{\code{compiled_trajectory_df}}{data.frame.}
+\item{\code{compiled_trajectory_df}}{A data.frame containing the variables:
 
-\item{\code{segment_trajectory_df}}{data.frame.}
+\describe{
+ \item{\emph{barcodes}}{Character. The barcode-spots' sequences.}
+ \item{\emph{sample}}{Character. The barcode-spots' sample belonging.}
+ \item{\emph{x,y}}{Numeric. The barcode-spots' spatial coordinates.}
+ \item{\emph{projection_length}}{Numeric. The distance between the barcode-spots'
+  projection onto the trajectory-vector and the start of the trajectory.}
+ \item{\emph{trajectory_part}}{Character. The part of the trajectory.}
+ }}
 
-\item{\code{ranked_genes_df}}{data.frame.}
+\item{\code{segment_trajectory_df}}{A data.frame containing the numeric variables
+\emph{x, y, xend, yend} that denote the start and the end of every trajectory
+part.}
 
-\item{\code{comment}}{character.}
+\item{\code{ranked_genes_df}}{Currently not in use.}
 
-\item{\code{name}}{character.}
+\item{\code{comment}}{Character value. The comment written down before saving the trajectory.}
 
-\item{\code{sample}}{character.}
+\item{\code{name}}{Character value. The trajectory's name.}
+
+\item{\code{sample}}{Character value. The sample the trajectory belongs to.}
 }}
 

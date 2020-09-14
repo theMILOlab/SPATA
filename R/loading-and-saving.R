@@ -240,7 +240,7 @@ initiateSpataObject_10X <- function(input_paths,
 
   if(dplyr::n_distinct(fdata$sample) > 1){
 
-    if(base::isTRUE(verbose)){glue::glue("NOrmalizing for all different samples.")}
+    if(base::isTRUE(verbose)){glue::glue("Normalizing for all different samples.")}
 
     test <- Seurat::SCTransform(test, vars.to.regress = "sample")
 
@@ -266,7 +266,7 @@ initiateSpataObject_10X <- function(input_paths,
 
   # 5. Create SPATA-object --------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 5/6: Creating spata-object.")}
+  if(base::isTRUE(verbose)){base::message("Step 5/6: Initiating spata-object.")}
 
   mdata <-
     dplyr::left_join(x = tibble::rownames_to_column(test@meta.data, "barcodes"),

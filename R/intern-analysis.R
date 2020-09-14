@@ -18,8 +18,7 @@
 #'  \item{\emph{data}: The computed distance data.}
 #'  \item{\emph{variable}: The variable specified.}
 #'  \item{\emph{sample}: The sample specified.}}
-#' @export
-#'
+
 
 calculateDistance <- function(object,
                               of_sample = "",
@@ -63,7 +62,7 @@ calculateDistance <- function(object,
 }
 
 #' @rdname calculateDistance
-#' @export
+
 calculateDistanceLineplot <- function(object,
                                       of_sample = "",
                                       variable,
@@ -176,7 +175,7 @@ calculateDistanceLineplot <- function(object,
 }
 
 #' @rdname calculateDistance
-#' @export
+
 calculateDistanceHeatmap <- function(object,
                                      of_sample = "",
                                      variable,
@@ -297,8 +296,7 @@ calculateDistanceHeatmap <- function(object,
 #' values of \code{num_variable} to. Given to argument \code{n} of \code{dplyr::ntile()}.
 #'
 #' @return The data.frame specified in \code{data} with the additional discrete variable.
-#' @export
-#'
+
 
 convertToDiscrete <- function(data,
                               num_variable,
@@ -339,8 +337,7 @@ convertToDiscrete <- function(data,
 #' @param k Numeric value.
 #'
 #' @return Cluster results.
-#' @export
-#'
+
 
 findIgraphCluster <- function(cor_mtr,
                               num_nn = 20){
@@ -403,7 +400,7 @@ findIgraphCluster <- function(cor_mtr,
 
 
 #' @rdname computeIgraphCluster
-#' @export
+
 plotIgraphHeatmap <- function(cor_mtr,
                               num_nn = 20,
                               color_nn,

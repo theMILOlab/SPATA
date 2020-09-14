@@ -14,8 +14,8 @@ dim_red object
 \section{Slots}{
 
 \describe{
-\item{\code{UMAP}}{data.frame.}
+\item{\code{UMAP}}{A data.frame containing the variables \emph{'barcdoes', 'sample', 'umap1', 'umap2'}}
 
-\item{\code{TSNE}}{data.frame.}
+\item{\code{TSNE}}{A data.frame containing the variables \emph{'barcodes', 'smaple', 'tsne1', 'tsne2'}}
 }}
 

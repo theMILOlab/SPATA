@@ -1358,7 +1358,7 @@ plotDistributionDiscrete <- function(object,
 
       position <- "stack"
 
-      base::warning("Argument 'position' is NULL. Using 'stack' for argument 'position'.")
+      base::warning("Argument 'feature_compare' is NULL. Using 'stack' for argument 'position'.")
 
     }
 

@@ -14,8 +14,8 @@ data_counts object
 \section{Slots}{
 
 \describe{
-\item{\code{counts}}{matrix.}
+\item{\code{counts}}{A sparse matrix containing the original counts.}
 
-\item{\code{norm_exp}}{matrix.}
+\item{\code{norm_exp}}{A processed expression matrix.}
 }}
 
