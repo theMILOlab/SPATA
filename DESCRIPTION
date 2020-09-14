@@ -14,7 +14,6 @@ BugReports: themilolab-spata@webmail.com
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
-    matrixcalc,
     confuns,
     pipeR,
     monocle3,
@@ -27,7 +26,6 @@ Imports:
     purrr,
     shiny,
     shinyWidgets,
-    ComplexHeatmap,
     ggridges,
     EBImage,
     umap,
@@ -39,11 +37,10 @@ Imports:
     Seurat,
     ggforce,
     concaveman,
-    cowplot,
-    pheatmap,
     shinybusy,
     CONICSmat,
-    shinydashboard
+    shinydashboard,
+    pheatmap
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
