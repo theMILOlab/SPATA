@@ -1,4 +1,4 @@
-#' @title Subset spata-object for samples
+#' @title Reduce the number of samples
 #'
 #' @description Keeps only information of the specified sample
 #'

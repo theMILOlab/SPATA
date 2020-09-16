@@ -296,7 +296,7 @@ compileCellDataSet <- function(object,
 }
 
 
-#' @title Initiate Seurat Analysis
+#' @title Initiate Seurat analysis
 #'
 #' @description Takes the count matrix of your spata-object and creates a
 #' Seurat-object with it. The spata-object's feature-data is passed as input

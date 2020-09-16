@@ -1463,57 +1463,6 @@ plotPseudotime <- function(object,
 
 }
 
-
-#' @title Plot segmentation
-#'
-#' @description Displays the segmentation of a specified sample that was drawn with
-#' \code{SPATA::createSegmentation()}.
-#'
-#' @inherit check_sample params
-#' @inherit check_pt params
-#'
-#' @inherit plot_family return
-#'
-#' @export
-
-plotSegmentation <- function(object,
-                             of_sample = "",
-                             pt_size = 2,
-                             pt_clrp = "milo"){
-
-  # control
-  check_object(object)
-  of_sample <- check_sample(object, of_sample, desired_length = 1)
-  check_pt(pt_size = pt_size)
-
-  # data extraction
-  plot_df <-
-    getCoordinates(object, of_sample = of_sample) %>%
-    joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
-
-  segment_df <- dplyr::filter(plot_df, segment != "")
-
-  if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
-
-  n_segments <- base::length(getSegmentNames(object))
-
-  # plotting
-  ggplot2::ggplot() +
-    ggplot2::geom_point(data = plot_df, size = pt_size, color = "lightgrey", mapping = ggplot2::aes(x = x, y = y)) +
-    ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
-    #ggalt::geom_encircle(data = segment_df, alpha = 0.5, expand = 0.025, mapping = ggplot2::aes(x = x, y = y, group = segment, color = segment, fill = segment)) +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
-    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp) +
-    ggplot2::theme_void() +
-    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5, linetype = c(base::rep(0, n_segments))))) +
-    ggplot2::labs(color = "Segments")
-
-}
-
-
-
-
-
 # -----
 
 

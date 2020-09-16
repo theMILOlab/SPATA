@@ -169,7 +169,7 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 }
 
 
-#' @title Trajectory trends
+#' @title Filter variables of a certain trend
 #'
 #' @description Extracts the genes or gene sets that follow a desired trend.
 #'
