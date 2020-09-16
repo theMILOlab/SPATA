@@ -765,7 +765,7 @@ plotDistribution2 <- function(df,
   } else {
 
     check_list <-
-      purrr::map(variables, function(i){c("numeric", "integer")}) %>%
+      purrr::map(variables, function(i){c("numeric", "integer", "double")}) %>%
       magrittr::set_names(value = variables)
 
     confuns::check_data_frame(
@@ -792,7 +792,7 @@ plotDistribution2 <- function(df,
 
   expr_data <-
     tidyr::pivot_longer(
-      data = df[, valid_variables],
+      data = dplyr::select(.data = df, dplyr::all_of(x = valid_variables)),
       cols = dplyr::all_of(x = valid_variables),
       names_to = "valid_variables",
       values_to = "values"

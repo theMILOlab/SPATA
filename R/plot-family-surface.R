@@ -367,7 +367,6 @@ plotSurfaceInteractive <- function(object){
               }
 
               plotDistribution2(df = plot_df,
-                                variables = var_name,
                                 plot_type = plot_type,
                                 binwidth = 0.05,
                                 verbose = FALSE) + add_on

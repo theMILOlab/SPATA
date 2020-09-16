@@ -322,6 +322,140 @@ addFeatures <- function(object,
 
 }
 
+# -----
+
+
+# Dimensional reductions --------------------------------------------------
+
+#' @title Add dimensional reductions
+#'
+#' @description Adds or replaces dimensional reduction data. If the object contains
+#' several sample the sample-variable of the input data.frame denotes the sample
+#' belonging.
+#'
+#' @inherit check_object params
+#' @param umap_df A data.frame containing the character variables \emph{barcodes, sample} and
+#' the numeric variables \emph{umap1, umap2}.
+#' @param tsne_df A data.frame containing the character variables \emph{barcodes, sample} and
+#' the numeric variables \emph{tsne1, tsne2}.
+#' @param overwrite Logical. Must be set to TRUE in order to overwrite already existing data.
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+
+addUmapData <- function(object, umap_df, overwrite = FALSE){
+
+  # Control -----------------------------------------------------------------
+
+  check_object(object)
+  confuns::check_data_frame(
+    df = umap_df,
+    var.class = list(
+      "umap1" = c("numeric", "integer", "double"),
+      "umap2" = c("numeric", "integer", "double"),
+      "sample" = c("character"),
+      "barcodes" = c("character")
+    ),
+    ref = "umap_df"
+  )
+
+  of_sample <- base::unique(umap_df$sample)
+
+  if(!base::all(of_sample %in% samples(object))){
+
+    base::stop("All values of variable 'samples' in data.frame 'umap_df' must be samples of the specified spata-object.")
+
+  }
+
+  # -----
+
+
+  # Extract data ------------------------------------------------------------
+
+  # extract old data
+  object_data <- object@dim_red@UMAP
+
+  old_data <- dplyr::filter(object_data[,c("barcodes", "sample")], sample %in% {{of_sample}})
+
+  if(base::nrow(old_data) > 0 && !base::isTRUE(overwrite)){
+
+    base::stop(glue::glue("It already exists umap-data for sample '{of_sample}'. Set overwrite to TRUE in order to overwrite it."))
+
+  } else if(base::nrow(old_data) > 0 && base::isTRUE(overwrite)){
+
+    object_data[object_data$sample %in% of_sample, ] <- new_data
+
+  } else if(base::nnrow(old_data) == 0){
+
+    object_data <- new_data
+
+  }
+
+  # add data
+  object@dim_red@UMAP <- object_data
+
+  base::return(object)
+
+}
+
+#' @rdname addUmapData
+#' @export
+
+addTsneData <- function(object, tsne_df, overwrite = FALSE){
+
+  # Control -----------------------------------------------------------------
+
+  check_object(object)
+  confuns::check_data_frame(
+    df = tsne_df,
+    var.class = list(
+      "tsne1" = c("numeric", "integer", "double"),
+      "tsne2" = c("numeric", "integer", "double"),
+      "sample" = c("character"),
+      "barcodes" = c("character")
+    ),
+    ref = "tsne_df"
+  )
+
+  of_sample <- base::unique(tsne_df$sample)
+
+  if(!base::all(of_sample %in% samples(object))){
+
+    base::stop("All values of variable 'samples' in data.frame 'tsne_df' must be samples of the specified spata-object.")
+
+  }
+
+  # -----
+
+
+  # Extract data ------------------------------------------------------------
+
+  # extract old data
+  object_data <- object@dim_red@TSNE
+
+  old_data <- dplyr::filter(object_data[,c("barcodes", "sample")], sample %in% {{of_sample}})
+
+  if(base::nrow(old_data) > 0 && !base::isTRUE(overwrite)){
+
+    base::stop(glue::glue("It already exists umap-data for sample '{of_sample}'. Set overwrite to TRUE in order to overwrite it."))
+
+  } else if(base::nrow(old_data) > 0 && base::isTRUE(overwrite)){
+
+    object_data[object_data$sample %in% of_sample, ] <- new_data
+
+  } else if(base::nnrow(old_data) == 0){
+
+    object_data <- new_data
+
+  }
+
+  # add data
+  object@dim_red@TSNE <- object_data
+
+  base::return(object)
+
+}
 
 
 

@@ -115,6 +115,9 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #' @slot version A list of four slots denoting the version of SPATA under which the object has been
 #' created.
 #'
+#' @slot additional A list of miscellaneous information that mainly ensures compatibility between different
+#' platforms.
+#'
 #' @return S4 object
 #' @export
 #'
@@ -129,4 +132,5 @@ spata <- setClass("spata",
                             scvelo = "list",
                             used_genesets = "data.frame",
                             trajectories = "list",
-                            version = "list"))
+                            version = "list",
+                            additional = "list"))

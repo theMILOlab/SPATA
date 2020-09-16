@@ -51,5 +51,8 @@ that list contains another list of all 'spatial_trajectory'-objects created for 
 
 \item{\code{version}}{A list of four slots denoting the version of SPATA under which the object has been
 created.}
+
+\item{\code{additional}}{A list of miscellaneous information that mainly ensures compatibility between different
+platforms.}
 }}
 

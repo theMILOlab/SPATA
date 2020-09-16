@@ -6,24 +6,33 @@
 \usage{
 initiateSpataObject_10X(
   input_paths,
-  output_path,
-  gene_set_path = NULL,
   sample_names,
-  object_name,
+  gene_set_path = NULL,
+  output_path = NULL,
+  file_name = NULL,
+  SCTransform = FALSE,
+  NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+  FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+  ScaleData = TRUE,
+  RunPCA = list(npcs = 60),
+  FindNeighbors = list(dims = 1:30),
+  FindClusters = list(resolution = 0.8),
+  RunTSNE = TRUE,
+  RunUMAP = list(dims = 1:30),
   verbose = TRUE
 )
 }
 \arguments{
 \item{input_paths}{Character vector. Specifies the 10X visium-folders from
-which to load the information. These folders must contain the following sub directories:
+which to load the information. This folder must contain the following sub directories:
 
 \itemize{
  \item{\emph{'/outs/filtered_feature_bc_matrix.h5'}}
  \item{\emph{'/outs/spatial/*.jpg}}
  }}
 
-\item{output_path}{Character value. Specifies the folder in which to store
-the object.}
+\item{sample_names}{Character vector. The sample name with which to refer to the
+respective sample. Should start with a letter.}
 
 \item{gene_set_path}{Character value (or NULL). Specifies the path to a
 .RDS-file containing a data.frame that is to be used as input for slot @used_genesets.
@@ -33,13 +42,33 @@ the object.}
    \itemize{
     \item{\emph{'ont'}: The gene set names.}
     \item{\emph{'gene'}: The belonging gene names.}
-    }}
+    }
 
-\item{sample_names}{Character vector. The sample names with which to refer to the
-respective data. Must be of the same length as \code{input_paths}.}
+If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
 
-\item{object_name}{Character value. The name-suffix for the file name under which the
+\item{output_path}{Character vector or NULL. Specifies the folder in which to store
+the object if the directory is valid.}
+
+\item{file_name}{Character value. The name-suffix for the file name under which the
 spata-object is stored. Is prefixed with \emph{'spata-obj-'}.}
+
+\item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
+
+\item{NormalizeData}{A named list of arguments given to \code{Seurat::NormalizeData()}, TRUE or FALSE.}
+
+\item{FindVariableFeatures}{A named list of arguments given to \code{Seurat::FindVariableFeatures()}, TRUE or FALSE.}
+
+\item{ScaleData}{A named list of arguments given to \code{Seurat::ScaleData()}, TRUE or FALSE.}
+
+\item{RunPCA}{A named list of arguments given to \code{Seurat::RunPCA()}, TRUE or FALSE.}
+
+\item{FindNeighbors}{A named list of arguments given to \code{Seurat::FindNeighbors()}, TRUE or FALSE.}
+
+\item{FindClusters}{A named list of arguments given to \code{Seurat::FindClusters()}, TRUE or FALSE.}
+
+\item{RunTSNE}{A named list of arguments given to \code{Seurat::RunTSNE()}, TRUE or FALSE.}
+
+\item{RunUMAP}{A named list of arguments given to \code{Seurat::RunUMAP()}, TRUE or FALSE.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
@@ -51,5 +80,31 @@ A spata-object.
 }
 \description{
 Creates, saves and returns an object of class spata
-from scratch.
+from scratch. Several samples can be stored in one object. See details for more.
+}
+\details{
+The loading and preprocessing of the spata-object  currently relies on the Seurat-package. For more advanced users the arguments
+above starting with a capital letter allow to manipulate the way the spata-object is processed. For all of these arguments apply
+the following instructions:
+
+\itemize{
+  \item{If set to FALSE the processing function is skipped.}
+  \item{If set to TRUE the respective function is called with it's default argument settings. Note: \code{RunUMAP()} needs
+  additional input!}
+  \item{If a named list is provided the respective function is called whereby the named list will provide the argument-input (the seurat-object to be constructed must not be named and will be
+  passed to every function as the first argument!!!.)}
+  }
+
+Note that certain listed functions require previous functions! E.g. if \code{RunPCA} is set to FALSE \code{RunTSNE()}
+will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
+is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()} after
+initiating it in order to see which slots are valid and which are not.
+
+Handling more than one sample:
+
+Several samples can be stored in one object. If so, the count-matrices will be combined to one matrix which is given to the seurat-object that is temporarily
+initiated in order to perform the pre processing steps. Sample related unambiguity with respect to the barcode's belonging is maintained
+by suffixing the barcode-sequences with the respective sample name specified in \code{sample_names}. The meta.data data.frame of the
+seurat-object is joined with a variable called \emph{sample} denoting the sample-belonging of every barcode which can be used as input
+for pre processing functions.
 }

@@ -187,9 +187,7 @@ getDimRedData <- function(object,
 
   dim_red_df <-
     methods::slot(object = object@dim_red, name = method_dr) %>%
-    dplyr::filter(sample %in% of_sample) %>%
-    dplyr::select(dplyr::all_of(x = c("barcodes", "sample", dr_strings))) %>%
-    tibble::remove_rownames()
+    dplyr::filter(sample %in% of_sample)
 
   # -----
 

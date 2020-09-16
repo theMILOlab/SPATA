@@ -598,65 +598,6 @@ createTrajectories <- function(object){
 
 
 
-#' @title Monocle3 Pseudotime
-#'
-#' @description Calculates the pseudotime values for every barcode in a given sample
-#' and adds it under the specified name to the feature data in the provided
-#' spata-object.
-#'
-#' @param object A valid spata object.
-#' @param use_cds_file A directory leading to a .rds file containing a valid
-#' cell_data_set-object previously calculated for the specified object. Specified
-#' as a character value. If set to FALSE the cell_data_set object will be created
-#' from scratch (which requires interactive node-choosing).
-#' @param save_cds_file A filename/directory (that does not already exists) under which the used or created cell_data_set-object
-#' is stored specified as a character value. Should end with \emph{'.rds'} or  \emph{'.RDS'}.
-#' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
-#' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
-#' @param feature_name The name under which the created pseudotime-variable is stored in the provided object.
-#'
-#' Warning: Will overwrite already existing features of the same name!
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
-#'
-#' @return An updated spata-object.
-#' @export
-#'
-
-createPseudotime <- function(object,
-                             use_cds_file = FALSE,
-                             save_cds_file = FALSE,
-                             preprocess_method = "PCA",
-                             cluster_method = "leiden",
-                             feature_name = "pseudotime",
-                             verbose = TRUE){
-
-  check_object(object)
-
-  cds <-
-    compileCellDataSet(object = object,
-                      use_cds_file = use_cds_file,
-                      save_cds_file = save_cds_file,
-                      preprocess_method = preprocess_method,
-                      cluster_method = cluster_method,
-                      verbose = verbose)
-
-  ps_time <-
-    as.data.frame(monocle3::pseudotime(cds)) %>%
-    magrittr::set_colnames(value = feature_name) %>%
-    tibble::rownames_to_column(var = "barcodes")
-
-  ps_time[base::is.infinite(ps_time[,feature_name]), feature_name] <- NA
-
-  object <- addFeatures(object, feature_df = ps_time, feature_names = feature_name, overwrite = TRUE)
-
-  base::return(object)
-
-}
-
-
 
 
 

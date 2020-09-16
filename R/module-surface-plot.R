@@ -312,39 +312,53 @@ moduleSurfacePlotServer <- function(id,
 
       output$scale_color_min <- shiny::renderUI({
 
+        shiny::validate(
+          shiny::need(base::is.numeric(color_variable()),
+                      message = "Need numeric color-feature to scale minimum & maximum.",
+                      label = "Color scale minimum")
+        )
+
         ns <- session$ns
 
           shiny::sliderInput(ns("scale_color_min"),
                              label = "Color scale minimum:",
-                             min = 0,
-                             max = 1,
-                             value = 0,
+                             min = color_min(),
+                             max = color_max(),
+                             value = color_min(),
                              step = 0.01)
 
       })
 
       output$scale_color_max <- shiny::renderUI({
 
+        shiny::validate(
+          shiny::need(expr = base::is.numeric(color_variable()),
+                      message = "Need numeric color-feature to scale maxmimum.",
+                      label = "Color scale maximum:")
+        )
+
         ns <- session$ns
 
           shiny::sliderInput(ns("scale_color_max"),
                              label = "Color scale maximum:",
-                             min = 0,
-                             max = 1,
-                             value = 1,
+                             min = color_min(),
+                             max = color_max(),
+                             value = color_max(),
                              step = 0.01)
 
       })
 
       output$scale_color_mid <- shiny::renderUI({
 
+        shiny::req(base::is.numeric(color_variable()))
+
         ns <- session$ns
 
           shiny::sliderInput(ns("scale_color_mid"),
                              label = "Color scale mid:",
-                             min = 0.01,
-                             max = 0.99,
-                             value = 0.5,
+                             min = color_min() * 1.1,
+                             max = color_max() * 0.9,
+                             value = color_median(),
                              step = 0.01)
 
       })
@@ -554,6 +568,34 @@ moduleSurfacePlotServer <- function(id,
 
       })
 
+      # color variable
+      color_variable <- shiny::reactive({
+
+        dplyr::pull(smoothed_df(), variable())
+
+      })
+
+      color_min <- shiny::reactive({
+
+        base::min(color_variable()) %>%
+          base::round(digits = 2)
+
+      })
+
+      color_max <- shiny::reactive({
+
+        base::max(color_variable()) %>%
+          base::round(digits = 2)
+
+      })
+
+      color_median <- shiny::reactive({
+
+        stats::median(color_variable()) %>%
+          base::round(digits = 2)
+
+      })
+
       # smoothed_df
       smoothed_df <- shiny::reactive({
 
@@ -566,45 +608,50 @@ moduleSurfacePlotServer <- function(id,
           smoothed_df <-
             hlpr_smooth_shiny(coords_df = joined_df(),
                               variable = variable(),
-                              smooth_span = base::as.numeric(input$pt_smooth)) %>%
-            purrr::imap_dfr(.f = hlpr_normalize_imap,
-                            aspect = "",
-                            subset = variable()
-            )
+                              smooth_span = base::as.numeric(input$pt_smooth))
+
+          if(current$color_code %in% c("genes", "gene_sets")){
+
+            smoothed_df <-
+              purrr::imap_dfr(.x = smoothed_df,
+                              .f = hlpr_normalize_imap,
+                              aspect = "",
+                              subset = variable())
+
+          }
 
           base::return(smoothed_df)
 
         } else {
 
-          base::return(
+          if(current$color_code %in% c("genes", "gene_sets")){
+
             purrr::imap_dfr(.x = joined_df(),
                             .f = hlpr_normalize_imap,
                             aspect = "",
-                            subset = variable()
+                            subset = variable() %>%
+                              base::return()
             )
-          )
 
+          } else {
+
+            joined_df() %>% base::return()
+
+          }
 
         }
-
-      })
-
-      # color variable
-      color_variable <- shiny::reactive({
-
-        dplyr::pull(smoothed_df(), variable())
 
       })
 
       # geom_point_add_on
       geom_point_add_on <- shiny::reactive({
 
-        color <- dplyr::pull(.data = smoothed_df(), variable())
+        #color <- dplyr::pull(.data = smoothed_df(), variable())
 
         add_on <-
           list(
             ggplot2::geom_point(data = smoothed_df(),
-                                mapping = ggplot2::aes(x = x, y = y, color = color),
+                                mapping = ggplot2::aes(x = x, y = y, color = .data[[variable()]]),
                                 size = input$pt_size,
                                 alpha = (1-input$pt_alpha))
           )
@@ -807,11 +854,11 @@ moduleSurfacePlotServer <- function(id,
           image_add_on() +
           geom_point_add_on() +
           color_add_on() +
-          segmentation_add_on() +
-          coords_add_on() +
           legend_add_on() +
           title_add_on() +
-          ggplot2::coord_equal()
+          segmentation_add_on() +
+          ggplot2::coord_equal() +
+          coords_add_on()
 
       })
 

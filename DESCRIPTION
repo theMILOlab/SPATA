@@ -47,6 +47,7 @@ Collate:
     'check-family-lazy.R'
     'check-family-validation.R'
     'checkpoint.R'
+    'compile-family.R'
     'create_family.R'
     'data.R'
     'deprecated-functions.R'
@@ -69,6 +70,7 @@ Collate:
     'plot-family-trajectory.R'
     'pseudotime-embedding.R'
     'shiny-dashboard-tab-items.R'
+    'spata-object-manipulation.R'
     'trajectory-analysis.R'
     'validation.R'
 Depends: 
