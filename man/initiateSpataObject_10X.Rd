@@ -50,7 +50,7 @@ If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to ge
 the object if the directory is valid.}
 
 \item{file_name}{Character value. The name-suffix for the file name under which the
-spata-object is stored. Is prefixed with \emph{'spata-obj-'}.}
+spata-object is stored. Is prefixed with \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
 
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 
@@ -83,12 +83,13 @@ A spata-object.
 }
 \description{
 Creates, saves and returns an object of class spata
-from scratch. Several samples can be stored in one object. See details for more.
+from scratch. Several samples can be stored in one object, though we recommand to stick
+to one. See details for more.
 }
 \details{
-The loading and preprocessing of the spata-object  currently relies on the Seurat-package. For more advanced users the arguments
-above starting with a capital letter allow to manipulate the way the spata-object is processed. For all of these arguments apply
-the following instructions:
+The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied
+mitochondrial and stress genes are discarded. For more advanced users the arguments above starting with a capital letter allow to
+manipulate the way the spata-object is processed. For all of these arguments apply the following instructions:
 
 \itemize{
   \item{If set to FALSE the processing function is skipped.}
@@ -110,4 +111,6 @@ initiated in order to perform the pre processing steps. Sample related unambigui
 by suffixing the barcode-sequences with the respective sample name specified in \code{sample_names}. The meta.data data.frame of the
 seurat-object is joined with a variable called \emph{sample} denoting the sample-belonging of every barcode which can be used as input
 for pre processing functions.
+
+For now we recommend to stick to one sample per spata-object.
 }

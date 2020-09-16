@@ -7,7 +7,7 @@
 \usage{
 loadSpataObject(input_path)
 
-saveSpataObject(object, output_path, object_name, overwrite = FALSE)
+saveSpataObject(object, output_path, file_name, overwrite = FALSE)
 }
 \arguments{
 \item{input_path}{Character value. The directory leading to the spata-object.}
@@ -17,8 +17,11 @@ saveSpataObject(object, output_path, object_name, overwrite = FALSE)
 \item{output_path}{Character vector or NULL. Specifies the folder in which to store
 the object if the directory is valid.}
 
+\item{file_name}{Character value. The name-suffix for the file name under which the
+spata-object is stored. Is prefixed with \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
+
 \item{overwrite}{Logical. Needs to be set to TRUE if the resulting directory from
-\code{output_path} and \code{object_name} already exists.}
+\code{output_path} and \code{file_name} already exists.}
 }
 \description{
 Wrapper around \code{base::readRDS()} and \code{base::saveRDS()}.

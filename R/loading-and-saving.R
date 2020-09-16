@@ -16,7 +16,8 @@ spata_version <- base::list(major = 0,
 #' @title Initiate a spata-object
 #'
 #' @description Creates, saves and returns an object of class spata
-#' from scratch. Several samples can be stored in one object. See details for more.
+#' from scratch. Several samples can be stored in one object, though we recommand to stick
+#' to one. See details for more.
 #'
 #' @param input_paths Character vector. Specifies the 10X visium-folders from
 #' which to load the information. This folder must contain the following sub directories:
@@ -44,13 +45,13 @@ spata_version <- base::list(major = 0,
 #' respective sample. Should start with a letter.
 #'
 #' @param file_name Character value. The name-suffix for the file name under which the
-#' spata-object is stored. Is prefixed with \emph{'spata-obj-'}.
+#' spata-object is stored. Is prefixed with \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.
 #' @inherit compileSeuratObject params
 #' @inherit verbose params
 #'
-#' @details The loading and preprocessing of the spata-object  currently relies on the Seurat-package. For more advanced users the arguments
-#' above starting with a capital letter allow to manipulate the way the spata-object is processed. For all of these arguments apply
-#' the following instructions:
+#' @details The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied
+#' mitochondrial and stress genes are discarded. For more advanced users the arguments above starting with a capital letter allow to
+#' manipulate the way the spata-object is processed. For all of these arguments apply the following instructions:
 #'
 #' \itemize{
 #'   \item{If set to FALSE the processing function is skipped.}
@@ -72,6 +73,8 @@ spata_version <- base::list(major = 0,
 #' by suffixing the barcode-sequences with the respective sample name specified in \code{sample_names}. The meta.data data.frame of the
 #' seurat-object is joined with a variable called \emph{sample} denoting the sample-belonging of every barcode which can be used as input
 #' for pre processing functions.
+#'
+#' For now we recommend to stick to one sample per spata-object.
 #'
 #' @return A spata-object.
 #'
@@ -566,7 +569,7 @@ initiateSpataObject_10X <- function(input_paths,
 #' @inherit check_object params
 #' @inherit initiateSpataObject_10X params
 #' @param overwrite Logical. Needs to be set to TRUE if the resulting directory from
-#' \code{output_path} and \code{object_name} already exists.
+#' \code{output_path} and \code{file_name} already exists.
 #'
 #' @export
 
@@ -590,18 +593,18 @@ loadSpataObject <- function(input_path){
 
 #' @rdname loadSpataObject
 #' @export
-saveSpataObject <- function(object, output_path, object_name, overwrite = FALSE){
+saveSpataObject <- function(object, output_path, file_name, overwrite = FALSE){
 
   # 1. Control --------------------------------------------------------------
 
   check_object(object)
   confuns::is_value(output_path, "character", "output_path")
-  confuns::is_value(object_name, "character", "object_name")
+  confuns::is_value(file_name, "character", "file_name")
   confuns::check_directories(output_path, ref = "output_path", type = "folders")
 
   # -----
 
-  filename <- stringr::str_c(output_path, "/spata-obj-", object_name, ".RDS", sep = "")
+  filename <- stringr::str_c(output_path, "/spata-obj-", file_name, ".RDS", sep = "")
 
   if(base::file.exists(filename) && !base::isTRUE(overwrite)){
 
@@ -645,7 +648,7 @@ saveSpataObject <- function(object, output_path, object_name, overwrite = FALSE)
 #' @inherit check_object params
 #' @param output_path Character value. A directory leading to the folder in which
 #' to store the data.frame.
-#' @param filename Character value. The filename. ( \emph{'.RDS'} is attached automatically.)
+#' @param file_name Character value. The filename. ( is suffixed with \emph{'.RDS'})
 #'
 #' @return An invisible TRUE if saved successfully or an informative error message.
 #' @export
@@ -653,16 +656,16 @@ saveSpataObject <- function(object, output_path, object_name, overwrite = FALSE)
 
 saveGeneSetDf <- function(object,
                           output_path,
-                          filename){
+                          file_name){
 
   check_object(object)
 
   confuns::is_value(output_path, "character", "output_path")
-  confuns::is_value(filename, "character", "filename")
+  confuns::is_value(file_name, "character", "file_name")
 
   confuns::check_directories(output_path, "output_path", type = "folders")
 
-  final_path <- stringr::str_c(output_path, "/", filename, ".RDS", sep = "")
+  final_path <- stringr::str_c(output_path, "/", file_name, ".RDS", sep = "")
 
   if(base::file.exists(final_path)){
 
@@ -678,8 +681,8 @@ saveGeneSetDf <- function(object,
 
     if(base::file.exists(final_path)){
 
-      object_name <- stringr::str_c("~/", filename, ".RDS", sep = "")
-      base::message(glue::glue("Gene set data.frame has been saved as '{object_name}'."))
+      file_name <- stringr::str_c("~/", file_name, ".RDS", sep = "")
+      base::message(glue::glue("Gene set data.frame has been saved as '{file_name}'."))
       base::return(base::invisible(TRUE))
 
     } else {
