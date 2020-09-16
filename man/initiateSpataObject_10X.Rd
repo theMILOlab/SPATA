@@ -58,7 +58,10 @@ spata-object is stored. Is prefixed with \emph{'spata-obj-'}.}
 
 \item{FindVariableFeatures}{A named list of arguments given to \code{Seurat::FindVariableFeatures()}, TRUE or FALSE.}
 
-\item{ScaleData}{A named list of arguments given to \code{Seurat::ScaleData()}, TRUE or FALSE.}
+\item{ScaleData}{A named list of arguments given to \code{Seurat::ScaleData()}, TRUE or FALSE.
+
+Hint: If set to TRUE or the argument-list provided does not specify the argument \code{features} input
+for argument \code{features} is set to \code{base::rownames(seurat_object)}.}
 
 \item{RunPCA}{A named list of arguments given to \code{Seurat::RunPCA()}, TRUE or FALSE.}
 

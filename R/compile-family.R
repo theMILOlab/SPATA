@@ -122,7 +122,7 @@ compileCellDataSet <- function(object,
   estimate_size_factors_args <- purrr::prepend(x = estimate_size_factors_args,
                                                values = list("cds" = cds))
 
-  cds <- rlang::invoke(.fn = "estimate_size_factors", estimate_size_factors_args)
+  cds <- rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::estimate_size_factors")), estimate_size_factors_args)
 
   if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
 
@@ -137,7 +137,7 @@ compileCellDataSet <- function(object,
     preprocess_cds_args_p <- purrr::prepend(x = preprocess_cds_args,
                                             values = list("cds" = cds, "preprocess_method" = preprocess_method[p]))
 
-    cds <- rlang::invoke(.fn = "preprocess_cds", preprocess_cds_args_p)
+    cds <- rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::preprocess_cds")), preprocess_cds_args_p)
 
   }
 
@@ -168,7 +168,7 @@ compileCellDataSet <- function(object,
 
         cds <- base::tryCatch(
 
-          rlang::invoke(.fn = "reduce_dimension", reduce_dimension_args_r),
+          rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::reduce_dimension")), reduce_dimension_args_r),
 
           error = function(error){
 
@@ -214,7 +214,7 @@ compileCellDataSet <- function(object,
 
       cds <- base::tryCatch(
 
-        rlang::invoke(.fn = "cluster_cells", cluster_cells_args_c),
+        rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::cluster_cells")), cluster_cells_args_c),
 
         error = function(error){
 
@@ -235,7 +235,7 @@ compileCellDataSet <- function(object,
 
   cds <- base::tryCatch(
 
-    rlang::invoke(.fn = "learn_graph", learn_graph_args),
+    rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::learn_graph")), learn_graph_args),
 
     error = function(error){
 
@@ -252,7 +252,7 @@ compileCellDataSet <- function(object,
 
   cds <- base::tryCatch(
 
-    rlang::invoke(.fn = "order_cells", order_cells_args),
+    rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::order_cells")), order_cells_args),
 
     error = function(error){
 
@@ -314,6 +314,10 @@ compileCellDataSet <- function(object,
 #' @param NormalizeData A named list of arguments given to \code{Seurat::NormalizeData()}, TRUE or FALSE.
 #' @param FindVariableFeatures A named list of arguments given to \code{Seurat::FindVariableFeatures()}, TRUE or FALSE.
 #' @param ScaleData A named list of arguments given to \code{Seurat::ScaleData()}, TRUE or FALSE.
+#'
+#' Hint: If set to TRUE or the argument-list provided does not specify the argument \code{features} input
+#' for argument \code{features} is set to \code{base::rownames(seurat_object)}.
+#'
 #' @param RunPCA A named list of arguments given to \code{Seurat::RunPCA()}, TRUE or FALSE.
 #' @param FindNeighbors A named list of arguments given to \code{Seurat::FindNeighbors()}, TRUE or FALSE.
 #' @param FindClusters A named list of arguments given to \code{Seurat::FindClusters()}, TRUE or FALSE.
@@ -402,9 +406,19 @@ compileSeuratObject <- function(object,
 
       args <- base::list("object" = seurat_object)
 
+      if(fn == "ScaleData"){
+
+        args <- base::append(x = args,
+                             values = list("features" = base::rownames(seurat_object)))
+
+      }
+
+      # ensure that function is called from Seurat-namespace
+      fn <- stringr::str_c("Seurat::", fn, sep = "")
+
       seurat_object <- base::tryCatch(
 
-        rlang::invoke(fn, args),
+        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
 
         error = function(error){
 
@@ -421,9 +435,19 @@ compileSeuratObject <- function(object,
 
       args <- purrr::prepend(x = input, values = seurat_object)
 
+      if(fn == "ScaleData" && !"features" %in% base::names(args)){
+
+        args <- base::append(x = args,
+                             values = list("features" = base::rownames(seurat_object)))
+
+      }
+
+      # ensure that function is called from Seurat-namespace
+      fn <- stringr::str_c("Seurat::", fn, sep = "")
+
       seurat_object <- base::tryCatch(
 
-        rlang::invoke(fn, args),
+        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
 
         error = function(error){
 

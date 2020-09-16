@@ -3,6 +3,8 @@
 NULL
 
 
+
+
 #' @title The current spata-version
 #' @export
 spata_version <- base::list(major = 0,
@@ -43,7 +45,6 @@ spata_version <- base::list(major = 0,
 #'
 #' @param file_name Character value. The name-suffix for the file name under which the
 #' spata-object is stored. Is prefixed with \emph{'spata-obj-'}.
-#'
 #' @inherit compileSeuratObject params
 #' @inherit verbose params
 #'
@@ -73,6 +74,9 @@ spata_version <- base::list(major = 0,
 #' for pre processing functions.
 #'
 #' @return A spata-object.
+#'
+#' @importFrom Seurat ScaleData
+#'
 #' @export
 
 initiateSpataObject_10X <- function(input_paths,
@@ -329,13 +333,17 @@ initiateSpataObject_10X <- function(input_paths,
 
       if(fn == "ScaleData"){
 
-        args <- base::append(x = args, values = list(features = base::rownames(seurat_object)))
+        args <- base::append(x = args,
+                             values = list("features" = base::rownames(seurat_object)))
 
       }
 
+      # ensure that function is called from Seurat-namespace
+      fn <- stringr::str_c("Seurat::", fn, sep = "")
+
       seurat_object <- base::tryCatch(
 
-        rlang::invoke(fn, args),
+        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
 
         error = function(error){
 
@@ -348,19 +356,34 @@ initiateSpataObject_10X <- function(input_paths,
     } else if(base::is.list(input) &
               !base::is.data.frame(input)){
 
-      if(base::isTRUE(verbose)){base::message(glue::glue("Running 'Seurat::{fn}()' with specified parameters."))}
+      input_content <- base::names(input)
+      keep <- !input_content %in% c("", "object")
 
-      args <- purrr::prepend(x = input, values = seurat_object)
+      input <- input[keep]
+      named_arguments <- input_content[keep]
 
-      if(fn == "ScaleData"){
+      if(base::isTRUE(verbose)){
 
-        args <- base::append(x = args, values = list(features = base::rownames(seurat_object)))
+        ref_named_arguments <- stringr::str_c(named_arguments, collapse = "', '")
+
+        base::message(glue::glue("Running 'Seurat::{fn}()' with specified parameters: '{ref_named_arguments}'"))
 
       }
 
+      args <- purrr::prepend(x = input, values = seurat_object)
+
+      if(fn == "ScaleData" && !"features" %in% base::names(args)){
+
+        args <- base::append(x = args,
+                             values = list("features" = base::rownames(seurat_object)))
+
+      }
+      # ensure that function is called from Seurat-namespace
+      fn <- stringr::str_c("Seurat::", fn, sep = "")
+
       seurat_object <- base::tryCatch(
 
-        rlang::invoke(fn, args),
+        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
 
         error = function(error){
 

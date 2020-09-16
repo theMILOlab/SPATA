@@ -1473,7 +1473,8 @@ plotPseudotime <- function(object,
 #'
 #' @description Takes the results from your de-analysis
 #' and uses the expression information of your spata-object to plot a heatmap displaying
-#' the differentially expressed genes of every cluster.
+#' the differentially expressed genes of every cluster. Denote the feature-variable used
+#' to generate the differential expression data.frame as input for \code{across}.
 #'
 #' @inherit check_sample params
 #' @inherit check_de_df params
