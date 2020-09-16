@@ -2,7 +2,7 @@
 % Please edit documentation in R/compile-family.R
 \name{compileSeuratObject}
 \alias{compileSeuratObject}
-\title{Initiate Seurat Analysis}
+\title{Initiate Seurat analysis}
 \usage{
 compileSeuratObject(
   object,

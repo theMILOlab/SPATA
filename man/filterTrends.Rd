@@ -2,7 +2,7 @@
 % Please edit documentation in R/trajectory-analysis.R
 \name{filterTrends}
 \alias{filterTrends}
-\title{Trajectory trends}
+\title{Filter variables of a certain trend}
 \usage{
 filterTrends(atdf, limit = 5, trends = "all", variables_only = TRUE)
 }
