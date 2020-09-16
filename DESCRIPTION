@@ -1,7 +1,7 @@
 Package: SPATA
 Type: Package
 Title: A Toolbox for Spatial Gene Expression Analysis
-Version: 0.0.9000
+Version: 0.1.0
 Authors@R: as.person(c(
     "Jan Kueckelhaus <jan.kueckelhaus@uniklinik-freiburg.de> [aut, cre]", 
     "Dieter-Henrik Heiland <dr.dieter.henrik.heiland@uniklinik-freiburg.de> [aut]"
@@ -14,9 +14,7 @@ BugReports: themilolab-spata@webmail.com
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
-    confuns,
     pipeR,
-    monocle3,
     dplyr,
     readr,
     stringr,
@@ -33,7 +31,6 @@ Imports:
     tibble,
     progress,
     colorspace,
-    GSVA,
     Seurat,
     shinybusy,
     shinydashboard,
