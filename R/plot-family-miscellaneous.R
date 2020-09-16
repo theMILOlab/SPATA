@@ -1648,7 +1648,7 @@ plotSegmentation <- function(object,
   # data extraction
   plot_df <-
     getCoordinates(object, of_sample = of_sample) %>%
-    joinWithFeatures(object, coords_df = ., features = "segment", verbose = FALSE)
+    joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
 
   segment_df <- dplyr::filter(plot_df, segment != "")
 
