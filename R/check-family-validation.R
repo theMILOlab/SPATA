@@ -19,6 +19,7 @@ validateSpataObject <- function(object){
 # 1. Examine the slot names -----------------------------------------------
 
   input_slots <- methods::slotNames(object) %>% sort()
+  input_slots <- input_slots[!input_slots %in% c("version", "scvelo", "additional")]
   spata_slots <- c("coordinates", "data", "dim_red", "fdata",
                    "image", "samples", "scvelo", "trajectories", "used_genesets", "version")
 

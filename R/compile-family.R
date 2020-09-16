@@ -8,7 +8,7 @@
 #' @inherit check_monocle_input params details
 #' @param estimate_size_factors_args A list of arguments given to \code{monocle3::estimate_size_factors()}.
 #' @param preprocess_cds_args A list of arguments given to \code{monocle3::preprocess_cds()}.
-#' @param reduce_dimensions_args A list of arguments given to \code{monocle3::reduce_dimensions()}.
+#' @param reduce_dimension_args A list of arguments given to \code{monocle3::reduce_dimension()}.
 #' @param cluster_cells_args A list of arguments given to \code{monocle3::cluster_cells()}.
 #' @param learn_graph_args A list of arguments given to \code{monocle3::learn_graph()}.
 #' @param order_cells_args A list of arguments given to \code{monocle3::order_cells()}.
@@ -43,7 +43,7 @@ compileCellDataSet <- function(object,
                                cluster_method = "leiden",
                                estimate_size_factors_args = list(),
                                preprocess_cds_args = list(),
-                               reduce_dimensions_args = list(),
+                               reduce_dimension_args = list(),
                                cluster_cells_args = list(),
                                learn_graph_args = list(),
                                order_cells_args = list(),
@@ -161,14 +161,14 @@ compileCellDataSet <- function(object,
 
       } else {
 
-        reduce_dimensions_args_r <- purrr::prepend(x = reduce_dimensions_args,
+        reduce_dimension_args_r <- purrr::prepend(x = reduce_dimension_args,
                                                    values = list("cds" = cds,
                                                                  reduction_method = reduction_method[r],
                                                                  preprocess_method = preprocess_method[p]))
 
         cds <- base::tryCatch(
 
-          rlang::invoke(.fn = "reduce_dimension", reduce_dimensions_args_r),
+          rlang::invoke(.fn = "reduce_dimension", reduce_dimension_args_r),
 
           error = function(error){
 
@@ -302,7 +302,7 @@ compileCellDataSet <- function(object,
 #' Seurat-object with it. The spata-object's feature-data is passed as input
 #' for the \code{meta.data}-argument of \code{Seurat::CreateSeuratObject()}.
 #' If specified as TRUE or named list of arguments the respective functions are called in
-#' order to preprocess the object.
+#' order to pre process the object.
 #'
 #' The specified spata-object must contain only one sample! (use \code{subsetSpataObject()} to reduce
 #' the number of samples). If you want to analyze several samples with Seurat please compile the objects one by one and

@@ -544,7 +544,7 @@ plotSurfaceComparison <- function(object,
 #' @rdname plotSurfaceComparison
 #' @export
 
-plotSurfaceComparison2 <- function(data,
+plotSurfaceComparison2 <- function(coords_df,
                                    variables = "all",
                                    pt_size = 2,
                                    pt_alpha = 0.9,
@@ -556,7 +556,7 @@ plotSurfaceComparison2 <- function(data,
 
     # 1. Control --------------------------------------------------------------
 
-    stopifnot(base::is.data.frame(data))
+    stopifnot(base::is.data.frame(coords_df))
     confuns::is_vec(variables, "character", "variables")
 
     check_pt(pt_size, pt_alpha, pt_clrsp)
@@ -565,7 +565,7 @@ plotSurfaceComparison2 <- function(data,
 
       if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
-      cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+      cnames <- base::colnames(dplyr::select_if(.tbl = coords_df, .predicate = base::is.numeric))
 
       valid_variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
@@ -576,9 +576,9 @@ plotSurfaceComparison2 <- function(data,
         magrittr::set_names(value = c("x", "y", variables))
 
       confuns::check_data_frame(
-        df = data,
+        df = coords_df,
         var.class = check_list,
-        ref = "data"
+        ref = "coords_df"
       )
 
       valid_variables <- variables
@@ -601,7 +601,7 @@ plotSurfaceComparison2 <- function(data,
     # adjust data.frame for use of ggplot2::facets
     shifted_data <-
       tidyr::pivot_longer(
-        data = data,
+        data = coords_df,
         cols = dplyr::all_of(valid_variables),
         names_to = "aspects",
         values_to = "values"

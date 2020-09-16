@@ -1617,3 +1617,51 @@ plotDeHeatmap <- function(object,
                      ...)
 
 }
+
+# -----
+
+
+# Plot segmentation -------------------------------------------------------
+
+#' @title Plot segmentation
+#'
+#' @description Displays the segmentation of a specified sample that was drawn with
+#' \code{SPATA::createSegmentation()}.
+#'
+#' @inherit check_sample params
+#' @inherit check_pt params
+#'
+#' @inherit plot_family return
+#'
+#' @export
+
+plotSegmentation <- function(object,
+                             of_sample = "",
+                             pt_size = 2,
+                             pt_clrp = "milo"){
+
+  # control
+  check_object(object)
+  of_sample <- check_sample(object, of_sample, desired_length = 1)
+  check_pt(pt_size = pt_size)
+
+  # data extraction
+  plot_df <-
+    getCoordinates(object, of_sample = of_sample) %>%
+    joinWithFeatures(object, coords_df = ., features = "segment", verbose = FALSE)
+
+  segment_df <- dplyr::filter(plot_df, segment != "")
+
+  if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
+
+  # plotting
+  ggplot2::ggplot() +
+    ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
+    ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
+    ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
+    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
+    ggplot2::theme_void() +
+    ggplot2::labs(fill = "Segments")
+
+}

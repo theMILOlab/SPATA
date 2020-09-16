@@ -37,8 +37,10 @@ Imports:
     Seurat,
     shinybusy,
     shinydashboard,
-    pheatmap, 
-    ggalt
+    pheatmap,
+    ggalt,
+    ggforce,
+    concaveman
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
