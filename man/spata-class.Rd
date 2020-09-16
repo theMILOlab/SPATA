@@ -14,24 +14,45 @@ spata object
 \section{Slots}{
 
 \describe{
-\item{\code{coordinates}}{data.frame.}
+\item{\code{coordinates}}{A data.frame containing information about every barcode-spot. Must contain the variables:
 
-\item{\code{data}}{data_counts.}
+ \describe{
+  \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+  \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+  \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
+  \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+ }}
 
-\item{\code{dim_red}}{dim_red.}
+\item{\code{data}}{See documentation for S4-object 'data'}
 
-\item{\code{fdata}}{data.frame.}
+\item{\code{dim_red}}{See documentation for S4-object 'dim_red'}
 
-\item{\code{image}}{list.}
+\item{\code{fdata}}{A data.frame containing the additionally computed features. Must contain the variables:
+\describe{
+ \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+}}
 
-\item{\code{samples}}{character.}
+\item{\code{image}}{A list of images named according to the samples the object contains.}
 
-\item{\code{scvelo}}{scvelo.}
+\item{\code{samples}}{Character value. Contains the sample names.}
 
-\item{\code{trajectories}}{list.}
+\item{\code{scvelo}}{Currently not in use.}
 
-\item{\code{used_genesets}}{data.frame.}
+\item{\code{trajectories}}{A list named according to the samples the object contains. Each slot in
+that list contains another list of all 'spatial_trajectory'-objects created for that sample.}
 
-\item{\code{version}}{list.}
+\item{\code{used_genesets}}{A data.frame containing the defined gene-sets. Must contain the variables:
+
+\describe{
+ \item{\emph{ont}}{Character. The gene-set name.}
+ \item{\emph{gene}}{Character. The belonging genes.}
+ }}
+
+\item{\code{version}}{A list of four slots denoting the version of SPATA under which the object has been
+created.}
+
+\item{\code{additional}}{A list of miscellaneous information that mainly ensures compatibility between different
+platforms.}
 }}
 

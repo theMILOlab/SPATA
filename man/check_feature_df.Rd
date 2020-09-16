@@ -7,11 +7,10 @@
 check_feature_df(feature_name, feature_df)
 }
 \arguments{
-\item{feature_name}{The name of the feature that is to be added
-to the obejct specified as a single character value.}
+\item{feature_name}{Character value. The name of the feature that is to be added
+to the object.}
 
-\item{feature_df}{A data.frame that contains the variables
-\emph{barcodes, samples, \code{feature_name}}.}
+\item{feature_df}{A data.frame that contains the feature and the key-variables.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

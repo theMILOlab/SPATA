@@ -94,8 +94,17 @@ getC_joinW_combo <- function(){}
 #' @param across_subset Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 #' specified in argument \code{across} contains. If set to NULL all of them are chosen.
 #'
-#' Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+#' Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 #' feature-variable.
 #'
 
 across <- function(across, across_subset){}
+
+
+
+#' @title de_df
+#' @param de_df A data.frame containing information about differentially expressed genes.
+#' This includes the numeric variables \emph{p_val, avg_logFC, p_val_adj} and the character
+#' variables \emph{cluster, gene}.
+
+pheatmap <- function(de_df){}

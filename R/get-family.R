@@ -7,7 +7,7 @@
 
 getBarcodes <- function(object, of_sample = "all"){
 
-  cdf <- coordinates(object = object, of_sample = of_sample)
+  cdf <- getCoordinates(object = object, of_sample = of_sample)
 
   return(dplyr::pull(cdf, barcodes))
 
@@ -71,7 +71,7 @@ getCoordinatesSegment <- function(object,
   coords <-
     coordinates(object = object, of_sample = of_sample) %>%
     dplyr::filter(barcodes %in% bc_segm) %>%
-    dplyr::mutate(segment_name = {{of_segment}})
+    dplyr::mutate(segment = {{of_segment}})
 
   # -----
 
@@ -121,6 +121,33 @@ getCountMatrix <- function(object,
 
 
 
+#' @title Obtain a spata-data.frame
+#'
+#' @description This function is most basic start if you want
+#' to extract your analysis.
+#'
+#' (In order to extract the coordinates as well use \code{getCoordinates()}.)
+#'
+#' @inherit check_sample params
+#'
+#' @return A tidy data.frame containing the character variables \emph{barcodes}
+#' and \emph{sample}.
+#'
+#' @seealso joinWith
+#'
+#' @export
+#'
+
+getSpataDf <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample)
+
+  getCoordinates(object, of_sample)[,c("barcodes", "sample")]
+
+}
+
+
 # Dimensional reduction ---------------------------------------------------
 
 #' @title Obtain dimensional reduction data
@@ -160,9 +187,7 @@ getDimRedData <- function(object,
 
   dim_red_df <-
     methods::slot(object = object@dim_red, name = method_dr) %>%
-    dplyr::filter(sample %in% of_sample) %>%
-    dplyr::select(dplyr::all_of(x = c("barcodes", "sample", dr_strings))) %>%
-    tibble::remove_rownames()
+    dplyr::filter(sample %in% of_sample)
 
   # -----
 
@@ -598,6 +623,9 @@ getGenesInteractive <- function(object){
 
 #' @title Obtain feature names
 #'
+#' @description An easy way to obtain all features of interest along with their
+#' class.
+#'
 #' @param object A valid spata-object.
 #' @param of_class Character vector. Specify the classes a feature must be of for
 #' it's name to be returned.
@@ -620,7 +648,15 @@ getFeatureNames <- function(object, of_class = NULL){
     feature_names <- feature_names[classes %in% of_class]
   }
 
-  base::return(feature_names[!feature_names %in% c("sample", "barcodes")])
+  if(base::length(samples(object)) > 1){
+
+    base::return(feature_names[feature_names != c("barcodes")])
+
+  } else {
+
+    base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
+
+  }
 
 }
 
@@ -631,7 +667,6 @@ getFeatureNames <- function(object, of_class = NULL){
 #'
 #' @return The feature data data.frame of the specfied object and sample(s).
 #' @export
-#'
 
 getFeatureData <- function(object, of_sample = ""){
 
@@ -651,23 +686,23 @@ getFeatureData <- function(object, of_sample = ""){
 #'
 #' @inherit check_sample params
 #' @inherit check_features params
-#' @param return Character value. Determine the way the variable is returned.
-#'
-#' (Only relevant if input of arugment \code{features} is of length greater than 1.)
-#'
-#' @param unique Logical. If set to TRUE and argument \code{features} is
-#' of length 1 only it's unique values are returned.
+#' @param return Character value. One of \emph{'vector', 'data.frame'} or
+#' \emph{'list'}. In order to return a vector input of \code{features} must
+#' be of length one.
+#' @param unique Deprecated.
 #'
 #' @return A data.frame or a vector.
 #' @export
-#'
 
 getFeatureVariables <- function(object,
                                 features,
                                 of_sample = "",
                                 return = "data.frame",
-                                unique = FALSE){
+                                unique = "deprecated"){
 
+  if(unique != "deprecated"){
+    base::warning("Argument 'unique' is deprecated.")
+  }
 
   # 1. Control --------------------------------------------------------------
 
@@ -675,7 +710,9 @@ getFeatureVariables <- function(object,
   features <- check_features(object, features)
 
   confuns::is_value(return, "character", "return")
-  stopifnot(return %in% c("data.frame", "vector"))
+  confuns::check_one_of(input = return,
+                        against = c("data.frame", "vector"),
+                        ref.input = "return")
 
   of_sample <- check_sample(object, of_sample)
 
@@ -686,36 +723,82 @@ getFeatureVariables <- function(object,
 
   if(base::length(features) == 1 && return == "vector"){
 
-    var <-
+    res <-
       getFeatureData(object, of_sample) %>%
-      dplyr::pull(var = {{features}})
+        dplyr::pull(var = {{features}})
 
-    if(base::isTRUE(unique)){
+  } else if(return == "data.frame"){
 
-      base::unique(var) %>%
-        base::return()
+    res <-
+      getFeatureData(object, of_sample) %>%
+        dplyr::select(barcodes, sample, dplyr::all_of(features))
 
-    } else {
+  } else if(return == "list"){
 
-      base::return(var)
+    res <-
+      purrr::map(.x = features,
+                 .f = function(f){
 
-    }
+                   getFeatureData(object, of_sample) %>%
+                     dplyr::pull(var = {{f}})
 
-  } else if(base::length(features) == 1){
-
-    getFeatureData(object, of_sample) %>%
-      dplyr::select(barcodes, sample, {{features}})
-
-  } else {
-
-    getFeatureData(object, of_sample) %>%
-      dplyr::select(barcodes, sample, dplyr::all_of(features)) %>%
-      base::return()
+                 }) %>%
+      magrittr::set_names(value = features)
 
   }
 
+  base::return(res)
+
 }
 
+
+#' @title Obtain unique categorical feature values
+#'
+#' @description Extracts the unique values of discrete features.
+#'
+#' @inherit check_sample params
+#' @inherit check_features params
+#'
+#' @return A vector or a named list according to the length of \code{features}.
+#' @export
+
+getFeatureValues <- function(object, of_sample = "", features){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  features <- check_features(object, features, valid_classes = c("character", "factor"))
+
+  of_sample <- check_sample(object, of_sample)
+
+  # -----
+
+  # 2. Main part ------------------------------------------------------------
+
+  if(base::length(features) == 1){
+
+    getFeatureData(object, of_sample) %>%
+      dplyr::pull(var = {{features}}) %>%
+      base::unique() %>%
+      base::return()
+
+  } else {
+
+    purrr::map(.x = features,
+               .f = function(f){
+
+                 getFeatureData(object, of_sample) %>%
+                   dplyr::pull(var = {{f}}) %>%
+                   base::unique() %>%
+                   base::return()
+
+               }) %>%
+      magrittr::set_names(features) %>%
+      base::return()
+  }
+
+
+}
 
 # -----
 

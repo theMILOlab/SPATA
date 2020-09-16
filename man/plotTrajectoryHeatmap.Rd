@@ -8,15 +8,16 @@ plotTrajectoryHeatmap(
   object,
   trajectory_name,
   of_sample = "",
-  variables = NULL,
+  variables,
   method_gs = "mean",
-  show_row_names = TRUE,
   arrange_rows = "none",
-  verbose = TRUE,
+  show_rownames = FALSE,
+  show_colnames = FALSE,
   split_columns = TRUE,
-  borders = TRUE,
   smooth_span = 0.5,
-  clrsp = "inferno"
+  verbose = TRUE,
+  hm_colors = viridis::inferno(150),
+  ...
 )
 }
 \arguments{
@@ -38,31 +39,31 @@ If set to \emph{""} (the default) the first sample is chosen.}
 All elements of the specified character vector must either belong to
 gene sets or to genes.}
 
-\item{show_row_names}{Logical. If set to TRUE the variable elements
-will be displayed at the rownames of the heatmap.}
-
 \item{arrange_rows}{Alter the way the rows of the heatmap
 are displayed in order to highlight patterns. Currently either \emph{'maxima'}
-or \emph{'minima'}.
+or \emph{'minima'}.}
 
-Given to \code{accross} of \code{confuns::arrange_rows()}.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
+\item{show_rownames}{Logical. If set to TRUE the variable elements
+will be displayed at the rownames of the heatmap.}
 
 \item{split_columns}{Logial. If set to TRUE the heatmap is vertically
 splitted according to the trajectory parts.}
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{clrsp}{The color spectrum to be used. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.}
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{hm_colors}{A vector of colors to be used.}
+
+\item{...}{Additional parameters given to \code{pheatmap::pheatmap()}}
 }
 \value{
-A drawn heatmap.
+A heatmap of class 'pheatmap'.
 }
 \description{
-Displays gene- or gene-set-expression values along a trajectory
-direction with a smoothed heatmap.
+Displays variable-expression values along a trajectory
+direction with a smoothed heatmap (from left to right).
 }

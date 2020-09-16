@@ -6,6 +6,17 @@
 trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient descending", "Logarithmic descending",
                          "Logarithmic ascending", "Gradient ascending","Sinus",  "Sinus (reversed)", "One peak",
                          "One peak (reversed)", "Two peaks (reversed)", "Two peaks", "Early peak", "Late peak")
+#' @export
+linear_trends <- c("Linear descending", "Linear ascending")
+
+#' @export
+gradient_trends <- c("Gradient descending", "Gradient ascending")
+
+#' @export
+peak_trends <- c("One peak", "Late peak", "Early peak")
+
+#' @export
+logarithmic_trends <- c("Logarithmic descending", "Logarithmic ascending")
 
 # -----
 
@@ -31,7 +42,7 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
 
-  check_summarized_trajectory_df(stdf)
+  check_stdf(stdf)
 
   var <- "variables"
 
@@ -158,7 +169,7 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 }
 
 
-#' @title Trajectory trends
+#' @title Filter variables of a certain trend
 #'
 #' @description Extracts the genes or gene sets that follow a desired trend.
 #'
@@ -167,12 +178,14 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 #' @param limit Numeric value. The maximum area-under-the-curve value the
 #' trajectory-trend-assessment might have.
 #' @param trend Character vector. The patterns of interest.
+#' @param variables_only Logical. If set to TRUE a character of variable-names is returned.
+#' If set to FALSE the filtered data.frame is returned.
 #'
 #' @return A character vector of gene or gene-set names that follow the specified
 #' patterns to the specified degree.
 #' @export
 
-filterTrends <- function(atdf, limit = 2, trends = "all"){
+filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE){
 
   if(base::all(trends == "all")){
 
@@ -186,10 +199,25 @@ filterTrends <- function(atdf, limit = 2, trends = "all"){
                         verbose = TRUE,
                         ref.input = "argument 'trends'",
                         ref.against = "known trajectory trends")
-  res <-
-    hlpr_filter_trend(atdf = atdf,
-                      limit = limit,
-                      poi = trends) # poi = patterns of interest
+
+  if(base::isTRUE(variables_only)){
+
+    res <-
+      hlpr_filter_trend(atdf = atdf,
+                        limit = limit,
+                        poi = trends) # poi = patterns of interest
+
+  } else {
+    res <-
+      dplyr::filter(.data = atdf, pattern %in% trends) %>%
+      dplyr::filter(auc <= limit) %>%
+      dplyr::group_by(variables) %>%
+      dplyr::slice_head(n = 1) %>%
+      dplyr::ungroup() %>%
+      dplyr::group_by(pattern) %>%
+      dplyr::arrange(auc, .by_group = TRUE)
+
+  }
 
   base::return(res)
 
@@ -271,7 +299,7 @@ assessTrajectoryTrends2 <- function(stdf, verbose = TRUE){
 
   # 2. Main part ------------------------------------------------------------
 
-  check_summarized_trajectory_df(stdf = stdf)
+  check_stdf(stdf = stdf)
 
   rtdf <- hlpr_rank_trajectory_trends(stdf = stdf, verbose = verbose)
 

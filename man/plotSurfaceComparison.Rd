@@ -24,7 +24,7 @@ plotSurfaceComparison(
 )
 
 plotSurfaceComparison2(
-  data,
+  coords_df,
   variables = "all",
   pt_size = 2,
   pt_alpha = 0.9,
@@ -77,10 +77,10 @@ the computational progress will be printed.
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 
-\item{data}{A data.frame containing the numeric variables of interest.}
-
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
+
+\item{data}{A data.frame containing the numeric variables of interest.}
 }
 \description{
 Plots a surface plot for every valid element in argument

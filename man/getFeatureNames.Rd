@@ -16,5 +16,6 @@ it's name to be returned.}
 A named character vector of the variables in the feature data slot.
 }
 \description{
-Obtain feature names
+An easy way to obtain all features of interest along with their
+class.
 }
