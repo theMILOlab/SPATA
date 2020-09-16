@@ -50,7 +50,7 @@ Takes the count matrix of your spata-object and creates a
 Seurat-object with it. The spata-object's feature-data is passed as input
 for the \code{meta.data}-argument of \code{Seurat::CreateSeuratObject()}.
 If specified as TRUE or named list of arguments the respective functions are called in
-order to preprocess the object.
+order to pre process the object.
 
 The specified spata-object must contain only one sample! (use \code{subsetSpataObject()} to reduce
 the number of samples). If you want to analyze several samples with Seurat please compile the objects one by one and

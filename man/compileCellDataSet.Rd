@@ -11,7 +11,7 @@ compileCellDataSet(
   cluster_method = "leiden",
   estimate_size_factors_args = list(),
   preprocess_cds_args = list(),
-  reduce_dimensions_args = list(),
+  reduce_dimension_args = list(),
   cluster_cells_args = list(),
   learn_graph_args = list(),
   order_cells_args = list(),
@@ -47,7 +47,7 @@ is ignored if set to "louvain".}
 
 \item{preprocess_cds_args}{A list of arguments given to \code{monocle3::preprocess_cds()}.}
 
-\item{reduce_dimensions_args}{A list of arguments given to \code{monocle3::reduce_dimensions()}.}
+\item{reduce_dimension_args}{A list of arguments given to \code{monocle3::reduce_dimension()}.}
 
 \item{cluster_cells_args}{A list of arguments given to \code{monocle3::cluster_cells()}.}
 
