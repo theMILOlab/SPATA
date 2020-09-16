@@ -8,13 +8,12 @@
 #'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
 #'  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
-#'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
+#'  \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a shiny
 #'  application which allows for interactive plotting.}
 #'
 #' }
 #'
-#' @param data A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.
-#'
+#' @inherit check_coords_df params
 #' @inherit check_sample params
 #' @inherit check_color_to params
 #' @inherit check_smooth params
@@ -33,13 +32,14 @@ plotSurface <- function(object,
                         of_sample = "",
                         color_to = NULL,
                         method_gs = "mean",
-                        nornalize = TRUE,
+                        normalize = TRUE,
                         smooth = FALSE,
                         smooth_span = 0.02,
                         pt_size = 2,
                         pt_alpha = 1,
                         pt_clrsp = "inferno",
                         pt_clrp = "milo",
+                        pt_clr = "lightgrey",
                         display_image = FALSE,
                         display_title = FALSE,
                         assign = FALSE,
@@ -80,15 +80,15 @@ plotSurface <- function(object,
 
   # -----
 
-  coords_df <- getCoordinates(object, of_sample = of_sample)
+  spata_df <- getCoordinates(object, of_sample = of_sample)
 
   # 2. Join data and prepare ggplot add-ons ---------------------------------
 
   # if of length one and feature
   if("features" %in% base::names(color_to)){
 
-    coords_df <- joinWithFeatures(object = object,
-                                  coords_df = coords_df,
+    spata_df <- joinWithFeatures(object = object,
+                                  spata_df = spata_df,
                                   features = color_to$features,
                                   smooth = smooth,
                                   smooth_span = smooth_span,
@@ -100,17 +100,17 @@ plotSurface <- function(object,
 
     # assemble ggplot add on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$feature)),
+      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(spata_df, color_to$feature)),
       labs_add_on
     )
 
     # if of length one and gene set
   } else if("gene_sets" %in% base::names(color_to)){
 
-    coords_df <- joinWithGeneSets(object = object,
-                                  coords_df = coords_df,
+    spata_df <- joinWithGeneSets(object = object,
+                                  spata_df = spata_df,
                                   gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = smooth,
@@ -124,7 +124,7 @@ plotSurface <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
       confuns::scale_color_add_on(clrsp = pt_clrsp),
       labs_add_on
@@ -132,8 +132,8 @@ plotSurface <- function(object,
 
   } else if("genes" %in% base::names(color_to)){
 
-    coords_df <- joinWithGenes(object = object,
-                               coords_df = coords_df,
+    spata_df <- joinWithGenes(object = object,
+                               spata_df = spata_df,
                                genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = smooth,
@@ -151,7 +151,7 @@ plotSurface <- function(object,
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes_string(x = "x",
                                                         y = "y",
                                                         color = "mean_genes")),
@@ -162,8 +162,8 @@ plotSurface <- function(object,
 
   } else if(base::is.null(color_to)){
 
-    ggplot_add_on <- list(ggplot2::geom_point(data = coords_df, size = pt_size, alpha = pt_alpha,
-                                              mapping = ggplot2::aes(x = x, y = y, color = sample)))
+    ggplot_add_on <- list(ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha, color = pt_clr,
+                                              mapping = ggplot2::aes(x = x, y = y)))
 
   }
 
@@ -173,7 +173,7 @@ plotSurface <- function(object,
   # 5. Plotting --------------------------------------------------------------
 
   hlpr_assign(assign = assign,
-              object = list("point" = coords_df),
+              object = list("point" = spata_df),
               name = assign_name)
 
   ggplot2::ggplot() +
@@ -189,7 +189,7 @@ plotSurface <- function(object,
 
 #' @rdname plotSurface
 #' @export
-plotSurface2 <- function(data,
+plotSurface2 <- function(coords_df,
                          color_to,
                          pt_size = 2,
                          pt_alpha = 0.9,
@@ -201,26 +201,26 @@ plotSurface2 <- function(data,
   confuns::is_value(color_to, "character", "color_to")
 
   # check lazy
-  if(!color_to %in% base::colnames(data)){
+  if(!color_to %in% base::colnames(coords_df)){
 
-    base::stop("Argument 'color_to' needs be a variable of 'data' specified as a character value.")
+    base::stop("Argument 'color_to' needs be a variable of 'coords_df' specified as a character value.")
 
   }
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_coordinate_variables(data = data, x = "x", y = "y")
+  check_coords_df(coords_df)
 
   # -----
 
   # 2. Plotting -------------------------------------------------------------
 
 
-  ggplot2::ggplot(data = data) +
+  ggplot2::ggplot(data = coords_df) +
     hlpr_image_add_on(image) +
     ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
                                                color = .data[[color_to]]),
                         size = pt_size, alpha = pt_alpha) +
-    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(data, {{color_to}})) +
+    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(coords_df, {{color_to}})) +
     ggplot2::theme_void() +
     ggplot2::theme(
       panel.grid = ggplot2::element_blank()
@@ -243,29 +243,60 @@ plotSurfaceInteractive <- function(object){
       shiny::shinyApp(
         ui = function(){
 
-          shiny::fluidPage(
+          shinydashboard::dashboardPage(
 
-            #----- title
-            shiny::titlePanel(title = "Surface Plot"),
+            shinydashboard::dashboardHeader(title = "Surface Plots"),
 
-            #----- shiny add-ons
-            shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0,10), color = "red"),
-
-            #----- main panel
-            shiny::mainPanel(
-              shiny::column(width = 12, align = "center",
-                            moduleSurfacePlotUI(id = "isp"),
-                            shiny::textInput("plot_name", label = NULL, value = "", placeholder = "Plot name"),
-                            shiny::actionButton("save_plot", label = "Save Plot"),
-                            shiny::actionButton("return_plot", label = "Return Plots")
+            shinydashboard::dashboardSidebar(
+              collapsed = TRUE,
+              shinydashboard::sidebarMenu(
+                shinydashboard::menuItem(
+                  text = "Surface Plots",
+                  tabName = "surface_plots",
+                  selected = TRUE
+                )
               )
+            ),
+
+            shinydashboard::dashboardBody(
+
+              #----- busy indicator
+              shinybusy::add_busy_spinner(spin = "cube-grid", margins = c(0,10), color = "red"),
+
+              #----- tab items
+              shinydashboard::tabItems(
+                tab_surface_plots_return()
+              )
+
             )
 
-          )},
+          )
+
+        },
         server = function(input, output, session){
 
-          # plot list
+          # render uis
+
+          output$saved_plots <- shiny::renderUI({
+
+            saved_plots <- base::names(plot_list())
+
+            shiny::validate(
+              shiny::need(base::length(saved_plots) != 0, message = "No plots have been saved yet.")
+            )
+
+            shinyWidgets::checkboxGroupButtons(
+              inputId = "saved_plots",
+              label = "Choose plots to export",
+              choices = saved_plots,
+              selected = saved_plots,
+              checkIcon = list(yes = icon("ok", lib = "glyphicon")))
+
+          })
+
+          #  reactive
           plot_list <- shiny::reactiveVal(value = list())
+          plot_df <- shiny::reactiveVal(value = data.frame())
 
           # module return list
           module_return <-
@@ -300,23 +331,61 @@ plotSurfaceInteractive <- function(object){
 
           })
 
+
           # return last plot
           oe <- shiny::observeEvent(input$return_plot, {
 
             plot_list <- plot_list()
 
-            if(base::length(plot_list) == 1){
+            shiny::stopApp(returnValue = plot_list[base::names(plot_list) %in% input$saved_plots])
 
-              shiny::stopApp(returnValue = plot_list[[1]])
+          })
+
+
+
+          # Distribution plotting ---------------------------------------------------
+
+          output$surface_variable <- shiny::renderPlot({
+
+            plot_df <- module_return()$smoothed_df()
+            var_name <- base::colnames(plot_df)[5]
+
+            if(base::is.numeric(dplyr::pull(plot_df, var_name))){
+
+              plot_type <- input$surface_variable_plot_type
+
+              if(plot_type == "violin"){
+
+                add_on <- ggplot2::theme(
+                  axis.text.x = ggplot2::element_blank(),
+                  axis.ticks.x = ggplot2::element_blank()
+                )
+
+              } else {
+
+                add_on <- list()
+              }
+
+              plotDistribution2(df = plot_df,
+                                plot_type = plot_type,
+                                binwidth = 0.05,
+                                verbose = FALSE) + add_on
 
             } else {
 
-              shiny::stopApp(returnValue = plot_list)
+              ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = .data[[var_name]])) +
+                ggplot2::geom_bar(mapping = ggplot2::aes(fill = .data[[var_name]]), color = "black") +
+                ggplot2::theme_classic() +
+                ggplot2::theme(legend.position = "none") +
+                confuns::scale_color_add_on(aes = "fill",
+                                            variable = "discrete",
+                                            clrp = module_return()$current_setting()$pt_clrp) +
+                ggplot2::labs(y = "Count")
 
             }
 
-
           })
+
 
         }
       )
@@ -326,6 +395,7 @@ plotSurfaceInteractive <- function(object){
   return(surface_plots)
 
 }
+
 
 
 
@@ -403,7 +473,7 @@ plotSurfaceComparison <- function(object,
   if("gene_sets" %in% base::names(variables)){
 
     data <- joinWithGeneSets(object,
-                             coords_df = data,
+                             spata_df = data,
                              gene_sets = variables$gene_sets,
                              method_gs = method_gs,
                              smooth = smooth,
@@ -416,7 +486,7 @@ plotSurfaceComparison <- function(object,
   if("genes" %in% base::names(variables)){
 
     data <- joinWithGenes(object,
-                          coords_df = data,
+                          spata_df = data,
                           genes = variables$genes,
                           average_genes = FALSE,
                           smooth = smooth,
@@ -429,7 +499,7 @@ plotSurfaceComparison <- function(object,
   if("features" %in% base::names(variables)){
 
     data <- joinWithFeatures(object,
-                             coords_df = data,
+                             spata_df = data,
                              features = variables$features,
                              smooth = smooth,
                              smooth_span = smooth_span,
@@ -474,7 +544,7 @@ plotSurfaceComparison <- function(object,
 #' @rdname plotSurfaceComparison
 #' @export
 
-plotSurfaceComparison2 <- function(data,
+plotSurfaceComparison2 <- function(coords_df,
                                    variables = "all",
                                    pt_size = 2,
                                    pt_alpha = 0.9,
@@ -486,7 +556,7 @@ plotSurfaceComparison2 <- function(data,
 
     # 1. Control --------------------------------------------------------------
 
-    stopifnot(base::is.data.frame(data))
+    stopifnot(base::is.data.frame(coords_df))
     confuns::is_vec(variables, "character", "variables")
 
     check_pt(pt_size, pt_alpha, pt_clrsp)
@@ -495,20 +565,20 @@ plotSurfaceComparison2 <- function(data,
 
       if(base::isTRUE(verbose)){base::message("Argument 'variables' set to 'all'. Extracting all valid, numeric variables.")}
 
-      cnames <- base::colnames(dplyr::select_if(.tbl = data, .predicate = base::is.numeric))
+      cnames <- base::colnames(dplyr::select_if(.tbl = coords_df, .predicate = base::is.numeric))
 
       valid_variables <- cnames[!cnames %in% c("x", "y", "umap1", "umap2", "tsne1", "tsne2")]
 
     } else {
 
       check_list <-
-        purrr::map(variables, function(i){c("numeric", "integer")}) %>%
-        magrittr::set_names(value = variables)
+        purrr::map(c("x", "y", variables), function(i){c("numeric", "integer")}) %>%
+        magrittr::set_names(value = c("x", "y", variables))
 
       confuns::check_data_frame(
-        df = data,
+        df = coords_df,
         var.class = check_list,
-        ref = "data"
+        ref = "coords_df"
       )
 
       valid_variables <- variables
@@ -524,13 +594,14 @@ plotSurfaceComparison2 <- function(data,
     ref <- base::ifelse(n_valid_variables > 1,
                         yes = "different variables. (This can take a few seconds.)",
                         no = "variable.")
+
     if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_valid_variables} {ref}"))}
 
 
     # adjust data.frame for use of ggplot2::facets
     shifted_data <-
       tidyr::pivot_longer(
-        data = data,
+        data = coords_df,
         cols = dplyr::all_of(valid_variables),
         names_to = "aspects",
         values_to = "values"

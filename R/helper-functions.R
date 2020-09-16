@@ -63,7 +63,6 @@ hlpr_compare_samples <- function(object, df, messages){
 
   return(messages)
 
-
 }
 
 
@@ -717,7 +716,7 @@ hlpr_summarize_trajectory_df <- function(object,
                                                  accuracy = accuracy,
                                                  f = base::floor)) %>%
     joinWithVariables(object = object,
-                      coords_df = .,
+                      spata_df = .,
                       variables = variables,
                       method_gs = method_gs,
                       average_genes = FALSE,

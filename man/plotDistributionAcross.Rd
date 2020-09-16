@@ -3,7 +3,7 @@
 \name{plotDistributionAcross}
 \alias{plotDistributionAcross}
 \alias{plotDistributionAcross2}
-\title{Visualize value distribution across groups & clusters}
+\title{Distribution of continuous values}
 \usage{
 plotDistributionAcross(
   object,
@@ -23,7 +23,7 @@ plotDistributionAcross(
 )
 
 plotDistributionAcross2(
-  data,
+  df,
   variables = "all",
   across,
   across_subset = NULL,
@@ -55,7 +55,7 @@ features variables your spata-object contains.}
 \item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
 specified in argument \code{across} contains. If set to NULL all of them are chosen.
 
-Hint: Use \code{getFeatureVariables(..., return = "vector", unique = TRUE)} to obtain all available groups of a certain
+Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
@@ -63,7 +63,7 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{plot_type}{One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
+\item{plot_type}{Character value. One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
 
 \item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
 
@@ -85,7 +85,7 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{data}{The data.frame containing numeric variables.}
+\item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
 }
 \value{
 

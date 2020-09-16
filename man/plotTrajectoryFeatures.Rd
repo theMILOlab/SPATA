@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFeatures}
 \alias{plotTrajectoryFeatures}
+\alias{plotTrajectoryFeaturesDiscrete}
 \alias{plotTrajectoryGenes}
 \alias{plotTrajectoryGeneSets}
 \title{Trajectory line plots}
@@ -18,6 +19,17 @@ plotTrajectoryFeatures(
   verbose = TRUE
 )
 
+plotTrajectoryFeaturesDiscrete(
+  object,
+  trajectory_name,
+  of_sample = "",
+  discrete_feature,
+  clrp = "milo",
+  display_trajectory_parts = FALSE,
+  verbose = TRUE,
+  ...
+)
+
 plotTrajectoryGenes(
   object,
   trajectory_name,
@@ -27,8 +39,9 @@ plotTrajectoryGenes(
   average_genes = FALSE,
   smooth_method = "loess",
   smooth_span = 0.2,
-  smooth_se = T,
-  verbose = T
+  smooth_se = TRUE,
+  display_trajectory_parts = TRUE,
+  verbose = TRUE
 )
 
 plotTrajectoryGeneSets(
@@ -41,6 +54,7 @@ plotTrajectoryGeneSets(
   smooth_span = 0.2,
   smooth_se = TRUE,
   clrp = "milo",
+  display_trajectory_parts = TRUE,
   verbose = TRUE
 )
 }
@@ -67,6 +81,12 @@ Run \code{all_colorpanels()} to see valid input.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{discrete_feature}{Character value. The discrete feature of interest.}
+
+\item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
+visualizes the parts in which the trajectory has been partitioned while beeing
+drawn.}
 
 \item{genes}{The genes of interest specified as a character vector.}
 

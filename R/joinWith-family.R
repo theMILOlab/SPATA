@@ -6,7 +6,7 @@
 #' variables and joins them over the barcode variable with the provided data.frame.
 #'
 #' @param object A valid spata-object.
-#' @inherit check_coords_df params
+#' @inherit check_spata_df params
 #' @inherit check_features params
 #' @inherit check_gene_sets params
 #' @inherit check_genes params
@@ -19,17 +19,17 @@
 #' @param average_genes Logical. If set to TRUE the average expression of the
 #' specified genes is calculated and saved under one variable named 'mean_genes'.
 #'
-#' @details Hint: Variables of the specified data.frame \code{coords_df} that have equal names as
+#' @details Hint: Variables of the specified data.frame \code{spata_df} that have equal names as
 #' the specified features, genes and gene-sets are overwritten!
 #'
-#' @return The input data.frame of \code{coords_df} joined with all the
+#' @return The input data.frame of \code{spata_df} joined with all the
 #' specified variable-elements (by the key-variable \emph{barcodes}).
 #'
 #' @export
 
 
 joinWith <- function(object,
-                     coords_df,
+                     spata_df,
                      features = NULL,
                      gene_sets = NULL,
                      method_gs = "mean",
@@ -41,18 +41,18 @@ joinWith <- function(object,
                      verbose = TRUE,
                      normalize = TRUE){
 
-
 # 1. Control --------------------------------------------------------------
 
   check_object(object)
   check_uniform_genes(uniform_genes)
+  check_smooth(df = spata_df, smooth = smooth, smooth_span = smooth_span)
 
   confuns::check_data_frame(
-    df = coords_df,
+    df = spata_df,
     var.class = list(
       "barcodes" = "character",
       "sample" = "character"),
-    ref = "coords_df")
+    ref = "spata_df")
 
   input_list <- list("gene_sets" = gene_sets,
                      "genes" = genes,
@@ -81,7 +81,7 @@ joinWith <- function(object,
   output_df <-
   joinWithVariables(
     object = object,
-    coords_df = coords_df,
+    spata_df = spata_df,
     variables = input_list,
     method_gs = method_gs,
     average_genes = average_genes,
@@ -99,7 +99,7 @@ joinWith <- function(object,
 #' @rdname joinWith
 #' @export
 joinWithFeatures <- function(object,
-                             coords_df,
+                             spata_df,
                              features,
                              smooth = FALSE,
                              smooth_span = 0.02,
@@ -110,8 +110,8 @@ joinWithFeatures <- function(object,
   # lazy check
 
   check_object(object)
-  check_coords_df(coords_df)
-  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
+  check_spata_df(spata_df)
+  check_smooth(df = spata_df, smooth = smooth, smooth_span = smooth_span)
 
   # adjusting check
   features <- check_features(object, features = features)
@@ -127,7 +127,7 @@ joinWithFeatures <- function(object,
     }
 
   # overwrite check
-  discard <- features[features %in% base::colnames(coords_df)]
+  discard <- features[features %in% base::colnames(spata_df)]
   n_discard <- base::length(discard)
 
   if(n_discard > 0){
@@ -136,7 +136,7 @@ joinWithFeatures <- function(object,
 
     base::message(glue::glue("Overwriting {n_discard} feature-{var_ref}."))
 
-    coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
+    spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
   }
 
@@ -145,11 +145,11 @@ joinWithFeatures <- function(object,
   # 2. Join data ------------------------------------------------------------
 
   fdata <-
-    featureData(object, of_sample = base::unique(coords_df$sample)) %>%
+    featureData(object, of_sample = base::unique(spata_df$sample)) %>%
     dplyr::select(dplyr::all_of(x = c("barcodes", features)))
 
   joined_df <-
-    dplyr::left_join(x = coords_df, y = fdata, by = "barcodes")
+    dplyr::left_join(x = spata_df, y = fdata, by = "barcodes")
 
   # -----
 
@@ -179,7 +179,7 @@ joinWithFeatures <- function(object,
 #' @rdname joinWith
 #' @export
 joinWithGenes <- function(object,
-                          coords_df,
+                          spata_df,
                           genes,
                           average_genes = FALSE,
                           uniform_genes = "keep",
@@ -193,17 +193,17 @@ joinWithGenes <- function(object,
   # lazy check
 
   check_object(object)
-  check_coords_df(coords_df)
-  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
+  check_spata_df(spata_df)
+  check_smooth(df = spata_df, smooth = smooth, smooth_span = smooth_span)
   check_uniform_genes(uniform_genes)
 
   # adjusting check
-  rna_assay <- exprMtr(object, of_sample = base::unique(coords_df$sample))
+  rna_assay <- exprMtr(object, of_sample = base::unique(spata_df$sample))
   genes <- check_genes(object, genes = genes, rna_assay = rna_assay)
 
   # -----
 
-  barcodes <- coords_df$barcodes
+  barcodes <- spata_df$barcodes
   rna_assay <- base::as.matrix(rna_assay[genes, barcodes])
 
   # 2. Discard uniformly expressed genes ------------------------------------
@@ -274,7 +274,7 @@ joinWithGenes <- function(object,
   # -----
 
 
-  # 3. Extract genes and join values with coords_df -------------------------
+  # 3. Extract genes and join values with spata_df -------------------------
 
   ref <- base::ifelse(n_genes == 1, "gene", "genes")
 
@@ -328,11 +328,11 @@ joinWithGenes <- function(object,
   gene_vls <-
     base::as.data.frame(rna_assay, row.names = NULL) %>%
     magrittr::set_colnames(value = col_names) %>%
-    dplyr::mutate(barcodes = coords_df$barcodes)
+    dplyr::mutate(barcodes = spata_df$barcodes)
 
 
   # overwrite check
-  discard <- col_names[col_names %in% base::colnames(coords_df)]
+  discard <- col_names[col_names %in% base::colnames(spata_df)]
   n_discard <- base::length(discard)
 
   if(n_discard > 0){
@@ -340,13 +340,13 @@ joinWithGenes <- function(object,
     ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
     base::message(glue::glue("Overwriting {n_discard} gene-{ref}."))
-    coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
+    spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
   }
 
   # join both
   joined_df <-
-    dplyr::left_join(x = coords_df, y = gene_vls, by = "barcodes")
+    dplyr::left_join(x = spata_df, y = gene_vls, by = "barcodes")
 
 
   # -----
@@ -409,7 +409,7 @@ joinWithGenes <- function(object,
 #' @rdname joinWith
 #' @export
 joinWithGeneSets <- function(object,
-                             coords_df,
+                             spata_df,
                              gene_sets,
                              method_gs = "mean",
                              smooth = FALSE,
@@ -422,15 +422,15 @@ joinWithGeneSets <- function(object,
   # lazy check
 
   check_object(object)
-  check_coords_df(coords_df)
-  check_smooth(df = coords_df, smooth = smooth, smooth_span = smooth_span)
+  check_spata_df(spata_df)
+  check_smooth(df = spata_df, smooth = smooth, smooth_span = smooth_span)
   check_method(method_gs = method_gs)
 
   # adjusting check
   gene_sets <- check_gene_sets(object, gene_sets = gene_sets)
 
   # overwrite check
-  discard <- gene_sets[gene_sets %in% base::colnames(coords_df)]
+  discard <- gene_sets[gene_sets %in% base::colnames(spata_df)]
   n_discard <- base::length(discard)
 
   if(n_discard > 0){
@@ -438,21 +438,21 @@ joinWithGeneSets <- function(object,
     ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
     base::message(glue::glue("Overwriting {n_discard} gene-set-{ref}."))
-    coords_df <- dplyr::select(.data = coords_df, -dplyr::all_of(discard))
+    spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
   }
   # -----
 
-  # 2. Extract gene set data and join with coords_df ------------------------
+  # 2. Extract gene set data and join with spata_df ------------------------
 
-  rna_assay <- exprMtr(object = object, of_sample = base::unique(coords_df$sample))
+  rna_assay <- exprMtr(object = object, of_sample = base::unique(spata_df$sample))
   gene_set_df <- object@used_genesets
-  joined_df <- coords_df
+  joined_df <- spata_df
 
   if(base::isTRUE(smooth)){
 
-    x <- dplyr::pull(coords_df, var = x)
-    y <- dplyr::pull(coords_df, var = y)
+    x <- dplyr::pull(spata_df, var = x)
+    y <- dplyr::pull(spata_df, var = y)
     smooth_ref <- glue::glue(" and smoothing ")
 
   } else {
@@ -597,7 +597,7 @@ joinWithGeneSets <- function(object,
 #' @rdname joinWith
 #' @export
 joinWithVariables <- function(object,
-                              coords_df,
+                              spata_df,
                               variables,
                               method_gs = "mean",
                               average_genes = FALSE,
@@ -612,10 +612,10 @@ joinWithVariables <- function(object,
 
   if("features" %in% base::names(variables)){
 
-    coords_df <-
+    spata_df <-
       joinWithFeatures(object = object,
                        features = variables$features,
-                       coords_df = coords_df,
+                       spata_df = spata_df,
                        smooth = smooth,
                        smooth_span = smooth_span,
                        verbose = verbose)
@@ -624,9 +624,9 @@ joinWithVariables <- function(object,
 
   if("genes" %in% base::names(variables)){
 
-    coords_df <-
+    spata_df <-
       joinWithGenes(object = object,
-                    coords_df = coords_df,
+                    spata_df = spata_df,
                     genes = variables$genes,
                     average_genes = average_genes,
                     uniform_genes = uniform_genes,
@@ -639,9 +639,9 @@ joinWithVariables <- function(object,
 
   if("gene_sets" %in% base::names(variables)){
 
-    coords_df <-
+    spata_df <-
       joinWithGeneSets(object = object,
-                       coords_df = coords_df,
+                       spata_df = spata_df,
                        gene_sets = variables$gene_sets,
                        method_gs = method_gs,
                        smooth = smooth,
@@ -650,7 +650,7 @@ joinWithVariables <- function(object,
                        verbose = verbose)
   }
 
-  base::return(coords_df)
+  base::return(spata_df)
 
 }
 

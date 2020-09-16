@@ -1,3 +1,12 @@
-- plotTrajectory interactive
+- cluster-distance auf anzahl der barode-spots normalisieren
+-> in development, neighbour approach for cluster-density
 
+- getCorrMatrix() correlation matrix for igraph cluster?
+-> ---
+
+- "" segmentation handling
+
+- several samples handling
+
+- color scaling
 

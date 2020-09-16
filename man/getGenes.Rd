@@ -2,9 +2,12 @@
 % Please edit documentation in R/get-family.R
 \name{getGenes}
 \alias{getGenes}
+\alias{getGenesInteractive}
 \title{Obtain gene names}
 \usage{
 getGenes(object, of_gene_sets = "all", in_sample = "", simplify = TRUE)
+
+getGenesInteractive(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}

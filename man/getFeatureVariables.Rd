@@ -9,7 +9,7 @@ getFeatureVariables(
   features,
   of_sample = "",
   return = "data.frame",
-  unique = FALSE
+  unique = "deprecated"
 )
 }
 \arguments{
@@ -20,12 +20,11 @@ getFeatureVariables(
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{return}{Character value. Determine the way the variable is returned.
+\item{return}{Character value. One of \emph{'vector', 'data.frame'} or
+\emph{'list'}. In order to return a vector input of \code{features} must
+be of length one.}
 
-(Only relevant if input of arugment \code{features} is of length greater than 1.)}
-
-\item{unique}{Logical. If set to TRUE and argument \code{features} is
-of length 1 only it's unique values are returned.}
+\item{unique}{Deprecated.}
 }
 \value{
 A data.frame or a vector.

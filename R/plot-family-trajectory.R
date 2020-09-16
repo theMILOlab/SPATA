@@ -11,6 +11,7 @@
 #' @inherit check_pt params
 #' @inherit check_display params
 #' @inherit verbose params
+#' @inherit check_uniform_genes params
 #' @param sgmt_size The size of the segment arrrow specified as a numeric value.
 #'
 #' @inherit plot_family return
@@ -35,6 +36,7 @@ plotTrajectory <- function(object,
                            sgmt_size = 1,
                            display_image = TRUE,
                            display_title = FALSE,
+                           uniform_genes = "discard",
                            verbose = TRUE){
 
 
@@ -70,55 +72,26 @@ plotTrajectory <- function(object,
   trajectory_bc <- dplyr::pull(t_object@compiled_trajectory_df, barcodes)
   trajectory_sgmt_df <- t_object@segment_trajectory_df
 
-  bc_traj <-
-    ctdf(t_object) %>%
-    dplyr::pull(barcodes)
+  bc_traj <- ctdf(t_object) %>% dplyr::pull(barcodes)
 
-  background_df <- getCoordinates(object, of_sample = of_sample)
+  background_df <-
+    getCoordinates(object, of_sample = of_sample) %>%
+    dplyr::mutate(trajectory = dplyr::if_else(barcodes %in% bc_traj, "yes", "no"))
 
-  # 3. Determine trajectory geom_point layer --------------------------------
+
+  # 3. Determine additional layers ------------------------------------------
 
   # if of length one and feature
   if("features" %in% base::names(color_to)){
-
-    background_df <- joinWithFeatures(object = object,
-                                  coords_df = background_df,
-                                  features = color_to$features,
-                                  smooth = smooth,
-                                  smooth_span = smooth_span,
-                                  verbose = verbose)
-
-    coords_df <- dplyr::filter(background_df, barcodes %in% bc_traj)
 
     labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
                                     color_str = color_to,
                                     display_title = display_title)
 
-
-    # assemble ggplot add on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = background_df,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
-                          alpha = pt_alpha, size = pt_size),
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(coords_df, color_to$features)),
-      labs_add_on
-    )
+    color_to_value <- base::unlist(color_to, use.names = FALSE)
 
     # if of length one and gene set
   } else if("gene_sets" %in% base::names(color_to)){
-
-    background_df <- joinWithGeneSets(object = object,
-                                  coords_df = background_df,
-                                  gene_sets = color_to$gene_sets,
-                                  method_gs = method_gs,
-                                  smooth = smooth,
-                                  smooth_span = smooth_span,
-                                  verbose = verbose)
-
-    coords_df <-   dplyr::filter(background_df, barcodes %in% bc_traj)
-
 
     # labs-add-on
     labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets,
@@ -126,50 +99,21 @@ plotTrajectory <- function(object,
                                     color_str = hlpr_gene_set_name(color_to$gene_sets),
                                     display_title = display_title)
 
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = background_df,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
-                          alpha = pt_alpha, size = pt_size),
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
-      labs_add_on
-    )
+    color_to_value <- base::unlist(color_to, use.names = FALSE)
 
   } else if("genes" %in% base::names(color_to)){
-
-    background_df <- joinWithGenes(object = object,
-                               coords_df = background_df,
-                               genes = color_to$genes,
-                               average_genes = TRUE,
-                               smooth = smooth,
-                               smooth_span = smooth_span,
-                               verbose = verbose)
-
-    coords_df <-  dplyr::filter(background_df, barcodes %in% bc_traj)
 
     color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
                               yes = color_to$genes,
                               no = "Mean expr.\nscore")
+
+    color_to_value <- "mean_genes"
 
     # labs-add-on
     labs_add_on <- hlpr_labs_add_on(input = color_to,
                                     input_str = "Genes:",
                                     color_str = color_str,
                                     display_title = display_title)
-
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = background_df,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[base::unlist(color_to, use.names = FALSE)]]),
-                          alpha = pt_alpha, size = pt_size),
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1,
-                          mapping = ggplot2::aes_string(x = "x", y = "y", color = "mean_genes")),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
-      labs_add_on
-    )
-
 
   } else if(base::is.null(color_to)){
 
@@ -187,12 +131,35 @@ plotTrajectory <- function(object,
     }
 
     ggplot_add_on <- list(
-      ggplot2::geom_point(data = background_df,
-                          mapping = ggplot2::aes(x = x, y = y),
-                          alpha = pt_alpha, size = pt_size, color = pt_clr),
-      ggplot2::geom_point(data = coords_df, size = pt_size, alpha = 1, color = pt_clr,
-                                              mapping = ggplot2::aes(x = x, y = y)),
-      labs_add_on)
+      ggplot2::geom_point(data = background_df, size = pt_size, color = pt_clr,
+                          mapping = ggplot2::aes(x = x,  y = y, alpha = trajectory)),
+      ggplot2::scale_alpha_manual(values = c("yes" = 1, "no" = pt_alpha), guide = FALSE))
+
+  }
+
+  if(!base::is.null(color_to)){
+
+    background_df <-
+      joinWithVariables(object = object,
+                        spata_df = background_df,
+                        variables = color_to,
+                        method_gs = method_gs,
+                        average_genes = TRUE,
+                        uniform_genes = uniform_genes,
+                        smooth = smooth,
+                        smooth_span = smooth_span,
+                        verbose = verbose)
+
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = background_df, size = pt_size,
+                          mapping = ggplot2::aes(x = x,  y = y, alpha = trajectory,
+                                                 color = .data[[color_to_value]])),
+      ggplot2::scale_alpha_manual(values = c("yes" = 1, "no" = pt_alpha), guide = FALSE),
+      confuns::scale_color_add_on(aes = "color",
+                                  clrsp = pt_clrsp,
+                                  clrp = pt_clrp,
+                                  variable = dplyr::pull(background_df, color_to_value))
+    )
 
   }
 
@@ -206,102 +173,10 @@ plotTrajectory <- function(object,
                           color = "black", size = sgmt_size,
                           arrow = ggplot2::arrow(length = ggplot2::unit(x = 0.125, "inches"))) +
     ggplot2::theme_void() +
-    ggplot2::coord_equal()
-
-
-}
-
-
-
-#' @title Trajectory trends distribution
-#'
-#' @description Visualizes the distribution of the assessment-scores
-#'  (residuals-area-under-the-curve) of a trajectory via histograms.
-#'
-#' @param atdf An assessed trajectory data.frame returned by
-#'  \code{assessTrajectoryTrends()}.
-#' @param limits The minimum and maximum auc-values to include. Given to
-#' \code{ggplot2::scale_x_continuous()}.
-#' @param plot_type One of \emph{'histogram', 'density', and 'ridgeplot'}.
-#' @param ... additional arguments given to \code{ggplot2::facet_wrap()}.
-#'
-#' @inherit plot_family return
-#' @export
-#'
-
-plotTrajectoryAssessment <- function(atdf,
-                                     limits = c(0, 10),
-                                     plot_type = "histogram",
-                                     binwidth = 0.5,
-                                     clrp = "milo",
-                                     ...){
-
-  # 1. Control --------------------------------------------------------------
-
-  confuns::is_value(plot_type,"character", "plot_type")
-  confuns::is_value(clrp, "character", "clrp")
-
-  confuns::check_data_frame(
-    df = atdf,
-    var.class = list(
-      variables = c("character"),
-      pattern = c("character", "factor"),
-      auc = c("numeric", "integer", "double")
-    ))
-
-  var <- "variables"
-
-  base::stopifnot(base::is.character(dplyr::pull(atdf, {{var}})))
-
-  # -----
-
-  # 2. Plotting -------------------------------------------------------------
-
-  atdf <- dplyr::filter(atdf, dplyr::between(auc, left = limits[1], right = limits[2]))
-
-  if(plot_type == "histogram"){
-
-    display_add_on <- list(
-      ggplot2::geom_histogram(mapping = ggplot2::aes(x = auc, fill = pattern),
-                              binwidth = binwidth, color = "black", data = atdf),
-      ggplot2::facet_wrap(facets = . ~ pattern, ...)
-    )
-
-  } else if(plot_type == "density"){
-
-    display_add_on <- list(
-      ggplot2::geom_density(mapping = ggplot2::aes(x = auc, fill = pattern),
-                            color = "black", data = atdf),
-      ggplot2::facet_wrap(facets = . ~ pattern, ...)
-    )
-
-  } else if(plot_type == "ridgeplot"){
-
-    display_add_on <- list(
-      ggridges::geom_density_ridges(mapping = ggplot2::aes(x = auc, y = pattern, fill = pattern),
-                                    color = "black", data = atdf, alpha = 0.75),
-      ggridges::theme_ridges()
-    )
-
-  } else {
-
-    base::stop("Argument 'plot_type' needs to be one of 'histogram', 'density' or 'ridgeplot'")
-  }
-
-  # -----
-
-  ggplot2::ggplot(data = atdf) +
-    ggplot2::theme_classic() +
-    ggplot2::labs(x = "Area under the curve [residuals]",
-                  y = NULL) +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-    display_add_on +
-    ggplot2::theme(
-      strip.background = ggplot2::element_blank(),
-      legend.position = "none")
+    ggplot2::coord_equal() +
+    labs_add_on
 
 }
-
 
 
 #' @title Trajectory line plots
@@ -311,12 +186,16 @@ plotTrajectoryAssessment <- function(atdf,
 #'
 #' @inherit check_sample params
 #' @inherit check_features params
+#' @param discrete_feature Character value. The discrete feature of interest.
 #' @inherit check_gene_sets params
 #' @inherit check_method params
 #' @inherit check_genes params
 #' @inherit average_genes params
 #' @inherit check_smooth params
 #' @inherit verbose params
+#' @param display_trajectory_parts Logical. If set to TRUE the returned plot
+#' visualizes the parts in which the trajectory has been partitioned while beeing
+#' drawn.
 #' @param clrp Character value. The color panel to be used.
 #'  Run \code{all_colorpanels()} to see valid input.
 #'
@@ -392,8 +271,77 @@ plotTrajectoryFeatures <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = NULL, color = "Features")
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features")
 
+}
+
+#' @rdname plotTrajectoryFeatures
+#' @export
+plotTrajectoryFeaturesDiscrete <- function(object,
+                                           trajectory_name,
+                                           of_sample = "",
+                                           discrete_feature,
+                                           clrp = "milo",
+                                           display_trajectory_parts = FALSE,
+                                           verbose = TRUE,
+                                           ...){
+
+
+# 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, 1)
+  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
+
+  feature <- check_features(object, discrete_feature, valid_classes = c("character", "factor"), 1)
+
+  # -----
+
+
+# 2. Data wrangling -------------------------------------------------------
+
+  cns_trajectory <-
+    getTrajectoryObject(object, trajectory_name = trajectory_name)
+
+  compiled_trajectory_df <- cns_trajectory@compiled_trajectory_df
+
+  joined_df <- joinWith(object,
+                        spata_df = compiled_trajectory_df,
+                        features = feature,
+                        verbose = verbose)
+
+  plot_df <-
+    dplyr::mutate(.data = joined_df,
+                  order_binned = plyr::round_any(x = projection_length, accuracy = 5, f = base::floor),
+                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
+
+  if(base::isTRUE(display_trajectory_parts)){
+
+    facet_add_on <- list(
+      ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
+    )
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # -----
+
+  ggplot2::ggplot(data = plot_df) +
+    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[discrete_feature]]), position = "fill", width = 0.9) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    facet_add_on +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches"))),
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = "Trajectory Direction", y = NULL)
 }
 
 
@@ -408,8 +356,9 @@ plotTrajectoryGenes <- function(object,
                                 average_genes = FALSE,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
-                                smooth_se = T,
-                                verbose = T){
+                                smooth_se = TRUE,
+                                display_trajectory_parts = TRUE,
+                                verbose = TRUE){
 
 
   # 1. Control --------------------------------------------------------------
@@ -469,7 +418,7 @@ plotTrajectoryGenes <- function(object,
     t_object@compiled_trajectory_df %>%
     dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = 5, f = floor)) %>%
     joinWithGenes(object = object,
-                  coords_df = .,
+                  spata_df = .,
                   genes = genes,
                   average_genes = average_genes,
                   verbose = verbose)
@@ -513,20 +462,31 @@ plotTrajectoryGenes <- function(object,
 
   }
 
-  vline_df <-
-    result_df %>%
-    dplyr::group_by(trajectory_part) %>%
-    dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                    trajectory_part_order == 1 &
-                    genes == genes[1])
+  if(base::isTRUE(display_trajectory_parts)){
+
+    vline_df <-
+      result_df %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
+                      trajectory_part_order == 1 &
+                      genes == genes[1])
+
+    trajectory_part_add_on <- list(
+      ggplot2::geom_vline(data = vline_df[-1,],
+                          mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
+    )
+
+  } else {
+
+    trajectory_part_add_on <- NULL
+  }
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = genes)) +
-    ggplot2::geom_vline(data = vline_df[-1,],
-                        mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
+    trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
@@ -538,7 +498,7 @@ plotTrajectoryGenes <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = y_title, color = "Genes") +
+    ggplot2::labs(x = "Trajectory Direction", y = y_title, color = "Genes") +
     labs_add_on
 
 }
@@ -555,6 +515,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
                                    clrp = "milo",
+                                   display_trajectory_parts = TRUE,
                                    verbose = TRUE){
 
 
@@ -593,21 +554,31 @@ plotTrajectoryGeneSets <- function(object,
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
     dplyr::ungroup()
 
+  if(base::isTRUE(display_trajectory_parts)){
 
-  vline_df <-
-    result_df %>%
-    dplyr::group_by(trajectory_part) %>%
-    dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                    trajectory_part_order == 1 &
-                    variables == gene_sets[1])
+    vline_df <-
+      result_df %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
+                      trajectory_part_order == 1 &
+                      variables == gene_sets[1])
+
+    trajectory_part_add_on <- list(
+      ggplot2::geom_vline(data = vline_df[-1,],
+                          mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
+    )
+
+  } else {
+
+    trajectory_part_add_on <- NULL
+  }
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = variables)) +
-    ggplot2::geom_vline(data = vline_df[-1,],
-                        mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
+    trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
@@ -619,7 +590,7 @@ plotTrajectoryGeneSets <- function(object,
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Direction", y = "Expression score", color = "Gene sets")
+    ggplot2::labs(x = "Trajectory Direction", y = "Expression score", color = "Gene sets")
 
 
 }
@@ -628,8 +599,8 @@ plotTrajectoryGeneSets <- function(object,
 
 #' @title Expression dynamic in heatmap
 #'
-#' @description Displays gene- or gene-set-expression values along a trajectory
-#' direction with a smoothed heatmap.
+#' @description Displays variable-expression values along a trajectory
+#' direction with a smoothed heatmap (from left to right).
 #'
 #' @inherit check_sample params
 #' @inherit check_trajectory params
@@ -649,30 +620,30 @@ plotTrajectoryGeneSets <- function(object,
 #' are displayed in order to highlight patterns. Currently either \emph{'maxima'}
 #' or \emph{'minima'}.
 #'
-#' Given to \code{accross} of \code{confuns::arrange_rows()}.
-#'
-#' @param show_row_names Logical. If set to TRUE the variable elements
+#' @param show_rownames Logical. If set to TRUE the variable elements
 #' will be displayed at the rownames of the heatmap.
 #' @param split_columns Logial. If set to TRUE the heatmap is vertically
 #' splitted according to the trajectory parts.
-#' @param clrsp The color spectrum to be used. Needs to be one of \emph{'inferno', 'magma', 'plasma', 'cividis' or 'viridis'}.
+#' @param hm_colors A vector of colors to be used.
+#' @param ... Additional parameters given to \code{pheatmap::pheatmap()}
 #'
-#' @return A drawn heatmap.
+#' @return A heatmap of class 'pheatmap'.
 #' @export
 #'
 
 plotTrajectoryHeatmap <- function(object,
                                   trajectory_name,
                                   of_sample = "",
-                                  variables = NULL,
+                                  variables,
                                   method_gs = "mean",
-                                  show_row_names = TRUE,
                                   arrange_rows = "none",
-                                  verbose = TRUE,
+                                  show_rownames = FALSE,
+                                  show_colnames = FALSE,
                                   split_columns = TRUE,
-                                  borders = TRUE,
                                   smooth_span = 0.5,
-                                  clrsp = "inferno"){
+                                  verbose = TRUE,
+                                  hm_colors = viridis::inferno(150),
+                                  ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -683,7 +654,6 @@ plotTrajectoryHeatmap <- function(object,
 
   check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
   check_method(method_gs = method_gs)
-  check_pt(pt_clrsp = clrsp)
 
   variables <- check_variables(variables = variables,
                                all_gene_sets = getGeneSets(object),
@@ -691,6 +661,7 @@ plotTrajectoryHeatmap <- function(object,
                                max_slots = 1)
 
   var_type <- "variables"
+  smooth <- TRUE
 
   # -----
 
@@ -701,15 +672,17 @@ plotTrajectoryHeatmap <- function(object,
                                   of_sample = of_sample)
 
   # join ctdf with genes and pivot it
-  wide_tdf <-
+  stdf <-
     hlpr_summarize_trajectory_df(
       object = object,
       ctdf = t_object@compiled_trajectory_df,
       variables = variables[[1]],
       accuracy = 5,
       verbose = verbose) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by({{var_type}}) %>%
+    dplyr::ungroup()
+
+  wide_tdf <-
+    dplyr::group_by(.data = stdf, {{var_type}}) %>%
     dplyr::mutate(values = confuns::normalize(x = values)) %>%
     dplyr::ungroup() %>%
     tidyr::pivot_wider(id_cols = dplyr::all_of(var_type),
@@ -726,138 +699,107 @@ plotTrajectoryHeatmap <- function(object,
 
   if(base::isTRUE(split_columns) && n_parts > 1){
 
-    parts_subset <-
-      base::colnames(x = wide_tdf) %>%
-      stringr::str_subset(pattern = "[^genes]") %>%
-      stringr::str_extract_all(pattern = "^Part\\s\\d{1,}") %>%
-      base::unlist()
-
-    column_split_vec <-
-      base::sapply(X = base::unique(parts_subset),
-                   FUN = function(i){
-
-                     n_part <-
-                       base::length(parts_subset[parts_subset == i])
-
-                     base::rep(x = i, n_part * 10)
-
-                   }) %>%
-      base::unlist(use.names = FALSE)
-
-    column_split_vec <- base::factor(x = column_split_vec, levels = base::unique(column_split_vec))
-    column_title <- base::unique(column_split_vec)
-
-    show_column_names <- F
-
-    num_cn <- (base::ncol(wide_tdf) - 1) * 10
-    column_names <- base::vector(mode = "character", length = num_cn)
+    gaps_col <-
+      dplyr::select(.data = stdf, trajectory_part, trajectory_part_order) %>%
+      dplyr::distinct() %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::summarise(count = dplyr::n()) %>%
+      dplyr::mutate(positions = base::cumsum(count) * 10) %>%
+      dplyr::pull(positions) %>%
+      base::as.numeric()
 
   } else {
 
-    column_split_vec <- NULL
-    column_title <- NULL
-
-    show_column_names <- T
-
-    num_cn <- (base::ncol(wide_tdf) - 1) * 10
-    column_names <- base::vector(mode = "character", length = num_cn)
+    gaps_col <- NULL
 
   }
 
-
-  # arrange rows
-  if(base::all(arrange_rows == "maxima") | base::all(arrange_rows == "minima")){
-
-    wide_tdf <-
-      confuns::arrange_rows(df = wide_tdf,
-                            across = arrange_rows,
-                            verbose = verbose)
-
-  }
 
   # -----
 
   # 4. Smooth rows ----------------------------------------------------------
 
-  row_info <- dplyr::pull(.data = wide_tdf, var_type)
-
-  mtr <- as.matrix(dplyr::select(.data = wide_tdf, -{{var_type}}))
-  base::rownames(mtr) <- row_info
+  mtr <- base::as.matrix(dplyr::select(.data = wide_tdf, -{{var_type}}))
+  base::rownames(mtr) <- dplyr::pull(.data = wide_tdf, var_type)
 
   keep <- base::apply(mtr, MARGIN = 1,
-                     FUN = function(x){
+                      FUN = function(x){
 
-                       dplyr::n_distinct(x) != 1
+                        dplyr::n_distinct(x) != 1
 
-                     })
+                      })
 
-  mtr <- mtr[keep, ]
+  n_discarded <- base::sum(!keep)
 
-  mtr_smoothed <- matrix(0, nrow = nrow(mtr), ncol = ncol(mtr) * 10)
+  if(base::isTRUE(smooth) && n_discarded != 0){
 
-  if(verbose){
+    discarded <- base::rownames(mtr)[!keep]
 
-    base::message(glue::glue("Smoothing values with smoothing span: {smooth_span}."))
+    discarded_ref <- stringr::str_c(discarded, collapse = ', ')
+
+    mtr <- mtr[keep, ]
+
+    base::warning(glue::glue("Discarded {n_discarded} variables due to uniform expression. (Can not smooth uniform values.): '{discarded_ref}'"))
 
   }
 
-  for(i in 1:base::nrow(mtr)){
+  mtr_smoothed <- matrix(0, nrow = nrow(mtr), ncol = ncol(mtr) * 10)
+  base::rownames(mtr_smoothed) <- base::rownames(mtr)
 
-    x <- 1:ncol(mtr)
+  if(base::isTRUE(smooth)){
 
-    values <- base::as.numeric(mtr[i,])
+    if(verbose){
 
-    y <- (values - base::min(values))/(base::max(values) - base::min(values))
+      base::message(glue::glue("Smoothing values with smoothing span: {smooth_span}."))
 
-    model <- stats::loess(formula = y ~ x, span = smooth_span)
+    }
 
-    mtr_smoothed[i,] <- stats::predict(model, seq(1, base::max(x) , length.out = num_cn))
+    for(i in 1:base::nrow(mtr)){
+
+      x <- 1:base::ncol(mtr)
+
+      values <- base::as.numeric(mtr[i,])
+
+      y <- (values - base::min(values))/(base::max(values) - base::min(values))
+
+      model <- stats::loess(formula = y ~ x, span = smooth_span)
+
+      mtr_smoothed[i,] <- stats::predict(model, seq(1, base::max(x) , length.out = base::ncol(mtr)*10))
+
+    }
+
+  }
+
+  # arrange rows
+  if(base::all(arrange_rows == "maxima") | base::all(arrange_rows == "minima")){
+
+    mtr_smoothed <-
+      confuns::arrange_rows(df = base::as.data.frame(mtr_smoothed),
+                            across = arrange_rows,
+                            verbose = verbose) %>% base::as.matrix()
 
   }
 
   # -----
-
 
   # Plot heatmap ------------------------------------------------------------
 
-  base::colnames(mtr_smoothed) <- column_names
-
-  if(verbose){
-
-    base::message("Plotting....")
-
-  }
-
-  if(var_type == "gene_sets"){
-
-    row_labels <- hlpr_gene_set_name(string = row_labels)
-
-  }
-
-  hm <-
-    ComplexHeatmap::Heatmap(
-      matrix = mtr_smoothed,
-      name = "Expr.\nscore",
-      column_title = column_title,
-      column_title_side = "bottom",
-      column_names_rot = 0,
-      row_title_side = "left",
-      row_names_side = "left",
-      cluster_rows = F,
-      cluster_columns = F,
-      show_column_names = show_column_names,
-      show_row_names = show_row_names,
-      row_labels = base::rownames(mtr_smoothed),
-      col = viridisLite::viridis(n = 1000, option = clrsp),
-      border = TRUE,
-      column_split = column_split_vec
-    )
+  pheatmap::pheatmap(
+    mat = mtr_smoothed,
+    cluster_cols = FALSE,
+    cluster_rows = FALSE,
+    color = hm_colors,
+    gaps_col = gaps_col[1:(base::length(gaps_col)-1)],
+    show_colnames = show_colnames,
+    show_rownames = show_rownames,
+    ...
+  )
 
   # -----
 
-  base::return(ComplexHeatmap::draw(hm))
 
 }
+
 
 
 

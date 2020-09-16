@@ -18,7 +18,6 @@ findDE <- function(object,
                    method_de = "wilcox",
                    p_val_adj = 0.05){
 
-
   # 1. Control --------------------------------------------------------------
   check_object(object)
   check_method(method_de = method_de)
@@ -121,45 +120,63 @@ findDE <- function(object,
 
 
 
-#' @title Filter differential genes
+#' @title Postprocess de-results
 #'
-#' @description Post-process the results of \code{findDE()} according to your needs.
+#' @description Processes the results of \code{findDE()}. See details.
 #'
-#' @param data A data.frame containing the numeric variables \emph{p_val, avg_logFC, p_val_adj} and
-#' the character variables \emph{cluster, gene}.
-#' @param max_FC Numeric value. Denotes the number of genes to keep per \emph{cluster}-group. See details.
-#' @param min_pvalue Numeric value. Affects the number of genes kept per \emph{cluster}-group. See details.
+#' @inherit check_de_df params
+#' @param n_highest_FC Numeric value. Affects the number of genes that are kept. See details.
+#' @param n_lowest_pvalue Numeric value. Affects the number of genes that are kept. See details.
 #' @inherit across params
-#' @param genes_only Logical. If set to TRUE the resulting gene-variable is returned as a character vector.
+#' @param return Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}
 #'
-#' @return A filtered data.frame or a character vector of gene names.
+#' @details \code{filterDE()} processes the input by grouping the data.frame according to the unique
+#' values of the \emph{cluster}-variable such that the following steps are performed for every experimental
+#' group. (With "genes" we refer to the rows (observations) of \code{data}.)
+#'
+#' \enumerate{
+#'  \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
+#'  \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+#'  \enumerate{
+#'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_FC}}
+#'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pvalue}}
+#'   }
+#'  \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
+#'  }
+#'
+#'
+#' @return Depends on input of arguemnt \code{return}:
+#'
+#'  \itemize{
+#'    \item{ \code{return} = \emph{'data.frame'}: The filtered data.frame of \code{de_df} with all it's variables.}
+#'    \item{ \code{return} = \emph{'vector'}: A named vector of all genes that remain. Named by the experimental
+#'    group in which they were differentially expressed.}
+#'    \item{ \code{return} = \emph{'list}: A list named according to the experimental groups. Every slot of that list is
+#'    a character vector containing the differentially expressed genes of the respective experimental group.}
+#'   }
+#'
 #' @export
-#'
 
-filterDE <- function(data,
-                     max_FC = 100,
-                     min_pvalue = 100,
+filterDE <- function(de_df,
+                     n_highest_FC = 100,
+                     n_lowest_pvalue = 100,
                      across_subset = NULL,
-                     genes_only = FALSE){
-
+                     return = "data.frame"){
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::check_data_frame(
-    df = data,
-    var.class = list(
-      p_val = "numeric",
-      avg_logFC = "numeric",
-      p_val_adj = "numeric",
-      cluster = c("character", "factor"),
-      gene = "character"
-    ),
-    ref = "data"
-  )
+  confuns::is_value(n_highest_FC, "numeric", "n_highest_FC")
+  confuns::is_value(n_lowest_pvalue, "numeric", "n_lowest_pvalue")
+  confuns::is_value(return, "character", "return")
 
-  if(base::is.factor(data$cluster)){
+  confuns::check_one_of(input = return,
+                        against = c("data.frame", "vector", "list"),
+                        ref.input = "argument 'return'")
+  check_de_df(de_df)
 
-    data$cluster <- S4Vectors::unfactor(data$cluster)
+  if(base::is.factor(de_df$cluster)){
+
+    de_df$cluster <- S4Vectors::unfactor(de_df$cluster)
 
   }
 
@@ -170,15 +187,15 @@ filterDE <- function(data,
     across_subset <-
       confuns::check_vector(
         input = across_subset,
-        against = base::unique(data$cluster),
+        against = base::unique(de_df$cluster),
         verbose = TRUE,
         ref.input = " input 'across_subset'",
-        ref.against = "variable 'clusters' of input 'data'"
+        ref.against = "variable 'clusters' of input 'de_df'"
       )
 
   } else if(base::is.null(across_subset)){
 
-    across_subset <- base::unique(data$cluster)
+    across_subset <- base::unique(de_df$cluster)
 
   }
 
@@ -188,29 +205,40 @@ filterDE <- function(data,
   # 2. Pipeline -------------------------------------------------------------
 
   res_df <-
-    dplyr::ungroup(data) %>%
+    dplyr::ungroup(de_df) %>%
     dplyr::filter(cluster %in% {{ across_subset }} &
                     !avg_logFC %in% c(Inf, -Inf) &
                     !avg_logFC < 0) %>%
     dplyr::group_by(cluster) %>%
-    dplyr::slice_max(avg_logFC, n = max_FC, with_ties = FALSE) %>%
-    dplyr::slice_min(p_val_adj, n = min_pvalue, with_ties = FALSE) %>%
+    dplyr::slice_max(avg_logFC, n = n_highest_FC, with_ties = FALSE) %>%
+    dplyr::slice_min(p_val_adj, n = n_lowest_pvalue, with_ties = FALSE) %>%
     dplyr::arrange(dplyr::desc(avg_logFC), .by_group = TRUE) %>%
     dplyr::ungroup()
 
   # -----
 
-  if(base::isTRUE(genes_only)){
+  if(return == "vector"){
 
     dplyr::pull(res_df, gene) %>%
+      magrittr::set_names(value = dplyr::pull(res_df, cluster)) %>%
       base::return()
 
-  } else {
+  } else if(return == "data.frame") {
 
     base::return(res_df)
 
-  }
+  } else if(return == "list"){
 
+    purrr::map(.x = across_subset, .f = function(i){
+
+      dplyr::filter(.data = res_df, cluster == {{i}}) %>%
+        dplyr::pull(gene)
+
+    }) %>%
+      magrittr::set_names(value = across_subset) %>%
+      base::return()
+
+  }
 
 }
 

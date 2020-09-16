@@ -3,19 +3,20 @@
 \name{check_atdf}
 \alias{check_atdf}
 \alias{check_rtdf}
-\title{Check ranked trajectory data.frame input}
+\title{Check assessed trajectory data.frame}
 \usage{
 check_atdf(atdf)
 
 check_rtdf(rtdf, variable = NULL)
 }
 \arguments{
-\item{atdf}{An assessed trajectory data.frame.}
+\item{atdf}{A data.frame containing the results of trajectory-modelling. Must contain the variables:
 
-\item{rtdf}{A ranked trajectory data.frame.}
-
-\item{variable}{The gene or gene set of interest specified as a character
-value.}
+ \describe{
+  \item{\emph{variables}}{Character. The genes, gene-sets and features that have been assessed.}
+  \item{\emph{pattern}}{Character. The respective trajectory pattern.}
+  \item{\emph{auc}}{Numeric. The assessment value which is the residual's area under the curve.}
+ }}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

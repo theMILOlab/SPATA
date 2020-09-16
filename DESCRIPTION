@@ -1,20 +1,20 @@
 Package: SPATA
 Type: Package
 Title: A Toolbox for Spatial Gene Expression Analysis
-Version: 0.0.9000
-Author: Dieter Henrik Heiland, Jan Kueckelhaus
-Maintainer: Jan Kueckelhaus <jankueckelhaus@gmx.de>
+Version: 0.1.0
+Authors@R: as.person(c(
+    "Jan Kueckelhaus <jan.kueckelhaus@uniklinik-freiburg.de> [aut, cre]", 
+    "Dieter-Henrik Heiland <dr.dieter.henrik.heiland@uniklinik-freiburg.de> [aut]"
+  ))
 Description: This package provides a framework of functions and shiny-applications to make it as easy  and intuitive as possible to work with spatial gene expression data. 
-License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+License: GPL-3
+BugReports: themilolab-spata@webmail.com
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
-    matrixcalc,
-    confuns,
     pipeR,
-    monocle3,
     dplyr,
     readr,
     stringr,
@@ -24,7 +24,6 @@ Imports:
     purrr,
     shiny,
     shinyWidgets,
-    ComplexHeatmap,
     ggridges,
     EBImage,
     umap,
@@ -32,13 +31,13 @@ Imports:
     tibble,
     progress,
     colorspace,
-    GSVA,
     Seurat,
-    ggforce,
-    concaveman,
-    cowplot,
+    shinybusy,
+    shinydashboard,
     pheatmap,
-    shinybusy
+    ggalt,
+    ggforce,
+    concaveman
 Collate: 
     'S4-documentation.R'
     'S4-generic-functions.R'
@@ -47,6 +46,7 @@ Collate:
     'check-family-lazy.R'
     'check-family-validation.R'
     'checkpoint.R'
+    'compile-family.R'
     'create_family.R'
     'data.R'
     'deprecated-functions.R'
@@ -60,6 +60,7 @@ Collate:
     'intern-analysis.R'
     'joinWith-family.R'
     'loading-and-saving.R'
+    'miscellaneous-helper-functions.R'
     'module-add-gene-sets.R'
     'module-surface-plot.R'
     'package-dependencies.R'
@@ -67,7 +68,10 @@ Collate:
     'plot-family-surface.R'
     'plot-family-trajectory.R'
     'pseudotime-embedding.R'
+    'shiny-dashboard-tab-items.R'
+    'spata-object-manipulation.R'
     'trajectory-analysis.R'
     'validation.R'
 Depends: 
     R (>= 2.10)
+URL: https://themilolab.com/

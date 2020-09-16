@@ -2,13 +2,18 @@
 % Please edit documentation in R/check-family-lazy.R
 \name{check_coords_df}
 \alias{check_coords_df}
-\title{Check coordinate data.frame}
+\title{Check coords data.frame}
 \usage{
 check_coords_df(coords_df)
 }
 \arguments{
-\item{coords_df}{A data.frame that contains at least the character variables
-\emph{samples} and \emph{barcodes}.}
+\item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
+\describe{
+ \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+ \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
+ \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+}}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

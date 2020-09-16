@@ -3,7 +3,7 @@
 \name{plotDistribution}
 \alias{plotDistribution}
 \alias{plotDistribution2}
-\title{Visualize value distribution}
+\title{Distribution of continuous values}
 \usage{
 plotDistribution(
   object,
@@ -21,7 +21,7 @@ plotDistribution(
 )
 
 plotDistribution2(
-  data,
+  df,
   variables = "all",
   plot_type = "histogram",
   clrp = "milo",
@@ -43,7 +43,7 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{plot_type}{One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
+\item{plot_type}{Character value. One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
 
 \item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
 
@@ -65,7 +65,7 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{data}{The data.frame containing numeric variables.}
+\item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
 }
 \description{
 Visualizes the distribution of values of a set of variables.

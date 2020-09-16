@@ -20,6 +20,7 @@ plotTrajectory(
   sgmt_size = 1,
   display_image = TRUE,
   display_title = FALSE,
+  uniform_genes = "discard",
   verbose = TRUE
 )
 }
@@ -69,6 +70,10 @@ color is continuous. Run \code{all_colorspectra()} to see valid input..}
 is displayed underneath the plot.}
 
 \item{display_title}{Logical. If set to TRUE an informative title is displayed.}
+
+\item{uniform_genes}{Character value. If set to \emph{'discard'} genes that are
+uniformly expressed across all barcode-spots of the specified coordinates
+data.frame are discarded. If set to \emph{'keep'} they are kept.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

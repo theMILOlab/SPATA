@@ -11,13 +11,14 @@ plotSurface(
   of_sample = "",
   color_to = NULL,
   method_gs = "mean",
-  nornalize = TRUE,
+  normalize = TRUE,
   smooth = FALSE,
   smooth_span = 0.02,
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
   pt_clrp = "milo",
+  pt_clr = "lightgrey",
   display_image = FALSE,
   display_title = FALSE,
   assign = FALSE,
@@ -26,7 +27,7 @@ plotSurface(
 )
 
 plotSurface2(
-  data,
+  coords_df,
   color_to,
   pt_size = 2,
   pt_alpha = 0.9,
@@ -72,6 +73,8 @@ color is continuous. Run \code{all_colorspectra()} to see valid input..}
 \item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
+\item{pt_clr}{The base color of every point displayed in the plot.}
+
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
 
@@ -89,7 +92,13 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{data}{A data.frame containing at least the variables \emph{'x'} and \emph{'y'}.}
+\item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
+\describe{
+ \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
+ \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
+ \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+}}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
@@ -102,7 +111,7 @@ expression of genes and gene sets or other featured characteristics.
  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters.}
  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
- \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a mini-shiny
+ \item{ \code{plotSurfaceInteractive()} Takes only the spata-object and opens a shiny
  application which allows for interactive plotting.}
 
 }
