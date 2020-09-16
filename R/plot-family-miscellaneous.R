@@ -1330,7 +1330,7 @@ plotDistributionDiscrete <- function(object,
 
   if(base::is.character(feature_compare)){
 
-    all_features <- c(features, fill)
+    all_features <- c(features, feature_compare)
     facet_add_on <- list(ggplot2::facet_wrap(facets = . ~ features, scales = "free_x"))
     fill <- feature_compare
     theme_add_on <- list()
