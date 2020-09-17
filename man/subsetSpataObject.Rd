@@ -2,7 +2,7 @@
 % Please edit documentation in R/spata-object-manipulation.R
 \name{subsetSpataObject}
 \alias{subsetSpataObject}
-\title{Reduce the number of samples}
+\title{Subset a spata-object}
 \usage{
 subsetSpataObject(object, sample)
 }
@@ -15,5 +15,6 @@ subsetSpataObject(object, sample)
 An updated spata-object.
 }
 \description{
-Keeps only information of the specified sample
+Reduces the number of samples in the
+specified spata-object to one.
 }

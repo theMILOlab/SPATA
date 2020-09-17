@@ -120,7 +120,7 @@ Hint: Variables that are uniformly expressed can not be scaled and are discarded
 }
 \value{
 The input data.frame of \code{spata_df} joined with all the
-specified variable-elements (by the key-variable \emph{barcodes}).
+specified genes, gene-sets and/or features by the key-variable \emph{barcodes}.
 }
 \description{
 Each member of the \code{joinWith()}-family takes a data.frame as

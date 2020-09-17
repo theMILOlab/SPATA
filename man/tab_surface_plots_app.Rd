@@ -2,16 +2,16 @@
 % Please edit documentation in R/shiny-dashboard-tab-items.R
 \name{tab_surface_plots_app}
 \alias{tab_surface_plots_app}
-\title{Surface plot tab}
+\title{Surface plot tab - classic}
 \usage{
 tab_surface_plots_app()
 }
 \description{
-Surface plot tab
+Surface plot tab - classic
 }
 \details{
 To use within shinydashboard::tab_items()
 }
 \note{
-Tab for the big-application
+Tab for the big application
 }

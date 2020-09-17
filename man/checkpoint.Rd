@@ -27,7 +27,7 @@ checkpoint(
 )
 }
 \arguments{
-\item{evaluate}{A vector of logical tests.}
+\item{evaluate}{A vector of logical tests to be evaluated.}
 
 \item{case_false}{A character string indicating the message to be displayed if one element of
 \code{evaluate} turns out to be FALSE. Needs to be in \code{base::names(\code{error/warning_notifiations})}.}

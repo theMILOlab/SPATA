@@ -53,5 +53,5 @@ the computational progress will be printed.
 A named list containing the results (plots, estimated correlation value, data.frames).
 }
 \description{
---
+-- --
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/documentation-dummies.R
 \name{verbose}
 \alias{verbose}
-\title{Verbose}
+\title{verbose}
 \usage{
 verbose(verbose)
 }
@@ -13,5 +13,5 @@ the computational progress will be printed.
 (Warning messages will always be printed.)}
 }
 \description{
-Verbose
+verbose
 }

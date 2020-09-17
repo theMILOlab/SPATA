@@ -84,7 +84,7 @@ A spata-object.
 \description{
 Creates, saves and returns an object of class spata
 from scratch. Several samples can be stored in one object, though we recommand to stick
-to one. See details for more.
+to one. (See details for more.)
 }
 \details{
 The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied

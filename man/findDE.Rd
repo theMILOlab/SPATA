@@ -40,5 +40,5 @@ feature-variable.}
 A data.frame containing the variables \emph{'p_val', 'avg_logFC', 'pct.1', 'pct.2', 'p_val_adj', 'cluster', 'gene'}.
 }
 \description{
-Finds the differentially expressed genes of a set of subgroups.
+Finds the differentially expressed genes across a set of subgroups.
 }

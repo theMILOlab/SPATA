@@ -3,7 +3,7 @@
 \docType{data}
 \name{gsdf}
 \alias{gsdf}
-\title{A collection of frequently used gene-sets}
+\title{The default collection of frequently used gene-sets}
 \format{
 A data.frame with 936.495 rows and two variables.
 

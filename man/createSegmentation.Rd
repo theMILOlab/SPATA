@@ -18,3 +18,11 @@ The function \code{createSegmentation()} provides access to an
 interactive mini-shiny application that allows to separate a sample into
 several segments.
 }
+\details{
+Members of the \code{lazy-check_*()}-family take the arguments
+of their kind - that are used in the function they are called in - and
+checks whether these arguments input fit the requirements. They stop and return an
+error immediately once they stumble upon something invalid. They do not alter or adjust input
+and return TRUE if the whole function has been executed without anything
+invalid being found.
+}

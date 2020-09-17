@@ -11,6 +11,6 @@ An object of class \code{character} of length 14.
 trajectory_patterns
 }
 \description{
-Trajectory patterns
+Character vectors containing the names of valid trajectory patterns.
 }
 \keyword{datasets}

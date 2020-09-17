@@ -15,3 +15,7 @@ A named list.
 \description{
 Returns all currently valid color panels or -spectra.
 }
+\details{
+Discrete color panels derive from the ggsci-package. Continuous
+colorspectra derive from the colorspace-package.
+}

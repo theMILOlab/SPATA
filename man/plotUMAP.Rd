@@ -69,5 +69,6 @@ Returns a ggplot-object that can be additionally customized according
 to the rules of the ggplot2-framework.
 }
 \description{
-Plot dimensional reduction
+Displays the dimensional reduction and maps gene, gene-set
+or feature information onto the color-aesthetic.
 }

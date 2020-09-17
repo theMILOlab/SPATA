@@ -12,9 +12,9 @@ addGeneSetsInteractive(object)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{class_name}{The class the gene set belongs to specified as a single character value.}
+\item{class_name}{Character value. The class the gene set belongs to..}
 
-\item{gs_name}{The name of the new gene set specified as a single character value.}
+\item{gs_name}{Character value. The name of the new gene set.}
 
 \item{genes}{The genes of interest specified as a character vector.}
 

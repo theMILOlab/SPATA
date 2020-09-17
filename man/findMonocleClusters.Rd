@@ -66,7 +66,7 @@ Assign barcode spots to clusters according to different clustering
 algorithms.
 }
 \details{
-This functions is a wrapper around monocle3-cluster algorithms which
+This functions is a wrapper around all monocle3-cluster algorithms which
 take several options for dimensional reduction upon which the subsequent clustering bases.
 It iterates over all specified methods and returns a tidy data.frame in which each row represents
 one barcode-spot uniquely identified by the variable \emph{barcodes} and in which every other variable

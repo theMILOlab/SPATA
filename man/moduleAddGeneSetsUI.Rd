@@ -2,7 +2,7 @@
 % Please edit documentation in R/module-add-gene-sets.R
 \name{moduleAddGeneSetsUI}
 \alias{moduleAddGeneSetsUI}
-\title{UI of add gene sets module}
+\title{UI of the add gene sets module}
 \usage{
 moduleAddGeneSetsUI(id)
 }
@@ -10,5 +10,5 @@ moduleAddGeneSetsUI(id)
 \item{id}{The namespace id.}
 }
 \description{
-UI of add gene sets module
+UI of the add gene sets module
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/module-surface-plot.R
 \name{moduleSurfacePlotServer}
 \alias{moduleSurfacePlotServer}
-\title{Server of surface plot module}
+\title{Server of the surface plot module}
 \usage{
 moduleSurfacePlotServer(
   id,
@@ -29,7 +29,7 @@ A reactive list with several slots:
   \item $current_setting() A list with information about the settings of \code{assembled_plot} (e.g. sample, color_to, smooth, smoothing_span ...)}
 }
 \description{
-Server of surface plot module
+Server of the surface plot module
 }
 \details{
 The argument \code{final_plot} takes a ggplot object as input which is going to be displayed as the final plot. This allows to

@@ -10,7 +10,7 @@ validateSpataObject(object)
 \item{object}{A spata-object.}
 }
 \value{
-A character string printed by \code{base::writeLines()}
+A character string that is printed by \code{base::writeLines()}
 }
 \description{
 Takes a spata object and checks whether all slots contain suitable

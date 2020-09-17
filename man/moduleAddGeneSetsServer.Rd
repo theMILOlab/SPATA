@@ -2,7 +2,7 @@
 % Please edit documentation in R/module-add-gene-sets.R
 \name{moduleAddGeneSetsServer}
 \alias{moduleAddGeneSetsServer}
-\title{Server of add gene sets module}
+\title{Server of the add gene sets module}
 \usage{
 moduleAddGeneSetsServer(id, object)
 }
@@ -15,5 +15,5 @@ moduleAddGeneSetsServer(id, object)
 An updated spata-object.
 }
 \description{
-Server of add gene sets module
+Server of the add gene sets module
 }

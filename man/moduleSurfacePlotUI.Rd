@@ -2,7 +2,7 @@
 % Please edit documentation in R/module-surface-plot.R
 \name{moduleSurfacePlotUI}
 \alias{moduleSurfacePlotUI}
-\title{UI of surface plot module}
+\title{UI of the surface plot module}
 \usage{
 moduleSurfacePlotUI(id)
 }
@@ -10,5 +10,5 @@ moduleSurfacePlotUI(id)
 \item{id}{The namespace id.}
 }
 \description{
-UI of surface plot module
+UI of the surface plot module
 }

@@ -2,16 +2,16 @@
 % Please edit documentation in R/shiny-dashboard-tab-items.R
 \name{tab_surface_plots_return}
 \alias{tab_surface_plots_return}
-\title{Surface plot tab}
+\title{Surface plot tab - return}
 \usage{
 tab_surface_plots_return()
 }
 \description{
-Surface plot tab
+Surface plot tab - return
 }
 \details{
 To use within shinydashboard::tab_items()
 }
 \note{
-Tab for the small-application
+Tab for the output returning application
 }
