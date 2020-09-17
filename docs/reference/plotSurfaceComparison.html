@@ -79,7 +79,7 @@ plotSurfaceComparison2() Takes a data.frame as the starting point.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SPATA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -123,7 +123,7 @@ plotSurfaceComparison2() Takes a data.frame as the starting point.
       <a href="../articles/spata-de-analysis.html">Differential Expression Analysis</a>
     </li>
     <li>
-      <a href="../articles/spata-trajectory-analysis.html">Spaial Trajectory Analysis</a>
+      <a href="../articles/spata-trajectory-analysis.html">Spatial Trajectory Analysis</a>
     </li>
     <li>
       <a href="../articles/spata-extern-analysis.html">Extract, join &amp; add data</a>
@@ -187,7 +187,7 @@ plotSurfaceComparison2() Takes a data.frame as the starting point.
 )
 
 <span class='fu'>plotSurfaceComparison2</span>(
-  <span class='no'>data</span>,
+  <span class='no'>coords_df</span>,
   <span class='kw'>variables</span> <span class='kw'>=</span> <span class='st'>"all"</span>,
   <span class='kw'>pt_size</span> <span class='kw'>=</span> <span class='fl'>2</span>,
   <span class='kw'>pt_alpha</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
@@ -265,13 +265,13 @@ the computational progress will be printed.</p>
       <td><p>Additional arguments given to <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>data</th>
-      <td><p>A data.frame containing the numeric variables of interest.</p></td>
-    </tr>
-    <tr>
       <th>image</th>
       <td><p>An image of class <em>Image</em> to be displayed in the background.
 Easily accessible via <code><a href='image.html'>SPATA::image()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>A data.frame containing the numeric variables of interest.</p></td>
     </tr>
     </table>
 

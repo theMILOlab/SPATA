@@ -41,7 +41,8 @@
 
 <meta property="og:title" content="Initiate a spata-object — initiateSpataObject_10X" />
 <meta property="og:description" content="Creates, saves and returns an object of class spata
-from scratch. Several samples can be stored in one object. See details for more." />
+from scratch. Several samples can be stored in one object, though we recommand to stick
+to one. See details for more." />
 
 
 
@@ -73,7 +74,7 @@ from scratch. Several samples can be stored in one object. See details for more.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SPATA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -117,7 +118,7 @@ from scratch. Several samples can be stored in one object. See details for more.
       <a href="../articles/spata-de-analysis.html">Differential Expression Analysis</a>
     </li>
     <li>
-      <a href="../articles/spata-trajectory-analysis.html">Spaial Trajectory Analysis</a>
+      <a href="../articles/spata-trajectory-analysis.html">Spatial Trajectory Analysis</a>
     </li>
     <li>
       <a href="../articles/spata-extern-analysis.html">Extract, join &amp; add data</a>
@@ -153,7 +154,8 @@ from scratch. Several samples can be stored in one object. See details for more.
 
     <div class="ref-description">
     <p>Creates, saves and returns an object of class spata
-from scratch. Several samples can be stored in one object. See details for more.</p>
+from scratch. Several samples can be stored in one object, though we recommand to stick
+to one. See details for more.</p>
     </div>
 
     <pre class="usage"><span class='fu'>initiateSpataObject_10X</span>(
@@ -211,7 +213,7 @@ the object if the directory is valid.</p></td>
     <tr>
       <th>file_name</th>
       <td><p>Character value. The name-suffix for the file name under which the
-spata-object is stored. Is prefixed with <em>'spata-obj-'</em>.</p></td>
+spata-object is stored. Is prefixed with <em>'spata-obj-'</em> and suffixed with <em>'.RDS'</em>.</p></td>
     </tr>
     <tr>
       <th>SCTransform</th>
@@ -227,7 +229,9 @@ spata-object is stored. Is prefixed with <em>'spata-obj-'</em>.</p></td>
     </tr>
     <tr>
       <th>ScaleData</th>
-      <td><p>A named list of arguments given to <code><a href='https://rdrr.io/pkg/Seurat/man/ScaleData.html'>Seurat::ScaleData()</a></code>, TRUE or FALSE.</p></td>
+      <td><p>A named list of arguments given to <code><a href='https://rdrr.io/pkg/Seurat/man/ScaleData.html'>Seurat::ScaleData()</a></code>, TRUE or FALSE.</p>
+<p>Hint: If set to TRUE or the argument-list provided does not specify the argument <code>features</code> input
+for argument <code>features</code> is set to <code><a href='https://rdrr.io/r/base/colnames.html'>base::rownames(seurat_object)</a></code>.</p></td>
     </tr>
     <tr>
       <th>RunPCA</th>
@@ -262,9 +266,9 @@ the computational progress will be printed.</p>
     <p>A spata-object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The loading and preprocessing of the spata-object  currently relies on the Seurat-package. For more advanced users the arguments
-above starting with a capital letter allow to manipulate the way the spata-object is processed. For all of these arguments apply
-the following instructions:</p>
+    <p>The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied
+mitochondrial and stress genes are discarded. For more advanced users the arguments above starting with a capital letter allow to
+manipulate the way the spata-object is processed. For all of these arguments apply the following instructions:</p>
 <ul>
 <li><p>If set to FALSE the processing function is skipped.</p></li>
 <li><p>If set to TRUE the respective function is called with it's default argument settings. Note: <code>RunUMAP()</code> needs
@@ -283,6 +287,7 @@ initiated in order to perform the pre processing steps. Sample related unambigui
 by suffixing the barcode-sequences with the respective sample name specified in <code>sample_names</code>. The meta.data data.frame of the
 seurat-object is joined with a variable called <em>sample</em> denoting the sample-belonging of every barcode which can be used as input
 for pre processing functions.</p>
+<p>For now we recommend to stick to one sample per spata-object.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

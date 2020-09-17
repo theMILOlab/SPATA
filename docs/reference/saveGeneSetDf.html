@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SPATA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -116,7 +116,7 @@
       <a href="../articles/spata-de-analysis.html">Differential Expression Analysis</a>
     </li>
     <li>
-      <a href="../articles/spata-trajectory-analysis.html">Spaial Trajectory Analysis</a>
+      <a href="../articles/spata-trajectory-analysis.html">Spatial Trajectory Analysis</a>
     </li>
     <li>
       <a href="../articles/spata-extern-analysis.html">Extract, join &amp; add data</a>
@@ -154,7 +154,7 @@
     <p>Extracts the gene-set data.frame and saves it as a .RDS-file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>saveGeneSetDf</span>(<span class='no'>object</span>, <span class='no'>output_path</span>, <span class='no'>filename</span>)</pre>
+    <pre class="usage"><span class='fu'>saveGeneSetDf</span>(<span class='no'>object</span>, <span class='no'>output_path</span>, <span class='no'>file_name</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -169,8 +169,8 @@
 to store the data.frame.</p></td>
     </tr>
     <tr>
-      <th>filename</th>
-      <td><p>Character value. The filename. ( <em>'.RDS'</em> is attached automatically.)</p></td>
+      <th>file_name</th>
+      <td><p>Character value. The filename. ( is suffixed with <em>'.RDS'</em>)</p></td>
     </tr>
     </table>
 

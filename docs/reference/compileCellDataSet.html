@@ -74,7 +74,7 @@ the arguments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SPATA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -118,7 +118,7 @@ the arguments." />
       <a href="../articles/spata-de-analysis.html">Differential Expression Analysis</a>
     </li>
     <li>
-      <a href="../articles/spata-trajectory-analysis.html">Spaial Trajectory Analysis</a>
+      <a href="../articles/spata-trajectory-analysis.html">Spatial Trajectory Analysis</a>
     </li>
     <li>
       <a href="../articles/spata-extern-analysis.html">Extract, join &amp; add data</a>
@@ -165,7 +165,7 @@ the arguments.</p>
   <span class='kw'>cluster_method</span> <span class='kw'>=</span> <span class='st'>"leiden"</span>,
   <span class='kw'>estimate_size_factors_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>preprocess_cds_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>reduce_dimensions_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>reduce_dimension_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>cluster_cells_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>learn_graph_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>order_cells_args</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
@@ -213,8 +213,8 @@ is ignored if set to "louvain".</p></td>
       <td><p>A list of arguments given to <code><a href='https://rdrr.io/pkg/monocle3/man/preprocess_cds.html'>monocle3::preprocess_cds()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>reduce_dimensions_args</th>
-      <td><p>A list of arguments given to <code>monocle3::reduce_dimensions()</code>.</p></td>
+      <th>reduce_dimension_args</th>
+      <td><p>A list of arguments given to <code><a href='https://rdrr.io/pkg/monocle3/man/reduce_dimension.html'>monocle3::reduce_dimension()</a></code>.</p></td>
     </tr>
     <tr>
       <th>cluster_cells_args</th>
