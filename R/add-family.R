@@ -5,7 +5,7 @@
 #'
 #' @description Stores a new gene set in the spata-object.
 #'
-#' @param object A valid spata-object.
+#' @inherit check_object
 #' @param class_name The class the gene set belongs to specified as a single character value.
 #' @param gs_name The name of the new gene set specified as a single character value.
 #' @param overwrite Logical. Overwrites existing gene sets with the same \code{class_name} -
