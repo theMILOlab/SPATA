@@ -10,7 +10,7 @@ Description: This package provides a framework of functions and shiny-applicatio
 Encoding: UTF-8
 LazyData: true
 License: GPL-3
-BugReports: themilolab-spata@webmail.com
+BugReports: themilolab-spata@gmx.de
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
