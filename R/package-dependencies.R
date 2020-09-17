@@ -3,12 +3,6 @@
 #'
 NULL
 
-
-#' @importFrom pipeR %>>%
-#'
-NULL
-
-
 #' @import SummarizedExperiment
 #'
 NULL
