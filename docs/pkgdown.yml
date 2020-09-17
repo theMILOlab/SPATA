@@ -1,0 +1,17 @@
+pandoc: 2.7.3
+pkgdown: 1.5.1
+pkgdown_sha: ~
+articles:
+  spata-compatibility: spata-compatibility.html
+  spata-de-analysis: spata-de-analysis.html
+  spata-extern-analysis: spata-extern-analysis.html
+  spata-genes-gene-sets-and-features: spata-genes-gene-sets-and-features.html
+  spata-in-the-tidyverse: spata-in-the-tidyverse.html
+  spata-installation: spata-installation.html
+  spata-introduction-and-philosophy: spata-introduction-and-philosophy.html
+  spata-plotting: spata-plotting.html
+  spata-segmentation-and-clustering: spata-segmentation-and-clustering.html
+  spata-terminology: spata-terminology.html
+  spata-trajectory-analysis: spata-trajectory-analysis.html
+last_built: 2020-09-16T14:39Z
+
