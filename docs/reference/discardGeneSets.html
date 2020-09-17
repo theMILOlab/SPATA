@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Discard gene sets — discardGeneSets" />
-<meta property="og:description" content="Discard gene sets" />
+<meta property="og:description" content="A member of the lazy-check_*()-family." />
 
 
 
@@ -151,7 +151,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Discard gene sets</p>
+    <p>A member of the <code>lazy-check_*()</code>-family.</p>
     </div>
 
     <pre class="usage"><span class='fu'>discardGeneSets</span>(<span class='no'>object</span>, <span class='no'>gs_names</span>)</pre>
@@ -165,13 +165,21 @@
     </tr>
     <tr>
       <th>gs_names</th>
-      <td><p>The gene sets to be discarded specified as a character vector.</p></td>
+      <td><p>Character vector. The gene sets to be discarded.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An updated spata-object.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Members of the <code>lazy-check_*()</code>-family take the arguments
+of their kind - that are used in the function they are called in - and
+checks whether these arguments input fit the requirements. They stop and return an
+error immediately once they stumble upon something invalid. They do not alter or adjust input
+and return TRUE if the whole function has been executed without anything
+invalid being found.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

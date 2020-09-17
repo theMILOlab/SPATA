@@ -173,6 +173,14 @@ several segments.</p>
 
     <p>An updated version of the spata-object specified as <code>object</code>
 now containing the information about all drawn segments.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Members of the <code>lazy-check_*()</code>-family take the arguments
+of their kind - that are used in the function they are called in - and
+checks whether these arguments input fit the requirements. They stop and return an
+error immediately once they stumble upon something invalid. They do not alter or adjust input
+and return TRUE if the whole function has been executed without anything
+invalid being found.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
