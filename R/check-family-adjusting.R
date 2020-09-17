@@ -25,7 +25,7 @@ adjusting_check_dummy <- function(){}
 
 #' @title Check color to
 #'
-#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' @description A member of the \code{adjusting-check_()}-family. Takes a character
 #' vector and sorts its elements into a list depending on whether it was found in
 #' the input of \code{all_features}, \code{all_genes} or \code{all_gene_sets}.
 #'

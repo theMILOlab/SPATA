@@ -17,7 +17,7 @@ spata_version <- base::list(major = 0,
 #'
 #' @description Creates, saves and returns an object of class spata
 #' from scratch. Several samples can be stored in one object, though we recommand to stick
-#' to one. See details for more.
+#' to one. (See details for more.)
 #'
 #' @param input_paths Character vector. Specifies the 10X visium-folders from
 #' which to load the information. This folder must contain the following sub directories:

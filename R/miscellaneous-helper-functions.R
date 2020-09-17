@@ -12,7 +12,7 @@
 #' E.g. the return value of \code{findMonocleClusters()}
 #'
 #' @return A list in which every slot represents a cluster variable and it's content
-#' the unique clusters it contains.
+#' the unique clusters (groups) it contains.
 #'
 #' @export
 #'

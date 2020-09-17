@@ -3,9 +3,9 @@
 
 # Surface plotting --------------------------------------------------------
 
-#' @title Surface plot tab
+#' @title Surface plot tab - return
 #' @details To use within shinydashboard::tab_items()
-#' @note Tab for the small-application
+#' @note Tab for the output returning application
 
 tab_surface_plots_return <- function(){shinydashboard::tabItem(tabName = "surface_plots",
 
@@ -48,9 +48,9 @@ tab_surface_plots_return <- function(){shinydashboard::tabItem(tabName = "surfac
 )}
 
 
-#' @title Surface plot tab
+#' @title Surface plot tab - classic
 #' @details To use within shinydashboard::tab_items()
-#' @note Tab for the big-application
+#' @note Tab for the big application
 
 tab_surface_plots_app <- function(){shinydashboard::tabItem(tabName = "surface_plots",
 
@@ -88,7 +88,7 @@ tab_surface_plots_app <- function(){shinydashboard::tabItem(tabName = "surface_p
 
 
 # Segmentation ------------------------------------------------------------
-
+#' @title Segmentation plot tab - return
 tab_create_segmentation_return <- function(){shinydashboard::tabItem(tabName = "create_segmentation",
 
   shiny::fluidRow(
@@ -151,6 +151,7 @@ tab_create_segmentation_return <- function(){shinydashboard::tabItem(tabName = "
 
 
 # Trajectories ------------------------------------------------------------
+#' @title Trajectory plot tab - return
 
 tab_create_trajectories_return <- function(){
 

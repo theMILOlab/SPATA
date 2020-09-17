@@ -1,6 +1,7 @@
-#' @title Reduce the number of samples
+#' @title Subset a spata-object
 #'
-#' @description Keeps only information of the specified sample
+#' @description Reduces the number of samples in the
+#' specified spata-object to one.
 #'
 #' @param object A valid spata-object.
 #' @param sample Character value. The sample of interest.

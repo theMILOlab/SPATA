@@ -8,7 +8,7 @@ NULL
 #'
 #' @param object A spata-object.
 #'
-#' @return A character string printed by \code{base::writeLines()}
+#' @return A character string that is printed by \code{base::writeLines()}
 #' @export
 #'
 

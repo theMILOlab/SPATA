@@ -6,8 +6,8 @@
 #' @description Stores a new gene set in the spata-object.
 #'
 #' @inherit check_object
-#' @param class_name The class the gene set belongs to specified as a single character value.
-#' @param gs_name The name of the new gene set specified as a single character value.
+#' @param class_name Character value. The class the gene set belongs to..
+#' @param gs_name Character value. The name of the new gene set.
 #' @param overwrite Logical. Overwrites existing gene sets with the same \code{class_name} -
 #' \code{gs_name} combination.
 #'
@@ -122,8 +122,8 @@ addGeneSetsInteractive <- function(object){
 
 #' Discard gene sets
 #'
-#' @param object A valid spata-object.
-#' @param gs_names The gene sets to be discarded specified as a character vector.
+#' @inherit check_object
+#' @param gs_names Character vector. The gene sets to be discarded.
 #'
 #' @return An updated spata-object.
 #' @export
@@ -156,7 +156,7 @@ discardGeneSets <- function(object, gs_names){
 #'
 #' @description Adds a new variable to the objects feature data.
 #'
-#' @param object A valid spata-object.
+#' @inherit check_object
 #' @param overwrite Logical. If the specified feature name already exists in the
 #' current spata-object this argument must be set to TRUE in order to overwrite it.
 #' @param key_variable Character value. Either \emph{'barcodes'} or \emph{'coordinates'}.

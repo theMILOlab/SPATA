@@ -5,7 +5,7 @@
 #' Prevents application from crashing and displays guiding message about what the user
 #' is supposed to do in order to continue without this message to appear.
 #'
-#' @param evaluate A vector of logical tests.
+#' @param evaluate A vector of logical tests to be evaluated.
 #' @param case_false A character string indicating the message to be displayed if one element of
 #' \code{evaluate} turns out to be FALSE. Needs to be in \code{base::names(\code{error/warning_notifiations})}.
 #' @param error_notifications A named list of character strings.

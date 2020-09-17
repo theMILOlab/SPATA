@@ -1,6 +1,6 @@
 
 
-#' @title UI of add gene sets module
+#' @title UI of the add gene sets module
 #'
 #' @param id The namespace id.
 #'
@@ -51,7 +51,7 @@ moduleAddGeneSetsUI <- function(id){
 }
 
 
-#' @title Server of add gene sets module
+#' @title Server of the add gene sets module
 #'
 #' @param id The namespace id.
 #' @param object A valid spata-object.

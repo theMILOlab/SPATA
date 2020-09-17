@@ -1,6 +1,6 @@
 #' @title Find marker genes
 #'
-#' @description Finds the differentially expressed genes of a set of subgroups.
+#' @description Finds the differentially expressed genes across a set of subgroups.
 #'
 #' @inherit check_sample params
 #' @inherit across params

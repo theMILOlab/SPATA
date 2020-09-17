@@ -4,7 +4,7 @@
 #' interactive mini-shiny application that allows to separate a sample into
 #' several segments.
 #'
-#' @param object A valid spata-object.
+#' @inherit check_object
 #'
 #' @return An updated version of the spata-object specified as \code{object}
 #' now containing the information about all drawn segments.

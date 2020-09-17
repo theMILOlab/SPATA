@@ -136,6 +136,9 @@ plotDimRed <- function(object,
 
 #' @title Plot dimensional reduction
 #'
+#' @description Displays the dimensional reduction and maps gene, gene-set
+#' or feature information onto the color-aesthetic.
+#'
 #' @inherit check_sample params
 #' @inherit check_color_to params
 #' @inherit check_method params

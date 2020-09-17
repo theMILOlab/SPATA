@@ -1,6 +1,6 @@
 
 #' @import SingleCellExperiment
-
+#'
 NULL
 
 #' Assign objects into the global environment

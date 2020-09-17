@@ -2,6 +2,9 @@
 # Objects -----------------------------------------------------------------
 
 #' @title Trajectory patterns
+#'
+#' @description Character vectors containing the names of valid trajectory patterns.
+#'
 #' @export
 trajectory_patterns <- c("Linear descending", "Linear ascending", "Gradient descending", "Logarithmic descending",
                          "Logarithmic ascending", "Gradient ascending","Sinus",  "Sinus (reversed)", "One peak",

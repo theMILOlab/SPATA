@@ -1,6 +1,6 @@
 #' @title Plot trajectory
 #'
-#' @description Displays a trajectory of a specified sample that was
+#' @description Displays the spatial course of spatial trajectory that was
 #' drawn with \code{SPATA::createTrajectories()}.
 #'
 #' @inherit check_sample params

@@ -123,8 +123,8 @@ getCountMatrix <- function(object,
 
 #' @title Obtain a spata-data.frame
 #'
-#' @description This function is most basic start if you want
-#' to extract your analysis.
+#' @description This function is the most basic start if you want
+#' to extract data for your individual analysis.
 #'
 #' (In order to extract the coordinates as well use \code{getCoordinates()}.)
 #'

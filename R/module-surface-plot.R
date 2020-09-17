@@ -1,4 +1,4 @@
-#' @title UI of surface plot module
+#' @title UI of the surface plot module
 #'
 #' @param id The namespace id.
 #'
@@ -75,7 +75,7 @@ moduleSurfacePlotUI <- function(id){
 }
 
 
-#' @title Server of surface plot module
+#' @title Server of the surface plot module
 #'
 #' @param id  The namespace id.
 #' @param object A valid spata-object.

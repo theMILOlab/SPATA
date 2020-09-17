@@ -1,4 +1,4 @@
-#' A collection of frequently used gene-sets
+#' The default collection of frequently used gene-sets
 #'
 #' This data.frame contains all gene-sets SPATA offers by
 #' default. If no other gene-set-data.frame path has been specified

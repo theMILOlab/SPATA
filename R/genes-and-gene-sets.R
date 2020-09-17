@@ -12,7 +12,7 @@
 #' @return An updated spata-object and an informative message about how many
 #' gene-sets have been discarded and how many gene-sets remain.
 #'
-#' @details E.g.: Gene-set 'x' is composed of 30 genes. The expression matrix
+#' @details Example: Assuming that gene-set 'x' is composed of 30 genes. The expression matrix
 #' however contains only 15 of them. If argument \code{limit} is set to 75 gene-set 'x'
 #' is removed since the percentage of genes of which the given expression matrix
 #' contains information about is only 50.

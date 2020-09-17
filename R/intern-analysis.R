@@ -9,7 +9,7 @@
 #' names for the clusters they generate. If you want to these numbers to have a certain
 #' prefix (like \emph{'Cluster'}, the default) you can specify it with this argument.
 #'
-#' @details This functions is a wrapper around monocle3-cluster algorithms which
+#' @details This functions is a wrapper around all monocle3-cluster algorithms which
 #' take several options for dimensional reduction upon which the subsequent clustering bases.
 #' It iterates over all specified methods and returns a tidy data.frame in which each row represents
 #' one barcode-spot uniquely identified by the variable \emph{barcodes} and in which every other variable

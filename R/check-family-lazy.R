@@ -1,7 +1,7 @@
 #' @include S4-generic-functions.R
 NULL
 
-#' @title This is a text dummy
+#' @title lazy_check_dummy
 #'
 #' @description A member of the \code{lazy-check_*()}-family.
 #'

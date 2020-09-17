@@ -1,6 +1,6 @@
 #' @title Spatial overlap
 #'
-#' @description --
+#' @description -- --
 #'
 #' @inherit check_sample params
 #' @inherit check_method params

@@ -1,5 +1,5 @@
 
-#' @title Verbose
+#' @title verbose
 #' @param verbose Logical. If set to TRUE informative messages regarding
 #' the computational progress will be printed.
 #'

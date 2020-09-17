@@ -1,8 +1,8 @@
 
 #' @title Plot the sample
 #'
-#' @description Displays the sample and colors the surface according to the
-#' expression of genes and gene sets or other featured characteristics.
+#' @description Displays the spatial dimension of the sample and colors the
+#' surface according to the expression of genes, gene sets or features.
 #'
 #' \itemize{
 #'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
