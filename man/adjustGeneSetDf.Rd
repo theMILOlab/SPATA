@@ -22,7 +22,7 @@ Checks the objects gene-set data.frame for gene-sets that
 are composed of genes that exist in the given expression matrix.
 }
 \details{
-Example: Assuming that gene-set 'x' is composed of 30 genes. The expression matrix
+E.g.: Gene-set 'x' is composed of 30 genes. The expression matrix
 however contains only 15 of them. If argument \code{limit} is set to 75 gene-set 'x'
 is removed since the percentage of genes of which the given expression matrix
 contains information about is only 50.

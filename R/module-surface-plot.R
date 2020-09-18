@@ -505,8 +505,8 @@ moduleSurfacePlotServer <- function(id,
 
           geneset_vls <-
             GSVA::gsva(expr = rna_assay()[genes,], gset.idx.list = gene_set_df, mx.diff = 1, parallel.sz = 2, method = current$method_gs, verbose = F) %>%
-            t() %>%
-            as.data.frame() %>%
+            base::t() %>%
+            base::as.data.frame() %>%
             magrittr::set_colnames(value = "expr_score") %>%
             tibble::rownames_to_column(var = "barcodes")
 

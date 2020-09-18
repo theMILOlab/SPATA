@@ -26,8 +26,8 @@ findDE <- function(object,
   of_sample <- check_sample(object, of_sample)
 
   across <- check_features(object = object,
-                            features = across,
-                            valid_classes = c("factor", "character"))
+                           features = across,
+                           valid_classes = c("factor", "character"))
 
   # -----
 
@@ -241,7 +241,3 @@ filterDE <- function(de_df,
   }
 
 }
-
-
-
-
