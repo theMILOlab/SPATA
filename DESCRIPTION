@@ -53,7 +53,6 @@ Collate:
     'create_family.R'
     'data.R'
     'documentation-dummies.R'
-    'find-overlap.R'
     'gene-expression-analysis.R'
     'genes-and-gene-sets.R'
     'get-family.R'
