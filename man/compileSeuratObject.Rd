@@ -4,20 +4,11 @@
 \alias{compileSeuratObject}
 \title{Initiate Seurat analysis}
 \usage{
-compileSeuratObject(
-  object,
-  ...,
-  SCTransform = FALSE,
-  NormalizeData = FALSE,
-  FindVariableFeatures = FALSE,
-  ScaleData = FALSE,
-  RunPCA = FALSE,
-  FindNeighbors = FALSE,
-  FindClusters = FALSE,
-  RunTSNE = FALSE,
-  RunUMAP = FALSE,
-  verbose = TRUE
-)
+compileSeuratObject(object, ..., SCTransform = FALSE,
+  NormalizeData = FALSE, FindVariableFeatures = FALSE,
+  ScaleData = FALSE, RunPCA = FALSE, FindNeighbors = FALSE,
+  FindClusters = FALSE, RunTSNE = FALSE, RunUMAP = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -44,9 +35,6 @@ for argument \code{features} is set to \code{base::rownames(seurat_object)}.}
 \item{RunTSNE}{A named list of arguments given to \code{Seurat::RunTSNE()}, TRUE or FALSE.}
 
 \item{RunUMAP}{A named list of arguments given to \code{Seurat::RunUMAP()}, TRUE or FALSE.}
-}
-\value{
-
 }
 \description{
 Takes the count matrix of your spata-object and creates a

@@ -4,13 +4,8 @@
 \alias{check_monocle_input}
 \title{Check monocle input}
 \usage{
-check_monocle_input(
-  preprocess_method,
-  reduction_method,
-  cluster_method,
-  k = base::numeric(1),
-  num_iter = base::numeric(1)
-)
+check_monocle_input(preprocess_method, reduction_method, cluster_method,
+  k = base::numeric(1), num_iter = base::numeric(1))
 }
 \arguments{
 \item{preprocess_method}{Monocle3 - description:

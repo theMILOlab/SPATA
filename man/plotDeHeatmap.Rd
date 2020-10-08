@@ -4,17 +4,9 @@
 \alias{plotDeHeatmap}
 \title{Plot differentially expressed genes}
 \usage{
-plotDeHeatmap(
-  object,
-  of_sample = "",
-  de_df,
-  across,
-  across_subset = NULL,
-  n_barcode_spots = 100,
-  verbose = TRUE,
-  hm_colors = viridis::viridis(15),
-  ...
-)
+plotDeHeatmap(object, of_sample = "", de_df, across,
+  across_subset = NULL, n_barcode_spots = 100, verbose = TRUE,
+  hm_colors = viridis::viridis(15), ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}

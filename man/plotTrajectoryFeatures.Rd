@@ -7,56 +7,24 @@
 \alias{plotTrajectoryGeneSets}
 \title{Trajectory line plots}
 \usage{
-plotTrajectoryFeatures(
-  object,
-  trajectory_name,
-  of_sample = "",
-  features = "percent.mt",
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
-  clrp = "milo",
-  verbose = TRUE
-)
+plotTrajectoryFeatures(object, trajectory_name, of_sample = "",
+  features = "percent.mt", smooth_method = "loess",
+  smooth_span = 0.2, smooth_se = TRUE, clrp = "milo",
+  verbose = TRUE)
 
-plotTrajectoryFeaturesDiscrete(
-  object,
-  trajectory_name,
-  of_sample = "",
-  discrete_feature,
-  clrp = "milo",
-  display_trajectory_parts = FALSE,
-  verbose = TRUE,
-  ...
-)
+plotTrajectoryFeaturesDiscrete(object, trajectory_name, of_sample = "",
+  discrete_feature, clrp = "milo", display_trajectory_parts = FALSE,
+  verbose = TRUE, ...)
 
-plotTrajectoryGenes(
-  object,
-  trajectory_name,
-  of_sample = "",
-  genes,
-  clrp = "milo",
-  average_genes = FALSE,
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
-  display_trajectory_parts = TRUE,
-  verbose = TRUE
-)
+plotTrajectoryGenes(object, trajectory_name, of_sample = "", genes,
+  clrp = "milo", average_genes = FALSE, smooth_method = "loess",
+  smooth_span = 0.2, smooth_se = TRUE,
+  display_trajectory_parts = TRUE, verbose = TRUE)
 
-plotTrajectoryGeneSets(
-  object,
-  trajectory_name,
-  of_sample = "",
-  gene_sets = "Neftel_NPC_Comb",
-  method_gs = "mean",
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
-  clrp = "milo",
-  display_trajectory_parts = TRUE,
-  verbose = TRUE
-)
+plotTrajectoryGeneSets(object, trajectory_name, of_sample = "",
+  gene_sets = "Neftel_NPC_Comb", method_gs = "mean",
+  smooth_method = "loess", smooth_span = 0.2, smooth_se = TRUE,
+  clrp = "milo", display_trajectory_parts = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

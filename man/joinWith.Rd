@@ -8,65 +8,25 @@
 \alias{joinWithVariables}
 \title{Join barcodes with additional variables}
 \usage{
-joinWith(
-  object,
-  spata_df,
-  features = NULL,
-  gene_sets = NULL,
-  method_gs = "mean",
-  genes = NULL,
-  average_genes = FALSE,
-  uniform_genes = "discard",
-  smooth = FALSE,
-  smooth_span = 0.02,
-  verbose = TRUE,
-  normalize = TRUE
-)
+joinWith(object, spata_df, features = NULL, gene_sets = NULL,
+  method_gs = "mean", genes = NULL, average_genes = FALSE,
+  uniform_genes = "discard", smooth = FALSE, smooth_span = 0.02,
+  verbose = TRUE, normalize = TRUE)
 
-joinWithFeatures(
-  object,
-  spata_df,
-  features,
-  smooth = FALSE,
-  smooth_span = 0.02,
-  verbose = TRUE
-)
+joinWithFeatures(object, spata_df, features, smooth = FALSE,
+  smooth_span = 0.02, verbose = TRUE)
 
-joinWithGenes(
-  object,
-  spata_df,
-  genes,
-  average_genes = FALSE,
-  uniform_genes = "keep",
-  smooth = FALSE,
-  smooth_span = 0.02,
-  normalize = TRUE,
-  verbose = TRUE
-)
+joinWithGenes(object, spata_df, genes, average_genes = FALSE,
+  uniform_genes = "keep", smooth = FALSE, smooth_span = 0.02,
+  normalize = TRUE, verbose = TRUE)
 
-joinWithGeneSets(
-  object,
-  spata_df,
-  gene_sets,
-  method_gs = "mean",
-  smooth = FALSE,
-  smooth_span = 0.02,
-  normalize = TRUE,
-  verbose = TRUE
-)
+joinWithGeneSets(object, spata_df, gene_sets, method_gs = "mean",
+  smooth = FALSE, smooth_span = 0.02, normalize = TRUE,
+  verbose = TRUE)
 
-joinWithVariables(
-  object,
-  spata_df,
-  variables,
-  method_gs = "mean",
-  average_genes = FALSE,
-  uniform_genes = "discard",
-  smooth = FALSE,
-  smooth_span = 0.02,
-  normalize = TRUE,
-  verbose = TRUE
-)
+joinWithVariables(object, spata_df, variables, method_gs = "mean",
+  average_genes = FALSE, uniform_genes = "discard", smooth = FALSE,
+  smooth_span = 0.02, normalize = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

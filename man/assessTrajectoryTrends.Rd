@@ -5,14 +5,8 @@
 \alias{assessTrajectoryTrends2}
 \title{Trajectory trend analysis}
 \usage{
-assessTrajectoryTrends(
-  object,
-  trajectory_name,
-  of_sample = "",
-  variables,
-  accuracy = 5,
-  verbose = TRUE
-)
+assessTrajectoryTrends(object, trajectory_name, of_sample = "",
+  variables, accuracy = 5, verbose = TRUE)
 
 assessTrajectoryTrends2(stdf, verbose = TRUE)
 }

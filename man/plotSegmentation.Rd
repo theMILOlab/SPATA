@@ -4,7 +4,8 @@
 \alias{plotSegmentation}
 \title{Plot segmentation}
 \usage{
-plotSegmentation(object, of_sample = "", pt_size = 2, pt_clrp = "milo")
+plotSegmentation(object, of_sample = "", pt_size = 2,
+  pt_clrp = "milo")
 }
 \arguments{
 \item{object}{A valid spata-object.}

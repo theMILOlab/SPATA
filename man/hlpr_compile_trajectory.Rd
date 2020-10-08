@@ -4,12 +4,8 @@
 \alias{hlpr_compile_trajectory}
 \title{Compiles a trajectory data.frame}
 \usage{
-hlpr_compile_trajectory(
-  segment_trajectory_df,
-  trajectory_width,
-  object,
-  sample
-)
+hlpr_compile_trajectory(segment_trajectory_df, trajectory_width, object,
+  sample)
 }
 \arguments{
 \item{segment_trajectory_df}{A data.frame specifying each segment of the whole

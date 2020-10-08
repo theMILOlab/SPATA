@@ -4,20 +4,12 @@
 \alias{compileCellDataSet}
 \title{Initiate monocle3 analysis}
 \usage{
-compileCellDataSet(
-  object,
-  preprocess_method = "PCA",
-  reduction_method = c("PCA", "UMAP"),
-  cluster_method = "leiden",
-  estimate_size_factors_args = list(),
-  preprocess_cds_args = list(),
-  reduce_dimension_args = list(),
-  cluster_cells_args = list(),
-  learn_graph_args = list(),
-  order_cells_args = list(),
-  save_cds_file = NULL,
-  verbose = TRUE
-)
+compileCellDataSet(object, preprocess_method = "PCA",
+  reduction_method = c("PCA", "UMAP"), cluster_method = "leiden",
+  estimate_size_factors_args = list(), preprocess_cds_args = list(),
+  reduce_dimension_args = list(), cluster_cells_args = list(),
+  learn_graph_args = list(), order_cells_args = list(),
+  save_cds_file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

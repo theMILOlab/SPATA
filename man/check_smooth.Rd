@@ -4,13 +4,8 @@
 \alias{check_smooth}
 \title{Check smooth input}
 \usage{
-check_smooth(
-  df = NULL,
-  smooth = NULL,
-  smooth_span = NULL,
-  smooth_method = NULL,
-  smooth_se = NULL
-)
+check_smooth(df = NULL, smooth = NULL, smooth_span = NULL,
+  smooth_method = NULL, smooth_se = NULL)
 }
 \arguments{
 \item{df}{A data.frame that is to be smoothed spatially. That data frame must have

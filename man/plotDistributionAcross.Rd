@@ -5,37 +5,15 @@
 \alias{plotDistributionAcross2}
 \title{Distribution of continuous values}
 \usage{
-plotDistributionAcross(
-  object,
-  of_sample = "",
-  variables,
-  across,
-  across_subset = NULL,
-  method_gs = "mean",
-  plot_type = "violin",
-  binwidth = 0.05,
-  clrp = "milo",
-  ...,
-  normalize = TRUE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE
-)
+plotDistributionAcross(object, of_sample = "", variables, across,
+  across_subset = NULL, method_gs = "mean", plot_type = "violin",
+  binwidth = 0.05, clrp = "milo", ..., normalize = TRUE,
+  assign = FALSE, assign_name, verbose = TRUE)
 
-plotDistributionAcross2(
-  df,
-  variables = "all",
-  across,
-  across_subset = NULL,
-  plot_type = "violin",
-  binwidth = 0.05,
-  clrp = "milo",
-  ...,
-  normalize = TRUE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE
-)
+plotDistributionAcross2(df, variables = "all", across,
+  across_subset = NULL, plot_type = "violin", binwidth = 0.05,
+  clrp = "milo", ..., normalize = TRUE, assign = FALSE, assign_name,
+  verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -86,9 +64,6 @@ the computational progress will be printed.
 (Warning messages will always be printed.)}
 
 \item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
-}
-\value{
-
 }
 \description{
 Visualizes the distribution of values of a set of variables for the

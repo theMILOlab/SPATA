@@ -5,30 +5,12 @@
 \alias{plotDistribution2}
 \title{Distribution of continuous values}
 \usage{
-plotDistribution(
-  object,
-  of_sample = "",
-  variables,
-  method_gs = "mean",
-  plot_type = "histogram",
-  clrp = "milo",
-  binwidth = 0.05,
-  ...,
-  normalize = TRUE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE
-)
+plotDistribution(object, of_sample = "", variables, method_gs = "mean",
+  plot_type = "histogram", clrp = "milo", binwidth = 0.05, ...,
+  normalize = TRUE, assign = FALSE, assign_name, verbose = TRUE)
 
-plotDistribution2(
-  df,
-  variables = "all",
-  plot_type = "histogram",
-  clrp = "milo",
-  binwidth = 0.05,
-  verbose = TRUE,
-  ...
-)
+plotDistribution2(df, variables = "all", plot_type = "histogram",
+  clrp = "milo", binwidth = 0.05, verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}

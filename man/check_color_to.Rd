@@ -4,13 +4,9 @@
 \alias{check_color_to}
 \title{Check color to}
 \usage{
-check_color_to(
-  color_to,
-  all_features = character(),
-  all_gene_sets = character(),
-  all_genes = character(),
-  max_length = NULL
-)
+check_color_to(color_to, all_features = character(),
+  all_gene_sets = character(), all_genes = character(),
+  max_length = NULL)
 }
 \arguments{
 \item{color_to}{The variable to be displayed by color:

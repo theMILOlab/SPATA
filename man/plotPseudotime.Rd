@@ -4,16 +4,9 @@
 \alias{plotPseudotime}
 \title{Monocle3 Pseudotime}
 \usage{
-plotPseudotime(
-  object,
-  use_cds_file = FALSE,
-  save_cds_file = FALSE,
-  preprocess_method = "PCA",
-  cluster_method = "leiden",
-  color_to = NULL,
-  ...,
-  verbose = TRUE
-)
+plotPseudotime(object, use_cds_file = FALSE, save_cds_file = FALSE,
+  preprocess_method = "PCA", cluster_method = "leiden",
+  color_to = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

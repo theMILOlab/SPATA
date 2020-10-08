@@ -42,6 +42,7 @@ Imports:
     tidyr,
     umap
 Collate: 
+    'MALDI_Imaging.R'
     'S4-documentation.R'
     'S4-generic-functions.R'
     'add-family.R'

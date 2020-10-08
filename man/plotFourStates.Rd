@@ -5,33 +5,14 @@
 \alias{plotFourStates2}
 \title{Gene set state plot}
 \usage{
-plotFourStates(
-  object,
-  of_sample = "",
-  states,
-  color_to = NULL,
-  method_gs = "mean",
-  average_genes = FALSE,
-  pt_size = 1.5,
-  pt_alpha = 0.9,
-  pt_clrsp = "inferno",
-  pt_clrp = "milo",
-  display_labels = TRUE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE
-)
+plotFourStates(object, of_sample = "", states, color_to = NULL,
+  method_gs = "mean", average_genes = FALSE, pt_size = 1.5,
+  pt_alpha = 0.9, pt_clrsp = "inferno", pt_clrp = "milo",
+  display_labels = TRUE, assign = FALSE, assign_name, verbose = TRUE)
 
-plotFourStates2(
-  data,
-  states,
-  color_to = NULL,
-  pt_size = 1.5,
-  pt_alpha = 0.9,
-  pt_clrsp = "inferno",
-  pt_clrp = "milo",
-  display_labels = TRUE
-)
+plotFourStates2(data, states, color_to = NULL, pt_size = 1.5,
+  pt_alpha = 0.9, pt_clrsp = "inferno", pt_clrp = "milo",
+  display_labels = TRUE)
 }
 \arguments{
 \item{states}{The gene sets defining the four states specified as a character vector
