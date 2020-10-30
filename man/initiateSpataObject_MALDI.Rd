@@ -4,9 +4,16 @@
 \alias{initiateSpataObject_MALDI}
 \title{Initiate a spata-object from MALDI Imaging}
 \usage{
-initiateSpataObject_MALDI(coordinates, intensity_matrix, geneSets,
-  sample_names = NULL, file_name = NULL, PCA_Comp = 30, NN = 50,
-  verbose = T)
+initiateSpataObject_MALDI(
+  coordinates,
+  intensity_matrix,
+  geneSets,
+  sample_names = NULL,
+  file_name = NULL,
+  PCA_Comp = 30,
+  NN = 50,
+  verbose = T
+)
 }
 \arguments{
 \item{coordinates}{Data.frame containing "unique identifier" meaning a unique description of

@@ -4,13 +4,23 @@
 \alias{initiateSpataObject_10X}
 \title{Initiate a spata-object}
 \usage{
-initiateSpataObject_10X(input_paths, sample_names, gene_set_path = NULL,
-  output_path = NULL, file_name = NULL, SCTransform = FALSE,
-  NormalizeData = list(normalization.method = "LogNormalize",
-  scale.factor = 1000), FindVariableFeatures = list(selection.method =
-  "vst", nfeatures = 2000), ScaleData = TRUE, RunPCA = list(npcs = 60),
-  FindNeighbors = list(dims = 1:30), FindClusters = list(resolution =
-  0.8), RunTSNE = TRUE, RunUMAP = list(dims = 1:30), verbose = TRUE)
+initiateSpataObject_10X(
+  input_paths,
+  sample_names,
+  gene_set_path = NULL,
+  output_path = NULL,
+  file_name = NULL,
+  SCTransform = FALSE,
+  NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+  FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+  ScaleData = TRUE,
+  RunPCA = list(npcs = 60),
+  FindNeighbors = list(dims = 1:30),
+  FindClusters = list(resolution = 0.8),
+  RunTSNE = TRUE,
+  RunUMAP = list(dims = 1:30),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{input_paths}{Character vector. Specifies the 10X visium-folders from

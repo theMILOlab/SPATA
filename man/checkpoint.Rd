@@ -4,24 +4,27 @@
 \alias{checkpoint}
 \title{Shiny feedback messages}
 \usage{
-checkpoint(evaluate = TRUE, case_false = NULL,
-  error_notifications = list(no_name =
-  "Could not save. Please enter a valid name", insufficient_n_vertices =
-  "Please determine at least three vertices.", insufficient_n_vertices2 =
-  "Please determine at least two vertices and highlight the trajectory.",
-  invalid_segment_name = "Please enter a valid name for the segment.",
-  segment_name_not_found = "Could not find the specified segment.",
-  occupied_segment_name = "This segment name is already taken.",
-  occupied_trajectory_name = "This trajectory name is already taken.",
-  invalid_trajectory_name =
-  "Please enter a valid name for the trajectory.",     
-  insufficient_n_genes = "Please determine at least two genes.",
-  invalid_gs_string1 = "The class-prefix must not contain '_'.",
-  invalid_gs_string2 =
-  "Please enter a valid string for the class-prefix and the gene-set name.",
-  occupied_gs_name = "This gene-set name is already taken."),
-  warning_notifications = list(), duration = 4, stop_process = TRUE,
-  stop_app = FALSE)
+checkpoint(
+  evaluate = TRUE,
+  case_false = NULL,
+  error_notifications = list(no_name = "Could not save. Please enter a valid name",
+    insufficient_n_vertices = "Please determine at least three vertices.",
+    insufficient_n_vertices2 =
+    "Please determine at least two vertices and highlight the trajectory.",
+    invalid_segment_name = "Please enter a valid name for the segment.",
+    segment_name_not_found = "Could not find the specified segment.",
+    occupied_segment_name = "This segment name is already taken.",
+    occupied_trajectory_name = "This trajectory name is already taken.",
+    invalid_trajectory_name = "Please enter a valid name for the trajectory.",     
+    insufficient_n_genes = "Please determine at least two genes.", invalid_gs_string1 =
+    "The class-prefix must not contain '_'.", invalid_gs_string2 =
+    "Please enter a valid string for the class-prefix and the gene-set name.",
+    occupied_gs_name = "This gene-set name is already taken."),
+  warning_notifications = list(),
+  duration = 4,
+  stop_process = TRUE,
+  stop_app = FALSE
+)
 }
 \arguments{
 \item{evaluate}{A vector of logical tests to be evaluated.}

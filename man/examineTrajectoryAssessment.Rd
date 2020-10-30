@@ -4,8 +4,14 @@
 \alias{examineTrajectoryAssessment}
 \title{Examine trajectory-moddeling results}
 \usage{
-examineTrajectoryAssessment(atdf, limits = c(0, 10),
-  plot_type = "histogram", binwidth = 0.5, clrp = "milo", ...)
+examineTrajectoryAssessment(
+  atdf,
+  limits = c(0, 10),
+  plot_type = "histogram",
+  binwidth = 0.5,
+  clrp = "milo",
+  ...
+)
 }
 \arguments{
 \item{atdf}{A data.frame containing the results of trajectory-modelling. Must contain the variables:

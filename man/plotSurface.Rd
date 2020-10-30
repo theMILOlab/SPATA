@@ -6,15 +6,35 @@
 \alias{plotSurfaceInteractive}
 \title{Plot the sample}
 \usage{
-plotSurface(object, of_sample = "", color_to = NULL,
-  method_gs = "mean", normalize = TRUE, smooth = FALSE,
-  smooth_span = 0.02, pt_size = 2, pt_alpha = 1,
-  pt_clrsp = "inferno", pt_clrp = "milo", pt_clr = "lightgrey",
-  display_image = FALSE, display_title = FALSE, assign = FALSE,
-  assign_name, verbose = TRUE)
+plotSurface(
+  object,
+  of_sample = "",
+  color_to = NULL,
+  method_gs = "mean",
+  normalize = TRUE,
+  smooth = FALSE,
+  smooth_span = 0.02,
+  pt_size = 2,
+  pt_alpha = 1,
+  pt_clrsp = "inferno",
+  pt_clrp = "milo",
+  pt_clr = "lightgrey",
+  display_image = FALSE,
+  display_title = FALSE,
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE
+)
 
-plotSurface2(coords_df, color_to, pt_size = 2, pt_alpha = 0.9,
-  pt_clrsp = "inferno", pt_clrp = "milo", image = NULL)
+plotSurface2(
+  coords_df,
+  color_to,
+  pt_size = 2,
+  pt_alpha = 0.9,
+  pt_clrsp = "inferno",
+  pt_clrp = "milo",
+  image = NULL
+)
 
 plotSurfaceInteractive(object)
 }

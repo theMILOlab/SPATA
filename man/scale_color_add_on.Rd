@@ -4,8 +4,13 @@
 \alias{scale_color_add_on}
 \title{ggplot2 - color add on}
 \usage{
-scale_color_add_on(aes = "color", variable = "numeric", clrsp = NULL,
-  clrp = NULL, ...)
+scale_color_add_on(
+  aes = "color",
+  variable = "numeric",
+  clrsp = NULL,
+  clrp = NULL,
+  ...
+)
 }
 \arguments{
 \item{aes}{Character value. Either \emph{'color'} or \emph{'fill'}. Denotes the

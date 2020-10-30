@@ -5,8 +5,7 @@
 \alias{getGenesInteractive}
 \title{Obtain gene names}
 \usage{
-getGenes(object, of_gene_sets = "all", in_sample = "",
-  simplify = TRUE)
+getGenes(object, of_gene_sets = "all", in_sample = "", simplify = TRUE)
 
 getGenesInteractive(object)
 }

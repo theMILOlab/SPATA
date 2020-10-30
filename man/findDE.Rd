@@ -4,8 +4,14 @@
 \alias{findDE}
 \title{Find marker genes}
 \usage{
-findDE(object, of_sample = "", across, across_subset = NULL,
-  method_de = "wilcox", p_val_adj = 0.05)
+findDE(
+  object,
+  of_sample = "",
+  across,
+  across_subset = NULL,
+  method_de = "wilcox",
+  p_val_adj = 0.05
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

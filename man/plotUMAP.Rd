@@ -5,13 +5,29 @@
 \alias{plotTSNE}
 \title{Plot dimensional reduction}
 \usage{
-plotUMAP(object, of_sample = "", color_to = NULL, method_gs = "mean",
-  pt_size = 2, pt_alpha = 1, pt_clrsp = "inferno",
-  pt_clrp = "milo", verbose = TRUE)
+plotUMAP(
+  object,
+  of_sample = "",
+  color_to = NULL,
+  method_gs = "mean",
+  pt_size = 2,
+  pt_alpha = 1,
+  pt_clrsp = "inferno",
+  pt_clrp = "milo",
+  verbose = TRUE
+)
 
-plotTSNE(object, of_sample = "", color_to = NULL, method_gs = "mean",
-  pt_size = 2, pt_alpha = 1, pt_clrsp = "inferno",
-  pt_clrp = "milo", verbose = TRUE)
+plotTSNE(
+  object,
+  of_sample = "",
+  color_to = NULL,
+  method_gs = "mean",
+  pt_size = 2,
+  pt_alpha = 1,
+  pt_clrsp = "inferno",
+  pt_clrp = "milo",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

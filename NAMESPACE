@@ -2,6 +2,7 @@
 
 export("coordinates<-")
 export("featureData<-")
+export(AutoEncoderDenoising)
 export(addFeatures)
 export(addGeneSet)
 export(addGeneSetsInteractive)

@@ -5,15 +5,34 @@
 \alias{plotSurfaceComparison2}
 \title{Plot several surface plots at the same time}
 \usage{
-plotSurfaceComparison(object, of_sample = "", variables,
-  method_gs = "mean", normalize = TRUE, smooth = FALSE,
-  smooth_span = 0.02, pt_size = 2, pt_alpha = 1,
-  pt_clrsp = "inferno", display_image = FALSE, assign = FALSE,
-  assign_name, verbose = TRUE, ...)
+plotSurfaceComparison(
+  object,
+  of_sample = "",
+  variables,
+  method_gs = "mean",
+  normalize = TRUE,
+  smooth = FALSE,
+  smooth_span = 0.02,
+  pt_size = 2,
+  pt_alpha = 1,
+  pt_clrsp = "inferno",
+  display_image = FALSE,
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE,
+  ...
+)
 
-plotSurfaceComparison2(coords_df, variables = "all", pt_size = 2,
-  pt_alpha = 0.9, pt_clrsp = "inferno", image = NULL,
-  verbose = TRUE, ...)
+plotSurfaceComparison2(
+  coords_df,
+  variables = "all",
+  pt_size = 2,
+  pt_alpha = 0.9,
+  pt_clrsp = "inferno",
+  image = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{variables}{Character vector. The variables of interest:

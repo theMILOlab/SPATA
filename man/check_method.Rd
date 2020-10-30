@@ -4,8 +4,13 @@
 \alias{check_method}
 \title{Check method input}
 \usage{
-check_method(method_dr = NULL, method_gs = NULL, method_de = NULL,
-  method_padj = NULL, method_ovl = NULL)
+check_method(
+  method_dr = NULL,
+  method_gs = NULL,
+  method_de = NULL,
+  method_padj = NULL,
+  method_ovl = NULL
+)
 }
 \arguments{
 \item{method_dr}{Character value. The dimensional reduction method of

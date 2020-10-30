@@ -4,10 +4,21 @@
 \alias{plotTrajectoryHeatmap}
 \title{Expression dynamic in heatmap}
 \usage{
-plotTrajectoryHeatmap(object, trajectory_name, of_sample = "", variables,
-  method_gs = "mean", arrange_rows = "none", show_rownames = FALSE,
-  show_colnames = FALSE, split_columns = TRUE, smooth_span = 0.5,
-  verbose = TRUE, hm_colors = viridis::inferno(150), ...)
+plotTrajectoryHeatmap(
+  object,
+  trajectory_name,
+  of_sample = "",
+  variables,
+  method_gs = "mean",
+  arrange_rows = "none",
+  show_rownames = FALSE,
+  show_colnames = FALSE,
+  split_columns = TRUE,
+  smooth_span = 0.5,
+  verbose = TRUE,
+  hm_colors = viridis::inferno(150),
+  ...
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

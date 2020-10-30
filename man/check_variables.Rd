@@ -4,9 +4,15 @@
 \alias{check_variables}
 \title{Check variables}
 \usage{
-check_variables(variables, all_features = character(),
-  all_gene_sets = character(), all_genes = character(),
-  max_length = Inf, max_slots = 3, simplify = FALSE)
+check_variables(
+  variables,
+  all_features = character(),
+  all_gene_sets = character(),
+  all_genes = character(),
+  max_length = Inf,
+  max_slots = 3,
+  simplify = FALSE
+)
 }
 \arguments{
 \item{variables}{Character vector. The variables of interest:

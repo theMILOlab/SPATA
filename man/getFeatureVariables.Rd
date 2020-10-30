@@ -4,8 +4,13 @@
 \alias{getFeatureVariables}
 \title{Obtain a feature variable}
 \usage{
-getFeatureVariables(object, features, of_sample = "",
-  return = "data.frame", unique = "deprecated")
+getFeatureVariables(
+  object,
+  features,
+  of_sample = "",
+  return = "data.frame",
+  unique = "deprecated"
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

@@ -4,10 +4,16 @@
 \alias{findMonocleClusters}
 \title{Cluster sample via monocle3}
 \usage{
-findMonocleClusters(object, preprocess_method = c("PCA", "LSI"),
+findMonocleClusters(
+  object,
+  preprocess_method = c("PCA", "LSI"),
   reduction_method = c("UMAP", "tSNE", "PCA", "LSI"),
-  cluster_method = c("leiden", "louvain"), k = 20, num_iter = 5,
-  prefix = "Cluster ", verbose = TRUE)
+  cluster_method = c("leiden", "louvain"),
+  k = 20,
+  num_iter = 5,
+  prefix = "Cluster ",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

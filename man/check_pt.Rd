@@ -4,8 +4,14 @@
 \alias{check_pt}
 \title{Check pt input}
 \usage{
-check_pt(pt_size = NULL, pt_alpha = NULL, pt_clrsp = NULL,
-  pt_clrsp_dir = NULL, pt_clrp = NULL, pt_clr = NULL)
+check_pt(
+  pt_size = NULL,
+  pt_alpha = NULL,
+  pt_clrsp = NULL,
+  pt_clrsp_dir = NULL,
+  pt_clrp = NULL,
+  pt_clr = NULL
+)
 }
 \arguments{
 \item{pt_size}{The size of the points specified as a single numeric value.}

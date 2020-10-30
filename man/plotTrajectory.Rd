@@ -4,12 +4,25 @@
 \alias{plotTrajectory}
 \title{Plot trajectory}
 \usage{
-plotTrajectory(object, trajectory_name, of_sample = "",
-  color_to = NULL, method_gs = "mean", smooth = FALSE,
-  smooth_span = 0.02, pt_size = 2.5, pt_alpha = 0.4,
-  pt_clr = "red", pt_clrp = "milo", pt_clrsp = "inferno",
-  sgmt_size = 1, display_image = TRUE, display_title = FALSE,
-  uniform_genes = "discard", verbose = TRUE)
+plotTrajectory(
+  object,
+  trajectory_name,
+  of_sample = "",
+  color_to = NULL,
+  method_gs = "mean",
+  smooth = FALSE,
+  smooth_span = 0.02,
+  pt_size = 2.5,
+  pt_alpha = 0.4,
+  pt_clr = "red",
+  pt_clrp = "milo",
+  pt_clrsp = "inferno",
+  sgmt_size = 1,
+  display_image = TRUE,
+  display_title = FALSE,
+  uniform_genes = "discard",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

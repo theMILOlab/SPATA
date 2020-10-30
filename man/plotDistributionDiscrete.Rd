@@ -4,8 +4,15 @@
 \alias{plotDistributionDiscrete}
 \title{Distribution of discrete features}
 \usage{
-plotDistributionDiscrete(object, of_sample = "", features,
-  feature_compare = NULL, clrp = "milo", position = "fill", ...)
+plotDistributionDiscrete(
+  object,
+  of_sample = "",
+  features,
+  feature_compare = NULL,
+  clrp = "milo",
+  position = "fill",
+  ...
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

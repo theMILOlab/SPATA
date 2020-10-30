@@ -4,8 +4,13 @@
 \alias{filterDE}
 \title{Postprocess de-results}
 \usage{
-filterDE(de_df, n_highest_FC = 100, n_lowest_pvalue = 100,
-  across_subset = NULL, return = "data.frame")
+filterDE(
+  de_df,
+  n_highest_FC = 100,
+  n_lowest_pvalue = 100,
+  across_subset = NULL,
+  return = "data.frame"
+)
 }
 \arguments{
 \item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:

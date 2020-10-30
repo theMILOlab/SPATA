@@ -4,8 +4,15 @@
 \alias{hlpr_summarize_trajectory_df}
 \title{Join and summarize compiled trajectory data.frames}
 \usage{
-hlpr_summarize_trajectory_df(object, ctdf, accuracy = 5, variables,
-  method_gs = "mean", verbose = TRUE, normalize = FALSE)
+hlpr_summarize_trajectory_df(
+  object,
+  ctdf,
+  accuracy = 5,
+  variables,
+  method_gs = "mean",
+  verbose = TRUE,
+  normalize = FALSE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

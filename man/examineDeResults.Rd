@@ -4,8 +4,7 @@
 \alias{examineDeResults}
 \title{Examine differentially expression results}
 \usage{
-examineDeResults(de_df, clrp = "milo", return = "both",
-  binwidth = 10, ...)
+examineDeResults(de_df, clrp = "milo", return = "both", binwidth = 10, ...)
 }
 \arguments{
 \item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:

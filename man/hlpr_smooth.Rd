@@ -4,8 +4,15 @@
 \alias{hlpr_smooth}
 \title{Smooth variables spatially}
 \usage{
-hlpr_smooth(variable, var_name, coords_df, smooth_span, aspect, subset,
-  pb = NULL)
+hlpr_smooth(
+  variable,
+  var_name,
+  coords_df,
+  smooth_span,
+  aspect,
+  subset,
+  pb = NULL
+)
 }
 \arguments{
 \item{variable}{The variable to smooth}

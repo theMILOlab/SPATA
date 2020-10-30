@@ -4,9 +4,16 @@
 \alias{getTrajectoryDf}
 \title{Obtain a summarized trajectory data.frame}
 \usage{
-getTrajectoryDf(object, trajectory_name, of_sample = "", variables,
-  method_gs = "mean", accuracy = 5, normalize = TRUE,
-  verbose = TRUE)
+getTrajectoryDf(
+  object,
+  trajectory_name,
+  of_sample = "",
+  variables,
+  method_gs = "mean",
+  accuracy = 5,
+  normalize = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

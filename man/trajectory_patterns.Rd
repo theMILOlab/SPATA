@@ -4,7 +4,9 @@
 \name{trajectory_patterns}
 \alias{trajectory_patterns}
 \title{Trajectory patterns}
-\format{An object of class \code{character} of length 14.}
+\format{
+An object of class \code{character} of length 14.
+}
 \usage{
 trajectory_patterns
 }

@@ -4,8 +4,14 @@
 \alias{addFeatures}
 \title{Add a new feature}
 \usage{
-addFeatures(object, feature_names, feature_df, key_variable = "barcodes",
-  of_sample = "", overwrite = FALSE)
+addFeatures(
+  object,
+  feature_names,
+  feature_df,
+  key_variable = "barcodes",
+  of_sample = "",
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

@@ -4,9 +4,17 @@
 \alias{plotTrajectoryFit}
 \title{Display trajectory fit}
 \usage{
-plotTrajectoryFit(object, trajectory_name, of_sample = "", variable,
-  method_gs = "mean", accuracy = 5, display_residuals = FALSE,
-  verbose = TRUE, ...)
+plotTrajectoryFit(
+  object,
+  trajectory_name,
+  of_sample = "",
+  variable,
+  method_gs = "mean",
+  accuracy = 5,
+  display_residuals = FALSE,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
