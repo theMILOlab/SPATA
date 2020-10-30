@@ -17,8 +17,6 @@
 #' @importFrom Seurat ScaleData
 #'
 #' @export
-#'
-#'
 
 
 AutoEncoderDenoising <-
