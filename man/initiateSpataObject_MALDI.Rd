@@ -7,7 +7,7 @@
 initiateSpataObject_MALDI(
   coordinates,
   intensity_matrix,
-  geneSets,
+  geneSets = NULL,
   sample_names = NULL,
   file_name = NULL,
   PCA_Comp = 30,

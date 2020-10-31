@@ -75,7 +75,7 @@
 
 initiateSpataObject_MALDI<-function(coordinates,
                                     intensity_matrix,
-                                    geneSets,
+                                    geneSets=NULL,
                                     sample_names=NULL,
                                     file_name=NULL,
                                     PCA_Comp=30,
@@ -84,9 +84,9 @@ initiateSpataObject_MALDI<-function(coordinates,
 
   if(base::is.null(sample_names)){sample_names="sample_1"}
   if(base::is.null(file_name)){file_name="MALDI_SPATAobj.RDS"}
-  if(base::class(intensity_matrix)!="matrix") stop("intensity_matrix: Is not from class 'matrix' ")
-
-  string_contain=length(str_detect(rownames(intensity_matrix), "_") %in% TRUE) > 1
+  if(!methods::is(intensity_matrix, "matrix")) stop("intensity_matrix: Is not from class 'matrix' ")
+  if(base::is.null(geneSets)){geneSets=SPATA::gsdf}
+  string_contain=length(stringr::str_detect(rownames(intensity_matrix), "_") %in% TRUE) <= 1
 
   if(string_contain) {
     message(" rownames of intensity matrix contain a '_'. This is not allowed and will be changed into '-' ")
@@ -101,7 +101,7 @@ initiateSpataObject_MALDI<-function(coordinates,
 
   #Change Coordinates for image in SPATA
 
-  if (verbose==T) { message("---------- Create SPATA object fro MALDI  ------------- ") }
+  if (verbose==T) { message("---------- Create SPATA object from MALDI  ------------- ") }
 
   #Crease empty SPATA object
   obj=methods::new(Class="spata")
@@ -113,7 +113,7 @@ initiateSpataObject_MALDI<-function(coordinates,
   obj@fdata <- obj@coordinates %>% dplyr::select(barcodes, sample) %>% dplyr::mutate(segment = "")
   obj@used_genesets=geneSets
   obj@trajectories=list(sample=list())
-  names(obj@trajectories)=sample
+  names(obj@trajectories)=obj@samples
 
   ## Run Analysis ##
 
@@ -121,34 +121,38 @@ initiateSpataObject_MALDI<-function(coordinates,
   if (verbose==T) { message("---------- Run PCA Analysis 1/4 ------------- ")}
   pca=base::as.data.frame(pcaMethods::pca(t(intensity_matrix),method="svd", nPcs=PCA_Comp)@scores)
   if (verbose==T) { message("---------- Select Eigenvalues Analysis 2/4 ------------- ")}
-
   if (verbose==T) { message("---------- Run SNN-Cluster Analysis 3/4 ------------- ")}
 
   nearest <- RANN::nn2(pca, k = NN, treetype = "bd", searchtype = "priority")
-  nearest$nn.idx <- nearest$nn.idx ; nearest$nn.dists <- nearest$nn.dists
+  nearest$nn.idx <- nearest$nn.idx
+  nearest$nn.dists <- nearest$nn.dists
   edges = reshape::melt(t(nearest$nn.idx[, 1:NN]))
   base::colnames(edges) = c("B", "A", "C")
-  edges = edges[, c("A", "B", "C")] ; edges$B = edges$C ; edges$C = 1
+  edges = edges[, c("A", "B", "C")]
+  edges$B = edges$C
+  edges$C = 1
   edges = base::unique(base::transform(edges, A = pmin(A, B), B = pmax(A, B)))
-  names(edges) <- c("V1", "V2", "weight") ; edges$V1 <- rownames(pca)[edges$V1] ; edges$V2 <- rownames(pca)[edges$V2]
+  names(edges) <- c("V1", "V2", "weight")
+  edges$V1 <- base::rownames(pca)[edges$V1]
+  edges$V2 <- base::rownames(pca)[edges$V2]
   g <- igraph::graph.data.frame(edges, directed = F)
   graph.out = igraph::cluster_louvain(g)
-  clust.assign = base::factor(graph.out$membership, levels = sort(unique(graph.out$membership)))
-  Cluster_out=data.frame(ID=rownames(pca), Cluster=clust.assign); rownames(Cluster_out)=Cluster_out$ID
+  clust.assign = base::factor(graph.out$membership, levels = base::sort(base::unique(graph.out$membership)))
+  Cluster_out=base::data.frame(ID=base::rownames(pca), Cluster=clust.assign); base::rownames(Cluster_out)=Cluster_out$ID
 
   obj@fdata$cluster=Cluster_out[obj@fdata$barcodes, "Cluster"]
 
   if (verbose==T) { message("---------- Run Dimensional Reduction 4/4 ------------- ")}
 
   ts=Rtsne::Rtsne(pca, perplexity=30)
-  obj@dim_red@TSNE <- data.frame(barcodes=rownames(pca), sample=sample_names, tsne1=ts$Y[,1], tsne2=ts$Y[,2])
+  obj@dim_red@TSNE <- base::data.frame(barcodes=base::rownames(pca), sample=sample_names, tsne1=ts$Y[,1], tsne2=ts$Y[,2])
   #plot(obj@dim_red@TSNE$tsne1, obj@dim_red@TSNE$tsne2)
   umap=umap::umap(pca)
-  obj@dim_red@UMAP <- data.frame(barcodes=rownames(pca), sample=sample_names, umap1=umap$layout[,1], umap2=umap$layout[,2])
+  obj@dim_red@UMAP <- base::data.frame(barcodes=base::rownames(pca), sample=sample_names, umap1=umap$layout[,1], umap2=umap$layout[,2])
 
   if (verbose==T) { message("---------- Analysis Done... export data  ------------- ")}
 
-  saveRDS(obj, file_name)
+  base::saveRDS(obj, file_name)
 
   return(obj)
 
