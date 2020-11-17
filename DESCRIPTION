@@ -60,6 +60,7 @@ Collate:
     'genes-and-gene-sets.R'
     'get-family.R'
     'get-family_new.R'
+    'getRNAvelocity.R'
     'helper-functions.R'
     'imported-functions.R'
     'intern-analysis.R'
