@@ -79,8 +79,8 @@ getRNAvelocity <- function(object,
   so@meta.data$seurat_clusters <-
     so@meta.data %>%
     as.data.frame() %>%
-    left_join(., object@fdata, by="barcodes") %>%
-    pull(seurat_clusters.y)
+    dplyr::left_join(., object@fdata, by="barcodes") %>%
+    dplyr::pull(seurat_clusters.y)
 
 
   base::message("... Return objects  for python.... ")
