@@ -91,4 +91,3 @@ getSurroundedSpots <- function(object, of_sample=NULL, assay_type="Visium"){
 
 }
 
-

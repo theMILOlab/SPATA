@@ -9,7 +9,8 @@ getRNAvelocity(
   Velocity_from = c("spatial", "UMAP"),
  
     path_to_pythonscript = "'/Users/HenrikHeiland/Desktop/T-Cell Project/Revisions/sc2velo.py'",
-  loom,
+  loom = NULL,
+  h5ad = NULL,
   path_to_python = "/Users/HenrikHeiland/opt/anaconda3/bin/python3.7 ",
   folder = getwd()
 )

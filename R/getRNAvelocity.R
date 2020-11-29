@@ -22,13 +22,14 @@
 getRNAvelocity <- function(object,
                            Velocity_from=c("spatial", "UMAP"),
                            path_to_pythonscript="'/Users/HenrikHeiland/Desktop/T-Cell\ Project/Revisions/sc2velo.py'",
-                           loom,
+                           loom=NULL,
+                           h5ad=NULL,
                            path_to_python="/Users/HenrikHeiland/opt/anaconda3/bin/python3.7 ",
                            folder=getwd()){
 
 
 # loom into seurat --------------------------------------------------------
-
+  if(is.null(h5ad)){
   ldat <- SeuratWrappers::ReadVelocity(file = loom)
 
   so <- Seurat::as.Seurat(x = ldat)
@@ -92,6 +93,7 @@ getRNAvelocity <- function(object,
   SeuratDisk::Convert("Export.h5Seurat", dest = "h5ad")
 
 
+
   #Export additional files required
   if(Velocity_from=="spatial"){
     rownames(object@coordinates) <- object@coordinates$barcodes
@@ -117,7 +119,35 @@ getRNAvelocity <- function(object,
                  " -F ", folder)
 
   system(code)
+  }else{
 
+    #Export additional files required
+    if(Velocity_from=="spatial"){
+      rownames(object@coordinates) <- object@coordinates$barcodes
+      UMAP <-
+        object@coordinates[so@meta.data$barcodes, ] %>%
+        select(x,y)
+      names(UMAP) <- c("UMAP_1","UMAP_2")
+      write.csv(UMAP, "UMAP.csv")
+    }else{
+      rownames(object@dim_red@UMAP) <- object@dim_red@UMAP$barcodes
+      UMAP <-
+        object@dim_red@UMAP[so@meta.data$barcodes, ] %>%
+        select(umap1,umap2)
+      names(UMAP) <- c("UMAP_1","UMAP_2")
+      write.csv(UMAP, "UMAP.csv")
+    }
+
+
+
+    code <- paste0(path_to_python," ", path_to_pythonscript, " ",
+                   "-I " , h5ad ,
+                   " -U ", "UMAP.csv",
+                   " -F ", folder)
+
+    system(code)
+
+}
 
   setwd(folder)
   velo=read.csv("rank_dynamical_genes.csv")
