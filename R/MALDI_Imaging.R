@@ -120,7 +120,7 @@ initiateSpataObject_MALDI<-function(coordinates,
 
   if (verbose==T) { message("---------- Run PCA Analysis 1/4 ------------- ")}
   #pca=base::as.data.frame(pcaMethods::pca(t(intensity_matrix),method="svd", nPcs=PCA_Comp)@scores)
-  pca <- irlba::prcomp_irlba(intensity_matrix, n=PCA_Comp)[["rotation"]]
+  pca <- irlba::prcomp_irlba(t(intensity_matrix), n=PCA_Comp)[["rotation"]]
 
   if (verbose==T) { message("---------- Select Eigenvalues Analysis 2/4 ------------- ")}
   if (verbose==T) { message("---------- Run SNN-Cluster Analysis 3/4 ------------- ")}
