@@ -215,6 +215,7 @@ plotTrajectoryFeatures <- function(object,
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
                                    clrp = "milo",
+                                   display_trajectory_parts = FALSE,
                                    split = FALSE,
                                    ...,
                                    verbose = TRUE){
@@ -256,17 +257,22 @@ plotTrajectoryFeatures <- function(object,
 
   if(base::isTRUE(display_trajectory_parts)){
 
+    print(result_df)
+
+
     vline_df <-
       result_df %>%
       dplyr::group_by(trajectory_part) %>%
       dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                      trajectory_part_order == 1 &
-                      variables == features[1])
+                    trajectory_part_order == 1,
+                    trajectory_order != 1)
 
     trajectory_part_add_on <- list(
-      ggplot2::geom_vline(data = vline_df[-1,],
+      ggplot2::geom_vline(data = vline_df,
                           mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
     )
+
+    print(vline_df)
 
   } else {
 
@@ -293,19 +299,19 @@ plotTrajectoryFeatures <- function(object,
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = variables)) +
+    ggplot2::theme_classic() +
     trajectory_part_add_on +
+    facet_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
-    ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
       axis.ticks.x = ggplot2::element_blank(),
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features") +
-    facet_add_on
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features")
 
 }
 
@@ -433,11 +439,11 @@ plotTrajectoryGenes <- function(object,
       result_df %>%
       dplyr::group_by(trajectory_part) %>%
       dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                      trajectory_part_order == 1 &
-                      genes == genes[1])
+                    trajectory_part_order == 1,
+                    trajectory_order != 1)
 
     trajectory_part_add_on <- list(
-      ggplot2::geom_vline(data = vline_df[-1,],
+      ggplot2::geom_vline(data = vline_df,
                           mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
     )
 
@@ -542,11 +548,11 @@ plotTrajectoryGeneSets <- function(object,
       result_df %>%
       dplyr::group_by(trajectory_part) %>%
       dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                      trajectory_part_order == 1 &
-                      variables == gene_sets[1])
+                    trajectory_part_order == 1,
+                    trajectory_order != 1)
 
     trajectory_part_add_on <- list(
-      ggplot2::geom_vline(data = vline_df[-1,],
+      ggplot2::geom_vline(data = vline_df,
                           mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
     )
 
