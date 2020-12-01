@@ -18,7 +18,7 @@ plotTrajectory(
   pt_clrp = "milo",
   pt_clrsp = "inferno",
   sgmt_size = 1,
-  display_image = TRUE,
+  display_image = FALSE,
   display_title = FALSE,
   uniform_genes = "discard",
   verbose = TRUE

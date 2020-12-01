@@ -34,7 +34,7 @@ plotTrajectory <- function(object,
                            pt_clrp = "milo",
                            pt_clrsp = "inferno",
                            sgmt_size = 1,
-                           display_image = TRUE,
+                           display_image = FALSE,
                            display_title = FALSE,
                            uniform_genes = "discard",
                            verbose = TRUE){
@@ -198,6 +198,10 @@ plotTrajectory <- function(object,
 #' drawn.
 #' @param clrp Character value. The color panel to be used.
 #'  Run \code{all_colorpanels()} to see valid input.
+#' @param split Logical. If set to TRUE sub plots for every specified gene, gene-set
+#' or feature are displayed via \code{ggplot2::facet_wrap()}
+#' @param ... Additional arguments given to \code{ggplot2::facet_wrap()} if argument
+#' \code{split} is set to TRUE.
 #'
 #' @inherit plot_family return
 #'
@@ -211,6 +215,8 @@ plotTrajectoryFeatures <- function(object,
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
                                    clrp = "milo",
+                                   split = FALSE,
+                                   ...,
                                    verbose = TRUE){
 
 
@@ -247,20 +253,47 @@ plotTrajectoryFeatures <- function(object,
     ) %>%
     dplyr::ungroup()
 
-  vline_df <-
-    result_df %>%
-    dplyr::group_by(trajectory_part) %>%
-    dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
-                  trajectory_part_order == 1 &
-                  variables == features[1])
+
+  if(base::isTRUE(display_trajectory_parts)){
+
+    vline_df <-
+      result_df %>%
+      dplyr::group_by(trajectory_part) %>%
+      dplyr::filter(trajectory_order %in% c(base::min(trajectory_order), base::max(trajectory_order)) &
+                      trajectory_part_order == 1 &
+                      variables == features[1])
+
+    trajectory_part_add_on <- list(
+      ggplot2::geom_vline(data = vline_df[-1,],
+                          mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey")
+    )
+
+  } else {
+
+    trajectory_part_add_on <- NULL
+  }
+
+
+  if(base::isTRUE(split)){
+
+    facet_add_on <-
+      list(
+        ggplot2::facet_wrap(facets = . ~ variables, ...),
+        ggplot2::theme(strip.background = ggplot2::element_blank(), legend.position = "none")
+      )
+
+  } else {
+
+    facet_add_on <- list()
+
+  }
 
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
                                                            y = values,
                                                            color = variables)) +
-    ggplot2::geom_vline(data = vline_df[-1,],
-                        mapping = ggplot2::aes(xintercept = trajectory_order), linetype = "dashed", color = "grey") +
+    trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
@@ -268,83 +301,13 @@ plotTrajectoryFeatures <- function(object,
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
       axis.ticks.x = ggplot2::element_blank(),
-      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features")
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Features") +
+    facet_add_on
 
 }
-
-#' @rdname plotTrajectoryFeatures
-#' @export
-plotTrajectoryFeaturesDiscrete <- function(object,
-                                           trajectory_name,
-                                           of_sample = "",
-                                           discrete_feature,
-                                           clrp = "milo",
-                                           display_trajectory_parts = FALSE,
-                                           verbose = TRUE,
-                                           ...){
-
-
-# 1. Control --------------------------------------------------------------
-
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, 1)
-  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
-
-  feature <- check_features(object, discrete_feature, valid_classes = c("character", "factor"), 1)
-
-  # -----
-
-
-# 2. Data wrangling -------------------------------------------------------
-
-  cns_trajectory <-
-    getTrajectoryObject(object, trajectory_name = trajectory_name)
-
-  compiled_trajectory_df <- cns_trajectory@compiled_trajectory_df
-
-  joined_df <- joinWith(object,
-                        spata_df = compiled_trajectory_df,
-                        features = feature,
-                        verbose = verbose)
-
-  plot_df <-
-    dplyr::mutate(.data = joined_df,
-                  order_binned = plyr::round_any(x = projection_length, accuracy = 5, f = base::floor),
-                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
-
-  if(base::isTRUE(display_trajectory_parts)){
-
-    facet_add_on <- list(
-      ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
-    )
-
-  } else {
-
-    facet_add_on <- NULL
-
-  }
-
-  # -----
-
-  ggplot2::ggplot(data = plot_df) +
-    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[discrete_feature]]), position = "fill", width = 0.9) +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-    facet_add_on +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
-      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches"))),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(x = "Trajectory Direction", y = NULL)
-}
-
-
 
 #' @rdname plotTrajectoryFeatures
 #' @export
@@ -357,7 +320,9 @@ plotTrajectoryGenes <- function(object,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
                                 smooth_se = TRUE,
-                                display_trajectory_parts = TRUE,
+                                display_trajectory_parts = FALSE,
+                                split = FALSE,
+                                ...,
                                 verbose = TRUE){
 
 
@@ -481,6 +446,20 @@ plotTrajectoryGenes <- function(object,
     trajectory_part_add_on <- NULL
   }
 
+  if(base::isTRUE(split)){
+
+    facet_add_on <-
+      list(
+        ggplot2::facet_wrap(facets = . ~ genes, ...),
+        ggplot2::theme(strip.background = ggplot2::element_blank(), legend.position = "none")
+      )
+
+  } else {
+
+    facet_add_on <- list()
+
+  }
+
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
@@ -495,11 +474,12 @@ plotTrajectoryGenes <- function(object,
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
       axis.ticks.x = ggplot2::element_blank(),
-      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
     ggplot2::labs(x = "Trajectory Direction", y = y_title, color = "Genes") +
-    labs_add_on
+    labs_add_on +
+    facet_add_on
 
 }
 
@@ -509,13 +489,15 @@ plotTrajectoryGenes <- function(object,
 plotTrajectoryGeneSets <- function(object,
                                    trajectory_name,
                                    of_sample = "",
-                                   gene_sets = "Neftel_NPC_Comb",
+                                   gene_sets,
                                    method_gs = "mean",
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
                                    clrp = "milo",
                                    display_trajectory_parts = TRUE,
+                                   split = FALSE,
+                                   ...,
                                    verbose = TRUE){
 
 
@@ -573,6 +555,20 @@ plotTrajectoryGeneSets <- function(object,
     trajectory_part_add_on <- NULL
   }
 
+  if(base::isTRUE(split)){
+
+    facet_add_on <-
+      list(
+        ggplot2::facet_wrap(facets = . ~ variables, ...),
+        ggplot2::theme(strip.background = ggplot2::element_blank(), legend.position = "none")
+      )
+
+  } else {
+
+    facet_add_on <- list()
+
+  }
+
   # -----
 
   ggplot2::ggplot(data = result_df, mapping = ggplot2::aes(x = trajectory_order,
@@ -587,14 +583,100 @@ plotTrajectoryGeneSets <- function(object,
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
       axis.ticks.x = ggplot2::element_blank(),
-      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "inches"))),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Trajectory Direction", y = "Expression score", color = "Gene sets")
+    ggplot2::labs(x = "Trajectory Direction", y = "Expression score", color = "Gene sets") +
+    facet_add_on
 
 
 }
 
+
+#' @title Trajectory barplots
+#'
+#' @description Displays discrete variables along a trajectory.
+#'
+#' @inherit check_sample params
+#' @param discrete_feature Character value. The discrete feature of interest.
+#' @inherit verbose params
+#' @param display_trajectory_parts Logical. If set to TRUE the returned plot
+#' visualizes the parts in which the trajectory has been partitioned while beeing
+#' drawn.
+#' @param clrp Character value. The color panel to be used.
+#'  Run \code{all_colorpanels()} to see valid input.
+#' @param ... Additional arguments given to \code{ggplot2::facet_wrap()}.
+#'
+#' @inherit plot_family return
+#' @export
+
+plotTrajectoryFeaturesDiscrete <- function(object,
+                                           trajectory_name,
+                                           of_sample = "",
+                                           discrete_feature,
+                                           clrp = "milo",
+                                           display_trajectory_parts = FALSE,
+                                           verbose = TRUE,
+                                           ...){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, 1)
+  check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
+
+  feature <- check_features(object, discrete_feature, valid_classes = c("character", "factor"), 1)
+
+  # -----
+
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  cns_trajectory <-
+    getTrajectoryObject(object, trajectory_name = trajectory_name)
+
+  compiled_trajectory_df <- cns_trajectory@compiled_trajectory_df
+
+  joined_df <- joinWith(object,
+                        spata_df = compiled_trajectory_df,
+                        features = feature,
+                        verbose = verbose)
+
+  plot_df <-
+    dplyr::mutate(.data = joined_df,
+                  order_binned = plyr::round_any(x = projection_length, accuracy = 5, f = base::floor),
+                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
+
+  if(base::isTRUE(display_trajectory_parts)){
+
+    facet_add_on <- list(
+      ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
+    )
+
+  } else {
+
+    facet_add_on <- NULL
+
+  }
+
+  # -----
+
+  ggplot2::ggplot(data = plot_df) +
+    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[discrete_feature]]), position = "fill", width = 0.9) +
+    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    facet_add_on +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches"))),
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(x = "Trajectory Direction", y = NULL)
+
+}
 
 
 #' @title Expression dynamic in heatmap

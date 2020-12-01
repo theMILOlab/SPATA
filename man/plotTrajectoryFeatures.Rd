@@ -2,7 +2,6 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFeatures}
 \alias{plotTrajectoryFeatures}
-\alias{plotTrajectoryFeaturesDiscrete}
 \alias{plotTrajectoryGenes}
 \alias{plotTrajectoryGeneSets}
 \title{Trajectory line plots}
@@ -16,18 +15,9 @@ plotTrajectoryFeatures(
   smooth_span = 0.2,
   smooth_se = TRUE,
   clrp = "milo",
+  split = FALSE,
+  ...,
   verbose = TRUE
-)
-
-plotTrajectoryFeaturesDiscrete(
-  object,
-  trajectory_name,
-  of_sample = "",
-  discrete_feature,
-  clrp = "milo",
-  display_trajectory_parts = FALSE,
-  verbose = TRUE,
-  ...
 )
 
 plotTrajectoryGenes(
@@ -40,7 +30,9 @@ plotTrajectoryGenes(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
-  display_trajectory_parts = TRUE,
+  display_trajectory_parts = FALSE,
+  split = FALSE,
+  ...,
   verbose = TRUE
 )
 
@@ -48,13 +40,15 @@ plotTrajectoryGeneSets(
   object,
   trajectory_name,
   of_sample = "",
-  gene_sets = "Neftel_NPC_Comb",
+  gene_sets,
   method_gs = "mean",
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
   clrp = "milo",
   display_trajectory_parts = TRUE,
+  split = FALSE,
+  ...,
   verbose = TRUE
 )
 }
@@ -77,21 +71,25 @@ displayed.}
 \item{clrp}{Character value. The color panel to be used.
 Run \code{all_colorpanels()} to see valid input.}
 
+\item{split}{Logical. If set to TRUE sub plots for every specified gene, gene-set
+or feature are displayed via \code{ggplot2::facet_wrap()}}
+
+\item{...}{Additional arguments given to \code{ggplot2::facet_wrap()} if argument
+\code{split} is set to TRUE.}
+
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{discrete_feature}{Character value. The discrete feature of interest.}
-
-\item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
-visualizes the parts in which the trajectory has been partitioned while beeing
-drawn.}
-
 \item{genes}{The genes of interest specified as a character vector.}
 
 \item{average_genes}{Logical value. If set to TRUE the mean expression
 of all specified genes will be calculated.}
+
+\item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
+visualizes the parts in which the trajectory has been partitioned while beeing
+drawn.}
 
 \item{gene_sets}{The gene sets of interest specified as a character vector.}
 
@@ -99,6 +97,8 @@ of all specified genes will be calculated.}
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
+
+\item{discrete_feature}{Character value. The discrete feature of interest.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

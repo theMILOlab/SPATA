@@ -314,7 +314,7 @@ moduleSurfacePlotServer <- function(id,
 
         shiny::validate(
           shiny::need(base::is.numeric(color_variable()),
-                      message = "Need numeric color-feature to scale minimum & maximum.",
+                      message = "Need numeric color-feature to scale minimum.",
                       label = "Color scale minimum")
         )
 
@@ -333,7 +333,7 @@ moduleSurfacePlotServer <- function(id,
 
         shiny::validate(
           shiny::need(expr = base::is.numeric(color_variable()),
-                      message = "Need numeric color-feature to scale maxmimum.",
+                      message = "Need numeric color-feature to scale maximum.",
                       label = "Color scale maximum:")
         )
 
