@@ -635,7 +635,9 @@ moduleSurfacePlotServer <- function(id,
 
           } else {
 
-            joined_df() %>% base::return()
+             smoothed_df <- joined_df()
+
+             base::return(smoothed_df)
 
           }
 
