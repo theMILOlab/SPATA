@@ -12,6 +12,7 @@ plotDeHeatmap(
   across_subset = NULL,
   n_barcode_spots = 100,
   verbose = TRUE,
+  hm_clrp = "milo",
   hm_colors = viridis::viridis(15),
   ...
 )
@@ -56,7 +57,10 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{hm_colors}{A vector of colors to be used.}
+\item{hm_clrp}{The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
+to obtain valid input options.}
+
+\item{hm_colors}{A vector of colors to be used for the continuous heatmap annotation..}
 
 \item{...}{Additional parameters given to \code{pheatmap::pheatmap()}.}
 }

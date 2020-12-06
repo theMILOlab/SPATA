@@ -15,6 +15,7 @@ plotTrajectoryFeatures(
   smooth_span = 0.2,
   smooth_se = TRUE,
   clrp = "milo",
+  display_trajectory_parts = FALSE,
   split = FALSE,
   ...,
   verbose = TRUE
@@ -71,6 +72,10 @@ displayed.}
 \item{clrp}{Character value. The color panel to be used.
 Run \code{all_colorpanels()} to see valid input.}
 
+\item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
+visualizes the parts in which the trajectory has been partitioned while beeing
+drawn.}
+
 \item{split}{Logical. If set to TRUE sub plots for every specified gene, gene-set
 or feature are displayed via \code{ggplot2::facet_wrap()}}
 
@@ -86,10 +91,6 @@ the computational progress will be printed.
 
 \item{average_genes}{Logical value. If set to TRUE the mean expression
 of all specified genes will be calculated.}
-
-\item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
-visualizes the parts in which the trajectory has been partitioned while beeing
-drawn.}
 
 \item{gene_sets}{The gene sets of interest specified as a character vector.}
 

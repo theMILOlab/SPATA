@@ -8,14 +8,14 @@ compileSeuratObject(
   object,
   ...,
   SCTransform = FALSE,
-  NormalizeData = FALSE,
-  FindVariableFeatures = FALSE,
-  ScaleData = FALSE,
-  RunPCA = FALSE,
-  FindNeighbors = FALSE,
-  FindClusters = FALSE,
-  RunTSNE = FALSE,
-  RunUMAP = FALSE,
+  NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+  FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+  ScaleData = TRUE,
+  RunPCA = list(npcs = 60),
+  FindNeighbors = list(dims = 1:30),
+  FindClusters = list(resolution = 0.8),
+  RunTSNE = TRUE,
+  RunUMAP = list(dims = 1:30),
   verbose = TRUE
 )
 }
