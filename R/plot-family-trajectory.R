@@ -738,6 +738,8 @@ plotTrajectoryHeatmap <- function(object,
   # all checks
   check_object(object)
 
+  confuns::are_values(c("method_gs", "arrange_rows"), mode = "character")
+
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
   check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)

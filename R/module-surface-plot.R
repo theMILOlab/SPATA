@@ -630,8 +630,7 @@ moduleSurfacePlotServer <- function(id,
               purrr::imap_dfr(.x = joined_df(),
                               .f = hlpr_normalize_imap,
                               aspect = "",
-                              subset = variable()
-            )
+                              subset = variable())
 
             return(smoothed_df)
 

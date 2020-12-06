@@ -497,7 +497,7 @@ getGenes <- function(object,
 
   # 2. Main part ------------------------------------------------------------
 
-  rna_assay <- exprMtr(object = object, of_sample = in_sample)
+  rna_assay <- getExpressionMatrix(object = object, of_sample = in_sample)
 
   # -----
 
@@ -866,6 +866,23 @@ getSegmentNames <- function(object,
 
 }
 
+
+
+#' @title Obtain sample names
+#'
+#' @inherit check_object params
+#'
+#' @return A character vector.
+#'
+#' @export
+
+getSamples <- function(object){
+
+  check_object(object)
+
+  object@samples
+
+}
 
 
 # -----

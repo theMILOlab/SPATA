@@ -135,7 +135,7 @@ setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_s
 
   bc_in_sample <-
     object@fdata %>%
-    dplyr::filter(sample %in% of_sample) %>%
+    dplyr::filter(sample %in% {{of_sample}}) %>%
     dplyr::pull(barcodes)
 
   exprMtr <- object@data@norm_exp[,bc_in_sample]

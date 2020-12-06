@@ -46,6 +46,12 @@ image_dummy <- function(image){}
 average_genes <- function(average_genes){}
 
 
+#' @title sample_name
+#' @param sample_name Character value. The future input for SPATA's \code{of_sample}-argument.
+
+sample_name <- function(sample_name){}
+
+
 #' @title variable
 #'
 #' @param variable The variable of interest.
@@ -108,3 +114,21 @@ across <- function(across, across_subset){}
 #' variables \emph{cluster, gene}.
 
 pheatmap <- function(de_df){}
+
+
+#' @title gene_set_path
+#' @param gene_set_path Character value (or NULL). Specifies the path to a
+#' .RDS-file containing a data.frame that is to be used as input for slot @@used_genesets.
+#'
+#'  Must have the character-variables
+#'
+#'    \itemize{
+#'     \item{\emph{'ont'}: The gene set names.}
+#'     \item{\emph{'gene'}: The belonging gene names.}
+#'     }
+#'
+#' If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.
+#'
+
+gene_set_path <- function(gene_set_path){}
+

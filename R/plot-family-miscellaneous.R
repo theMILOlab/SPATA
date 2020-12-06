@@ -571,7 +571,7 @@ plotDistribution <- function(object,
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
   all_features <- getFeatureNames(object)
-  all_genes <- getGenes(object)
+  all_genes <- getGenes(object = object, in_sample = of_sample)
   all_gene_sets <- getGeneSets(object)
 
   variables <-
@@ -1486,7 +1486,9 @@ plotPseudotime <- function(object,
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
 #' @inherit verbose params
-#' @param hm_colors A vector of colors to be used.
+#' @param hm_colors A vector of colors to be used for the continuous heatmap annotation..
+#' @param hm_clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
+#' to obtain valid input options.
 #' @param ... Additional parameters given to \code{pheatmap::pheatmap()}.
 #'
 #' @return A heatmap of class 'pheatmap'.
@@ -1499,6 +1501,7 @@ plotDeHeatmap <- function(object,
                           across_subset = NULL,
                           n_barcode_spots = 100,
                           verbose = TRUE,
+                          hm_clrp = "milo",
                           hm_colors = viridis::viridis(15),
                           ...){
 
@@ -1508,6 +1511,7 @@ plotDeHeatmap <- function(object,
   check_object(object)
   check_de_df(de_df)
 
+  confuns::are_values(c("hm_clrp"), mode = "character")
 
   # adjusting check
 
@@ -1525,8 +1529,7 @@ plotDeHeatmap <- function(object,
   # with the input for 'across' by comparing the unique values of de_df and object-feature
 
   object_values <-
-    getFeatureVariables(object, features = across, of_sample = of_sample, return = "vector") %>%
-    base::as.vector()
+    getFeatureValues(object = object, of_sample = of_sample, features = across)
 
   cluster_values <- base::unique(de_df$cluster)
 
@@ -1607,6 +1610,31 @@ plotDeHeatmap <- function(object,
 
   # -----
 
+
+  if(hm_clrp == "default"){
+
+    color_vec <- NA
+
+  } else {
+
+    color_vec <- confuns::color_vector(clrp = hm_clrp)
+
+  }
+
+  if(!base::all(base::is.na(color_vec))){
+
+    colors <- color_vec[base::seq_along(across_subset)]
+
+    annotation_colors <-
+      purrr::set_names(x = list(colors), nm = across) %>%
+      purrr::map(.f = ~ purrr::set_names(x = .x, nm = across_subset))
+
+  } else {
+
+    annotation_colors <- NA
+
+  }
+
   base::message("Plotting heatmap. This can take a few seconds.")
 
   pheatmap::pheatmap(mat = getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes],
@@ -1616,6 +1644,7 @@ plotDeHeatmap <- function(object,
                      cluster_rows = FALSE,
                      show_colnames = FALSE,
                      color = hm_colors,
+                     annotation_colors = annotation_colors,
                      gaps_row = gaps_row[1:(base::length(gaps_row)-1)],
                      gaps_col = gaps_col[1:(base::length(gaps_col)-1)],
                      ...)

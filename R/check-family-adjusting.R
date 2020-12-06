@@ -410,13 +410,13 @@ check_sample <- function(object,
 
   confuns::is_vec(of_sample, "character", "of_sample")
 
-  if(of_sample == ""){
+  if(base::all(of_sample == "")){
 
     of_sample <- samples(object)[1]
 
     if(base::length(samples(object)) > 1){
 
-      base::message(glue::glue("No sample specified. Defaulting back to first sample: '{of_sample}'."))
+      base::message(glue::glue("No sample specified. Defaulting to first sample: '{of_sample}'."))
 
     }
 
@@ -482,6 +482,51 @@ check_sample <- function(object,
 
 }
 
+
+
+#' @title Check saving input
+#'
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a folder directory
+#' and assembles the final output directory including the specified filename.
+#'
+#' Returns the final directory if it is valid or raises an error if not or NULL if \code{output_path}
+#' is set to NULL.
+#'
+#' @param output_path Character vector or NULL. Specifies the folder in which to store
+#' the object if the directory is valid. If set to NULL saving is skipped.
+#' @param file_name Character value. The name-suffix for the file name under which the
+#' spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
+#'  \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.
+#'
+#' @inherit adjusting_check_dummy return details
+
+check_saving <- function(output_path, file_name){
+
+  if(!base::is.null(output_path)){
+
+    confuns::is_value(output_path, "character", ref = "output_path")
+    confuns::check_directories(directories = input_paths, ref = "input_paths", type = "folders")
+
+    confuns::is_value(file_name, "character", ref = "file_name")
+    confuns::check_directories(directories = output_path, ref = "output_path", type = "folders")
+
+    object_file <- base::paste0(output_path, "/spata-obj-", file_name, ".RDS")
+
+    if(base::file.exists(object_file)){
+
+      base::stop(glue::glue("It already exists a .RDS-file ending with '{file_name}' in the directory '{output_path}'."))
+
+    }
+
+  } else {
+
+    object_file <- NULL
+
+  }
+
+  base::return(object_file)
+
+}
 
 
 #' @title Check segment name

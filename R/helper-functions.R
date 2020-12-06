@@ -430,6 +430,42 @@ hlpr_one_distinct <- function(x, rna_assay, pb = NULL, verbose = TRUE){
 }
 
 
+#' @title Save spata object inside functions
+#'
+#' @inherit check_object params
+#' @param object_file The directory under which to store the object.
+#' @param ref_step Character value.
+#' @inherit verbose params
+#'
+
+hlpr_save_spata_object <- function(object, object_file, ref_step, verbose){
+
+  if(!base::is.null(object_file)){
+
+    if(base::isTRUE(verbose)){glue::glue(base::message("Step {ref_step}: Saving spata-object."))}
+
+    base::saveRDS(spata_object, file = object_file)
+
+    if(base::isTRUE(verbose)){
+
+      base::message(glue::glue("The spata-object has been saved under '{object_file}'."))
+      base::message("Done.")
+
+    }
+
+  } else {
+
+    if(base::isTRUE(verbose)){
+      base::message(glue::glue("Skipping step {ref_step} (saving) as 'output_path' was set to NULL."))
+      base::message("Done.")
+    }
+
+  }
+
+
+}
+
+
 #' @title Smooth variables spatially
 #'
 #' @description Helper function to use within \code{purrr::imap()}

@@ -347,14 +347,14 @@ compileCellDataSet <- function(object,
 compileSeuratObject <- function(object,
                                 ...,
                                 SCTransform = FALSE,
-                                NormalizeData = FALSE,
-                                FindVariableFeatures = FALSE,
-                                ScaleData = FALSE,
-                                RunPCA = FALSE,
-                                FindNeighbors = FALSE,
-                                FindClusters = FALSE,
-                                RunTSNE = FALSE,
-                                RunUMAP = FALSE,
+                                NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+                                FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+                                ScaleData = TRUE,
+                                RunPCA = list(npcs = 60),
+                                FindNeighbors = list(dims = 1:30),
+                                FindClusters = list(resolution = 0.8),
+                                RunTSNE = TRUE,
+                                RunUMAP = list(dims = 1:30),
                                 verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -388,84 +388,22 @@ compileSeuratObject <- function(object,
   seurat_image <- object@additional$Seurat$images[[sample]]
   seurat_object@images[["slice1"]] <- seurat_image
 
-  functions_to_call <-
-    rlang::fn_fmls_names(compileSeuratObject) %>%
-    stringr::str_subset(pattern = "[^object]")
 
-  functions_to_call <- functions_to_call[!functions_to_call %in% c("...", "verbose")]
+# 3. Processing seurat object ---------------------------------------------
 
-  for(fn in functions_to_call){
-
-    input <-
-      base::parse(text = fn) %>%
-      base::eval()
-
-    if(base::isTRUE(input)){
-
-      if(base::isTRUE(verbose)){base::message(glue::glue("Running 'Seurat::{fn}()' with default parameters."))}
-
-      args <- base::list("object" = seurat_object)
-
-      if(fn == "ScaleData"){
-
-        args <- base::append(x = args,
-                             values = list("features" = base::rownames(seurat_object)))
-
-      }
-
-      # ensure that function is called from Seurat-namespace
-      fn <- stringr::str_c("Seurat::", fn, sep = "")
-
-      seurat_object <- base::tryCatch(
-
-        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
-
-        error = function(error){
-
-          base::message(glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function."))
-
-          base::return(seurat_object)
-
-        })
-
-    } else if(base::is.list(input) &
-              !base::is.data.frame(input)){
-
-      if(base::isTRUE(verbose)){base::message(glue::glue("Running 'Seurat::{fn}()' with specified parameters."))}
-
-      args <- purrr::prepend(x = input, values = seurat_object)
-
-      if(fn == "ScaleData" && !"features" %in% base::names(args)){
-
-        args <- base::append(x = args,
-                             values = list("features" = base::rownames(seurat_object)))
-
-      }
-
-      # ensure that function is called from Seurat-namespace
-      fn <- stringr::str_c("Seurat::", fn, sep = "")
-
-      seurat_object <- base::tryCatch(
-
-        rlang::invoke(.fn = base::eval(base::parse(text = fn)), args),
-
-        error = function(error){
-
-          base::message(glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function."))
-
-          base::return(seurat_object)
-
-        }
-
-      )
-
-    } else {
-
-      if(base::isTRUE(verbose)){base::message(glue::glue("Skip running '{fn}()' as it's argument input is neither TRUE nor a list."))}
-
-    }
-
-  }
+  seurat_object <-
+    process_seurat_object(
+      seurat_object = seurat_object,
+      SCTransform = SCTransform,
+      NormalizeData = NormalizeData,
+      FindVariableFeatures = FindVariableFeatures,
+      ScaleData = ScaleData,
+      RunPCA = RunPCA,
+      FindNeighbors = FindNeighbors,
+      FindClusters = FindClusters,
+      RunTSNE = RunTSNE,
+      RunUMAP = RunUMAP,
+      verbose = verbose)
 
 
 # Passing features and images ---------------------------------------------
