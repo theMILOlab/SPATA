@@ -26,7 +26,7 @@ of the input matrix (\code{expr_mtr}).}
 
 \item{expr_mtr}{A numeric matrix. The expression matrix to be used.}
 
-\item{image}{An EBI-Image of the sample that can be displayed as the surface plot's background.}
+\item{image}{An Image of the sample that can be displayed as the surface plot's background.}
 
 \item{sample_name}{Character value. The future input for SPATA's \code{of_sample}-argument.}
 
@@ -61,8 +61,6 @@ of nearest neighbours to compute.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
-
-\item{ref_expr_mtr}{Character value.}
 }
 \value{
 A spata-object.

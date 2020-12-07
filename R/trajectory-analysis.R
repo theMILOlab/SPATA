@@ -49,12 +49,6 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
   var <- "variables"
 
-  if(base::length(var) != 1){
-
-    base::stop("Data.frame 'stdf' must have one column either name 'genes' or 'gene_sets'.")
-
-  }
-
   # -----
 
   # 2. Ranking --------------------------------------------------------------
@@ -119,6 +113,84 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 }
 
 
+#' @rdname hlpr_rank_trajectory_trends
+#' @export
+
+hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customized_trends_df){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_stdf(stdf)
+
+  var <- "variables"
+
+  # -----
+
+  # 2. Ranking --------------------------------------------------------------
+
+  # nest data.frame
+  nested_df <-
+    dplyr::group_by(.data = stdf, !!rlang::sym(var)) %>%
+    dplyr::mutate(values = confuns::normalize(x = values)) %>%
+    tidyr::nest()
+
+
+  # add residuals to data.frame
+  if(base::isTRUE(verbose)){
+
+    base::message("Fitting models.")
+
+    pb_add <- progress::progress_bar$new(
+      format = "Progress: [:bar] :percent eta: :eta",
+      total = base::nrow(nested_df),
+      clear = FALSE,
+      width = 100
+    )
+
+  } else {
+
+    pb_add <- NULL
+
+  }
+
+  w_residuals <-
+    dplyr::mutate(.data = nested_df,
+                  residuals = purrr::map(.x = data,
+                                         .f = hlpr_add_residuals_customized,
+                                         pb = pb_add,
+                                         customized_trends_df = customized_trends_df)
+    )
+
+  # rank data.frame
+  if(base::isTRUE(verbose)){
+
+    base::message("Calculating residuals.")
+
+    pb_calc <- progress::progress_bar$new(
+      format = "Progress: [:bar] :percent eta: :eta",
+      total = base::nrow(nested_df),
+      clear = FALSE,
+      width = 100
+    )
+
+  } else {
+
+    pb_calc <- NULL
+
+  }
+
+  ranked_df <-
+    dplyr::mutate(.data = w_residuals,
+                  auc = purrr::map(.x = residuals, .f = hlpr_summarize_residuals, pb = pb_calc))
+
+  # -----
+
+  if(base::isTRUE(verbose)){base::message("Done.")}
+
+  return(ranked_df)
+
+}
+
 
 #' @title Assess trajectory ranking.
 #'
@@ -149,7 +221,7 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
   # 2. Data wrangling -------------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Asessing trajectory trends.")}
+  if(base::isTRUE(verbose)){base::message("Assessing trajectory trends.")}
 
   arranged_df <-
     dplyr::select(.data = rtdf, -data, -residuals) %>%
@@ -162,6 +234,41 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
     ) %>%
     dplyr::arrange(auc) %>%
     dplyr::mutate(pattern = hlpr_name_models(pattern))
+
+  # -----
+
+  if(base::isTRUE(verbose)){base::message("Done.")}
+
+  base::return(arranged_df)
+
+}
+
+
+#' @rdname hlpr_assess_trajectory_trends
+#' @export
+hlpr_assess_trajectory_trends_customized <- function(rtdf, verbose = TRUE){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_rtdf(rtdf = rtdf)
+
+  # -----
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  if(base::isTRUE(verbose)){base::message("Assessing trajectory trends.")}
+
+  arranged_df <-
+    dplyr::select(.data = rtdf, -data, -residuals) %>%
+    tidyr::unnest(cols = dplyr::all_of("auc")) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::starts_with("p_"),
+      names_to = "pattern",
+      names_prefix = "p_",
+      values_to = "auc"
+    ) %>%
+    dplyr::arrange(auc) %>%
+    dplyr::mutate(pattern = stringr::str_remove_all(string = pattern, pattern = "^p_"))
 
   # -----
 
@@ -190,11 +297,20 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
 filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE){
 
+  check_atdf(atdf)
+
+  all_patterns <-
+    dplyr::pull(atdf, var = "pattern") %>%
+    base::unique()
+
+  trajectory_patterns <- c(all_patterns, trajectory_patterns)
+
   if(base::all(trends == "all")){
 
     trends <- trajectory_patterns
 
   }
+
 
   confuns::is_vec(x = trends, mode = "character", "trends")
   trends <- confuns::check_vector(input = trends,
@@ -313,6 +429,69 @@ assessTrajectoryTrends2 <- function(stdf, verbose = TRUE){
   base::return(atdf)
 
 }
+
+
+#' @rdname assessTrajectoryTrends
+#' @export
+assessTrajectoryTrendsCustomized <- function(object,
+                                             customized_trends,
+                                             trajectory_name,
+                                             of_sample = "",
+                                             variables,
+                                             accuracy = 5,
+                                             verbose = TRUE){
+
+  # 1. Control --------------------------------------------------------------
+
+  if(base::isTRUE(verbose)){ base::message("Checking input validity.")}
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample, desired_length = 1)
+
+  check_trajectory(object, trajectory_name, of_sample)
+
+  length_trajectory <-
+    getTrajectoryDf(object = object,
+                    trajectory_name = trajectory_name,
+                    variables = getGenes(object)[1],
+                    verbose = FALSE) %>%
+    base::nrow()
+
+  customized_trends_df <-
+    check_customized_trends(length_trajectory = length_trajectory, customized_trends = customized_trends) %>%
+    purrr::map_df(.f = ~ .x)
+
+  # -----
+
+
+  # 2. Main part ------------------------------------------------------------
+
+  # get trajectory data.frame
+
+  stdf <- getTrajectoryDf(object = object,
+                          trajectory_name = trajectory_name,
+                          of_sample = of_sample,
+                          variables = variables,
+                          accuracy = accuracy,
+                          verbose = verbose)
+
+  rtdf <-
+    hlpr_rank_trajectory_trends_customized(
+      stdf = stdf,
+      verbose = verbose,
+      customized_trends_df = customized_trends_df
+    )
+
+
+  atdf <- hlpr_assess_trajectory_trends_customized(rtdf = rtdf, verbose = verbose)
+
+  # -----
+
+  base::return(atdf)
+
+}
+
 
 # -----
 

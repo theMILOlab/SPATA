@@ -3,6 +3,7 @@
 \name{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends2}
+\alias{assessTrajectoryTrendsCustomized}
 \title{Trajectory trend analysis}
 \usage{
 assessTrajectoryTrends(
@@ -15,6 +16,16 @@ assessTrajectoryTrends(
 )
 
 assessTrajectoryTrends2(stdf, verbose = TRUE)
+
+assessTrajectoryTrendsCustomized(
+  object,
+  customized_trends,
+  trajectory_name,
+  of_sample = "",
+  variables,
+  accuracy = 5,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

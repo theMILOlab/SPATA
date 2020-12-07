@@ -18,8 +18,47 @@ initiateSpataObject_MALDI(
 )
 }
 \arguments{
+\item{coords_df}{Data.frame containing information about the positions of all
+barcode-spots in form of a numeric \emph{x}- and \emph{y}-variable. The key-variable
+\emph{barcodes} needs to be of type character and must be identical to the column names
+of the input matrix (\code{expr_mtr}).}
+
 \item{intensity_mtr}{A numeric matrix to be used as the expression matrix. Rownames must
 correspond to the genes and column names must correspond to the barcodes.}
+
+\item{sample_name}{Character value. The future input for SPATA's \code{of_sample}-argument.}
+
+\item{gene_set_path}{Character value (or NULL). Specifies the path to a
+.RDS-file containing a data.frame that is to be used as input for slot @used_genesets.
+
+ Must have the character-variables
+
+   \itemize{
+    \item{\emph{'ont'}: The gene set names.}
+    \item{\emph{'gene'}: The belonging gene names.}
+    }
+
+If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
+
+\item{output_path}{Character vector or NULL. Specifies the folder in which to store
+the object if the directory is valid. If set to NULL saving is skipped.}
+
+\item{file_name}{Character value. The name-suffix for the file name under which the
+spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
+ \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
+
+\item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
+the number of components to return.}
+
+\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
+of nearest neighbours to compute.}
+
+\item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 }
 \value{
 A spata-object.

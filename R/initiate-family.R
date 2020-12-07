@@ -5,7 +5,7 @@
 
 #' @title Initiate a spata-object from MALDI Experiments
 #'
-#' @inherit initiateSpataObject_expr_mtr params
+#' @inherit initiateSpataObject_ExprMtr params
 #' @param intensity_mtr A numeric matrix to be used as the expression matrix. Rownames must
 #' correspond to the genes and column names must correspond to the barcodes.
 #'
@@ -23,7 +23,7 @@ initiateSpataObject_MALDI <- function(coords_df,
                                       tsne_perplexity = 30,
                                       verbose = TRUE){
 
-  initiateSpataObject_Expr(coords_df = coords_df,
+  initiateSpataObject_ExprMtr(coords_df = coords_df,
                            expr_mtr = intensity_mtr,
                            ref_expr_mtr = "intensity_mtr",
                            image = image,
@@ -48,7 +48,7 @@ initiateSpataObject_MALDI <- function(coords_df,
 #'
 #' @param count_mtr A numeric matrix to be used as the count matrix. Rownames must
 #' correspond to the genes and column names must correspond to the barcodes.
-#' @inherit initiateSpataObject_expr_mtr params return
+#' @inherit initiateSpataObject_ExprMtr params return
 #' @inherit compileSeuratObject params
 #'
 #' @details The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied

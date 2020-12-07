@@ -1,3 +1,71 @@
+
+#' @title Plot customized trajectory trends
+#'
+#' @description Visualizes the trajectory trends you set up yourself.
+#'
+#' @inherit check_customized_trends params
+#' @inherit check_smooth params
+#' @inherit clrp params
+#' @param ... Additional arguments given to \code{ggplot2::facet_wrap()}.
+#'
+#' @inherit plot_family return
+#' @export
+#'
+
+plotCustomizedTrajectoryTrends <- function(customized_trends,
+                                           smooth = TRUE,
+                                           smooth_span = 0.2,
+                                           smooth_se = FALSE,
+                                           clrp = "milo",
+                                           ...){
+
+  # check customized trends
+  customized_trends <-
+    check_customized_trends(length_trajectory = NULL,
+                            customized_trends = customized_trends)
+
+  # prepare plot add ons
+  if(base::isTRUE(smooth)){
+
+    geom_line_add_on <-
+      ggplot2::geom_smooth(span = smooth_span, formula = y ~ x, size = 1, method = "loess")
+
+  } else {
+
+    geom_line_add_on <-
+      ggplot2::geom_path(size = 1)
+
+  }
+
+
+  # prepare plot data
+  plot_df <-
+    purrr::map_df(.x = customized_trends, .f = ~ .x) %>%
+    dplyr::mutate(Direction = dplyr::row_number()) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(base::names(customized_trends)),
+      values_to = "values",
+      names_to = "variables")
+
+
+  # plot all dynamics
+  ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = Direction, y = values, color = variables)) +
+    geom_line_add_on +
+    ggplot2::facet_wrap(facets = . ~ variables, ...) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
+      axis.ticks = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_blank(),
+      strip.background = ggplot2::element_blank(),
+      legend.position = "none"
+    ) +
+    ggplot2::labs(y = NULL) +
+    scale_color_add_on(variable = "discrete", clrp = clrp)
+
+}
+
+
 #' @title Plot trajectory
 #'
 #' @description Displays the spatial course of spatial trajectory that was

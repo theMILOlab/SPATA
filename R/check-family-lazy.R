@@ -183,6 +183,82 @@ check_coords_df <- function(coords_df){
 }
 
 
+
+#' @title Check customized trend list
+#'
+#' @param length_trajectory Numeric value. Length of trajectory according to which the trends have been
+#' customized.
+#' @param customized_trends A data.frame or a named list. All numeric variables are considered to correspond to customized trends
+#' the trajectory of interest might adopt. The names of the respective variables will correspond to the name
+#' with which you want to refer to the trend later on.
+
+check_customized_trends <- function(length_trajectory,
+                                    customized_trends){
+
+  if(!base::is.list(customized_trends)){
+
+    base::stop("Input for argument 'customized_trends' must be a named list or a data.frame.")
+
+  }
+
+  # keep only numeric slots
+  all_numerics <-
+    purrr::keep(.x = customized_trends, .p = ~ base::is.numeric(.x))
+
+  # check names
+  trend_names <- base::names(all_numerics)
+
+  if(base::is.null(trend_names) | base::length(trend_names) != base::length(all_numerics)){
+
+    base::stop("Please make sure that all numeric slots of the list 'customized_trends' are named.")
+
+  }
+
+  # check lengths
+  all_lengths <-
+    purrr::map_int(.x = all_numerics, .f = ~ base::length(.x))
+
+  if(dplyr::n_distinct(all_lengths) != 1){
+
+    base::stop("Please make sure that all numeric slots of the list 'customized_trends' are of the same length.")
+
+  }
+
+  # compare length of trajectory with length of customized trends
+
+  if(base::is.numeric(length_trajectory)){
+
+    length_customized_trends <- base::unique(all_lengths)
+
+    if(length_trajectory != length_customized_trends){
+
+      base::stop(glue::glue("Please make sure that the lengths of the customized trends are equal to the length of the trajectory (= {length_trajectory})."))
+
+    }
+
+  }
+
+  # check for nas
+  has_nas <-
+    purrr::map(.x = all_numerics, .f = ~ base::is.na(.x) %>% base::sum()) %>%
+    purrr::keep(.x = ., .p = ~ .x > 0)
+
+  if(base::length(has_nas) >= 1){
+
+    slots_with_nas <- stringr::str_c(base::names(has_nas), collapse = "', '")
+
+    base::warning(glue::glue("Ignoring slots '{slots_with_nas}' as they contain NAs."))
+
+  }
+
+  no_nas <-
+    purrr::keep(.x = all_numerics, .p = ~ base::is.na(.x) %>% base::sum() == 0) %>%
+    purrr::map_df(.x = . , .f = ~ confuns::normalize(x = .x))
+
+  base::return(no_nas)
+
+}
+
 # -----
 
 #' @title Check assign input

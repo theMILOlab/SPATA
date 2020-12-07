@@ -3,6 +3,7 @@
 \name{hlpr_add_models}
 \alias{hlpr_add_models}
 \alias{hlpr_add_residuals}
+\alias{hlpr_add_residuals_customized}
 \alias{hlpr_summarize_residuals}
 \alias{hlpr_name_models}
 \alias{hlpr_filter_trend}
@@ -12,6 +13,8 @@ hlpr_add_models(df, custom_fit = NULL)
 
 hlpr_add_residuals(df, pb = NULL, custom_fit = NULL)
 
+hlpr_add_residuals_customized(df, customized_trends_df, pb = NULL)
+
 hlpr_summarize_residuals(df, pb = NULL)
 
 hlpr_name_models(names)
@@ -20,6 +23,9 @@ hlpr_filter_trend(atdf, limit, poi)
 }
 \arguments{
 \item{df}{A data.frame.}
+
+\item{customized_trends_df}{A data.frame of only numeric variables that represent the trends a trajectory
+might adopt.}
 }
 \value{
 If used within \code{purrr::map()} a list of data.frames.

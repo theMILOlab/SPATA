@@ -883,6 +883,8 @@ hlpr_widen_trajectory_df <- function(stdf,
 #'  access the fit of the respective expression trend to the fitted curve.}}}
 #'
 #' @param df A data.frame.
+#' @param customized_trends_df A data.frame of only numeric variables that represent the trends a trajectory
+#' might adopt.
 #'
 #' @return If used within \code{purrr::map()} a list of data.frames.
 #' @export
@@ -939,6 +941,26 @@ hlpr_add_residuals <- function(df, pb = NULL, custom_fit = NULL){
                      p_late_peak = (values - confuns::fit_curve(trajectory_order, "late_peak"))^2)
 
 }
+
+
+#' @rdname hlpr_add_models
+#' @export
+hlpr_add_residuals_customized <- function(df, customized_trends_df, pb = NULL){
+
+  if(!base::is.null(pb)){
+
+    pb$tick()
+
+  }
+
+  dplyr::mutate(.data = customized_trends_df, original_values = df$values) %>%
+    dplyr::mutate(dplyr::across(.fns = ~ (.x - original_values)^2)) %>%
+    dplyr::select(-original_values) %>%
+    dplyr::rename_with(.fn = ~ stringr::str_c("p", .x, sep = "_")) %>%
+    dplyr::mutate(trajectory_order = dplyr::row_number())
+
+}
+
 
 #' @rdname hlpr_add_models
 #' @export

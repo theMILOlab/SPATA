@@ -2,9 +2,16 @@
 % Please edit documentation in R/trajectory-analysis.R
 \name{hlpr_rank_trajectory_trends}
 \alias{hlpr_rank_trajectory_trends}
+\alias{hlpr_rank_trajectory_trends_customized}
 \title{Rank trajectory trends.}
 \usage{
 hlpr_rank_trajectory_trends(stdf, verbose = TRUE)
+
+hlpr_rank_trajectory_trends_customized(
+  stdf,
+  verbose = TRUE,
+  customized_trends_df
+)
 }
 \arguments{
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by

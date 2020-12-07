@@ -26,8 +26,36 @@ initiateSpataObject_Counts(
 )
 }
 \arguments{
+\item{coords_df}{Data.frame containing information about the positions of all
+barcode-spots in form of a numeric \emph{x}- and \emph{y}-variable. The key-variable
+\emph{barcodes} needs to be of type character and must be identical to the column names
+of the input matrix (\code{expr_mtr}).}
+
 \item{count_mtr}{A numeric matrix to be used as the count matrix. Rownames must
 correspond to the genes and column names must correspond to the barcodes.}
+
+\item{sample_name}{Character value. The future input for SPATA's \code{of_sample}-argument.}
+
+\item{image}{An Image of the sample that can be displayed as the surface plot's background.}
+
+\item{gene_set_path}{Character value (or NULL). Specifies the path to a
+.RDS-file containing a data.frame that is to be used as input for slot @used_genesets.
+
+ Must have the character-variables
+
+   \itemize{
+    \item{\emph{'ont'}: The gene set names.}
+    \item{\emph{'gene'}: The belonging gene names.}
+    }
+
+If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
+
+\item{output_path}{Character vector or NULL. Specifies the folder in which to store
+the object if the directory is valid. If set to NULL saving is skipped.}
+
+\item{file_name}{Character value. The name-suffix for the file name under which the
+spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
+ \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
 
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 
@@ -49,6 +77,14 @@ for argument \code{features} is set to \code{base::rownames(seurat_object)}.}
 \item{RunTSNE}{A named list of arguments given to \code{Seurat::RunTSNE()}, TRUE or FALSE.}
 
 \item{RunUMAP}{A named list of arguments given to \code{Seurat::RunUMAP()}, TRUE or FALSE.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+}
+\value{
+A spata-object.
 }
 \description{
 Default function for any spatial related experiment whoose spata-objects are initiated with

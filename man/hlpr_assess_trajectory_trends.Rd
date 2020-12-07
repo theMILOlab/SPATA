@@ -2,9 +2,12 @@
 % Please edit documentation in R/trajectory-analysis.R
 \name{hlpr_assess_trajectory_trends}
 \alias{hlpr_assess_trajectory_trends}
+\alias{hlpr_assess_trajectory_trends_customized}
 \title{Assess trajectory ranking.}
 \usage{
 hlpr_assess_trajectory_trends(rtdf, verbose = TRUE)
+
+hlpr_assess_trajectory_trends_customized(rtdf, verbose = TRUE)
 }
 \arguments{
 \item{rtdf}{A ranked trajectory data.frame.}
