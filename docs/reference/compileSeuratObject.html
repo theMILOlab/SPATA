@@ -172,14 +172,14 @@ consider using <code><a href='https://rdrr.io/pkg/Seurat/man/merge.Seurat.html'>
   <span class='no'>object</span>,
   <span class='no'>...</span>,
   <span class='kw'>SCTransform</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>NormalizeData</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>FindVariableFeatures</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>ScaleData</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>RunPCA</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>FindNeighbors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>FindClusters</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>RunTSNE</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>RunUMAP</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>NormalizeData</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>normalization.method</span> <span class='kw'>=</span> <span class='st'>"LogNormalize"</span>, <span class='kw'>scale.factor</span> <span class='kw'>=</span> <span class='fl'>1000</span>),
+  <span class='kw'>FindVariableFeatures</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='st'>"vst"</span>, <span class='kw'>nfeatures</span> <span class='kw'>=</span> <span class='fl'>2000</span>),
+  <span class='kw'>ScaleData</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>RunPCA</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>npcs</span> <span class='kw'>=</span> <span class='fl'>60</span>),
+  <span class='kw'>FindNeighbors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>dims</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>30</span>),
+  <span class='kw'>FindClusters</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>resolution</span> <span class='kw'>=</span> <span class='fl'>0.8</span>),
+  <span class='kw'>RunTSNE</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>RunUMAP</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>dims</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>30</span>),
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 

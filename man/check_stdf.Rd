@@ -4,7 +4,7 @@
 \alias{check_stdf}
 \title{Check summarized trajectory data.frame}
 \usage{
-check_stdf(stdf)
+check_stdf(stdf, shift = NULL)
 }
 \arguments{
 \item{stdf}{A data.frame containing information about a spatial trajectory. Must contain the variables:

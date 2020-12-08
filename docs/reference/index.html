@@ -181,7 +181,25 @@
         <td>
           <p><code><a href="initiateSpataObject_10X.html">initiateSpataObject_10X()</a></code> </p>
         </td>
-        <td><p>Initiate a spata-object</p></td>
+        <td><p>Initiate a spata-object from 10X Visium</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="initiateSpataObject_Counts.html">initiateSpataObject_Counts()</a></code> </p>
+        </td>
+        <td><p>Initiate a spata-object from a raw count matrix</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="initiateSpataObject_ExprMtr.html">initiateSpataObject_ExprMtr()</a></code> </p>
+        </td>
+        <td><p>Create spata object from scaled expression matrix</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="initiateSpataObject_MALDI.html">initiateSpataObject_MALDI()</a></code> </p>
+        </td>
+        <td><p>Initiate a spata-object from MALDI Experiments</p></td>
       </tr><tr>
         
         <td>
@@ -225,6 +243,12 @@
           <p><code><a href="saveGeneSetDf.html">saveGeneSetDf()</a></code> </p>
         </td>
         <td><p>Save a gene set data.frame</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="loadGeneSetDf.html">loadGeneSetDf()</a></code> </p>
+        </td>
+        <td><p>Load gene set data.frame</p></td>
       </tr>
     </tbody><tbody>
       
@@ -250,6 +274,25 @@
           <p><code><a href="compileSeuratObject.html">compileSeuratObject()</a></code> </p>
         </td>
         <td><p>Initiate Seurat analysis</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-transform-objects" class="hasAnchor"><a href="#section-transform-objects" class="anchor"></a>Transform objects</h3>
+          <p class="section-desc"><p>Functions that transfrom objects from different platfroms into each other</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="transformSeuratToSpata.html">transformSeuratToSpata()</a></code> </p>
+        </td>
+        <td><p>Transform seurat-object to spata-object</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -393,6 +436,30 @@
       <tr>
         
         <td>
+          <p><code><a href="getTrajectoryComment-spata-method.html">getTrajectoryComment(<i>&lt;spata&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Obtain a trajectory comment</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getTrajectoryComment.html">getTrajectoryComment()</a></code> </p>
+        </td>
+        <td><p>Obtain a trajectory comment</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getTrajectoryDf.html">getTrajectoryDf()</a></code> </p>
+        </td>
+        <td><p>Obtain a summarized trajectory data.frame</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getTrajectoryLength.html">getTrajectoryLength()</a></code> </p>
+        </td>
+        <td><p>Obtain the length of a trajectory</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getTrajectoryNames.html">getTrajectoryNames()</a></code> </p>
         </td>
         <td><p>Obtain trajectory names</p></td>
@@ -402,12 +469,6 @@
           <p><code><a href="getTrajectoryObject.html">getTrajectoryObject()</a></code> </p>
         </td>
         <td><p>Obtain trajectory object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getTrajectoryDf.html">getTrajectoryDf()</a></code> </p>
-        </td>
-        <td><p>Obtain a summarized trajectory data.frame</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -536,7 +597,7 @@
       <tr>
         
         <td>
-          <p><code><a href="assessTrajectoryTrends.html">assessTrajectoryTrends()</a></code> <code><a href="assessTrajectoryTrends.html">assessTrajectoryTrends2()</a></code> </p>
+          <p><code><a href="assessTrajectoryTrends.html">assessTrajectoryTrends()</a></code> <code><a href="assessTrajectoryTrends.html">assessTrajectoryTrends2()</a></code> <code><a href="assessTrajectoryTrends.html">assessTrajectoryTrendsCustomized()</a></code> <code><a href="assessTrajectoryTrends.html">assessTrajectoryTrendsCustomized2()</a></code> </p>
         </td>
         <td><p>Trajectory trend analysis</p></td>
       </tr>
@@ -688,13 +749,19 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="plotTrajectoryFeatures.html">plotTrajectoryFeatures()</a></code> <code><a href="plotTrajectoryFeatures.html">plotTrajectoryFeaturesDiscrete()</a></code> <code><a href="plotTrajectoryFeatures.html">plotTrajectoryGenes()</a></code> <code><a href="plotTrajectoryFeatures.html">plotTrajectoryGeneSets()</a></code> </p>
+          <p><code><a href="plotTrajectoryFeatures.html">plotTrajectoryFeatures()</a></code> <code><a href="plotTrajectoryFeatures.html">plotTrajectoryGenes()</a></code> <code><a href="plotTrajectoryFeatures.html">plotTrajectoryGeneSets()</a></code> </p>
         </td>
         <td><p>Trajectory line plots</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotTrajectoryFit.html">plotTrajectoryFit()</a></code> </p>
+          <p><code><a href="plotTrajectoryFeaturesDiscrete.html">plotTrajectoryFeaturesDiscrete()</a></code> </p>
+        </td>
+        <td><p>Trajectory barplots</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotTrajectoryFit.html">plotTrajectoryFit()</a></code> <code><a href="plotTrajectoryFit.html">plotTrajectoryFitCustomized()</a></code> </p>
         </td>
         <td><p>Display trajectory fit</p></td>
       </tr><tr>
@@ -746,6 +813,12 @@
           <p><code><a href="plotDeHeatmap.html">plotDeHeatmap()</a></code> </p>
         </td>
         <td><p>Plot differentially expressed genes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotPseudotime.html">plotPseudotime()</a></code> </p>
+        </td>
+        <td><p>Monocle3 Pseudotime</p></td>
       </tr>
     </tbody>
     </table>

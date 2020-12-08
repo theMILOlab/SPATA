@@ -892,6 +892,54 @@ getSamples <- function(object){
 
 #- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
 
+
+
+#' @title Obtain the length of a trajectory
+#'
+#' @description This function returns the length (the number of bins) of a trajectory
+#' depending on the chosen \code{binwidth}.
+#'
+#' @inherit check_trajectory params
+#' @inherit check_trajectory_binwidth params
+#'
+#' @return Numeric value.
+#' @export
+#'
+
+getTrajectoryLength <- function(object,
+                                trajetory_name,
+                                of_sample,
+                                binwidth){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_trajectory(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
+
+  confuns::is_value(x = binwidth, mode = "numeric")
+
+  # -----
+
+
+
+  # 2. Extraction -----------------------------------------------------------
+
+  t_object <-
+    getTrajectoryObject(object = object,
+                        trajectory_name = trajectory_name,
+                        of_sample = of_sample)
+
+  t_object@compiled_trajectory_df %>%
+    dplyr::mutate(pl_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor)) %>%
+    dplyr::group_by(pl_binned) %>%
+    dplyr::summarise(n = dplyr::n(), .groups = "drop_last") %>%
+    base::nrow()
+
+
+}
+
+
 #' @title Obtain trajectory names
 #'
 #' @inherit check_sample params
@@ -964,6 +1012,8 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 #' @inherit check_sample params
 #' @inherit check_trajectory params
 #' @inherit hlpr_summarize_trajectory_df params
+#' @param shift_wider Logical. If set to TRUE the trajectory data.frame is
+#' shifted to it's wider format. Formats can be changed via \code{shiftTrajectoryDf()}.
 #'
 #' @return A summarized trajectory data.frame.
 #'
@@ -976,10 +1026,13 @@ getTrajectoryDf <- function(object,
                             of_sample = "",
                             variables,
                             method_gs = "mean",
-                            accuracy = 5,
+                            binwidth = 5,
                             normalize = TRUE,
+                            shift_wider = FALSE,
                             verbose = TRUE){
 
+
+  confuns::are_values(c("normalize", "shift_wider", "verbose"), mode = "logical")
 
   tobj <-
     getTrajectoryObject(object, trajectory_name, of_sample)
@@ -987,11 +1040,17 @@ getTrajectoryDf <- function(object,
   stdf <-
     hlpr_summarize_trajectory_df(object,
                                  ctdf = tobj@compiled_trajectory_df,
-                                 accuracy = accuracy,
+                                 binwidth = binwidth,
                                  variables = variables,
                                  method_gs = method_gs,
                                  verbose = verbose,
                                  normalize = normalize)
+
+  if(base::isTRUE(shift_wider)){
+
+    stdf <- shiftTrajectoryDf(stdf = stdf, shift = "wider")
+
+  }
 
   base::return(stdf)
 

@@ -39,7 +39,6 @@ logarithmic_trends <- c("Logarithmic descending", "Logarithmic ascending")
 #' @return A nested data.frame with information about the dynamics of each gene
 #' or gene set.
 #'
-#' @export
 
 hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
@@ -114,7 +113,6 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
 
 #' @rdname hlpr_rank_trajectory_trends
-#' @export
 
 hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customized_trends_df){
 
@@ -208,8 +206,6 @@ hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customi
 #'
 #' @return A data.frame arranged by the residuals area-under-the-curve-values describing
 #' how well a model fitted the expression trend of a gene or gene set.
-#'
-#' @export
 
 hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
@@ -245,7 +241,6 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
 
 #' @rdname hlpr_assess_trajectory_trends
-#' @export
 hlpr_assess_trajectory_trends_customized <- function(rtdf, verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -342,6 +337,49 @@ filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE)
 
 }
 
+
+#' @title Shift trajectory data.frame
+#'
+#' @description Shift a trajectory data.frame from long to wider format or the
+#' other way around.
+#'
+#' @inherit check_stdf params
+#'
+#' @return A shifted trajectory data.frame.
+#' @export
+#'
+
+shiftTrajectoryDf <- function(stdf, shift = "wider"){
+
+  check_stdf(stdf, shift = shift)
+
+  if(shift == "wider"){
+
+    tidyr::pivot_wider(
+      data = stdf,
+      id_cols = c("trajectory_part", "trajectory_order", "trajectory_part_order"),
+      names_from = "variables",
+      values_from = "values"
+    )
+
+  } else if(shift == "longer") {
+
+    cnames <- base::colnames(stdf)
+
+    tidyr::pivot_longer(
+      data = stdf,
+      cols = cnames[!cnames %in% trajectory_df_colnames],
+      names_to = "variables",
+      values_to = "values"
+    )
+
+  }
+
+
+}
+
+
+
 # -----
 
 
@@ -352,13 +390,16 @@ filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE)
 #'
 #' @description Analyzes the trend of gene and gene-set-expressions along
 #' trajectories by fitting a variety of mathematical models to them and
-#' by assessing the quality of the fit.
+#' by assessing the quality of each fit.
 #'
 #' \itemize{
 #'  \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
-#'  the subsequent data.frame from scratch.}
+#'  the needed summarized trajectory data.frame from scratch.}
 #'  \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
 #'  returned by \code{getTrajectoryDf()}.}
+#'  \item{\code{assessTrajectoryTrendsCustomized()}: Takes a valid spata-object as well as
+#'  a data.frame or list of customized models against which to fit the variables and constructs
+#'  the needed summarized trajectory data.frame from scratch.}
 #'  }
 #'
 #' @inherit check_sample params
@@ -366,6 +407,7 @@ filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE)
 #' @inherit check_variables params
 #' @inherit verbose params
 #' @inherit hlpr_rank_trajectory_trends params
+#' @inherit check_customized_trends params
 #'
 #' @return A data.frame arranged by the residuals area-under-the-curve-values describing
 #' how well a model fitted the expression trend of a gene or gene set.
@@ -376,7 +418,7 @@ assessTrajectoryTrends <- function(object,
                                    trajectory_name,
                                    of_sample = "",
                                    variables,
-                                   accuracy = 5,
+                                   binwidth = 5,
                                    verbose = TRUE){
 
 
@@ -399,7 +441,7 @@ assessTrajectoryTrends <- function(object,
                            trajectory_name = trajectory_name,
                            of_sample = of_sample,
                            variables = variables,
-                           accuracy = accuracy,
+                           binwidth = binwidth,
                            verbose = verbose)
 
   rtdf <- hlpr_rank_trajectory_trends(stdf = stdf, verbose = verbose)
@@ -434,11 +476,11 @@ assessTrajectoryTrends2 <- function(stdf, verbose = TRUE){
 #' @rdname assessTrajectoryTrends
 #' @export
 assessTrajectoryTrendsCustomized <- function(object,
-                                             customized_trends,
                                              trajectory_name,
                                              of_sample = "",
+                                             customized_trends,
                                              variables,
-                                             accuracy = 5,
+                                             binwidth = 5,
                                              verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -473,7 +515,7 @@ assessTrajectoryTrendsCustomized <- function(object,
                           trajectory_name = trajectory_name,
                           of_sample = of_sample,
                           variables = variables,
-                          accuracy = accuracy,
+                          binwidth = binwidth,
                           verbose = verbose)
 
   rtdf <-
@@ -485,6 +527,38 @@ assessTrajectoryTrendsCustomized <- function(object,
 
 
   atdf <- hlpr_assess_trajectory_trends_customized(rtdf = rtdf, verbose = verbose)
+
+  # -----
+
+  base::return(atdf)
+
+}
+
+
+#' @rdname assessTrajectoryTrends
+#' @export
+assessTrajectoryTrendsCustomized2 <- function(stdf, customized_trends, verbose = TRUE){
+
+  # 2. Main part ------------------------------------------------------------
+
+  check_stdf(stdf = stdf)
+
+  length_trajectory <-
+    shiftTrajectoryDf(stdf, shift = "wider") %>%
+    base::nrow()
+
+  customized_trends <-
+    check_customized_trends(length_trajectory = length_trajectory,
+                            customized_trends = customized_trends) %>%
+    purrr::map_df(.x = ., .f = ~ .x )
+
+  rtdf <-
+    hlpr_rank_trajectory_trends_customized(stdf = stdf,
+                                           verbose = verbose,
+                                           customized_trends_df = customized_trends)
+
+  atdf <- hlpr_assess_trajectory_trends_customized(rtdf = rtdf,
+                                                   verbose = verbose)
 
   # -----
 

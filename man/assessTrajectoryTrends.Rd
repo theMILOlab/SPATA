@@ -4,6 +4,7 @@
 \alias{assessTrajectoryTrends}
 \alias{assessTrajectoryTrends2}
 \alias{assessTrajectoryTrendsCustomized}
+\alias{assessTrajectoryTrendsCustomized2}
 \title{Trajectory trend analysis}
 \usage{
 assessTrajectoryTrends(
@@ -11,7 +12,7 @@ assessTrajectoryTrends(
   trajectory_name,
   of_sample = "",
   variables,
-  accuracy = 5,
+  binwidth = 5,
   verbose = TRUE
 )
 
@@ -19,13 +20,15 @@ assessTrajectoryTrends2(stdf, verbose = TRUE)
 
 assessTrajectoryTrendsCustomized(
   object,
-  customized_trends,
   trajectory_name,
   of_sample = "",
+  customized_trends,
   variables,
-  accuracy = 5,
+  binwidth = 5,
   verbose = TRUE
 )
+
+assessTrajectoryTrendsCustomized2(stdf, customized_trends, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -51,6 +54,10 @@ the computational progress will be printed.
 
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
 \code{getTrajectoryDf()}).}
+
+\item{customized_trends}{A data.frame or a named list. All numeric variables are considered to correspond to customized trends
+the trajectory of interest might adopt. The names of the respective variables will correspond to the name
+with which you want to refer to the trend later on.}
 }
 \value{
 A data.frame arranged by the residuals area-under-the-curve-values describing
@@ -59,12 +66,15 @@ how well a model fitted the expression trend of a gene or gene set.
 \description{
 Analyzes the trend of gene and gene-set-expressions along
 trajectories by fitting a variety of mathematical models to them and
-by assessing the quality of the fit.
+by assessing the quality of each fit.
 
 \itemize{
  \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
- the subsequent data.frame from scratch.}
+ the needed summarized trajectory data.frame from scratch.}
  \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
  returned by \code{getTrajectoryDf()}.}
+ \item{\code{assessTrajectoryTrendsCustomized()}: Takes a valid spata-object as well as
+ a data.frame or list of customized models against which to fit the variables and constructs
+ the needed summarized trajectory data.frame from scratch.}
  }
 }

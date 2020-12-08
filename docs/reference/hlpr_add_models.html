@@ -178,6 +178,8 @@ create a nested ranked trajectory data.frame.</p>
 
 <span class='fu'>hlpr_add_residuals</span>(<span class='no'>df</span>, <span class='kw'>pb</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>custom_fit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
+<span class='fu'>hlpr_add_residuals_customized</span>(<span class='no'>df</span>, <span class='no'>customized_trends_df</span>, <span class='kw'>pb</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
 <span class='fu'>hlpr_summarize_residuals</span>(<span class='no'>df</span>, <span class='kw'>pb</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>hlpr_name_models</span>(<span class='no'>names</span>)
@@ -190,6 +192,11 @@ create a nested ranked trajectory data.frame.</p>
     <tr>
       <th>df</th>
       <td><p>A data.frame.</p></td>
+    </tr>
+    <tr>
+      <th>customized_trends_df</th>
+      <td><p>A data.frame of only numeric variables that represent the trends a trajectory
+might adopt.</p></td>
     </tr>
     </table>
 

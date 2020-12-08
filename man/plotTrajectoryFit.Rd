@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFit}
 \alias{plotTrajectoryFit}
+\alias{plotTrajectoryFitCustomized}
 \title{Display trajectory fit}
 \usage{
 plotTrajectoryFit(
@@ -10,8 +11,25 @@ plotTrajectoryFit(
   of_sample = "",
   variable,
   method_gs = "mean",
-  accuracy = 5,
+  binwidth = 5,
+  smooth = TRUE,
+  smooth_span = 0.2,
   display_residuals = FALSE,
+  verbose = TRUE,
+  ...
+)
+
+plotTrajectoryFitCustomized(
+  object,
+  trajectory_name,
+  of_sample = "",
+  variable,
+  customized_trends,
+  method_gs = "mean",
+  binwidth = 5,
+  smooth = TRUE,
+  smooth_span = 0.2,
+  display_residuals = TRUE,
   verbose = TRUE,
   ...
 )
@@ -32,9 +50,9 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{accuracy}{Numeric. Given to \code{accuracy}-argument of
-\code{plyr::round_any()}. Determines how many barcode-spots will be summarized
-as one sub-trajectory-part.}
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{display_residuals}{Logical. If set to TRUE the residuals are displayed
 via a red line.}
@@ -45,6 +63,10 @@ the computational progress will be printed.
 (Warning messages will always be printed.)}
 
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
+
+\item{customized_trends}{A data.frame or a named list. All numeric variables are considered to correspond to customized trends
+the trajectory of interest might adopt. The names of the respective variables will correspond to the name
+with which you want to refer to the trend later on.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

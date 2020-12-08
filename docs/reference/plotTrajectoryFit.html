@@ -162,8 +162,25 @@ of models / mathematical curves.</p>
   <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
   <span class='no'>variable</span>,
   <span class='kw'>method_gs</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
-  <span class='kw'>accuracy</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>smooth</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>smooth_span</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>display_residuals</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)
+
+<span class='fu'>plotTrajectoryFitCustomized</span>(
+  <span class='no'>object</span>,
+  <span class='no'>trajectory_name</span>,
+  <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='no'>variable</span>,
+  <span class='no'>customized_trends</span>,
+  <span class='kw'>method_gs</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>smooth</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>smooth_span</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
+  <span class='kw'>display_residuals</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )</pre>
@@ -197,10 +214,10 @@ of <em>'gsva', 'ssgsea', 'zscore', or 'plage'</em>. The latter four will be give
 <code>gsva::GSVA()</code>.</p></td>
     </tr>
     <tr>
-      <th>accuracy</th>
-      <td><p>Numeric. Given to <code>accuracy</code>-argument of
-<code><a href='https://rdrr.io/pkg/plyr/man/round_any.html'>plyr::round_any()</a></code>. Determines how many barcode-spots will be summarized
-as one sub-trajectory-part.</p></td>
+      <th>binwidth</th>
+      <td><p>Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'</p></td>
     </tr>
     <tr>
       <th>display_residuals</th>
@@ -216,6 +233,12 @@ the computational progress will be printed.</p>
     <tr>
       <th>...</th>
       <td><p>Additional parameters given to <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>customized_trends</th>
+      <td><p>A data.frame or a named list. All numeric variables are considered to correspond to customized trends
+the trajectory of interest might adopt. The names of the respective variables will correspond to the name
+with which you want to refer to the trend later on.</p></td>
     </tr>
     </table>
 

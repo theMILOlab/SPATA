@@ -106,19 +106,44 @@ check_spata_df <- function(spata_df){
 #'
 #' @inherit lazy_check_dummy description details return
 
-check_stdf <- function(stdf){
+check_stdf <- function(stdf, shift = NULL){
 
-  confuns::check_data_frame(
-    df = stdf,
-    var.class = list(
-      trajectory_part = c("character"),
-      trajectory_part_order = c("integer", "numeric", "double"),
-      trajectory_order = c("integer", "numeric", "double"),
-      variables = c("character"),
-      values = c("integer", "numeric", "double")
-    ),
-    ref = "stdf"
-  )
+  if(!base::is.null(shift)){ confuns::check_one_of(input = shift, against = c("wider", "longer"))}
+
+  if(base::is.null(shift) || shift == "wider"){
+
+    confuns::check_data_frame(
+      df = stdf,
+      var.class = list(
+        trajectory_part = c("character"),
+        trajectory_part_order = c("integer", "numeric", "double"),
+        trajectory_order = c("integer", "numeric", "double"),
+        variables = c("character"),
+        values = c("integer", "numeric", "double")
+      ),
+      ref = "stdf"
+    )
+
+  } else if(!base::is.null(shift) && shift == "longer"){
+
+    cnames <- base::colnames(stdf)
+
+    stdf_variables <- cnames[!cnames %in% trajectory_df_colnames]
+
+    all_variables <- c(stdf_variables, "trajectory_order", "trajectory_part_order")
+
+    var.class <-
+      purrr::map(.x = all_variables,
+                 .f = ~ c("integer", "numeric", "double")) %>%
+      purrr::set_names(nm = all_variables)
+
+    confuns::check_data_frame(
+      df = stdf,
+      var.class = var.class,
+      ref = "stdf"
+    )
+
+  }
 
 }
 
@@ -838,6 +863,20 @@ check_trajectory <- function(object,
 
   }
 
+
+}
+
+
+#' @title Check trajectory binwdith input
+#'
+#' @param binwidth Numeric value. Denotes the binwidth with which to sort all
+#' relevant barcode spots into groups that are then aligned with respect to the
+#' chosen trajectory's direction.#'
+#'
+
+check_trajectory_binwidth <- function(binwidth){
+
+  confuns::is_value(x = binwidth, mode = "numeric")
 
 }
 

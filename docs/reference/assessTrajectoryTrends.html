@@ -42,12 +42,15 @@
 <meta property="og:title" content="Trajectory trend analysis — assessTrajectoryTrends" />
 <meta property="og:description" content="Analyzes the trend of gene and gene-set-expressions along
 trajectories by fitting a variety of mathematical models to them and
-by assessing the quality of the fit.
+by assessing the quality of each fit.
 
 assessTrajectoryTrends(): Takes a valid spata-object and constructs
- the subsequent data.frame from scratch.
+ the needed summarized trajectory data.frame from scratch.
 assessTrajectoryTrends2(): Takes a summarized trajectory data.frame
  returned by getTrajectoryDf().
+assessTrajectoryTrendsCustomized(): Takes a valid spata-object as well as
+ a data.frame or list of customized models against which to fit the variables and constructs
+ the needed summarized trajectory data.frame from scratch.
 
 " />
 
@@ -162,12 +165,15 @@ assessTrajectoryTrends2(): Takes a summarized trajectory data.frame
     <div class="ref-description">
     <p>Analyzes the trend of gene and gene-set-expressions along
 trajectories by fitting a variety of mathematical models to them and
-by assessing the quality of the fit.</p>
+by assessing the quality of each fit.</p>
 <ul>
 <li><p><code>assessTrajectoryTrends()</code>: Takes a valid spata-object and constructs
- the subsequent data.frame from scratch.</p></li>
+ the needed summarized trajectory data.frame from scratch.</p></li>
 <li><p><code>assessTrajectoryTrends2()</code>: Takes a summarized trajectory data.frame
  returned by <code><a href='getTrajectoryDf.html'>getTrajectoryDf()</a></code>.</p></li>
+<li><p><code>assessTrajectoryTrendsCustomized()</code>: Takes a valid spata-object as well as
+ a data.frame or list of customized models against which to fit the variables and constructs
+ the needed summarized trajectory data.frame from scratch.</p></li>
 </ul>
 
     </div>
@@ -177,11 +183,23 @@ by assessing the quality of the fit.</p>
   <span class='no'>trajectory_name</span>,
   <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
   <span class='no'>variables</span>,
-  <span class='kw'>accuracy</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )
 
-<span class='fu'>assessTrajectoryTrends2</span>(<span class='no'>stdf</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>assessTrajectoryTrends2</span>(<span class='no'>stdf</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'>assessTrajectoryTrendsCustomized</span>(
+  <span class='no'>object</span>,
+  <span class='no'>trajectory_name</span>,
+  <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='no'>customized_trends</span>,
+  <span class='no'>variables</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)
+
+<span class='fu'>assessTrajectoryTrendsCustomized2</span>(<span class='no'>stdf</span>, <span class='no'>customized_trends</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,6 +237,12 @@ the computational progress will be printed.</p>
       <th>stdf</th>
       <td><p>A summarized trajectory data.frame. (e.g. obtained by
 <code><a href='getTrajectoryDf.html'>getTrajectoryDf()</a></code>).</p></td>
+    </tr>
+    <tr>
+      <th>customized_trends</th>
+      <td><p>A data.frame or a named list. All numeric variables are considered to correspond to customized trends
+the trajectory of interest might adopt. The names of the respective variables will correspond to the name
+with which you want to refer to the trend later on.</p></td>
     </tr>
     </table>
 

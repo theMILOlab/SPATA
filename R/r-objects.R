@@ -1,4 +1,5 @@
 
+# Seurat analysis ---------------------------------------------------------
 
 seurat_process_fns <- c("SCTransform","NormalizeData", "FindVariableFeatures", "ScaleData",
                         "RunPCA", "FindNeighbors", "FindClusters", "RunTSNE", "RunUMAP" )
@@ -7,3 +8,9 @@ seurat_process_fns <- c("SCTransform","NormalizeData", "FindVariableFeatures", "
 seurat_methods <- c("spatial", "single_cell")
 
 seurat_coords_from_opts <- c("umap", "tsne")
+
+
+
+# Trajectory analysis -----------------------------------------------------
+
+trajectory_df_colnames <- c("trajectory_part", "trajectory_order", "trajectory_part_order")

@@ -164,19 +164,12 @@ a smoothed lineplot.</p>
   <span class='kw'>smooth_method</span> <span class='kw'>=</span> <span class='st'>"loess"</span>,
   <span class='kw'>smooth_span</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>smooth_se</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>clrp</span> <span class='kw'>=</span> <span class='st'>"milo"</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)
-
-<span class='fu'>plotTrajectoryFeaturesDiscrete</span>(
-  <span class='no'>object</span>,
-  <span class='no'>trajectory_name</span>,
-  <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='no'>discrete_feature</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>clrp</span> <span class='kw'>=</span> <span class='st'>"milo"</span>,
   <span class='kw'>display_trajectory_parts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>
+  <span class='kw'>split</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )
 
 <span class='fu'>plotTrajectoryGenes</span>(
@@ -189,7 +182,10 @@ a smoothed lineplot.</p>
   <span class='kw'>smooth_method</span> <span class='kw'>=</span> <span class='st'>"loess"</span>,
   <span class='kw'>smooth_span</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>smooth_se</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>display_trajectory_parts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>display_trajectory_parts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>split</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )
 
@@ -197,13 +193,16 @@ a smoothed lineplot.</p>
   <span class='no'>object</span>,
   <span class='no'>trajectory_name</span>,
   <span class='kw'>of_sample</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='kw'>gene_sets</span> <span class='kw'>=</span> <span class='st'>"Neftel_NPC_Comb"</span>,
+  <span class='no'>gene_sets</span>,
   <span class='kw'>method_gs</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
   <span class='kw'>smooth_method</span> <span class='kw'>=</span> <span class='st'>"loess"</span>,
   <span class='kw'>smooth_span</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>smooth_se</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>clrp</span> <span class='kw'>=</span> <span class='st'>"milo"</span>,
   <span class='kw'>display_trajectory_parts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>split</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -238,25 +237,37 @@ single character value (e.g. <em>"lm", "glm", "gam", "loess"</em>).</p></td>
 displayed.</p></td>
     </tr>
     <tr>
+      <th>binwidth</th>
+      <td><p>Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'</p></td>
+    </tr>
+    <tr>
       <th>clrp</th>
       <td><p>Character value. The color panel to be used.
 Run <code><a href='all_colorpanels.html'>all_colorpanels()</a></code> to see valid input.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.</p>
-<p>(Warning messages will always be printed.)</p></td>
-    </tr>
-    <tr>
-      <th>discrete_feature</th>
-      <td><p>Character value. The discrete feature of interest.</p></td>
     </tr>
     <tr>
       <th>display_trajectory_parts</th>
       <td><p>Logical. If set to TRUE the returned plot
 visualizes the parts in which the trajectory has been partitioned while beeing
 drawn.</p></td>
+    </tr>
+    <tr>
+      <th>split</th>
+      <td><p>Logical. If set to TRUE sub plots for every specified gene, gene-set
+or feature are displayed via <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments given to <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code> if argument
+<code>split</code> is set to TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.</p>
+<p>(Warning messages will always be printed.)</p></td>
     </tr>
     <tr>
       <th>genes</th>
@@ -277,6 +288,10 @@ of all specified genes will be calculated.</p></td>
 specified as a character of length one. This can be either <em>'mean'</em> or one
 of <em>'gsva', 'ssgsea', 'zscore', or 'plage'</em>. The latter four will be given to
 <code>gsva::GSVA()</code>.</p></td>
+    </tr>
+    <tr>
+      <th>discrete_feature</th>
+      <td><p>Character value. The discrete feature of interest.</p></td>
     </tr>
     </table>
 

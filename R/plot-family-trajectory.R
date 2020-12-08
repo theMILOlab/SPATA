@@ -37,13 +37,17 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 
   }
 
+  names_trends <- base::names(customized_trends)
+  names_trends <- names_trends[!stringr::str_detect(names_trends, pattern = "^trajectory")]
+
 
   # prepare plot data
   plot_df <-
     purrr::map_df(.x = customized_trends, .f = ~ .x) %>%
+    dplyr::select(-dplyr::starts_with(match = "trajectory_")) %>%
     dplyr::mutate(Direction = dplyr::row_number()) %>%
     tidyr::pivot_longer(
-      cols = dplyr::all_of(base::names(customized_trends)),
+      cols = names_trends,
       values_to = "values",
       names_to = "variables")
 
@@ -106,7 +110,6 @@ plotTrajectory <- function(object,
                            display_title = FALSE,
                            uniform_genes = "discard",
                            verbose = TRUE){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -260,6 +263,7 @@ plotTrajectory <- function(object,
 #' @inherit check_genes params
 #' @inherit average_genes params
 #' @inherit check_smooth params
+#' @inherit check_trajectory_binwidth params
 #' @inherit verbose params
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
@@ -282,6 +286,7 @@ plotTrajectoryFeatures <- function(object,
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
+                                   binwidth = 5,
                                    clrp = "milo",
                                    display_trajectory_parts = FALSE,
                                    split = FALSE,
@@ -294,6 +299,7 @@ plotTrajectoryFeatures <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
+  check_trajectory_binwidth(binwidth)
 
   confuns::is_value(clrp, "character", "clrp")
 
@@ -313,7 +319,7 @@ plotTrajectoryFeatures <- function(object,
   result_df <-
     hlpr_summarize_trajectory_df(object = object,
                                  ctdf = t_object@compiled_trajectory_df,
-                                 accuracy = 5,
+                                 binwidth = binwidth,
                                  variables = features,
                                  verbose = verbose)  %>%
     dplyr::group_by(variables) %>%
@@ -394,6 +400,7 @@ plotTrajectoryGenes <- function(object,
                                 smooth_method = "loess",
                                 smooth_span = 0.2,
                                 smooth_se = TRUE,
+                                binwidth = 5,
                                 display_trajectory_parts = FALSE,
                                 split = FALSE,
                                 ...,
@@ -405,6 +412,7 @@ plotTrajectoryGenes <- function(object,
   # lazy check
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
+  check_trajectory_binwidth(binwidth)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
@@ -455,7 +463,7 @@ plotTrajectoryGenes <- function(object,
 
   coords_with_genes <-
     t_object@compiled_trajectory_df %>%
-    dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = 5, f = floor)) %>%
+    dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = binwidth, f = floor)) %>%
     joinWithGenes(object = object,
                   spata_df = .,
                   genes = genes,
@@ -568,6 +576,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_method = "loess",
                                    smooth_span = 0.2,
                                    smooth_se = TRUE,
+                                   binwidth = 5,
                                    clrp = "milo",
                                    display_trajectory_parts = TRUE,
                                    split = FALSE,
@@ -581,6 +590,7 @@ plotTrajectoryGeneSets <- function(object,
   check_object(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_method(method_gs = method_gs)
+  check_trajectory_binwidth(binwidth)
 
   confuns::is_value(clrp, "character", "clrp")
 
@@ -600,7 +610,7 @@ plotTrajectoryGeneSets <- function(object,
   result_df <-
     hlpr_summarize_trajectory_df(object = object,
                                  ctdf = t_object@compiled_trajectory_df,
-                                 accuracy = 5,
+                                 binwidth = binwidth,
                                  variables = gene_sets,
                                  method_gs = method_gs,
                                  verbose = verbose,
@@ -673,6 +683,7 @@ plotTrajectoryGeneSets <- function(object,
 #'
 #' @inherit check_sample params
 #' @param discrete_feature Character value. The discrete feature of interest.
+#' @inherit check_trajectory_binwidth params
 #' @inherit verbose params
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
@@ -688,6 +699,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
                                            trajectory_name,
                                            of_sample = "",
                                            discrete_feature,
+                                           binwidth = 5,
                                            clrp = "milo",
                                            display_trajectory_parts = FALSE,
                                            verbose = TRUE,
@@ -697,6 +709,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
   # 1. Control --------------------------------------------------------------
 
   check_object(object)
+  check_trajectory_binwidth(binwidth)
 
   of_sample <- check_sample(object, of_sample = of_sample, 1)
   check_trajectory(object, trajectory_name = trajectory_name, of_sample = of_sample)
@@ -720,7 +733,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
   plot_df <-
     dplyr::mutate(.data = joined_df,
-                  order_binned = plyr::round_any(x = projection_length, accuracy = 5, f = base::floor),
+                  order_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor),
                   trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
 
   if(base::isTRUE(display_trajectory_parts)){
@@ -771,7 +784,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 #'
 #' All elements of the specified character vector must either belong to
 #' gene sets or to genes.
-#'
+#' @inherit check_trajectory_binwidth params
 #' @param arrange_rows Alter the way the rows of the heatmap
 #' are displayed in order to highlight patterns. Currently either \emph{'maxima'}
 #' or \emph{'minima'}.
@@ -792,6 +805,7 @@ plotTrajectoryHeatmap <- function(object,
                                   of_sample = "",
                                   variables,
                                   method_gs = "mean",
+                                  binwidth = 5,
                                   arrange_rows = "none",
                                   show_rownames = FALSE,
                                   show_colnames = FALSE,
@@ -805,6 +819,7 @@ plotTrajectoryHeatmap <- function(object,
 
   # all checks
   check_object(object)
+  check_trajectory_binwidth(binwidth)
 
   confuns::are_values(c("method_gs", "arrange_rows"), mode = "character")
 
@@ -835,7 +850,7 @@ plotTrajectoryHeatmap <- function(object,
       object = object,
       ctdf = t_object@compiled_trajectory_df,
       variables = variables[[1]],
-      accuracy = 5,
+      binwidth = binwidth,
       verbose = verbose) %>%
     dplyr::ungroup()
 
@@ -968,9 +983,11 @@ plotTrajectoryHeatmap <- function(object,
 #'
 #' @inherit check_sample params
 #' @inherit check_trajectory params
+#' @inherit check_customized_trends params
 #' @param variable The gene or gene set of interest specified as a character value.
 #' @param display_residuals Logical. If set to TRUE the residuals are displayed
 #' via a red line.
+#' @inherit check_trajectory_binwidth params
 #' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
 #' @inherit hlpr_summarize_trajectory_df params
 #'
@@ -982,7 +999,9 @@ plotTrajectoryFit <- function(object,
                               of_sample = "",
                               variable,
                               method_gs = "mean",
-                              accuracy = 5,
+                              binwidth = 5,
+                              smooth = TRUE,
+                              smooth_span = 0.2,
                               display_residuals = FALSE,
                               verbose = TRUE,
                               ...){
@@ -991,8 +1010,10 @@ plotTrajectoryFit <- function(object,
 
   # lazy check
   check_object(object)
+  check_smooth(smooth = smooth, smooth_span = smooth_span)
   check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
+  check_trajectory_binwidth(binwidth)
 
   # adjusting check
   of_sample <- check_sample(object, of_sample, 1)
@@ -1013,7 +1034,7 @@ plotTrajectoryFit <- function(object,
                           of_sample = of_sample,
                           variables = variable,
                           method_gs = method_gs,
-                          accuracy = accuracy,
+                          binwidth = binwidth,
                           verbose = verbose,
                           normalize = TRUE)
 
@@ -1030,7 +1051,7 @@ plotTrajectoryFit <- function(object,
     )
 
   joined_df <-
-    dplyr::left_join(x = models, y = data, key = "trajectory_order")
+    dplyr::left_join(x = models, y = data, by = "trajectory_order")
 
   # add residuals
   if(base::isTRUE(display_residuals)){
@@ -1072,17 +1093,17 @@ plotTrajectoryFit <- function(object,
 
   # -----
 
-  ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values)) +
-    ggplot2::geom_line(size = 1, alpha = 0.75, color = "blue4", linetype = "solid",
-                       data = dplyr::filter(plot_df, origin == "Fitted curve")
-    ) +
-    ggplot2::geom_path(
-      mapping = ggplot2::aes(group = origin, color = origin, linetype = origin),
-      size = 1, data = dplyr::filter(plot_df, origin %in% c("Residuals", "Expression"))
-    ) +
+  add_on_list <-
+    hlpr_geom_trajectory_fit(smooth = smooth,
+                             smooth_span = smooth_span,
+                             plot_df = plot_df)
+
+  ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values, color = origin)) +
+    add_on_list +
     ggplot2::facet_wrap(~ pattern, ...) +
     ggplot2::scale_color_manual(values = c("Expression" = "forestgreen",
-                                           "Residuals" = "tomato")) +
+                                           "Residuals" = "tomato",
+                                           "Fitted curve" = "blue4")) +
     ggplot2::scale_linetype_discrete(c("Residuals"= "dotted", "Expression" = "solid"), guide = FALSE) +
     ggplot2::theme_classic() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
@@ -1097,6 +1118,156 @@ plotTrajectoryFit <- function(object,
 }
 
 
+#' @rdname plotTrajectoryFit
+#' @export
+plotTrajectoryFitCustomized <- function(object,
+                                        trajectory_name,
+                                        of_sample = "",
+                                        variable,
+                                        customized_trends,
+                                        method_gs = "mean",
+                                        binwidth = 5,
+                                        smooth = TRUE,
+                                        smooth_span = 0.2,
+                                        display_residuals = TRUE,
+                                        verbose = TRUE,
+                                        ...){
+
+  # 1. Control --------------------------------------------------------------
+
+  # lazy check
+  check_object(object)
+  check_trajectory(object, trajectory_name, of_sample)
+  check_method(method_gs = method_gs)
+  check_trajectory_binwidth(binwidth)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample, 1)
+
+  variable <- check_variables(variables = variable,
+                              all_gene_sets = getGeneSets(object),
+                              all_genes = getGenes(object, in_sample = of_sample),
+                              max_length = 1,
+                              max_slots = 1) %>%
+    base::unlist(use.names = FALSE)
+
+  # -----
+
+
+  # 2. Data wrangling -------------------------------------------------------
+
+  # get expresion dynamic of variable of interest
+  stdf <- getTrajectoryDf(object = object,
+                          trajectory_name = trajectory_name,
+                          of_sample = of_sample,
+                          variables = variable,
+                          method_gs = method_gs,
+                          binwidth = binwidth,
+                          verbose = verbose,
+                          normalize = TRUE)
+
+  data <- dplyr::select(.data = stdf, trajectory_order, values_Expression = values)
+
+  # ---
+
+  # check customized trends input
+  length_trajectory <- base::nrow(data)
+
+  customized_trends <-
+    check_customized_trends(length_trajectory = length_trajectory,
+                            customized_trends = customized_trends)
+
+  trend_names <-
+    base::names(customized_trends)
+
+  trend_names <- trend_names[!stringr::str_detect(trend_names, pattern = "^trajectory_")]
+
+  customized_trends_df <-
+    purrr::map_df(.x = customized_trends, .f = ~ .x) %>%
+    dplyr::select(- dplyr::starts_with(match = "trajectory_"))
+
+  # ---
+
+  # join the expression dynamic and the customized trends
+  models <-
+    dplyr::mutate(.data = customized_trends_df, trajectory_order = dplyr::row_number()) %>%
+    dplyr::left_join(x = ., y = stdf, by = c("trajectory_order")) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(c(trend_names, "values")),
+      values_to = "values_Customized",
+      names_to = "pattern",
+      names_prefix = "p_"
+    )
+
+  joined_df <- dplyr::left_join(x = models, y = data, by = "trajectory_order")
+
+  # ---
+
+  # add residuals to the plot
+  if(base::isTRUE(display_residuals)){
+
+    residuals <-
+      tidyr::pivot_longer(
+        data = hlpr_add_residuals_customized(stdf, customized_trends_df = customized_trends_df),
+        cols = dplyr::starts_with("p_"),
+        values_to = "values_Residuals",
+        names_to = "pattern",
+        names_prefix = "p_"
+      )
+
+    joined_df <-
+      dplyr::left_join(x = joined_df,
+                       y = residuals,
+                       by = c("trajectory_order", "pattern"))
+
+    legend_position = "right"
+
+  } else {
+
+    legend_position = "none"
+
+  }
+
+  # ---
+
+
+  # shift to final, plottable data.frame
+  plot_df <-
+    tidyr::pivot_longer(
+      data = joined_df,
+      cols = dplyr::all_of(x = tidyselect::starts_with("values")),
+      names_to = "origin",
+      values_to = "all_values",
+      names_prefix = "values_"
+    ) %>%
+    dplyr::filter(pattern != "values")
+
+  # ---
+
+
+  # 3. Plotting -------------------------------------------------------------
+
+  add_on_list <-
+    hlpr_geom_trajectory_fit(smooth = smooth, smooth_span = smooth_span, plot_df = plot_df)
+
+  ggplot2::ggplot(mapping = ggplot2::aes(x = trajectory_order, y = all_values, color = origin)) +
+    add_on_list +
+    ggplot2::facet_wrap(~ pattern) +
+    ggplot2::scale_color_manual(values = c("Expression" = "forestgreen",
+                                           "Residuals" = "tomato",
+                                           "Customized" = "blue4")) +
+    ggplot2::scale_linetype_discrete(c("Residuals"= "dotted", "Expression" = "solid"), guide = FALSE) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   axis.text = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
+                   strip.background = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(color = "black", size = 11),
+                   legend.position = legend_position) +
+    ggplot2::labs(x = "Trajectory direction", y = NULL, color = NULL, caption = variable)
+
+}
 
 
 

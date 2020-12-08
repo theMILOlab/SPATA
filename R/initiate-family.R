@@ -183,7 +183,7 @@ initiateSpataObject_Counts <- function(coords_df,
 }
 
 
-#' @title Create spata object from scaled expression matrix
+#' @title Initiate spata object from scaled expression matrix
 #'
 #' @description Default function for any spatial related experiment whoose output is
 #' an already processed expression/intensity matrix. See details for more information.

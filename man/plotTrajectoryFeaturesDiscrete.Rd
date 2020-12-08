@@ -9,6 +9,7 @@ plotTrajectoryFeaturesDiscrete(
   trajectory_name,
   of_sample = "",
   discrete_feature,
+  binwidth = 5,
   clrp = "milo",
   display_trajectory_parts = FALSE,
   verbose = TRUE,
@@ -22,6 +23,10 @@ plotTrajectoryFeaturesDiscrete(
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{discrete_feature}{Character value. The discrete feature of interest.}
+
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{clrp}{Character value. The color panel to be used.
 Run \code{all_colorpanels()} to see valid input.}

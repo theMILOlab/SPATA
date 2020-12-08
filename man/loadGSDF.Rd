@@ -2,23 +2,11 @@
 % Please edit documentation in R/loading-and-saving.R
 \name{loadGSDF}
 \alias{loadGSDF}
-\title{Load gene set data.frame}
+\title{Original load gene set data.frame}
 \usage{
 loadGSDF(gene_set_path = NULL, verbose = TRUE)
 }
-\arguments{
-\item{gene_set_path}{If set to NULL the default \code{SPATA::gsdf} is used.
-If a directory is specified the object is loaded via \code{base::readRDS()}, checked
-and used if valid. If it is invalid the default \code{SPATA::gsdf} is used .}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
-}
-\value{
-A data.frame.
-}
 \description{
-Load gene set data.frame
+Not exported due to naming issues. Kept as it is used in several
+loading functions.
 }

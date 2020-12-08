@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Initiate a spata-object — initiateSpataObject_10X • SPATA</title>
+<title>Initiate a spata-object from 10X Visium — initiateSpataObject_10X • SPATA</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Initiate a spata-object — initiateSpataObject_10X" />
+<meta property="og:title" content="Initiate a spata-object from 10X Visium — initiateSpataObject_10X" />
 <meta property="og:description" content="Creates, saves and returns an object of class spata
-from scratch. Several samples can be stored in one object, though we recommand to stick
+from scratch. Several samples can be stored in one object, though we recommend to stick
 to one. (See details for more.)" />
 
 
@@ -147,14 +147,14 @@ to one. (See details for more.)" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Initiate a spata-object</h1>
+    <h1>Initiate a spata-object from 10X Visium</h1>
     
     <div class="hidden name"><code>initiateSpataObject_10X.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Creates, saves and returns an object of class spata
-from scratch. Several samples can be stored in one object, though we recommand to stick
+from scratch. Several samples can be stored in one object, though we recommend to stick
 to one. (See details for more.)</p>
     </div>
 
@@ -208,12 +208,13 @@ respective sample. Should start with a letter.</p></td>
     <tr>
       <th>output_path</th>
       <td><p>Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid.</p></td>
+the object if the directory is valid. If set to NULL saving is skipped.</p></td>
     </tr>
     <tr>
       <th>file_name</th>
       <td><p>Character value. The name-suffix for the file name under which the
-spata-object is stored. Is prefixed with <em>'spata-obj-'</em> and suffixed with <em>'.RDS'</em>.</p></td>
+spata-object is stored if <code>output_path</code> is a valid directory. Is prefixed with
+ <em>'spata-obj-'</em> and suffixed with <em>'.RDS'</em>.</p></td>
     </tr>
     <tr>
       <th>SCTransform</th>

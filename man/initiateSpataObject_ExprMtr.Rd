@@ -2,7 +2,7 @@
 % Please edit documentation in R/initiate-family.R
 \name{initiateSpataObject_ExprMtr}
 \alias{initiateSpataObject_ExprMtr}
-\title{Create spata object from scaled expression matrix}
+\title{Initiate spata object from scaled expression matrix}
 \usage{
 initiateSpataObject_ExprMtr(
   coords_df,

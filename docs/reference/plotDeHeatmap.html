@@ -168,6 +168,7 @@ to generate the differential expression data.frame as input for <code>across</co
   <span class='kw'>across_subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n_barcode_spots</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>hm_clrp</span> <span class='kw'>=</span> <span class='st'>"milo"</span>,
   <span class='kw'>hm_colors</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/viridis/man/reexports.html'>viridis</a></span>(<span class='fl'>15</span>),
   <span class='no'>...</span>
 )</pre>
@@ -226,8 +227,13 @@ the computational progress will be printed.</p>
 <p>(Warning messages will always be printed.)</p></td>
     </tr>
     <tr>
+      <th>hm_clrp</th>
+      <td><p>The colorpanels used for the discrete heatmap annotation. Run <code><a href='all_colorpanels.html'>all_colorpanels()</a></code>
+to obtain valid input options.</p></td>
+    </tr>
+    <tr>
       <th>hm_colors</th>
-      <td><p>A vector of colors to be used.</p></td>
+      <td><p>A vector of colors to be used for the continuous heatmap annotation..</p></td>
     </tr>
     <tr>
       <th>...</th>

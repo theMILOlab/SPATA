@@ -30,10 +30,6 @@ transformSeuratToSpata(
  Only relevant if \code{method} was set to \emph{'single_cell'}. Denotes the slot from which to
  take the surrogate coordinates.}
 
-\item{gene_set_path}{If set to NULL the default \code{SPATA::gsdf} is used.
-If a directory is specified the object is loaded via \code{base::readRDS()}, checked
-and used if valid. If it is invalid the default \code{SPATA::gsdf} is used .}
-
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 

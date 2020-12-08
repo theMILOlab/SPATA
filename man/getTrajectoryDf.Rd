@@ -10,8 +10,9 @@ getTrajectoryDf(
   of_sample = "",
   variables,
   method_gs = "mean",
-  accuracy = 5,
+  binwidth = 5,
   normalize = TRUE,
+  shift_wider = FALSE,
   verbose = TRUE
 )
 }
@@ -37,13 +38,16 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{accuracy}{Numeric. Given to \code{accuracy}-argument of
-\code{plyr::round_any()}. Determines how many barcode-spots will be summarized
-as one sub-trajectory-part.}
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
 
 Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
+
+\item{shift_wider}{Logical. If set to TRUE the trajectory data.frame is
+shifted to it's wider format. Formats can be changed via \code{shiftTrajectoryDf()}.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
@@ -61,9 +65,9 @@ along the direction of the spatial trajectory.
 Initially the compiled trajectory data.frame of the specified trajectory
 is joined with the respective input of variables via \code{joinWithVariables()}.
 
-The argument \code{accuracy} refers to the amount of which the barcode-spots of the
+The argument \code{binwidth} refers to the amount of which the barcode-spots of the
 given trajectory will be summarized with regards to the trajectory's direction:
-The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
+The amount of \code{binwidth} and the previously specified 'trajectory width' in \code{createTrajectories()}
 determine the length and width of the sub-rectangles in which the rectangle the
 trajectory embraces are splitted and in which all barcode-spots are binned.
 Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.

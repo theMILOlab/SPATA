@@ -10,6 +10,7 @@ plotTrajectoryHeatmap(
   of_sample = "",
   variables,
   method_gs = "mean",
+  binwidth = 5,
   arrange_rows = "none",
   show_rownames = FALSE,
   show_colnames = FALSE,
@@ -38,6 +39,10 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 All elements of the specified character vector must either belong to
 gene sets or to genes.}
+
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{arrange_rows}{Alter the way the rows of the heatmap
 are displayed in order to highlight patterns. Currently either \emph{'maxima'}

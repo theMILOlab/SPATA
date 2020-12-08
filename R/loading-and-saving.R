@@ -3,16 +3,10 @@
 NULL
 
 
-#' @title Load gene set data.frame
+#' @title Original load gene set data.frame
 #'
-#' @param gene_set_path If set to NULL the default \code{SPATA::gsdf} is used.
-#' If a directory is specified the object is loaded via \code{base::readRDS()}, checked
-#' and used if valid. If it is invalid the default \code{SPATA::gsdf} is used .
-#' @inherit verbose params
-#'
-#' @return A data.frame.
-#' @export
-#'
+#' @description Not exported due to naming issues. Kept as it is used in several
+#' loading functions.
 
 loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
 
@@ -44,6 +38,21 @@ loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
   base::return(gene_set_df)
 
 }
+
+#' @title Load gene set data.frame
+#'
+#' @param gene_set_path If set to NULL the default \code{SPATA::gsdf} is used.
+#' If a directory is specified the object is loaded via \code{base::readRDS()}, checked
+#' and used if valid. If it is invalid the default \code{SPATA::gsdf} is used .
+#' @inherit verbose params
+#'
+#' @return A data.frame.
+#'
+#' @export
+
+loadGeneSetDf <- loadGSDF
+
+
 
 #' @title Load and save a spata-object
 #'

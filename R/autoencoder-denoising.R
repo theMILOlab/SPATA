@@ -48,9 +48,10 @@ autoEncoderDenoising <- function(object,
 
   }
 
-  # Start Create Network ----------------------------------------------------
+  # -----
 
-  ##Autoencoder
+
+# 2. Create netork --------------------------------------------------------
 
   x_train <- getExpressionMatrix(object)
 
@@ -79,7 +80,6 @@ autoEncoderDenoising <- function(object,
 
   autoencoder_model <- keras::keras_model(inputs = input_layer, outputs = decoder)
 
-    #summary(autoencoder_model)
 
   autoencoder_model %>% keras::compile(
     loss = 'mean_squared_error',
@@ -99,7 +99,6 @@ autoEncoderDenoising <- function(object,
   base::rownames(reconstructed_points) <- base::rownames(x_train)
   base::colnames(reconstructed_points) <- base::colnames(x_train)
 
-    #head(reconstructed_points)
   if(base::isTRUE(val_plot)){
 
     plot_df <-
@@ -122,6 +121,10 @@ autoEncoderDenoising <- function(object,
     plot(val_plot)
 
   }
+
+
+
+# 3. Return updated object ------------------------------------------------
 
   object@data@norm_exp <- reconstructed_points
 

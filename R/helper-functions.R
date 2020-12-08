@@ -190,6 +190,82 @@ hlpr_gene_set_name <- function(string){
 }
 
 
+
+
+
+#' Easy switch between geom line and and geom smooth
+#'
+#' @description To be used in plotTrajectoryFit()/-Customized()
+#'
+
+hlpr_geom_trajectory_fit <- function(smooth, smooth_span, plot_df){
+
+  argument_list <- list(size = 1, alpha = 0.75)
+
+  customized_df <- dplyr::filter(.data = plot_df, origin %in% c("Customized", "Fitted curve"))
+  expression_df <- dplyr::filter(.data = plot_df, origin %in% c("Residuals", "Expression"))
+
+  # construct add on
+  if(base::isTRUE(smooth)){
+
+    argument_list <-
+      base::append(
+        x = argument_list,
+        values = list(span = smooth_span, formula = as.formula(y ~ x),
+                      se = FALSE, method = "loess")
+      )
+
+    fn_to_call <-
+      base::parse(text = "ggplot2::geom_smooth") %>%
+      base::eval()
+
+    customized_add_on <-
+      rlang::invoke(
+        .fn = fn_to_call,
+        .args = base::append(
+          x = list(data = customized_df, linetype = "solid"),
+          values = argument_list)
+      )
+
+    expression_add_on <-
+      rlang::invoke(
+        .fn = fn_to_call,
+        .args = base::append(
+          x = list(data = expression_df, mapping = ggplot2::aes(linetype = origin)),
+          values = argument_list)
+      )
+
+  } else {
+
+    fn_to_call <-
+      base::parse(text = "ggplot2::geom_line") %>%
+      base::eval()
+
+    customized_add_on <-
+      rlang::invoke(
+        .f = fn_to_call,
+        .args = base::append(
+          x = list(data = customized_df, linetype = "solid"),
+          values = argument_list)
+      )
+
+    expression_add_on <-
+      rlang::invoke(
+        .f = fn_to_call,
+        .args = base::append(
+          x = list(data = expression_df, mapping = ggplot2::aes(linetype = origin)),
+          values = argument_list)
+      )
+
+  }
+
+  base::return(list(customized_add_on, expression_add_on))
+
+}
+
+
+
+
 #' @title Provides the image as ggplot background
 #'
 #' @inherit check_sample params
@@ -675,16 +751,14 @@ hlpr_subset_across <- function(data, across, across_subset){
 #' @inherit check_method params
 #' @inherit verbose params
 #' @inherit normalize params
-#' @param accuracy Numeric. Given to \code{accuracy}-argument of
-#' \code{plyr::round_any()}. Determines how many barcode-spots will be summarized
-#' as one sub-trajectory-part.
+#' @inherit check_trajectory_binwidth params
 #'
 #' @details Initially the compiled trajectory data.frame of the specified trajectory
 #' is joined with the respective input of variables via \code{joinWithVariables()}.
 #'
-#' The argument \code{accuracy} refers to the amount of which the barcode-spots of the
+#' The argument \code{binwidth} refers to the amount of which the barcode-spots of the
 #' given trajectory will be summarized with regards to the trajectory's direction:
-#' The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
+#' The amount of \code{binwidth} and the previously specified 'trajectory width' in \code{createTrajectories()}
 #' determine the length and width of the sub-rectangles in which the rectangle the
 #' trajectory embraces are splitted and in which all barcode-spots are binned.
 #' Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.
@@ -707,7 +781,7 @@ hlpr_subset_across <- function(data, across, across_subset){
 
 hlpr_summarize_trajectory_df <- function(object,
                                          ctdf,
-                                         accuracy = 5,
+                                         binwidth = 5,
                                          variables,
                                          method_gs = "mean",
                                          verbose = TRUE,
@@ -720,7 +794,7 @@ hlpr_summarize_trajectory_df <- function(object,
   check_object(object)
   check_compiled_trajectory_df(ctdf = ctdf)
 
-  stopifnot(base::is.numeric(accuracy))
+  stopifnot(base::is.numeric(binwidth))
   stopifnot(base::is.character(variables))
   stopifnot(base::is.logical(verbose))
 
@@ -749,7 +823,7 @@ hlpr_summarize_trajectory_df <- function(object,
   joined_df <-
     dplyr::mutate(.data = ctdf,
                   order_binned = plyr::round_any(x = projection_length,
-                                                 accuracy = accuracy,
+                                                 accuracy = binwidth,
                                                  f = base::floor)) %>%
     joinWithVariables(object = object,
                       spata_df = .,

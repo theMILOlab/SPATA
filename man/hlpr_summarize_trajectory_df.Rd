@@ -7,7 +7,7 @@
 hlpr_summarize_trajectory_df(
   object,
   ctdf,
-  accuracy = 5,
+  binwidth = 5,
   variables,
   method_gs = "mean",
   verbose = TRUE,
@@ -20,9 +20,9 @@ hlpr_summarize_trajectory_df(
 \item{ctdf}{A compiled trajectory data.frame containing the variables
 \emph{'barcodes', 'sample', 'x', 'y', 'projection_length', 'trajectory_part'}.}
 
-\item{accuracy}{Numeric. Given to \code{accuracy}-argument of
-\code{plyr::round_any()}. Determines how many barcode-spots will be summarized
-as one sub-trajectory-part.}
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{variables}{Character vector. The variables of interest:
 
@@ -54,9 +54,9 @@ the desired information and summarizes those.
 Initially the compiled trajectory data.frame of the specified trajectory
 is joined with the respective input of variables via \code{joinWithVariables()}.
 
-The argument \code{accuracy} refers to the amount of which the barcode-spots of the
+The argument \code{binwidth} refers to the amount of which the barcode-spots of the
 given trajectory will be summarized with regards to the trajectory's direction:
-The amount of \code{accuracy} and the previously specified 'trajectory width' in \code{createTrajectories()}
+The amount of \code{binwidth} and the previously specified 'trajectory width' in \code{createTrajectories()}
 determine the length and width of the sub-rectangles in which the rectangle the
 trajectory embraces are splitted and in which all barcode-spots are binned.
 Via \code{dplyr::summarize()} the variable-means of every sub-rectangle are calculated.

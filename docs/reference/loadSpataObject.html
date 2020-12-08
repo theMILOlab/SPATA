@@ -172,12 +172,13 @@
     <tr>
       <th>output_path</th>
       <td><p>Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid.</p></td>
+the object if the directory is valid. If set to NULL saving is skipped.</p></td>
     </tr>
     <tr>
       <th>file_name</th>
       <td><p>Character value. The name-suffix for the file name under which the
-spata-object is stored. Is prefixed with <em>'spata-obj-'</em> and suffixed with <em>'.RDS'</em>.</p></td>
+spata-object is stored if <code>output_path</code> is a valid directory. Is prefixed with
+ <em>'spata-obj-'</em> and suffixed with <em>'.RDS'</em>.</p></td>
     </tr>
     <tr>
       <th>overwrite</th>

@@ -159,7 +159,7 @@ the desired information and summarizes those.</p>
     <pre class="usage"><span class='fu'>hlpr_summarize_trajectory_df</span>(
   <span class='no'>object</span>,
   <span class='no'>ctdf</span>,
-  <span class='kw'>accuracy</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>binwidth</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='no'>variables</span>,
   <span class='kw'>method_gs</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -179,10 +179,10 @@ the desired information and summarizes those.</p>
 <em>'barcodes', 'sample', 'x', 'y', 'projection_length', 'trajectory_part'</em>.</p></td>
     </tr>
     <tr>
-      <th>accuracy</th>
-      <td><p>Numeric. Given to <code>accuracy</code>-argument of
-<code><a href='https://rdrr.io/pkg/plyr/man/round_any.html'>plyr::round_any()</a></code>. Determines how many barcode-spots will be summarized
-as one sub-trajectory-part.</p></td>
+      <th>binwidth</th>
+      <td><p>Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'</p></td>
     </tr>
     <tr>
       <th>variables</th>
@@ -217,9 +217,9 @@ the computational progress will be printed.</p>
 
     <p>Initially the compiled trajectory data.frame of the specified trajectory
 is joined with the respective input of variables via <code><a href='joinWith.html'>joinWithVariables()</a></code>.</p>
-<p>The argument <code>accuracy</code> refers to the amount of which the barcode-spots of the
+<p>The argument <code>binwidth</code> refers to the amount of which the barcode-spots of the
 given trajectory will be summarized with regards to the trajectory's direction:
-The amount of <code>accuracy</code> and the previously specified 'trajectory width' in <code><a href='createTrajectories.html'>createTrajectories()</a></code>
+The amount of <code>binwidth</code> and the previously specified 'trajectory width' in <code><a href='createTrajectories.html'>createTrajectories()</a></code>
 determine the length and width of the sub-rectangles in which the rectangle the
 trajectory embraces are splitted and in which all barcode-spots are binned.
 Via <code><a href='https://dplyr.tidyverse.org/reference/summarise.html'>dplyr::summarize()</a></code> the variable-means of every sub-rectangle are calculated.

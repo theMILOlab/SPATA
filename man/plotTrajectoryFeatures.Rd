@@ -14,6 +14,7 @@ plotTrajectoryFeatures(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
+  binwidth = 5,
   clrp = "milo",
   display_trajectory_parts = FALSE,
   split = FALSE,
@@ -31,6 +32,7 @@ plotTrajectoryGenes(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
+  binwidth = 5,
   display_trajectory_parts = FALSE,
   split = FALSE,
   ...,
@@ -46,6 +48,7 @@ plotTrajectoryGeneSets(
   smooth_method = "loess",
   smooth_span = 0.2,
   smooth_se = TRUE,
+  binwidth = 5,
   clrp = "milo",
   display_trajectory_parts = TRUE,
   split = FALSE,
@@ -68,6 +71,10 @@ single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
 
 \item{smooth_se}{Logical. If set to TRUE the confidence interval will be
 displayed.}
+
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{clrp}{Character value. The color panel to be used.
 Run \code{all_colorpanels()} to see valid input.}
