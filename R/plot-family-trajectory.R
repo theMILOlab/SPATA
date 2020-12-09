@@ -24,11 +24,15 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
     check_customized_trends(length_trajectory = NULL,
                             customized_trends = customized_trends)
 
+  check_smooth(smooth = smooth, smooth_se = smooth_se, smooth_span = smooth_span)
+
+
   # prepare plot add ons
   if(base::isTRUE(smooth)){
 
     geom_line_add_on <-
-      ggplot2::geom_smooth(span = smooth_span, formula = y ~ x, size = 1, method = "loess")
+      ggplot2::geom_smooth(span = smooth_span, formula = y ~ x, size = 1, method = "loess",
+                           se = smooth_se)
 
   } else {
 
@@ -102,10 +106,10 @@ plotTrajectory <- function(object,
                            smooth_span = 0.02,
                            pt_size = 2.5,
                            pt_alpha = 0.4,
-                           pt_clr = "red",
+                           pt_clr = "steelblue",
                            pt_clrp = "milo",
                            pt_clrsp = "inferno",
-                           sgmt_size = 1,
+                           sgmt_size = 1.5,
                            display_image = FALSE,
                            display_title = FALSE,
                            uniform_genes = "discard",
@@ -380,8 +384,8 @@ plotTrajectoryFeatures <- function(object,
                          se = smooth_se) +
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
@@ -554,12 +558,12 @@ plotTrajectoryGenes <- function(object,
     confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
     ggplot2::theme_classic() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Trajectory Direction", y = y_title, color = "Genes") +
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Genes") +
     labs_add_on +
     facet_add_on
 
@@ -665,12 +669,12 @@ plotTrajectoryGeneSets <- function(object,
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.line.y = ggplot2::element_line()
     ) +
-    ggplot2::labs(x = "Trajectory Direction", y = "Expression score", color = "Gene sets") +
+    ggplot2::labs(x = "Trajectory Direction", y = NULL, color = "Gene sets") +
     facet_add_on
 
 
@@ -756,8 +760,8 @@ plotTrajectoryFeaturesDiscrete <- function(object,
     facet_add_on +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches"))),
       panel.grid = ggplot2::element_blank()
     ) +
@@ -1107,8 +1111,8 @@ plotTrajectoryFit <- function(object,
     ggplot2::scale_linetype_discrete(c("Residuals"= "dotted", "Expression" = "solid"), guide = FALSE) +
     ggplot2::theme_classic() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
+                   axis.text = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
                    strip.background = ggplot2::element_blank(),
                    strip.text = ggplot2::element_text(color = "black", size = 11),

@@ -506,6 +506,24 @@ plotFourStates2 <- function(data,
 # Plot distribution -------------------------------------------------------
 
 
+#' Title
+#'
+#' @param spata_df
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+plotStatistiscInteractive <- function(spata_df){
+
+  spata_df <- dplyr::select(spata_df, -dplyr::all_of(x = c("sample", "barcodes")))
+
+  confuns::plot_descriptive_statistics_interactive(df = spata_df, 25)
+
+}
+
+
 #' @title Distribution of continuous values
 #'
 #' @description Visualizes the distribution of values of a set of variables.
