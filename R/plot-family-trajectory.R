@@ -64,7 +64,7 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
     ggplot2::theme(
       axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
       axis.ticks = ggplot2::element_blank(),
-      axis.text.y = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
       strip.background = ggplot2::element_blank(),
       legend.position = "none"
     ) +
@@ -241,7 +241,7 @@ plotTrajectory <- function(object,
   # -----
 
   ggplot2::ggplot() +
-    hlpr_image_add_on2(object, display_image, of_sample) +
+    hlpr_image_add_on(object, display_image, of_sample) +
     ggplot_add_on +
     ggplot2::geom_segment(data = trajectory_sgmt_df,
                           mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),

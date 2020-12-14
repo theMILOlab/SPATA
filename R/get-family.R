@@ -907,7 +907,7 @@ getSamples <- function(object){
 #'
 
 getTrajectoryLength <- function(object,
-                                trajetory_name,
+                                trajectory_name,
                                 of_sample,
                                 binwidth){
 

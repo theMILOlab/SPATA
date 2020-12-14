@@ -177,7 +177,7 @@ plotSurface <- function(object,
               name = assign_name)
 
   ggplot2::ggplot() +
-    hlpr_image_add_on2(object, display_image, of_sample) +
+    hlpr_image_add_on(object, display_image, of_sample) +
     ggplot_add_on +
     ggplot2::coord_equal() +
     ggplot2::theme_void()
@@ -216,7 +216,7 @@ plotSurface2 <- function(coords_df,
 
 
   ggplot2::ggplot(data = coords_df) +
-    hlpr_image_add_on(image) +
+    hlpr_image_add_on2(image) +
     ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
                                                color = .data[[color_to]]),
                         size = pt_size, alpha = pt_alpha) +
@@ -531,7 +531,7 @@ plotSurfaceComparison <- function(object,
   if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"))}
 
   ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
-    hlpr_image_add_on2(object, display_image, of_sample) +
+    hlpr_image_add_on(object, display_image, of_sample) +
     ggplot2::geom_point(mapping = ggplot2::aes(color = values),
                         size = pt_size, alpha = pt_alpha) +
     confuns::scale_color_add_on(variable = shifted_data$values, clrsp = pt_clrsp) +
@@ -610,7 +610,7 @@ plotSurfaceComparison2 <- function(coords_df,
     # plotting
 
     ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
-      hlpr_image_add_on(image) +
+      hlpr_image_add_on2(image) +
       ggplot2::geom_point(mapping = ggplot2::aes(color = values),
                           size = pt_size, alpha = pt_alpha) +
       confuns::scale_color_add_on(variable = shifted_data$values, clrsp = pt_clrsp) +

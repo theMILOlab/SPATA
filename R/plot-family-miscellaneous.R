@@ -515,11 +515,11 @@ plotFourStates2 <- function(data,
 #'
 #' @examples
 #'
-plotStatistiscInteractive <- function(spata_df){
+plotStatisticsInteractive <- function(spata_df){
 
   spata_df <- dplyr::select(spata_df, -dplyr::all_of(x = c("sample", "barcodes")))
 
-  confuns::plot_descriptive_statistics_interactive(df = spata_df, 25)
+  confuns::plot_statistics(df = spata_df, 25)
 
 }
 

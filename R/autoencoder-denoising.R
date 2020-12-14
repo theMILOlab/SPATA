@@ -1,6 +1,6 @@
 #' @title Deep Autoencoder for Denoising
 #'
-#' @description This function constructs and uses a neural network to denoies
+#' @description This function constructs and uses a neural network to denoise
 #' expression levels spatially.
 #'
 #' @inherit check_object params
@@ -21,7 +21,7 @@
 
 autoEncoderDenoising <- function(object,
                                  layers = c(128, 64, 32),
-                                 bottleneck = 16,
+                                 bottleneck = 32,
                                  dropout = 0.1,
                                  activation = "relu",
                                  epochs = 20,
@@ -58,7 +58,6 @@ autoEncoderDenoising <- function(object,
   input_layer <-
     keras::layer_input(shape = c(ncol(x_train)))
 
-
   encoder <-
     input_layer %>%
     keras::layer_dense(units = layers[1], activation = activation) %>%
@@ -79,7 +78,6 @@ autoEncoderDenoising <- function(object,
     keras::layer_dense(units = c(ncol(x_train)))
 
   autoencoder_model <- keras::keras_model(inputs = input_layer, outputs = decoder)
-
 
   autoencoder_model %>% keras::compile(
     loss = 'mean_squared_error',

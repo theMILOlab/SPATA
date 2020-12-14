@@ -65,122 +65,123 @@ initiateSpataObject_MALDI <- function(coords_df,
 #'
 #' Note that certain listed functions require previous functions! E.g. if \code{RunPCA} is set to FALSE \code{RunTSNE()}
 #' will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
-#' is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()} after
+#' is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()}
+#' to check your object for validity.
 #'
 #' @export
 
-initiateSpataObject_Counts <- function(coords_df,
-                                       count_mtr,
-                                       feature_df = NULL,
-                                       sample_name = "sample",
-                                       image = NULL,
-                                       gene_set_path = NULL,
-                                       output_path = NULL,
-                                       file_name = NULL,
-                                       SCTransform = FALSE,
-                                       NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
-                                       FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
-                                       ScaleData = TRUE,
-                                       RunPCA = list(npcs = 60),
-                                       FindNeighbors = list(dims = 1:30),
-                                       FindClusters = list(resolution = 0.8),
-                                       RunTSNE = TRUE,
-                                       RunUMAP = list(dims = 1:30),
-                                       verbose = TRUE){
+initiateSpataObject_CountMtr <- function(coords_df,
+                                         count_mtr,
+                                         feature_df = NULL,
+                                         sample_name = "sample",
+                                         image = NULL,
+                                         gene_set_path = NULL,
+                                         output_path = NULL,
+                                         file_name = NULL,
+                                         SCTransform = FALSE,
+                                         NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+                                         FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+                                         ScaleData = TRUE,
+                                         RunPCA = list(npcs = 60),
+                                         FindNeighbors = list(dims = 1:30),
+                                         FindClusters = list(resolution = 0.8),
+                                         RunTSNE = TRUE,
+                                         RunUMAP = list(dims = 1:30),
+                                         verbose = TRUE){
 
-  # 1. Control --------------------------------------------------------------
+    # 1. Control --------------------------------------------------------------
 
-  confuns::is_value(x = sample_name, mode = "character", ref = "sample_name")
+    confuns::is_value(x = sample_name, mode = "character", ref = "sample_name")
 
-  confuns::check_data_frame(
-    df = coords_df,
-    var.class = list("barcodes" = "character", "x" = c("double", "integer"), "y" = c("double", "integer")),
-    ref = "coords_df"
-  )
-
-  if(!methods::is(count_mtr, "Matrix")){
-
-    base::stop("'count_mtr'-input needs to be of type 'Matrix'.")
-
-  } else if(base::is.null(base::colnames(count_mtr))){
-
-    base::stop("'count_mtr'-input needs to have column names")
-
-  } else if(base::is.null(base::rownames(count_mtr))){
-
-    base::stop("'count_mtr'-input needs to have row names.")
-
-  }
-
-  barcodes_count_mtr <- base::colnames(count_mtr) %>% base::sort()
-  barcodes_coords_df <- dplyr::pull(coords_df, var = "barcodes") %>% base::sort()
-
-  # check identical barcodes
-  if(!base::identical(barcodes_count_mtr, barcodes_coords_df)){
-
-    base::stop("Barcodes of 'coords_df'-input and column names of 'count_mtr'-input need to be identical.")
-
-  }
-
-
-  # -----
-
-  # 2. Passing data ---------------------------------------------------------
-
-  counts <- count_mtr
-
-  seurat_object <-
-    Seurat::CreateSeuratObject(counts = counts, meta.data = feature_df)
-
-  seurat_object <-
-    process_seurat_object(
-      seurat_object = seurat_object,
-      SCTransform = SCTransform,
-      NormalizeData = NormalizeData,
-      FindVariableFeatures = FindVariableFeatures,
-      ScaleData = ScaleData,
-      RunPCA = RunPCA,
-      FindNeighbors = FindNeighbors,
-      FindClusters = FindClusters,
-      RunTSNE = RunTSNE,
-      RunUMAP = RunUMAP,
-      verbose = verbose
+    confuns::check_data_frame(
+      df = coords_df,
+      var.class = list("barcodes" = "character", "x" = c("double", "integer"), "y" = c("double", "integer")),
+      ref = "coords_df"
     )
 
+    if(!methods::is(count_mtr, "Matrix")){
 
-  # Passing features and images ---------------------------------------------
+      base::stop("'count_mtr'-input needs to be of type 'Matrix'.")
 
-  spata_object <-
-    transformSeuratToSpata(
-      seurat_object = seurat_object,
-      gene_set_path = gene_set_path,
-      method = "single_cell",
-      verbose = verbose
-    )
+    } else if(base::is.null(base::colnames(count_mtr))){
 
-  # Save and return object -----------------------------------------------
+      base::stop("'count_mtr'-input needs to have column names")
 
-  if(!base::is.null(output_path)){
+    } else if(base::is.null(base::rownames(count_mtr))){
 
-    if(base::isTRUE(verbose)){base::message("Saving spata-object.")}
-
-    base::saveRDS(new_object, file = object_file)
-
-    if(base::isTRUE(verbose)){
-
-      base::message(glue::glue("The spata-object has been saved under '{object_file}'."))
-      base::message("Done.")
+      base::stop("'count_mtr'-input needs to have row names.")
 
     }
 
+    barcodes_count_mtr <- base::colnames(count_mtr) %>% base::sort()
+    barcodes_coords_df <- dplyr::pull(coords_df, var = "barcodes") %>% base::sort()
+
+    # check identical barcodes
+    if(!base::identical(barcodes_count_mtr, barcodes_coords_df)){
+
+      base::stop("Barcodes of 'coords_df'-input and column names of 'count_mtr'-input need to be identical.")
+
+    }
+
+
+    # -----
+
+    # 2. Passing data ---------------------------------------------------------
+
+    counts <- count_mtr
+
+    seurat_object <-
+      Seurat::CreateSeuratObject(counts = counts, meta.data = feature_df)
+
+    seurat_object <-
+      process_seurat_object(
+        seurat_object = seurat_object,
+        SCTransform = SCTransform,
+        NormalizeData = NormalizeData,
+        FindVariableFeatures = FindVariableFeatures,
+        ScaleData = ScaleData,
+        RunPCA = RunPCA,
+        FindNeighbors = FindNeighbors,
+        FindClusters = FindClusters,
+        RunTSNE = RunTSNE,
+        RunUMAP = RunUMAP,
+        verbose = verbose
+      )
+
+
+    # Passing features and images ---------------------------------------------
+
+    spata_object <-
+      transformSeuratToSpata(
+        seurat_object = seurat_object,
+        gene_set_path = gene_set_path,
+        method = "single_cell",
+        verbose = verbose
+      )
+
+    # Save and return object -----------------------------------------------
+
+    if(!base::is.null(output_path)){
+
+      if(base::isTRUE(verbose)){base::message("Saving spata-object.")}
+
+      base::saveRDS(new_object, file = object_file)
+
+      if(base::isTRUE(verbose)){
+
+        base::message(glue::glue("The spata-object has been saved under '{object_file}'."))
+        base::message("Done.")
+
+      }
+
+    }
+
+
+    if(base::isTRUE(verbose)){base::message("Done.")}
+
+    return(seurat_object)
+
   }
-
-
-  if(base::isTRUE(verbose)){base::message("Done.")}
-
-  return(seurat_object)
-
-}
 
 
 #' @title Initiate spata object from scaled expression matrix
@@ -367,8 +368,6 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   nearest <- RANN::nn2(pca, k = nn, treetype = "bd", searchtype = "priority")
 
-  nearest$nn.idx <- nearest$nn.idx #?
-  nearest$nn.dists <- nearest$nn.dists #?
 
   edges <-
     reshape::melt(base::t(nearest$nn.idx[, 1:nn])) %>%

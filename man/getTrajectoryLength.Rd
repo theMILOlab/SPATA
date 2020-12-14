@@ -4,10 +4,13 @@
 \alias{getTrajectoryLength}
 \title{Obtain the length of a trajectory}
 \usage{
-getTrajectoryLength(object, trajetory_name, of_sample, binwidth)
+getTrajectoryLength(object, trajectory_name, of_sample, binwidth)
 }
 \arguments{
 \item{object}{A valid spata-object.}
+
+\item{trajectory_name}{The trajectory of interest specified
+as a single character value.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}

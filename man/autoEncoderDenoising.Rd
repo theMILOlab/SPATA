@@ -7,7 +7,7 @@
 autoEncoderDenoising(
   object,
   layers = c(128, 64, 32),
-  bottleneck = 16,
+  bottleneck = 32,
   dropout = 0.1,
   activation = "relu",
   epochs = 20,
@@ -38,6 +38,6 @@ autoEncoderDenoising(
 A spata-object containing the denoised expression matrix.
 }
 \description{
-This function constructs and uses a neural network to denoies
+This function constructs and uses a neural network to denoise
 expression levels spatially.
 }

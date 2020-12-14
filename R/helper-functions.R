@@ -274,9 +274,55 @@ hlpr_geom_trajectory_fit <- function(smooth, smooth_span, plot_df){
 #'
 #' @return Either null or a ggplot2::geom_annotation_raster
 #'
-#' @export
 
-hlpr_image_add_on <- function(image){
+hlpr_image_add_on <- function(object, display_image, of_sample){
+
+  # set up background
+  if(base::isTRUE(display_image)){
+
+    sample_image <- image(object, of_sample)
+
+    if("Image" %in% base::class(sample_image)){
+
+      image_raster <-
+        grDevices::as.raster(x = sample_image)
+
+      img_info <-
+        image_raster %>%
+        magick::image_read() %>%
+        magick::image_info()
+
+      st_image <-
+        image_raster %>%
+        magick::image_read() %>%
+        magick::image_flip()
+
+      image_add_on <-
+        ggplot2::annotation_raster(raster = st_image,
+                                   xmin = 0, ymin = 0,
+                                   xmax = img_info$width,
+                                   ymax = img_info$height)
+
+    } else {
+
+      base::warning(glue::glue("Content of slot 'image' for sample '{of_sample}' must be of class 'Image' not of class '{base::class(sample_image)}'."))
+
+      image_add_on <- list()
+
+    }
+
+  } else {
+
+    image_add_on <- list()
+
+  }
+
+  base::return(image_add_on)
+
+}
+
+#' @rdname hlpr_image_add_on
+hlpr_image_add_on2 <- function(image){
 
   if(!base::is.null(image)){
 
@@ -309,42 +355,7 @@ hlpr_image_add_on <- function(image){
 
 }
 
-#' @rdname hlpr_image_add_on
-#' @export
-hlpr_image_add_on2 <- function(object, display_image, of_sample){
 
-  # set up background
-  if(base::isTRUE(display_image)){
-
-    image_raster <-
-      image(object, of_sample) %>%
-      grDevices::as.raster()
-
-    img_info <-
-      image_raster %>%
-      magick::image_read() %>%
-      magick::image_info()
-
-    st_image <-
-      image_raster %>%
-      magick::image_read() %>%
-      magick::image_flip()
-
-    image_add_on <-
-      ggplot2::annotation_raster(raster = st_image,
-                                 xmin = 0, ymin = 0,
-                                 xmax = img_info$width,
-                                 ymax = img_info$height)
-
-  } else {
-
-    image_add_on <- NULL
-
-  }
-
-
-
-}
 
 
 #' @title Return customized ggplot:labs()

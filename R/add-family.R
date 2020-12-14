@@ -238,12 +238,15 @@ addFeatures <- function(object,
 
     base::stop(glue::glue("Specified feature names '{found_ref}' {ref[1]} already present in current feature data. Set overwrite to TRUE in order to overwrite {ref[2]}."))
 
-  } else if(feature_names %in% getFeatureNames(object) &&
+  } else if(base::any(feature_names %in% getFeatureNames(object)) &&
             base::isTRUE(overwrite)){
+
+    overwrite_features <-
+      purrr::keep(.x = getFeatureNames(object), .p = ~ .x %in% feature_names)
 
     fdata <-
       object@fdata %>%
-      dplyr::select(-dplyr::all_of(feature_names))
+      dplyr::select(-dplyr::all_of(overwrite_features))
 
   } else {
 

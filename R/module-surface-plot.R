@@ -17,16 +17,17 @@ moduleSurfacePlotUI <- function(id){
                                       shiny::column(width = 6, shiny::uiOutput(ns("aes_clr_opts")))
                                     ),
                                     shiny::fluidRow(
-                                      shiny::uiOutput(ns("aes_clr_opts_detailed")),
-                                      shiny::conditionalPanel(
-                                        condition = "input.aes_clr_opts == 'gene_sets'", ns = ns,
-                                        shinyWidgets::pickerInput(ns("method_gs"),
-                                                                   label = "Gene-set method:",
-                                                                   choices = c("Mean" = "mean",
-                                                                               "Gene Set Variation Analysis" = "gsva",
-                                                                               "Gene Set Enrichment Analysis" = "ssgsea",
-                                                                               "Z-Score" = "zscore",
-                                                                               "Plage" = "plage" )))
+                                      shiny::column(width = 12,
+                                                    shiny::uiOutput(ns("aes_clr_opts_detailed")),
+                                                    shiny::conditionalPanel(
+                                                      condition = "input.aes_clr_opts == 'gene_sets'", ns = ns,
+                                                      shinyWidgets::pickerInput(ns("method_gs"),
+                                                                                label = "Gene-set method:",
+                                                                                choices = c("Mean" = "mean",
+                                                                                            "Gene Set Variation Analysis" = "gsva",
+                                                                                            "Gene Set Enrichment Analysis" = "ssgsea",
+                                                                                            "Z-Score" = "zscore",
+                                                                                            "Plage" = "plage" )))),
                                     ),
                                     shiny::fluidRow(
                                       shiny::column(width = 6, shiny::uiOutput(ns("pt_clrsp"))),
@@ -188,7 +189,7 @@ moduleSurfacePlotServer <- function(id,
         ns <- session$ns
 
         shinyWidgets::pickerInput(ns("aes_clr_opts"),
-                                  label = "Choose colour code:",
+                                  label = "Color to:",
                                   choices = c("Gene set" = "gene_sets",
                                               "Genes" = "genes",
                                               "Feature" = "feature"),
@@ -487,7 +488,6 @@ moduleSurfacePlotServer <- function(id,
           dplyr::filter(ont == current$gene_set) %>%
           dplyr::filter(gene %in% base::rownames(rna_assay())) %>%
           dplyr::pull(gene)
-
 
         if(current$method_gs == "mean"){
 
@@ -857,11 +857,11 @@ moduleSurfacePlotServer <- function(id,
           image_add_on() +
           geom_point_add_on() +
           color_add_on() +
-          legend_add_on() +
           title_add_on() +
           segmentation_add_on() +
           ggplot2::coord_equal() +
-          coords_add_on()
+          coords_add_on() +
+          legend_add_on()
 
       })
 
