@@ -525,7 +525,7 @@ joinWithGeneSets <- function(object,
                      parallel.sz = 2,
                      method = method_gs,
                      verbose = FALSE) %>%
-          t() %>%
+          base::t() %>%
           as.data.frame() %>%
           magrittr::set_colnames(value = gene_sets[i]) %>%
           tibble::rownames_to_column(var = "barcodes")

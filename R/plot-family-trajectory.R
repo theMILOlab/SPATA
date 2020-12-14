@@ -742,20 +742,20 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
   if(base::isTRUE(display_trajectory_parts)){
 
-    facet_add_on <- list(
+    facet_add_on <-
       ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
-    )
+
 
   } else {
 
-    facet_add_on <- NULL
+    facet_add_on <- list()
 
   }
 
   # -----
 
   ggplot2::ggplot(data = plot_df) +
-    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[discrete_feature]]), position = "fill", width = 0.9) +
+    ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[feature]]), position = "fill", width = 0.9) +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
     facet_add_on +
     ggplot2::theme_minimal() +

@@ -1681,6 +1681,7 @@ plotDeHeatmap <- function(object,
 #'
 #' @inherit check_sample params
 #' @inherit check_pt params
+#' @param encircle Logical. If set to TRUE the segments are enclosed in a polygon.
 #'
 #' @inherit plot_family return
 #'
@@ -1688,6 +1689,7 @@ plotDeHeatmap <- function(object,
 
 plotSegmentation <- function(object,
                              of_sample = "",
+                             encircle = TRUE,
                              pt_size = 2,
                              pt_clrp = "milo"){
 
@@ -1701,15 +1703,29 @@ plotSegmentation <- function(object,
     getCoordinates(object, of_sample = of_sample) %>%
     joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
 
-  segment_df <- dplyr::filter(plot_df, segment != "")
+  segment_df <-
+    dplyr::filter(plot_df, segment != "") %>%
+    tidyr::drop_na()
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
+
+  if(base::isTRUE(encircle)){
+
+    encircle_add_on <-
+      ggalt::geom_encircle(data = segment_df, alpha = 0.5, expand = 0.025,
+                           mapping = ggplot2::aes(x = x, y = y, group = segment, fill = segment))
+
+  } else {
+
+    encircle_add_on <- list()
+  }
 
   # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
-    ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
+    #ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
+    encircle_add_on +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
     confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
     ggplot2::theme_void() +

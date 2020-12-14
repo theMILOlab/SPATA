@@ -34,6 +34,7 @@ dim_red <- setClass("dim_red",
 
 
 
+
 # single cell velocity ----------------------------------------------------
 
 
@@ -58,7 +59,7 @@ dim_red <- setClass("dim_red",
 #' @slot segment_trajectory_df A data.frame containing the numeric variables
 #' \emph{x, y, xend, yend} that denote the start and the end of every trajectory
 #' part.
-#' @slot ranked_genes_df Currently not in use.
+#' @slot assessed_trajectory_df Currently not in use.
 #' @slot comment Character value. The comment written down before saving the trajectory.
 #' @slot name Character value. The trajectory's name.
 #' @slot sample Character value. The sample the trajectory belongs to.
