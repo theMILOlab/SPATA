@@ -145,7 +145,7 @@ joinWithFeatures <- function(object,
   # 2. Join data ------------------------------------------------------------
 
   fdata <-
-    featureData(object, of_sample = base::unique(spata_df$sample)) %>%
+    getFeatureData(object, of_sample = base::unique(spata_df$sample)) %>%
     dplyr::select(dplyr::all_of(x = c("barcodes", features)))
 
   joined_df <-
@@ -198,7 +198,7 @@ joinWithGenes <- function(object,
   check_uniform_genes(uniform_genes)
 
   # adjusting check
-  rna_assay <- exprMtr(object, of_sample = base::unique(spata_df$sample))
+  rna_assay <- getExpressionMatrix(object, of_sample = base::unique(spata_df$sample))
   genes <- check_genes(object, genes = genes, rna_assay = rna_assay)
 
   # -----
@@ -404,8 +404,6 @@ joinWithGenes <- function(object,
 
 }
 
-
-
 #' @rdname joinWith
 #' @export
 joinWithGeneSets <- function(object,
@@ -445,8 +443,8 @@ joinWithGeneSets <- function(object,
 
   # 2. Extract gene set data and join with spata_df ------------------------
 
-  rna_assay <- exprMtr(object = object, of_sample = base::unique(spata_df$sample))
-  gene_set_df <- object@used_genesets
+  rna_assay <- getExpressionMatrix(object = object, of_sample = base::unique(spata_df$sample))
+  gene_set_df <- getGeneSetDf(object = object)
   joined_df <- spata_df
 
   if(base::isTRUE(smooth)){

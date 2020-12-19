@@ -68,7 +68,7 @@ createSegmentation <- function(object){
           segmentation_df <- reactive({
 
             segm_df <-
-              featureData(object = spata_obj()) %>%
+              getFeatureData(object = spata_obj()) %>%
               dplyr::filter(sample == current()$sample) %>%
               dplyr::filter(segment != "") %>%
               dplyr::select(barcodes, segment)
@@ -160,7 +160,7 @@ createSegmentation <- function(object){
             checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
             checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
 
-            sample_coords <- coordinates(objec = spata_obj(), of_sample = current()$sample)
+            sample_coords <- getCoordinates(objec = spata_obj(), of_sample = current()$sample)
 
             ## 1. determine positions of each point with respect to the defined segment
             positions <-  sp::point.in.polygon(point.x = sample_coords$x, # x coordinates of all spatial positions
@@ -176,12 +176,11 @@ createSegmentation <- function(object){
             # 2.2 update fdata
 
             # extract feature data
-            fdata <- featureData(spata_obj)
+            fdata <- getFeatureDf(spata_obj)
 
             # update sample subset
             fdata_subset <-
-              fdata %>%
-              dplyr::filter(sample == current()$sample) %>%
+              dplyr::filter(.data = fdata, sample == current()$sample) %>%
               dplyr::mutate(
                 positions = positions,
                 segment = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segment)
@@ -191,18 +190,16 @@ createSegmentation <- function(object){
             # exchange sample subset
             fdata[fdata$sample == current()$sample, ] <- fdata_subset
 
-            featureData(spata_obj) <- fdata
-
+            spata_obj@fdata <- fdata
 
             # 2.4 update and check
             spata_obj(spata_obj)
 
-            if(input$name_segment %in% base::unique(featureData(spata_obj(), of_sample = current()$sample)$segment)){
+            if(input$name_segment %in% base::unique(getFeatureData(spata_obj(), of_sample = current()$sample)$segment)){
 
               shiny::showNotification(ui = stringr::str_c(input$name_segment, "has been saved.", sep = " "), type = "message")
 
             }
-
 
             ## 3. reset vertices values
             vertices_df(data.frame(x = base::numeric(0), y = base::numeric(0)))
@@ -214,21 +211,20 @@ createSegmentation <- function(object){
           oe <- shiny::observeEvent(input$remove_segment, {
 
             spata_obj <- spata_obj()
-            fdata <- featureData(spata_obj)
+            fdata <- getFeatureDf(spata_obj)
 
             checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segment), case_false = "segment_name_not_found")
 
             fdata_new <-
-              fdata %>%
-              dplyr::filter(sample == current()$sample) %>%
+              dplyr::filter(.data = fdata, sample == current()$sample) %>%
               dplyr::mutate(segment = dplyr::if_else(segment == input$name_segment_rmv, "", segment))
 
             fdata[fdata$sample == current()$sample, ] <- fdata_new
-            featureData(spata_obj) <- fdata
+            spata_obj@fdata <- fdata
 
             spata_obj(spata_obj)
 
-            if(!input$name_segment_rmv %in% featureData(spata_obj(), of_sample = current()$sample)$segment){
+            if(!input$name_segment_rmv %in% getFeatureData(spata_obj(), of_sample = current()$sample)$segment){
 
               shiny::showNotification(ui = stringr::str_c("Segment '", input$name_segment_rmv, "' has been successfully removed.", sep = ""), type = "message")
 
@@ -548,7 +544,7 @@ createTrajectories <- function(object){
 
 
             ## control
-            check <- trajectory(spata_obj(), trajectory_name = input$name_trajectory, of_sample = current()$sample)
+            check <- getTrajectoryObject(spata_obj(), trajectory_name = input$name_trajectory, of_sample = current()$sample)
 
             ## feedback and reset
             if(base::identical(check@compiled_trajectory_df, compiled_trajectory_df())){

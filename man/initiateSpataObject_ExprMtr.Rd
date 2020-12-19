@@ -7,6 +7,7 @@
 initiateSpataObject_ExprMtr(
   coords_df,
   expr_mtr,
+  count_mtr = NULL,
   image = NULL,
   sample_name,
   gene_set_path = NULL,

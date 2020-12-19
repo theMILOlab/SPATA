@@ -80,6 +80,7 @@ Collate:
     'spata-object-manipulation.R'
     'trajectory-analysis.R'
     'transform-family.R'
+    'update-spata-objects.R'
     'validation.R'
 Depends: 
     R (>= 2.10)

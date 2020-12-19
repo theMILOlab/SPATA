@@ -10,6 +10,7 @@ plotDimRed <- function(object,
                        pt_clrsp = "inferno",
                        pt_clrp = "milo",
                        pt_clr = "black",
+                       normalize = TRUE,
                        verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -39,7 +40,7 @@ plotDimRed <- function(object,
 
   # 2. Extract dimensional reduction ----------------------------------------
 
-  dimRed_df <- getDimRedData(object, method_dr = method_dr, of_sample = of_sample)
+  dimRed_df <- getDimRedDf(object, method_dr = method_dr, of_sample = of_sample)
 
   # -----
 
@@ -72,6 +73,7 @@ plotDimRed <- function(object,
                                   gene_sets = color_to$gene_sets,
                                   method_gs = method_gs,
                                   smooth = FALSE,
+                                  normalize = normalize,
                                   verbose = verbose)
 
     # assemble ggplot add-on
@@ -91,6 +93,7 @@ plotDimRed <- function(object,
                                genes = color_to$genes,
                                average_genes = TRUE,
                                smooth = FALSE,
+                               normalize = normalize,
                                verbose = verbose)
 
     # assemble ggplot add-on
@@ -142,6 +145,8 @@ plotDimRed <- function(object,
 #' @inherit check_sample params
 #' @inherit check_color_to params
 #' @inherit check_method params
+#' @param n_pcs Numeric value. Determines the number of principal components to be plotted.
+#' Must be an even number.
 #' @inherit check_pt params
 #' @inherit verbose params
 #'
@@ -159,10 +164,12 @@ plotUMAP <- function(object,
                      pt_alpha = 1,
                      pt_clrsp = "inferno",
                      pt_clrp = "milo",
+                     pt_clr = "black",
+                     normalize = TRUE,
                      verbose = TRUE){
 
   plotDimRed(object = object,
-             method_dr = "UMAP",
+             method_dr = "umap",
              of_sample = of_sample,
              color_to = color_to,
              method_gs = method_gs,
@@ -170,12 +177,13 @@ plotUMAP <- function(object,
              pt_alpha = pt_alpha,
              pt_clrsp = pt_clrsp,
              pt_clrp = pt_clrp,
+             pt_clr = pt_clr,
+             normalize = normalize,
              verbose = verbose)
 
 }
 
 #' @rdname plotUMAP
-#'
 #' @export
 plotTSNE <- function(object,
                      of_sample = "",
@@ -185,10 +193,11 @@ plotTSNE <- function(object,
                      pt_alpha = 1,
                      pt_clrsp = "inferno",
                      pt_clrp = "milo",
+                     normalize = TRUE,
                      verbose = TRUE){
 
   plotDimRed(object = object,
-             method_dr = "TSNE",
+             method_dr = "tsne",
              of_sample = of_sample,
              color_to = color_to,
              method_gs = method_gs,
@@ -196,9 +205,171 @@ plotTSNE <- function(object,
              pt_alpha = pt_alpha,
              pt_clrsp = pt_clrsp,
              pt_clrp = pt_clrp,
+             pt_clr = pt_clr,
+             normalize = normalize,
              verbose = verbose)
 
 }
+
+
+
+#' @rdname plotUMAP
+#' @export
+plotPCA <- function(object,
+                    of_sample = "",
+                    color_to = NULL,
+                    n_pcs = 10,
+                    method_gs = "mean",
+                    pt_size = 1.5,
+                    pt_alpha = 0.9,
+                    pt_clrp = "milo",
+                    pt_clrsp = "inferno",
+                    pt_clr = "black",
+                    normalize = TRUE,
+                    verbose = TRUE,
+                    ...){
+
+  # 1. Control --------------------------------------------------------------
+
+  confuns::make_available(..., verbose = verbose)
+
+  # check input
+  check_object(object)
+
+  of_sample <-
+    check_sample(object = object,
+                 of_sample = of_sample,
+                 desired_length = 1)
+
+  if(!base::is.null(color_to)){
+
+    color_to <-
+      check_color_to(color_to = color_to,
+                     all_features = getFeatureNames(object),
+                     all_genes = getGenes(object),
+                     all_gene_sets = getGeneSets(object))
+
+    color_to_string <- base::unlist(color_to, use.names = FALSE)
+
+  }
+
+  # get data
+  pca_df <- getPcaDf(object, of_sample = of_sample)
+
+  # check principal component input
+  confuns::is_value(x = n_pcs, mode = "numeric")
+
+  n_pcs <- 1:n_pcs
+  total_pcs <- (base::ncol(pca_df)-2)
+  length_n_pcs <- base::length(n_pcs)
+
+  if(length_n_pcs > total_pcs){
+
+    base::stop(glue::glue("Length of input for argument 'n_pcs' ({length_n_pcs}) exceeds total number of pcs ({total_pcs})."))
+
+  } else if(length_n_pcs %% 2 != 0){
+
+    base::stop(glue::glue("Length of input for argument 'n_pcs' must be an even number."))
+
+  }
+
+  uneven_pcs <- stringr::str_c("PC", n_pcs[n_pcs %% 2 != 0], sep = "")
+  even_pcs <- stringr::str_c("PC", n_pcs[n_pcs %% 2 == 0], sep = "")
+
+  # -----
+
+
+  # 2. Data joining  --------------------------------------------------------
+
+  selected_df <-
+    dplyr::select(.data= pca_df,
+                  barcodes, sample, dplyr::all_of(x = c(even_pcs, uneven_pcs))
+    )
+
+  even_df <-
+    tidyr::pivot_longer(
+      data = selected_df,
+      cols = dplyr::all_of(even_pcs),
+      names_to = "even_pcs",
+      values_to = "y"
+    ) %>% dplyr::select(-dplyr::all_of(x = c(uneven_pcs))) %>%
+    dplyr::mutate(pc_numeric_even = stringr::str_remove(even_pcs, pattern = "PC") %>%
+                    base::as.numeric(),
+                  pc_partner = pc_numeric_even - 1 )
+
+  uneven_df <-
+    tidyr::pivot_longer(
+      data = selected_df,
+      cols = dplyr::all_of(uneven_pcs),
+      names_to = "uneven_pcs",
+      values_to = "x"
+    ) %>% dplyr::select(-dplyr::all_of(even_pcs)) %>%
+    dplyr::mutate(pc_numeric_uneven = stringr::str_remove(uneven_pcs, pattern = "PC") %>%
+                    base::as.numeric(),
+                  pc_partner = pc_numeric_uneven)
+
+  joined_df <-
+    dplyr::left_join(x = even_df, y = uneven_df, by = c("barcodes", "sample", "pc_partner")) %>%
+    dplyr::mutate(pc_pairs = stringr::str_c("PC ", pc_numeric_uneven, " & ", "PC ", pc_numeric_even, sep = ""))
+
+  unique_pc_pairs <- dplyr::pull(joined_df, var = "pc_pairs") %>% base::unique()
+
+  joined_df <-
+    dplyr::mutate(.data = joined_df,
+                  pc_pairs = base::factor(pc_pairs, levels = unique_pc_pairs)
+    )
+
+  # -----
+
+
+  # 3. Plotting -------------------------------------------------------------
+
+  if(!base::is.null(color_to)){
+
+    joined_df <-
+      joinWithVariables(object = object,
+                        spata_df = joined_df,
+                        variables = color_to,
+                        method_gs = method_gs,
+                        average_genes = TRUE,
+                        normalize = normalize,
+                        verbose = verbose)
+
+    ggplot_main <-
+      ggplot2::ggplot(data = joined_df,
+                      mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to_string]]))
+
+    point_add_on <-
+      list(
+        confuns::call_flexibly(fn = "geom_point", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::geom_point(),
+                               default = list(size = pt_size, alpha = pt_alpha, mapping = ggplot2::aes())),
+        confuns::scale_color_add_on(aes = "color", variable = joined_df[[color_to_string]], clrp = pt_clrp, clrsp = pt_clrsp)
+      )
+
+
+  } else if(base::is.null(color_to)) {
+
+    ggplot_main <-
+      ggplot2::ggplot(data = joined_df, mapping = ggplot2::aes(x = x, y = y))
+
+    point_add_on <-
+      confuns::call_flexibly(fn = "geom_point", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::geom_point(),
+                             default = list(size = pt_size, alpha = pt_alpha, color = pt_clr, mapping = ggplot2::aes()))
+
+  }
+
+  ggplot_main +
+    point_add_on +
+    confuns::call_flexibly(fn = "facet_wrap", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::facet_wrap(facets = . ~ pc_pairs),
+                           default = list(facets = stats::as.formula(. ~ pc_pairs))) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      strip.background = ggplot2::element_blank(),
+      axis.title = ggplot2::element_blank()
+    )
+
+}
+
 
 # -----
 
@@ -1492,17 +1663,27 @@ plotPseudotime <- function(object,
 
 #' @title Plot differentially expressed genes
 #'
-#' @description Takes the results from your de-analysis
-#' and uses the expression information of your spata-object to plot a heatmap displaying
-#' the differentially expressed genes of every cluster. Denote the feature-variable used
-#' to generate the differential expression data.frame as input for \code{across}.
+#' @description Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
+#' from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
+#' differently expressed genes of every group of the feature denoted in the argument \code{across}.
+#'
+#' If you want to display specific genes irrespective of de-anaylsis results you can specifiy them in \code{genes}. If \code{genes} is
+#' specified that way arguments referring to de-anylsis results are ignored and only the genes specified are taken and
+#' displayed.
 #'
 #' @inherit check_sample params
-#' @inherit check_de_df params
 #' @inherit across params
+#' @inherit getDeResults params details
 #' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
+#'
+#' If set to NULL (the default) it is automatically computed according to the number of genes that
+#' are displayed in the heatmap.
+#' @param breaks Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
+#' numeric vector is specified it is taken as input. If a function is specified the expression matrix is
+#' passed to it as the first argument and the length of \code{hm_colors} as the second argument.
+#' @param genes Character vector.
 #' @inherit verbose params
 #' @param hm_colors A vector of colors to be used for the continuous heatmap annotation..
 #' @param hm_clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
@@ -1514,110 +1695,118 @@ plotPseudotime <- function(object,
 
 plotDeHeatmap <- function(object,
                           of_sample = "",
-                          de_df,
                           across,
                           across_subset = NULL,
-                          n_barcode_spots = 100,
-                          verbose = TRUE,
+                          method_de = "wilcox",
+                          p_val_adj = 0.5,
+                          n_threshold = 50,
+                          breaks = NULL,
+                          genes = NULL,
+                          n_barcode_spots = NULL,
                           hm_clrp = "milo",
                           hm_colors = viridis::viridis(15),
+                          verbose = TRUE,
                           ...){
+
+  confuns::make_available(...)
 
   # 1. Control --------------------------------------------------------------
 
   #lazy check
   check_object(object)
-  check_de_df(de_df)
 
-  confuns::are_values(c("hm_clrp"), mode = "character")
+  confuns::are_values("hm_clrp", mode = "character")
+
+  if(!base::is.null(across_subset)){ confuns::is_vec(x = across_subset, mode = "character")}
 
   # adjusting check
-
-  if(base::is.factor(de_df$cluster)){
-
-    de_df$cluster <- S4Vectors::unfactor(de_df$cluster)
-
-  }
-
   across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
-
-  # make sure that the cluster variable of 'de_df' derived from the specified object and is congruent
-  # with the input for 'across' by comparing the unique values of de_df and object-feature
-
-  object_values <-
-    getFeatureValues(object = object, of_sample = of_sample, features = across)
-
-  cluster_values <- base::unique(de_df$cluster)
-
-  if(!base::any(cluster_values %in% object_values)){
-
-    base::stop(glue::glue("Could not find any clusters of 'de_df' in the '{across}'-variable of the specified object. Did you confuse any DE-data.frames, samples or spata-objects?"))
-
-  } else if(!base::all(cluster_values %in% object_values)){
-
-    not_found <-
-      cluster_values[!cluster_values %in% object_values] %>%
-      stringr::str_c(collapse = "', '")
-
-    base::warning(glue::glue("Did not find clusters '{not_found}' of input 'de_df' in the specified spata-object. Did you confuse any DE-data.frames, samples or spata-objects?"))
-
-    de_df <- dplyr::filter(.data = de_df, cluster %in% {{ object_values }})
-
-  }
-
-
-  if(!base::is.null(across_subset)){
-
-    confuns::is_vec(across_subset, "character", "across_subset")
-
-    ref.against <-
-      glue::glue("'{across}'-variable of the specified spata-object") %>%
-      base::as.character()
-
-    across_subset <-
-      confuns::check_vector(input = across_subset,
-                            against = object_values,
-                            verbose = TRUE,
-                            ref.input = "'across_subset'",
-                            ref.against = ref.against) %>%
-      base::as.character()
-
-  } else if(base::is.null(across_subset)){
-
-    across_subset <- object_values
-
-  }
-
-
   # ------
 
+  # 2. Data extraction and pipeline -----------------------------------------
 
-  # 2. Pipeline -------------------------------------------------------------
+  # extract information on the genes to plot
+  if(base::is.character(genes)){
 
-  genes <- dplyr::pull(de_df, gene)
+    genes <- check_genes(object, genes = genes)
+
+    if(base::isTRUE(verbose)){"Argument 'genes' has been specified. Ignoring de-related arguments."}
+
+    de_df <- NULL
+
+  } else {
+
+    de_df <- getDeResults(object = object,
+                          across = across,
+                          of_sample = of_sample,
+                          method_de = method_de,
+                          p_val_adj = p_val_adj,
+                          n_threshold = n_threshold)
+
+    if(!base::is.null(across_subset)){
+
+      de_df <- confuns::check_across_subset(df = de_df,
+                                            across = across,
+                                            across.subset = across_subset)
+
+    }
+
+    across_subset <- base::unique(de_df[[across]])
+
+    genes <- dplyr::pull(de_df, var = "gene")
+
+  }
+
+  # make sure that across subset is of type factor
+  if(base::is.factor(across_subset)){ across_subset <- base::levels(across_subset)}
+
+
+  # data.frame that provides barcode-spots and cluster belonging
+  if(base::is.null(n_barcode_spots)){
+
+    n_barcode_spots <- base::length(genes) / base::length(across_subset)
+
+  } else {
+
+    confuns::is_value(x = n_barcode_spots, mode = "numeric")
+
+  }
 
   barcodes_df <-
-    joinWithFeatures(object, getCoordinates(object, of_sample), features = across, verbose = FALSE) %>%
-    dplyr::filter(!!rlang::sym(across) %in% {{across_subset}}) %>%
+    joinWithFeatures(object, spata_df = getSpataDf(object, of_sample), features = across, verbose = FALSE) %>%
+    confuns::check_across_subset(df = ., across = across, across.subset = across_subset) %>%
     dplyr::group_by(!!rlang::sym(across)) %>%
     dplyr::slice_sample(n = n_barcode_spots)
 
-  # heatmap gaps
-  gaps_row <-
-    dplyr::group_by(de_df, cluster) %>%
-    dplyr::summarise(count = dplyr::n()) %>%
+
+  # determine heatmap gaps
+  if(base::is.character(genes)){
+
+    gaps_row <- NULL
+
+  } else {
+
+    gaps_row <-
+      dplyr::group_by(de_df, !!rlang::sym(across)) %>%
+      dplyr::summarise(count = dplyr::n(), .groups = "drop") %>%
+      dplyr::mutate(positions = base::cumsum(count)) %>%
+      dplyr::pull(positions) %>%
+      base::as.numeric()
+
+    gaps_row <- gaps_row[1:(base::length(gaps_row)-1)]
+
+  }
+
+  gaps_col <-
+    dplyr::group_by(barcodes_df, !!rlang::sym(across)) %>%
+    dplyr::summarise(count = dplyr::n(), .groups = "drop") %>%
     dplyr::mutate(positions = base::cumsum(count)) %>%
     dplyr::pull(positions) %>%
     base::as.numeric()
 
-  gaps_col <-
-    dplyr::group_by(barcodes_df, !!rlang::sym(across)) %>%
-    dplyr::summarise(count = dplyr::n()) %>%
-    dplyr::mutate(positions = base::cumsum(count)) %>%
-    dplyr::pull(positions) %>%
-    base::as.numeric()
+  gaps_col <- gaps_col[1:(base::length(gaps_col)-1)]
 
   # heatmap annotation
   annotation_col <-
@@ -1626,9 +1815,7 @@ plotDeHeatmap <- function(object,
 
   base::rownames(annotation_col) <- dplyr::pull(barcodes_df, barcodes)
 
-  # -----
-
-
+  # determine colors used
   if(hm_clrp == "default"){
 
     color_vec <- NA
@@ -1653,19 +1840,46 @@ plotDeHeatmap <- function(object,
 
   }
 
+  # -----
+
+  # 3. Plotting -------------------------------------------------------------
+
   base::message("Plotting heatmap. This can take a few seconds.")
 
-  pheatmap::pheatmap(mat = getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes],
-                     scale = "row",
-                     annotation_col = annotation_col,
-                     cluster_cols = FALSE,
-                     cluster_rows = FALSE,
-                     show_colnames = FALSE,
-                     color = hm_colors,
-                     annotation_colors = annotation_colors,
-                     gaps_row = gaps_row[1:(base::length(gaps_row)-1)],
-                     gaps_col = gaps_col[1:(base::length(gaps_col)-1)],
-                     ...)
+  expr_mtr <-
+    getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes]
+
+  if(base::is.null(breaks)){
+
+    breaks_input <-
+      hlpr_breaks(mtr = expr_mtr,
+                  length_out = base::length(hm_colors))
+
+  } else if(base::is.numeric(breaks)){
+
+    breaks_input <- breaks
+
+  } else if(base::is.function(breaks)){
+
+    breaks_input <- breaks(expr_mtr, base::length(hm_colors))
+
+  }
+
+  confuns::call_flexibly(
+    fn = "pheatmap", fn.ns = "pheatmap",
+    default = list(mat = expr_mtr,
+                   scale = "row",
+                   breaks = breaks_input,
+                   annotation_col = annotation_col,
+                   cluster_cols = FALSE,
+                   cluster_rows = FALSE,
+                   show_colnames = FALSE,
+                   color = hm_colors,
+                   annotation_names_col = FALSE,
+                   annotation_colors = annotation_colors,
+                   gaps_row = gaps_row,
+                   gaps_col = gaps_col)
+  )
 
 }
 

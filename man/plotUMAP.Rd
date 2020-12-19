@@ -3,6 +3,7 @@
 \name{plotUMAP}
 \alias{plotUMAP}
 \alias{plotTSNE}
+\alias{plotPCA}
 \title{Plot dimensional reduction}
 \usage{
 plotUMAP(
@@ -14,6 +15,8 @@ plotUMAP(
   pt_alpha = 1,
   pt_clrsp = "inferno",
   pt_clrp = "milo",
+  pt_clr = "black",
+  normalize = TRUE,
   verbose = TRUE
 )
 
@@ -26,7 +29,24 @@ plotTSNE(
   pt_alpha = 1,
   pt_clrsp = "inferno",
   pt_clrp = "milo",
+  normalize = TRUE,
   verbose = TRUE
+)
+
+plotPCA(
+  object,
+  of_sample = "",
+  color_to = NULL,
+  n_pcs = 10,
+  method_gs = "mean",
+  pt_size = 1.5,
+  pt_alpha = 0.9,
+  pt_clrp = "milo",
+  pt_clrsp = "inferno",
+  pt_clr = "black",
+  normalize = TRUE,
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -59,10 +79,15 @@ color is continuous. Run \code{all_colorspectra()} to see valid input..}
 \item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
+\item{pt_clr}{The base color of every point displayed in the plot.}
+
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{n_pcs}{Numeric value. Determines the number of principal components to be plotted.
+Must be an even number.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

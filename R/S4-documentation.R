@@ -59,7 +59,6 @@ dim_red <- setClass("dim_red",
 #' @slot segment_trajectory_df A data.frame containing the numeric variables
 #' \emph{x, y, xend, yend} that denote the start and the end of every trajectory
 #' part.
-#' @slot assessed_trajectory_df Currently not in use.
 #' @slot comment Character value. The comment written down before saving the trajectory.
 #' @slot name Character value. The trajectory's name.
 #' @slot sample Character value. The sample the trajectory belongs to.
@@ -72,7 +71,6 @@ spatial_trajectory <- setClass("spatial_trajectory",
                                 slots = c(
                                   compiled_trajectory_df = "data.frame",
                                   segment_trajectory_df = "data.frame",
-                                  assessed_trajectory_df = "data.frame",
                                   comment = "character",
                                   name = "character",
                                   sample = "character"))
@@ -93,6 +91,8 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #'  }
 #'
 #' @slot data See documentation for S4-object 'data'
+#' @slot dea A list in which every slot is named according to a discrete feature for which differential gene expression
+#' analysis has been conducted (via \code{findDE()}).
 #' @slot dim_red See documentation for S4-object 'dim_red'
 #' @slot fdata A data.frame containing the additionally computed features. Must contain the variables:
 #'  \describe{
@@ -105,6 +105,7 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #' @slot scvelo Currently not in use.
 #' @slot trajectories A list named according to the samples the object contains. Each slot in
 #' that list contains another list of all 'spatial_trajectory'-objects created for that sample.
+#' Every slot contains a data.frame (output of \code {Seurat::FindAllMarkers()})
 #' @slot used_genesets A data.frame containing the defined gene-sets. Must contain the variables:
 #'
 #' \describe{
@@ -116,7 +117,7 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #' @slot version A list of four slots denoting the version of SPATA under which the object has been
 #' created.
 #'
-#' @slot additional A list of miscellaneous information that mainly ensures compatibility between different
+#' @slot compatibility A list of miscellaneous information that mainly ensures compatibility between different
 #' platforms.
 #'
 #' @return S4 object
@@ -124,14 +125,17 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #'
 
 spata <- setClass("spata",
-                  slots = c(coordinates ="data.frame", #coordinates: bc, x, y, sample
-                            data = "data_counts",
-                            dim_red = "dim_red", #UMAP & TSNE: bc, umap1, umap2, sample
+                  slots = c(compatibility = "list",
+                            coordinates ="data.frame", #coordinates: bc, x, y, sample
+                            data = "list",
+                            dim_red = "list", #PCA, UMAP, TSNE: bc, umap1, umap2, sample
                             fdata = "data.frame", #fdata : bc, ...
                             image = "list",
+                            information = "list",
+                            dea = "list",
                             samples = "character",
                             scvelo = "list",
-                            used_genesets = "data.frame",
                             trajectories = "list",
-                            version = "list",
-                            additional = "list"))
+                            used_genesets = "data.frame",
+                            version = "list")
+                  )

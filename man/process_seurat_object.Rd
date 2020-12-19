@@ -6,6 +6,7 @@
 \usage{
 process_seurat_object(
   seurat_object,
+  assay = "RNA",
   calculate_rb_and_mt = TRUE,
   remove_stress_and_mt = TRUE,
   SCTransform = FALSE,

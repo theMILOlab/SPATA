@@ -73,7 +73,7 @@ initiateSpataObject_MALDI <- function(coords_df,
 initiateSpataObject_CountMtr <- function(coords_df,
                                          count_mtr,
                                          feature_df = NULL,
-                                         sample_name = "sample",
+                                         sample_name,
                                          image = NULL,
                                          gene_set_path = NULL,
                                          output_path = NULL,
@@ -95,7 +95,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
     confuns::check_data_frame(
       df = coords_df,
-      var.class = list("barcodes" = "character", "x" = c("double", "integer"), "y" = c("double", "integer")),
+      var.class = list("barcodes" = "character", "x" = c("double", "integer", "numeric"), "y" = c("double", "integer", "numeric")),
       ref = "coords_df"
     )
 
@@ -154,10 +154,17 @@ initiateSpataObject_CountMtr <- function(coords_df,
     spata_object <-
       transformSeuratToSpata(
         seurat_object = seurat_object,
+        assay = "RNA",
+        sample_name = sample_name,
         gene_set_path = gene_set_path,
         method = "single_cell",
         verbose = verbose
       )
+
+    spata_object@coordinates <- coords_df
+    spata_object@image[[sample_name]] <- image
+
+    spata_object <- check_all_barcodes(spata_object)
 
     # Save and return object -----------------------------------------------
 
@@ -165,7 +172,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
       if(base::isTRUE(verbose)){base::message("Saving spata-object.")}
 
-      base::saveRDS(new_object, file = object_file)
+      base::saveRDS(spata_object, file = object_file)
 
       if(base::isTRUE(verbose)){
 
@@ -176,10 +183,9 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
     }
 
-
     if(base::isTRUE(verbose)){base::message("Done.")}
 
-    return(seurat_object)
+    return(spata_object)
 
   }
 
@@ -216,6 +222,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
 initiateSpataObject_ExprMtr <- function(coords_df,
                                         expr_mtr,
+                                        count_mtr = NULL,
                                         image = NULL,
                                         sample_name,
                                         gene_set_path = NULL,
@@ -251,16 +258,11 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   if(!base::is.null(output_path)){
 
-    confuns::is_value(x = output_path, mode = "character", ref = "output_path")
-    confuns::is_value(x = file_name, mode = "character", ref = "file_name")
+    confuns::are_values("ouptut_path", "file_name", mode = "character")
 
   }
 
-  purrr::pwalk(.l = list(list(pca_comp, nn, tsne_perplexity),
-                         list("pca_comp", "nn", "tsne_perplexity")),
-               .f = function(x, ref, mode){ confuns::is_value(x, mode, ref)},
-               mode = "numeric")
-
+  confuns::are_values("pca_comp", "nn", "tsne_perplexity", mode = "numeric")
 
   # check if gene names are valid
   if(base::any(stringr::str_detect(base::rownames(expr_mtr), pattern = "_"))){
@@ -272,30 +274,11 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   }
 
-  # check if barcodes are valid
-  barcode_pattern <- stringr::str_c("_", sample_name, "$", sep = "")
+  # check if barcodes are valid and idential
 
-  if(!base::all(stringr::str_detect(base::colnames(expr_mtr), barcode_pattern))){
+  expr_mtr <- hlpr_add_barcode_suffix(input = expr_mtr, sample_name = sample_name)
+  coords_df <- hlpr_add_barcode_suffix(input = coords_df, sample_name = sample_name)
 
-    base::message(glue::glue("Adding missing {sample_name}-suffix to column names (barcodes) of expression matrix."))
-
-    base::colnames(expr_mtr) <-
-      stringr::str_c(base::colnames(expr_mtr), sample_name, sep = "_")
-
-  }
-
-  if(!base::all(stringr::str_detect(string = coords_df$barcodes, pattern = barcode_pattern))){
-
-    base::message(glue::glue("Adding missing {sample_name}-suffix to barcodes of coordinate data.frame."))
-
-    coords_df <-
-      dplyr::mutate(.data = coords_df,
-                    barcodes = stringr::str_c(barcodes, sample_name, sep = "_")
-      )
-
-  }
-
-  # check if barcodes are identical
   barcodes_coords <- dplyr::pull(.data = coords_df, var = "barcodes") %>% base::sort()
   barcodes_expr_mtr <- base::colnames(expr_mtr) %>% base::sort()
 
@@ -331,21 +314,27 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   if(base::isTRUE(verbose)){ base::message("Step 2/4:Setting up spata-object.")}
 
-  obj <- methods::new(Class = "spata")
+  spata_obj <- methods::new(Class = "spata")
 
-  obj@samples <- sample_name
+  spata_obj@samples <- sample_name
 
-  obj@image <- purrr::set_names(x = list(image), nm = sample_name)
+  # transfer assays
+  data <- list()
 
-  obj@coordinates <- coords_df
-  obj@fdata <- dplyr::select(.data = coords_df, barcodes, sample) %>% dplyr::mutate(segment = "")
+  data$counts <- count_mtr
+  data$scaled <- expr_mtr
 
-  obj@data@norm_exp <- expr_mtr
-  obj@data@counts <- methods::as(object = expr_mtr, Class = "dgCMatrix")
+  spata_obj@data <- data
 
-  obj@used_genesets <- loadGSDF(gene_set_path = gene_set_path, verbose = verbose)
+  # transfer data.frames
+  spata_obj@coordinates <- coords_df
+  spata_obj@fdata <- dplyr::select(.data = coords_df, barcodes, sample) %>% dplyr::mutate(segment = "")
+  spata_obj@used_genesets <- loadGSDF(gene_set_path = gene_set_path, verbose = verbose)
 
-  obj@trajectories <- purrr::set_names(x = list(list()), nm = sample_name)
+  # transfer lists
+  spata_obj@trajectories <- purrr::set_names(x = list(list()), nm = sample_name)
+  spata_obj@image <- purrr::set_names(x = list(image), nm = sample_name)
+  spata_obj@information <- list("initiation" = list("timepoint" = base::Sys.time()))
 
   # -----
 
@@ -354,20 +343,21 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   if(base::isTRUE(verbose)){ base::message("Step 3/4: Running analysis steps.")}
 
-  if(base::isTRUE(verbose)){ base::message("---------- Run PCA Analysis 1/4 ------------- ")}
+  if(base::isTRUE(verbose)){ base::message("---------- PCA Analysis 1/4 ------------- ")}
 
-  pca <- irlba::prcomp_irlba((expr_mtr), n = pca_comp)[["rotation"]]
+  pca_res <- irlba::prcomp_irlba((expr_mtr), n = pca_comp)
 
-  base::rownames(pca) <- obj@fdata$barcodes
+  pca <- pca_res[["rotation"]]
+
+  base::rownames(pca) <- spata_obj@fdata$barcodes
 
   if(base::isTRUE(verbose)){ base::message("---------- Select Eigenvalues Analysis 2/4 ------------- ") }
 
   # missing?
 
-  if(base::isTRUE(verbose)){ base::message("---------- Run SNN-Cluster Analysis 3/4 ------------- ") }
+  if(base::isTRUE(verbose)){ base::message("---------- SNN-Cluster Analysis 3/4 ------------- ") }
 
   nearest <- RANN::nn2(pca, k = nn, treetype = "bd", searchtype = "priority")
-
 
   edges <-
     reshape::melt(base::t(nearest$nn.idx[, 1:nn])) %>%
@@ -391,23 +381,31 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   cluster_out <-
     base::data.frame(barcodes = base::rownames(pca), nn2_cluster = clust.assign) %>%
-    magrittr::set_rownames(value = base::rownames(pca))
+    magrittr::set_rownames(value = base::rownames(pca)) %>%
+    dplyr::mutate(nn2_cluster = base::factor(nn2_cluster))
 
-  obj <- addFeatures(object = obj,
+  spata_obj <- addFeatures(object = spata_obj,
                      feature_df = cluster_out,
                      feature_names = c("nn2_cluster"),
                      key_variable = "barcodes",
                      of_sample = sample_name)
 
-  if(base::isTRUE(verbose)){ base::message("---------- Run Dimensional Reduction 4/4 ------------- ")}
+  if(base::isTRUE(verbose)){ base::message("---------- Dimensional Reduction 4/4 ------------- ")}
+
+  pca_df <-
+    tibble::rownames_to_column(.data = base::as.data.frame(pca), var = "barcodes") %>%
+    dplyr::mutate(sample = {{sample_name}}) %>%
+    dplyr::select(barcodes, sample, dplyr::everything())
+
+  dim_red_new <- list("pca" = pca_df)
 
   if(base::isTRUE(verbose)){ base::message(glue::glue("Running TSNE with argument 'perplexity' = {tsne_perplexity}."))}
 
   ts <- Rtsne::Rtsne(pca, perplexity = tsne_perplexity)
 
-  obj@dim_red@TSNE <-
+  dim_red_new$tsne <-
     base::data.frame(barcodes = base::rownames(pca),
-                     sample = sample_names,
+                     sample = sample_name,
                      tsne1 = ts$Y[,1],
                      tsne2 = ts$Y[,2])
 
@@ -416,7 +414,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   umap <- umap::umap(pca)
 
-  obj@dim_red@UMAP <-
+  dim_red_new$umap <-
     base::data.frame(
       barcodes = base::rownames(pca),
       sample = sample_name,
@@ -424,18 +422,21 @@ initiateSpataObject_ExprMtr <- function(coords_df,
       umap2 = umap$layout[,2]
     )
 
-  # -----
+  # transfer dimensional reduction
+  spata_obj@dim_red <- dim_red_new
 
+  spata_obj <- check_all_barcodes(spata_obj)
+
+  # -----
 
   # 4. Saving and returning object ------------------------------------------
 
-  hlpr_save_spata_object(object = obj,
+  hlpr_save_spata_object(object = spata_obj,
                          object_file = object_file,
                          ref_step = "4/4",
                          verbose = verbose)
 
-  return(obj)
-
+  return(spata_obj)
 
 }
 
@@ -532,6 +533,9 @@ initiateSpataObject_10X <- function(input_paths,
     base::stop("Specified sample names must be unique.")
 
   }
+
+
+  confuns::check_directories(directories = input_paths, type = "folders")
 
   # check saving if desired
   object_file <- check_saving(output_path = output_path, file_name = file_name)

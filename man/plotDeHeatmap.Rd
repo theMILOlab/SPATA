@@ -7,13 +7,17 @@
 plotDeHeatmap(
   object,
   of_sample = "",
-  de_df,
   across,
   across_subset = NULL,
-  n_barcode_spots = 100,
-  verbose = TRUE,
+  method_de = "wilcox",
+  p_val_adj = 0.5,
+  n_threshold = 50,
+  breaks = NULL,
+  genes = NULL,
+  n_barcode_spots = NULL,
   hm_clrp = "milo",
   hm_colors = viridis::viridis(15),
+  verbose = TRUE,
   ...
 )
 }
@@ -22,18 +26,6 @@ plotDeHeatmap(
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
-
-\item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:
-
- \describe{
-  \item{\emph{gene}}{Character. The differentially expressed genes.}
-  \item{\emph{cluster}}{Character. The clusters (or experimental groups) across which the analysis was performed.}
-  \item{\emph{avg_logFC}}{Numeric. The average log-fold change to which the belonging gene was differentially expressed..}
-  \item{\emph{p_val}}{Numeric. The p-values.}
-  \item{\emph{p_val_adj}}{Numeric. The adjusted p-values.}
- }
-
-Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants as input.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
@@ -48,19 +40,37 @@ specified in argument \code{across} contains. If set to NULL all of them are cho
 Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
+
+\item{p_val_adj}{Numeric value. Denotes the max. adjusted p-value a gene can have
+in order to be kept in the results.}
+
+\item{n_threshold}{Numeric value or vector of length two. See details for more.}
+
+\item{breaks}{Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
+numeric vector is specified it is taken as input. If a function is specified the expression matrix is
+passed to it as the first argument and the length of \code{hm_colors} as the second argument.}
+
+\item{genes}{Character vector.}
+
 \item{n_barcode_spots}{The number of barcode-spots belonging to each cluster you want to
 include in the matrix. Should be lower than the total number of barcode-spots of every cluster
-and can be deployed in order to keep the heatmap clear and aesthetically pleasing.}
+and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
 
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
+If set to NULL (the default) it is automatically computed according to the number of genes that
+are displayed in the heatmap.}
 
 \item{hm_clrp}{The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
 to obtain valid input options.}
 
 \item{hm_colors}{A vector of colors to be used for the continuous heatmap annotation..}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 
 \item{...}{Additional parameters given to \code{pheatmap::pheatmap()}.}
 }
@@ -68,8 +78,31 @@ to obtain valid input options.}
 A heatmap of class 'pheatmap'.
 }
 \description{
-Takes the results from your de-analysis
-and uses the expression information of your spata-object to plot a heatmap displaying
-the differentially expressed genes of every cluster. Denote the feature-variable used
-to generate the differential expression data.frame as input for \code{across}.
+Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
+from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
+differently expressed genes of every group of the feature denoted in the argument \code{across}.
+
+If you want to display specific genes irrespective of de-anaylsis results you can specifiy them in \code{genes}. If \code{genes} is
+specified that way arguments referring to de-anylsis results are ignored and only the genes specified are taken and
+displayed.
+}
+\details{
+De-analysis results are stored in a data.frame in which each gene that turned out
+to be a marker gene for a specific group is evaluated by it's p-value, p-adjusted-value,
+logfold-change etc.
+
+If the arguments \code{p_val_adj} and \code{n_threshold} are set to NULL the results are returned
+as they are which however can result in several hundred genes per group. The results can be additionally
+subsetted. \code{getDeResults()} does that by
+
+\enumerate{
+ \item{discarding genes with \emph{avg_logFC}-values that are either infinite or negative}
+ \item{discarding genes with a p-adjusted-value higher than the threshold denoted in \code{p_val_adj}}
+ \item{slicing the data.frame in order that for every unique group of the feature denoted in \code{across}}:
+ \enumerate{
+  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_threshold[1]}}
+  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_threshold[2]}}
+  }
+ \item{arranging the genes according to the highest \emph{avg_logFC}-values}
+ }
 }

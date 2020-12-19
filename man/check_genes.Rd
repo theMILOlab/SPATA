@@ -11,7 +11,7 @@ check_genes(object, genes, rna_assay = NULL, max_length = NULL)
 
 \item{rna_assay}{The rna-assay you want to
 look in. If set to NULL the whole rna_assay of the specified object will be used
-with \code{exprMtr()}.}
+with \code{getExpressionMatrix()}.}
 }
 \value{
 The original input, an adjusted version of it or an error. In the latter two

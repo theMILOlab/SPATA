@@ -121,6 +121,8 @@ setGeneric(name = "getTrajectoryComment", def = function(object, ...){
 
 setMethod(f = "image", signature = "spata", definition = function(object, of_sample = ""){
 
+  warning("generic 'image' is deprecated. Use getImage()")
+
   of_sample <- check_sample(object, of_sample, desired_length = 1)
 
   return(object@image[[of_sample]])
@@ -131,16 +133,18 @@ setMethod(f = "image", signature = "spata", definition = function(object, of_sam
 #' @export
 setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_sample = ""){
 
+  warning("generic 'exprMtr' is deprecated. Use getExpressionMtr()")
+
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
   bc_in_sample <-
-    object@fdata %>%
+    object@coordinates %>%
     dplyr::filter(sample %in% {{of_sample}}) %>%
     dplyr::pull(barcodes)
 
-  exprMtr <- object@data@norm_exp[,bc_in_sample]
+  expr_mtr <- object@data$scaled[,bc_in_sample]
 
-  return(base::as.matrix(exprMtr))
+  return(base::as.matrix(expr_mtr))
 
 })
 
@@ -148,14 +152,16 @@ setMethod(f = "exprMtr", signature = "spata", definition = function(object, of_s
 #' @export
 setMethod(f = "countMtr", signature = "spata", definition = function(object, of_sample = ""){
 
+  warning("gener 'countMtr' is deprecated. Use getCountMatrix()")
+
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
   bc_in_sample <-
-    object@fdata %>%
+    object@coordinates %>%
     dplyr::filter(sample %in% of_sample) %>%
     dplyr::pull(barcodes)
 
-  count_mtr <- object@data@counts[,bc_in_sample]
+  count_mtr <- object@data$counts[,bc_in_sample]
 
   return(count_mtr)
 
@@ -164,6 +170,8 @@ setMethod(f = "countMtr", signature = "spata", definition = function(object, of_
 #' @rdname image
 #' @export
 setMethod(f = "coordinates", signature = "spata", def = function(object, of_sample = ""){
+
+  warning("generic 'coordinates' is deprecated. Use getCoordinates()")
 
   of_sample <- check_sample(object, of_sample = of_sample)
 
@@ -192,7 +200,7 @@ setMethod(f = "coordinates<-", signature = "spata", def = function(object, value
 #' @export
 setMethod(f = "featureData", signature = "spata", definition = function(object, of_sample = ""){
 
-
+  warning("generic 'featureData' is deprecated. Use getFeatureData()")
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
   fdata <-
@@ -218,6 +226,8 @@ setMethod(f = "featureData<-", signature = "spata", definition = function(object
 #' @export
 setMethod(f = "samples", signature = "spata", definition = function(object){
 
+  warning("generic 'samples' is deprecated. Use getSampleNames()")
+
   return(object@samples)
 
 })
@@ -225,6 +235,8 @@ setMethod(f = "samples", signature = "spata", definition = function(object){
 #' @rdname image
 #' @export
 setMethod(f = "trajectory", signature = "spata", definition = function(object, trajectory_name, of_sample = ""){
+
+  warning("generic 'trajectory' is deprecated. Use getTrajectoryObject()")
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
@@ -254,6 +266,8 @@ setMethod(f = "trajectory", signature = "spata", definition = function(object, t
 #' @export
 setMethod(f = "ctdf", signature = "spatial_trajectory", definition = function(t_obj){
 
+  warning("generic 'ctdf' is deprecated. Use getCtDf()")
+
   t_obj@compiled_trajectory_df
 
 })
@@ -262,8 +276,8 @@ setMethod(f = "ctdf", signature = "spatial_trajectory", definition = function(t_
 #' @export
 setMethod(f = "show", signature = "spata", definition = function(object){
 
-  num_samples <- base::length(samples(object))
-  samples <- stringr::str_c( samples(object), collapse = "', '")
+  num_samples <- base::length(getSampleNames(object))
+  samples <- stringr::str_c( getSampleNames(object), collapse = "', '")
   sample_ref <- base::ifelse(num_samples > 1, "samples", "sample")
 
   base::print(glue::glue("An object of class 'spata' that contains {num_samples} {sample_ref} named '{samples}'."))

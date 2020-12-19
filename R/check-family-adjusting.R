@@ -23,6 +23,38 @@ adjusting_check_dummy <- function(){}
 
 #################################################################################################
 
+
+#' @title Check barcodes of all matrices and data.frames
+#'
+#' @inherit check_objcet params
+#'
+#' @return
+
+check_all_barcodes <- function(object){
+
+  sample_name <- getSampleNames(object)
+
+  confuns::is_value(x = sample_name, mode = "character")
+
+
+  object@data <- purrr::map(.x = object@data,
+                            .f = hlpr_add_barcode_suffix,
+                            sample_name = sample_name)
+
+  object@dim_red <- purrr::map(.x = object@dim_red,
+                               .f = hlpr_add_barcode_suffix,
+                               sample_name = sample_name)
+
+  object@coordinates <- hlpr_add_barcode_suffix(input = object@coordinates,
+                                                sample_name = sample_name)
+
+  object@fdata <- hlpr_add_barcode_suffix(input = object@fdata,
+                                          sample_name = sample_name)
+
+  base::return(object)
+
+}
+
 #' @title Check color to
 #'
 #' @description A member of the \code{adjusting-check_()}-family. Takes a character
@@ -232,7 +264,7 @@ check_features <- function(object,
 #' @param genes The genes of interest specified as a character vector.
 #' @param rna_assay The rna-assay you want to
 #' look in. If set to NULL the whole rna_assay of the specified object will be used
-#' with \code{exprMtr()}.
+#' with \code{getExpressionMatrix()}.
 #'
 #' @inherit adjusting_check_dummy details return
 #' @export
@@ -253,7 +285,7 @@ check_genes <- function(object,
 
   if(base::is.null(rna_assay)){
 
-    rna_assay <- exprMtr(object = object)
+    rna_assay <- getExpressionMatrix(object = object)
 
   }
 
@@ -412,9 +444,9 @@ check_sample <- function(object,
 
   if(base::all(of_sample == "")){
 
-    of_sample <- samples(object)[1]
+    of_sample <- getSampleNames(object)[1]
 
-    if(base::length(samples(object)) > 1){
+    if(base::length(getSampleNames(object)) > 1){
 
       base::message(glue::glue("No sample specified. Defaulting to first sample: '{of_sample}'."))
 
@@ -430,7 +462,7 @@ check_sample <- function(object,
 
   } else if(base::all(of_sample == "all")){
 
-    of_sample <- samples(object = object)
+    of_sample <- getSampleNames(object = object)
 
     if(!base::is.null(desired_length) && base::length(of_sample) != desired_length){
 
@@ -446,7 +478,7 @@ check_sample <- function(object,
 
     stop("Could not find any of the specified samples in specified object.")
 
-  } else if(base::any(of_sample %in% samples(object))){
+  } else if(base::any(of_sample %in% getSampleNames(object))){
 
     samples_found <- object@samples[object@samples %in% of_sample]
 

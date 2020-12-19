@@ -142,12 +142,15 @@ plotTrajectory <- function(object,
 
   # 2. Extract data ---------------------------------------------------------
 
-  t_object <- getTrajectoryObject(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
+  trajectory_object <-
+    getTrajectoryObject(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
 
-  trajectory_bc <- dplyr::pull(t_object@compiled_trajectory_df, barcodes)
-  trajectory_sgmt_df <- t_object@segment_trajectory_df
+  trajectory_ctdf <- trajectory_object@compiled_trajectory_df
 
-  bc_traj <- ctdf(t_object) %>% dplyr::pull(barcodes)
+  trajectory_bc <- dplyr::pull(.data = trajectory_ctdf, var = "barcodes")
+  trajectory_sgmt_df <- trajectory_object@segment_trajectory_df
+
+  bc_traj <- dplyr::pull(.data = trajectory_ctdf, var = "barcodes")
 
   background_df <-
     getCoordinates(object, of_sample = of_sample) %>%
@@ -317,12 +320,12 @@ plotTrajectoryFeatures <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  t_object <-
-    trajectory(object = object, trajectory = trajectory_name, of_sample = of_sample)
+  trajectory_object <-
+    getTrajectoryObject(object = object, trajectory = trajectory_name, of_sample = of_sample)
 
   result_df <-
     hlpr_summarize_trajectory_df(object = object,
-                                 ctdf = t_object@compiled_trajectory_df,
+                                 ctdf = trajectory_object@compiled_trajectory_df,
                                  binwidth = binwidth,
                                  variables = features,
                                  verbose = verbose)  %>%
@@ -462,11 +465,11 @@ plotTrajectoryGenes <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  t_object <-
-    trajectory(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
+  trajectory_object <-
+    getTrajectoryObject(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
 
   coords_with_genes <-
-    t_object@compiled_trajectory_df %>%
+    trajectory_object@compiled_trajectory_df %>%
     dplyr::mutate(order_binned = plyr::round_any(projection_length, accuracy = binwidth, f = floor)) %>%
     joinWithGenes(object = object,
                   spata_df = .,
@@ -608,12 +611,12 @@ plotTrajectoryGeneSets <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  t_object <-
-    trajectory(object = object, trajectory = trajectory_name, of_sample = of_sample)
+  trajectory_object <-
+    getTrajectoryObject(object = object, trajectory = trajectory_name, of_sample = of_sample)
 
   result_df <-
     hlpr_summarize_trajectory_df(object = object,
-                                 ctdf = t_object@compiled_trajectory_df,
+                                 ctdf = trajectory_object@compiled_trajectory_df,
                                  binwidth = binwidth,
                                  variables = gene_sets,
                                  method_gs = method_gs,
@@ -844,7 +847,7 @@ plotTrajectoryHeatmap <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  t_object <- getTrajectoryObject(object = object,
+  trajectory_object <- getTrajectoryObject(object = object,
                                   trajectory_name = trajectory_name,
                                   of_sample = of_sample)
 
@@ -852,7 +855,7 @@ plotTrajectoryHeatmap <- function(object,
   stdf <-
     hlpr_summarize_trajectory_df(
       object = object,
-      ctdf = t_object@compiled_trajectory_df,
+      ctdf = trajectory_object@compiled_trajectory_df,
       variables = variables[[1]],
       binwidth = binwidth,
       verbose = verbose) %>%
@@ -872,7 +875,7 @@ plotTrajectoryHeatmap <- function(object,
   # 3. Heatmap column split -------------------------------------------------
 
   # if the heatmap is to be splitted into the trajectory parts
-  n_parts <- base::length(base::unique(t_object@compiled_trajectory_df$trajectory_part))
+  n_parts <- base::length(base::unique(trajectory_object@compiled_trajectory_df$trajectory_part))
 
   if(base::isTRUE(split_columns) && n_parts > 1){
 
@@ -1074,12 +1077,6 @@ plotTrajectoryFit <- function(object,
                        y = residuals,
                        by = c("trajectory_order", "pattern"))
 
-    legend_position = "right"
-
-  } else {
-
-    legend_position = "none"
-
   }
 
   # shift to plottable df
@@ -1115,8 +1112,7 @@ plotTrajectoryFit <- function(object,
                    axis.ticks = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
                    strip.background = ggplot2::element_blank(),
-                   strip.text = ggplot2::element_text(color = "black", size = 11),
-                   legend.position = legend_position) +
+                   strip.text = ggplot2::element_text(color = "black", size = 11)) +
     ggplot2::labs(x = "Trajectory direction", y = NULL, color = NULL, caption = variable)
 
 }
@@ -1224,12 +1220,6 @@ plotTrajectoryFitCustomized <- function(object,
                        y = residuals,
                        by = c("trajectory_order", "pattern"))
 
-    legend_position = "right"
-
-  } else {
-
-    legend_position = "none"
-
   }
 
   # ---
@@ -1267,8 +1257,7 @@ plotTrajectoryFitCustomized <- function(object,
                    axis.ticks = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_line(arrow = ggplot2::arrow(length = ggplot2::unit(0.075, "inches"))),
                    strip.background = ggplot2::element_blank(),
-                   strip.text = ggplot2::element_text(color = "black", size = 11),
-                   legend.position = legend_position) +
+                   strip.text = ggplot2::element_text(color = "black", size = 11)) +
     ggplot2::labs(x = "Trajectory direction", y = NULL, color = NULL, caption = variable)
 
 }

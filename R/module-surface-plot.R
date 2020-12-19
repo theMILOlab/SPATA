@@ -112,7 +112,7 @@ moduleSurfacePlotServer <- function(id,
 
       current <- shiny::reactiveValues(
 
-        sample = samples(object)[1],
+        sample = getSampleNames(object)[1],
         color_code = "gene_sets",
         gene_set = base::character(1),
         method_gs = base::character(1),
@@ -179,8 +179,8 @@ moduleSurfacePlotServer <- function(id,
 
         shinyWidgets::pickerInput(ns("sample_opts"),
                                   label = "Choose sample:",
-                                  choices = samples(object),
-                                  selected = samples(object)[1])
+                                  choices = getSampleNames(object),
+                                  selected = getSampleNames(object)[1])
 
       })
 
@@ -446,7 +446,7 @@ moduleSurfacePlotServer <- function(id,
       rna_assay <- shiny::reactive({
 
         rna_assay <-
-          exprMtr(object = object, of_sample = current$sample)
+          getExpressionMatrix(object = object, of_sample = current$sample)
 
         return(rna_assay)
 
@@ -459,9 +459,13 @@ moduleSurfacePlotServer <- function(id,
 
         # compute mean if neccessary
         if(base::length(genes) > 1){
+
           rna_assay <- base::colMeans(rna_assay()[genes,])
+
         } else {
+
           rna_assay <- rna_assay()[genes,]
+
         }
 
 
@@ -521,7 +525,7 @@ moduleSurfacePlotServer <- function(id,
       fdata <- shiny::reactive({
 
         fdata <-
-          featureData(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
+          getFeatureData(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
 
         return(fdata)
 

@@ -171,7 +171,6 @@ check_de_df <- function(de_df){
       p_val = "numeric",
       avg_logFC = "numeric",
       p_val_adj = "numeric",
-      cluster = c("character", "factor"),
       gene = "character"
     ),
     ref = "de_df"
@@ -476,14 +475,17 @@ check_feature_df <- function(feature_name,
 #'
 #' @param method_dr Character value. The dimensional reduction method of
 #' interest specified as a single character value. (Currently
-#' either \emph{'UMAP'} or \emph{'TSNE'}).
+#' either \emph{'pca'}, \emph{'umap'} or \emph{'tsne'}).
 #' @param method_gs Character value. The method according to which gene sets will be handled
 #' specified as a character of length one. This can be either \emph{'mean'} or one
 #' of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 #' \code{gsva::GSVA()}.
 #' @param method_padj Character value. The method according to which the adjusted p-values will
-#' be calculated. Given to \code{stats::p.adjust()}.
-#' @param method_de Character value. Given to argument \code{test.use} of \code{Seurat::FindAllMarkers()}.
+#' be calculated. Given to \code{stats::p.adjust()}. Run \code{stats::p.adjust.methods} to obtain
+#' all valid input options.
+#' @param method_de Character value. Denotes the method to according to which the de-analysis is performed.
+#' Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+#' to obtain all valid input options.
 #' @param method_ovl Character value. One of \emph{'classic', 'bayesian'}. Decides
 #' according to which method the spatial overlap is calculated.
 #' @inherit lazy_check_dummy description details return
@@ -499,13 +501,13 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_dr)){
 
-    if(!base::is.character(method_dr) || base::length(method_dr) != 1){
+    if(confuns::is_value(x = method_dr, mode = "character")){
 
-      stop("Argument 'method_dr' needs to be a single character value.")
-
-    } else if(!method_dr %in% c("UMAP", "TSNE")) {
-
-      stop("Argument 'method_dr' needs to be  'UMAP' or 'TSNE'.")
+      confuns::check_one_of(
+        input = method_dr,
+        against = dim_red_methods,
+        ref.input = "argument 'method_dr'"
+      )
 
     }
 
@@ -517,13 +519,13 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_gs)){
 
-    if(!base::is.character(method_gs) || base::length(method_gs) != 1){
+    if(confuns::is_value(x = method_gs, mode = "character")){
 
-      stop("Argument 'method_gs' needs to be a single character value.")
-
-    } else if(!method_gs %in% c("mean", "gsva", "ssgsea", "zscore", "plage")) {
-
-      stop("Argument 'method_dr' needs to be  one of: 'mean', 'gsva', 'ssgsea', 'zscore', 'plage'.")
+      confuns::check_one_of(
+        input = method_gs,
+        against = gene_set_methods,
+        ref.input = "for argument 'method_gs'"
+      )
 
     }
 
@@ -536,13 +538,13 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_padj)){
 
-    if(!base::is.character(method_padj) || base::length(method_padj) != 1){
+    if(confuns::is_value(x = method_padj, mode = "character")){
 
-      stop("Argument 'method_padj' needs to be a single character value.")
-
-    } else if(!method_padj %in% stats::p.adjust.methods) {
-
-      stop("Argument 'method_padj' needs to be  one of: 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'.")
+      confuns::check_one_of(
+        input = method_padj,
+        against = stats::p.adjust.methods,
+        ref.input = "for argument 'method_padj'"
+      )
 
     }
 
@@ -555,13 +557,13 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_de)){
 
-    if(!base::is.character(method_de) || base::length(method_de) != 1){
+    if(confuns::is_value(x = method_de, mode = "character")){
 
-      stop("Argument 'method_de' needs to be a single character value.")
-
-    } else if(!method_de %in% c("wilcox", "bimod", "roc", "t", "negbinom", "poisson", "LR", "MAST", "DESeq2")) {
-
-      stop("Argument 'method_de' needs to be  one of: 'wilcox', 'bimod', 'roc', 't', 'negbinom', 'poisson', 'LR', 'MAST', 'DESeq2'.")
+      confuns::check_one_of(
+        input = method_de,
+        against = de_methods,
+        ref.input = "for argument 'method_de'"
+      )
 
     }
 
@@ -573,13 +575,13 @@ check_method <- function(method_dr = NULL,
 
   if(!base::is.null(method_ovl)){
 
-    if(!base::is.character(method_ovl) || base::length(method_ovl) != 1){
+    if(confuns::is_value(x = method_ovl, mode = "character")) {
 
-      stop("Argument 'method_ovl' needs to be a single character value.")
-
-    } else if(!method_ovl %in% c("classic", "bayesian")) {
-
-      stop("Argument 'method_ovl' needs to be  one of: 'classic', 'bayesian'.")
+      confuns::check_one_of(
+        input = method_ovl,
+        against = c("classic", "bayesian"),
+        ref.input = "for argument 'method_ovl'"
+      )
 
     }
 
@@ -852,17 +854,14 @@ check_trajectory <- function(object,
                              trajectory_name,
                              of_sample){
 
-  if(!base::length(trajectory_name) == 1 || !base::is.character(trajectory_name)){
+  confuns::is_value(x = trajectory_name, mode = "character")
 
-    base::stop("Argument 'trajectory_name' needs to be a single character value.")
-
-  } else if(!trajectory_name %in% getTrajectoryNames(object, of_sample = of_sample)){
+  if(!trajectory_name %in% getTrajectoryNames(object, of_sample = of_sample)){
 
     base::stop(stringr::str_c("There is no trajectory of name '", trajectory_name,
                               "' in sample '", of_sample, "'.", sep = ""))
 
   }
-
 
 }
 

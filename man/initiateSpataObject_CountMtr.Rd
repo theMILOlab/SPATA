@@ -8,7 +8,7 @@ initiateSpataObject_CountMtr(
   coords_df,
   count_mtr,
   feature_df = NULL,
-  sample_name = "sample",
+  sample_name,
   image = NULL,
   gene_set_path = NULL,
   output_path = NULL,

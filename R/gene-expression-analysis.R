@@ -1,122 +1,136 @@
-#' @title Find marker genes
+#' @title Find differently expressed genes
 #'
-#' @description Finds the differentially expressed genes across a set of subgroups.
+#' @description This function makes use of \code{Seurat::FindAllMarkers()} to compute
+#' the differently expressed genes across the groups denoted in the argument \code{across}.
+#' See details for more.
 #'
 #' @inherit check_sample params
 #' @inherit across params
 #' @inherit check_method params
-#' @param p_val_adj The maximum adjusted p-value allowed in the output.
+#' @param ... Additional arguments given to \code{Seurat::FindAllMarkers()}
 #'
-#' @return A data.frame containing the variables \emph{'p_val', 'avg_logFC', 'pct.1', 'pct.2', 'p_val_adj', 'cluster', 'gene'}.
+#' @details If \code{across} and/or \code{method_de} are vectors instead of single
+#' values \code{findeDeGenes()} iterates over all combinations in a for-loop and
+#' stores the results in the respective slots. (e.g.: If \code{across} = \emph{'seurat_clusters'}
+#' and \code{method_de} = \emph{c('wilcox', 'bimod')} the function computes the differently expressed genes
+#' across all groups found in the feature variable \emph{seurat_clusters} according to method \emph{wilcox} and
+#' stores the results in the respective slot. Then it does the same according to method \emph{bimod}.)
+#'
+#' The results are obtainable via \code{getDeResults()} and \code{getDeGenes()}.
+#'
+#' @return A spata-object containing the results in slot @@dea.
 #' @export
-#'
 
-findDE <- function(object,
-                   of_sample = "",
-                   across,
-                   across_subset = NULL,
-                   method_de = "wilcox",
-                   p_val_adj = 0.05){
+findDeGenes <- function(object,
+                        of_sample = "",
+                        across,
+                        method_de = "wilcox",
+                        verbose = TRUE,
+                        ...){
 
   # 1. Control --------------------------------------------------------------
+
+  # lazy
   check_object(object)
-  check_method(method_de = method_de)
-  confuns::is_value(x = across, mode = "character", "across")
 
-  of_sample <- check_sample(object, of_sample)
+  purrr::walk(.x = method_de, .f = ~ check_method(method_de = .x))
 
-  across <- check_features(object = object,
-                           features = across,
-                           valid_classes = c("factor", "character"))
+  valid_across <-
+    check_features(object = object, valid_classes = c("character", "factor"), features = across)
 
-  # -----
+  # adjusting
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
-  # 2. Data extraction ------------------------------------------------------
+  for(across in valid_across){
 
-  fdata <- getFeatureData(object, of_sample)
+    for(method in method_de){
 
-  groups <- dplyr::pull(.data = fdata, var = {{across}})
+      if(base::isTRUE(verbose)){base::message(glue::glue("Calculating differently expressed genes across '{across}' with method '{method}'."))}
 
-  if(!base::is.factor(groups)){
+      object <-
+        base::tryCatch({
 
-    groups <- base::as.factor(groups)
+          # make sure across-input is valid
+          groups <- getFeatureVariables(object = object,
+                                        features = across,
+                                        of_sample = of_sample,
+                                        return = "vector")
 
-  }
+          # make sure that across-input is passed as a factor
 
-  levels_groups <- base::levels(groups)
+          if(!base::is.factor(groups)){
 
-  if(!is.null(across_subset)){
+            groups <- base::factor(x = groups, levels = base::unique(groups))
 
-    confuns::is_vec(across_subset, "character", ref = "across_subset")
+          }
 
-    ref.against <-
-      glue::glue("variable '{across}' of feature data in the specified spata-object") %>%
-      base::as.character()
+          n_groups <- dplyr::n_distinct(groups)
 
-    across_subset <-
-      confuns::check_vector(
-        input = across_subset,
-        against = levels_groups,
-        verbose = TRUE,
-        ref.input = "input 'across_subset'",
-        ref.against = ref.against
-      )
+          if(n_groups >= 20){
 
-    # update feature data
-    fdata <- dplyr::filter(fdata, !!rlang::sym(across) %in% {{across_subset}})
-    groups <- dplyr::pull(.data = fdata, var = {{ across }})
+            base::stop(glue::glue("The number of different groups is to high for DE-analysis. Is currently {n_groups}. Must be lower than 20. "))
 
-    if(!base::is.factor(groups)){
+          } else if(n_groups < 2){
 
-      groups <- base::as.factor(groups)
+            base::stop(glue::glue("There is only one unique group in the object's '{across}'-variable. findDeGenes() needs a minimum of two different groups."))
+
+          } else {
+
+            base::message(glue::glue("Number of groups/clusters: {n_groups}"))
+
+          }
+
+          # -----
+
+          # 2. De analysis ----------------------------------------------------------
+
+          # prepare seurat object
+          seurat_object <- Seurat::CreateSeuratObject(counts = getCountMatrix(object, of_sample))
+
+          seurat_object@assays$RNA@scale.data <- getExpressionMatrix(object, of_sample)
+
+          seurat_object@meta.data$orig.ident <- groups
+
+          seurat_object@active.ident <- seurat_object@meta.data[,"orig.ident"]
+
+          base::names(seurat_object@active.ident) <- base::rownames(seurat_object@meta.data)
+
+          # perform analysis and remove seurat object afterwards
+          de_results <-
+            Seurat::FindAllMarkers(object = seurat_object, test.use = method, ...)
+
+          base::rm(seurat_object)
+
+          # save results in spata object
+          object@dea[[of_sample]][[across]][[method]][["data"]] <-
+            tibble::remove_rownames(.data = de_results) %>%
+            dplyr::rename({{across}} := "cluster")
+
+          object@dea[[of_sample]][[across]][[method_de]][["adjustments"]] <- list(...)
+
+          object
+
+        },
+
+        error = function(error){
+
+          base::message(glue::glue("Skipping de-analysis on across-input '{across}' with method '{method}' as it resulted in the following error message: {error}"))
+
+          base::return(object)
+
+         }
+        )
 
     }
 
   }
 
-  num_groups <- dplyr::n_distinct(groups)
-
-  if(num_groups >= 20){
-
-    base::stop(glue::glue("The number of different groups is to high for DE-analysis. Is currently {num_groups}. Must be lower than 20. "))
-
-  } else if(!num_groups > 1){
-
-    base::stop(glue::glue("There is only one unique group in the object's '{across}'-variable. findDE() needs a minimum of two different groups."))
-
-  } else {
-
-    base::message(glue::glue("Number of groups/clusters: {num_groups}"))
-
-  }
-
-  #
-
-
   # -----
 
-  # 3. Perform DE according to specified method -----------------------------
-
-  barcodes <- dplyr::pull(fdata, barcodes)
-
-  seurat <- Seurat::CreateSeuratObject(object@data@counts[, barcodes])
-  seurat@assays$RNA@scale.data <- getExpressionMatrix(object, of_sample)
-  seurat@meta.data$orig.ident <- groups
-  seurat@active.ident <- seurat@meta.data[,"orig.ident"]
-  names(seurat@active.ident) <- base::rownames(seurat@meta.data)
-
-  de <- Seurat::FindAllMarkers(seurat, test.use = method_de)
-  base::rm(seurat)
-
-  de <-
-    dplyr::filter(de, p_val_adj < {{p_val_adj}}) %>%
-    dplyr::select(-pct.1, -pct.2)
-
-  # -----
-
-  base::return(de)
+  base::return(object)
 
 }
+
 
 
 
@@ -174,42 +188,20 @@ filterDE <- function(de_df,
                         ref.input = "argument 'return'")
   check_de_df(de_df)
 
-  if(base::is.factor(de_df$cluster)){
-
-    de_df$cluster <- S4Vectors::unfactor(de_df$cluster)
-
-  }
-
-  if(!is.null(across_subset)){
-
-    confuns::is_vec(across_subset, "character", ref = "across_subset")
-
-    across_subset <-
-      confuns::check_vector(
-        input = across_subset,
-        against = base::unique(de_df$cluster),
-        verbose = TRUE,
-        ref.input = " input 'across_subset'",
-        ref.against = "variable 'clusters' of input 'de_df'"
-      )
-
-  } else if(base::is.null(across_subset)){
-
-    across_subset <- base::unique(de_df$cluster)
-
-  }
+  across <-
+    dplyr::select(de_df, -dplyr::all_of(x = de_df_columns)) %>%
+    base::colnames()
 
   # -----
-
 
   # 2. Pipeline -------------------------------------------------------------
 
   res_df <-
     dplyr::ungroup(de_df) %>%
-    dplyr::filter(cluster %in% {{ across_subset }} &
-                    !avg_logFC %in% c(Inf, -Inf) &
-                    !avg_logFC < 0) %>%
-    dplyr::group_by(cluster) %>%
+    confuns::check_across_subset(df = ., across = across, across.subset = across_subset) %>%
+    dplyr::filter(!avg_logFC %in% c(Inf, -Inf) &
+                  !avg_logFC < 0) %>%
+    dplyr::group_by(!!rlang::sym(across)) %>%
     dplyr::slice_max(avg_logFC, n = n_highest_FC, with_ties = FALSE) %>%
     dplyr::slice_min(p_val_adj, n = n_lowest_pvalue, with_ties = FALSE) %>%
     dplyr::arrange(dplyr::desc(avg_logFC), .by_group = TRUE) %>%

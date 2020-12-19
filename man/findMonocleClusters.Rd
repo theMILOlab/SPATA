@@ -6,6 +6,7 @@
 \usage{
 findMonocleClusters(
   object,
+  of_sample = "",
   preprocess_method = c("PCA", "LSI"),
   reduction_method = c("UMAP", "tSNE", "PCA", "LSI"),
   cluster_method = c("leiden", "louvain"),

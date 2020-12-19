@@ -6,8 +6,9 @@
 \usage{
 transformSeuratToSpata(
   seurat_object,
-  method,
   sample_name,
+  assay = "Spatial",
+  method = "spatial",
   coords_from = "umap",
   gene_set_path = NULL,
   verbose = TRUE
@@ -16,14 +17,14 @@ transformSeuratToSpata(
 \arguments{
 \item{seurat_object}{A valid seurat object.}
 
+\item{sample_name}{Character value. Future input for SPATA's \code{of_sample}-argument.}
+
 \item{method}{Character value. Determines the data slots from which to compile the spata-object.
 
  \describe{
   \item{\emph{'spatial'}}{Denotes that the data to be used derived from spatial experiments. }
   \item{\emph{'single_cell'}}{Denotes that the data to be used derived from single cell experiments. }
  }}
-
-\item{sample_name}{Character value. Future input for SPATA's \code{of_sample}-argument.}
 
 \item{coords_from}{Character value. Either \emph{'umap'} or \emph{'tsne'}.
 

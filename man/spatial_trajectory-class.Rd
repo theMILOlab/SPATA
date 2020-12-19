@@ -29,8 +29,6 @@ spatial_trajectory object
 \emph{x, y, xend, yend} that denote the start and the end of every trajectory
 part.}
 
-\item{\code{ranked_genes_df}}{Currently not in use.}
-
 \item{\code{comment}}{Character value. The comment written down before saving the trajectory.}
 
 \item{\code{name}}{Character value. The trajectory's name.}

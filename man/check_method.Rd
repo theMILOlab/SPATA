@@ -15,17 +15,20 @@ check_method(
 \arguments{
 \item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
-either \emph{'UMAP'} or \emph{'TSNE'}).}
+either \emph{'pca'}, \emph{'umap'} or \emph{'tsne'}).}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{method_de}{Character value. Given to argument \code{test.use} of \code{Seurat::FindAllMarkers()}.}
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
 
 \item{method_padj}{Character value. The method according to which the adjusted p-values will
-be calculated. Given to \code{stats::p.adjust()}.}
+be calculated. Given to \code{stats::p.adjust()}. Run \code{stats::p.adjust.methods} to obtain
+all valid input options.}
 
 \item{method_ovl}{Character value. One of \emph{'classic', 'bayesian'}. Decides
 according to which method the spatial overlap is calculated.}

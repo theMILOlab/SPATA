@@ -64,10 +64,12 @@ plotSurface <- function(object,
   all_features <- getFeatureNames(object)
 
   if(!base::all(color_to %in% all_genes)){
+
     color_to <- check_color_to(color_to = color_to,
                                all_features = all_features,
                                all_gene_sets = all_gene_sets,
                                all_genes = all_genes)
+
   } else if(base::is.null(color_to)){
 
     base::message("No specification for argument 'color_to'. Color according to sample belonging.")
@@ -80,7 +82,7 @@ plotSurface <- function(object,
 
   # -----
 
-  spata_df <- getCoordinates(object, of_sample = of_sample)
+  spata_df <- getCoordsDf(object, of_sample = of_sample)
 
   # 2. Join data and prepare ggplot add-ons ---------------------------------
 
@@ -102,7 +104,7 @@ plotSurface <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(spata_df, color_to$feature)),
+      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(spata_df, var = color_to$features)),
       labs_add_on
     )
 

@@ -3,6 +3,51 @@
 #'
 NULL
 
+
+
+#' Make sure that barcodes are spata-like
+#'
+#' @param input A matrix with columns = barcodes, or a data.frame with a barcode-variable
+#' @param sample_name Character value.
+#'
+#' @return
+#' @export
+#'
+
+
+hlpr_add_barcode_suffix <- function(input, sample_name){
+
+  pattern <- stringr::str_c("_", sample_name, "$", sep = "")
+
+  if(base::is.data.frame(input)){
+
+    input <-
+      dplyr::mutate(.data = input,
+                    barcodes = dplyr::case_when(
+                      stringr::str_detect(barcodes, pattern = pattern) ~ barcodes,
+                      !stringr::str_detect(barcodes, pattern = pattern) ~ stringr::str_c(barcodes, {{sample_name}}, sep = "_")
+                    ))
+
+
+  } else {
+
+    barcodes <- base::colnames(input)
+
+    barcodes <-
+      dplyr::case_when(
+        stringr::str_detect(barcodes, pattern = pattern) ~ barcodes,
+        !stringr::str_detect(barcodes, pattern = pattern) ~ stringr::str_c(barcodes, {{sample_name}}, sep = "_")
+      )
+
+    base::colnames(input) <- barcodes
+
+  }
+
+  base::return(input)
+
+}
+
+
 #' Assign objects into the global environment
 #'
 #' @param assign Logical.
@@ -25,6 +70,20 @@ hlpr_assign <- function(assign, object, name){
 }
 
 
+#' @title Calculates breaks for heatmap according to input matrix
+#'
+
+hlpr_breaks <- function(mtr, length_out){
+
+  quantiles <-
+    base::as.numeric(mtr) %>%
+    stats::quantile()
+
+  breaks <- base::seq(quantiles[2], quantiles[4], length.out = length_out)
+
+  base::return(breaks)
+
+}
 
 #' @title Compare samples within an object
 #'

@@ -4,13 +4,21 @@
 \alias{plotSegmentation}
 \title{Plot segmentation}
 \usage{
-plotSegmentation(object, of_sample = "", pt_size = 2, pt_clrp = "milo")
+plotSegmentation(
+  object,
+  of_sample = "",
+  encircle = TRUE,
+  pt_size = 2,
+  pt_clrp = "milo"
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{encircle}{Logical. If set to TRUE the segments are enclosed in a polygon.}
 
 \item{pt_size}{The size of the points specified as a single numeric value.}
 

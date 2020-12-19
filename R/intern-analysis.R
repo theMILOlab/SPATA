@@ -39,6 +39,7 @@
 #'
 
 findMonocleClusters <- function(object,
+                                of_sample = "",
                                 preprocess_method = c("PCA", "LSI"),
                                 reduction_method = c("UMAP", "tSNE", "PCA", "LSI"),
                                 cluster_method = c("leiden", "louvain"),
@@ -57,13 +58,14 @@ findMonocleClusters <- function(object,
 
   if(base::isTRUE(verbose)){base::message("Creating 'cell_data_set'-object.")}
 
-  expression_matrix <- base::as.matrix(object@data@counts)
+  expression_matrix <- base::as.matrix(getCountMatrix(object, of_sample = of_sample))
 
   gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
   base::rownames(gene_metadata) <- base::rownames(expression_matrix)
 
-  cell_metadata <- data.frame(object@fdata)
-  base::rownames(cell_metadata) <- object@fdata$barcodes
+  cell_metadata <-
+    getFeatureDf(object, of_sample = of_sample) %>%
+    tibble::column_to_rownames(var = "barcodes")
 
   cds <- monocle3::new_cell_data_set(
     expression_data = expression_matrix,
@@ -85,9 +87,9 @@ findMonocleClusters <- function(object,
 
   # align
 
-  if(base::length(samples(object)) > 1){
+  if(base::length(of_sample) > 1){
 
-  if(base::isTRUE(verbose)){ base::message(glue::glue("Aligning for {base::length(samples(object))} samples belonging"))}
+  if(base::isTRUE(verbose)){ base::message(glue::glue("Aligning for {base::length(of_sample)} samples belonging"))}
 
     cds <- monocle3::align_cds(cds = cds, alignment_group = "sample")
 

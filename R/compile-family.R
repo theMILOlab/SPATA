@@ -50,6 +50,8 @@ compileCellDataSet <- function(object,
                                save_cds_file = NULL,
                                verbose = TRUE){
 
+  base::warning("'compileCellDataSet()' is deprecated. Please use 'transformSpataToCDS()'")
+
   check_object(object)
   confuns::is_value(preprocess_method, "character", "preprocess_method")
   confuns::is_value(cluster_method, mode = "character", "cluster_method")
@@ -357,10 +359,12 @@ compileSeuratObject <- function(object,
                                 RunUMAP = list(dims = 1:30),
                                 verbose = TRUE){
 
+  base::warning("'compileSeuratObject()' is deprecated. Please use 'transformSpataToSeurat()'")
+
   # 1. Control --------------------------------------------------------------
 
   check_object(object)
-  sample <- samples(object)
+  sample <- getSampleNames(object)
 
   if(dplyr::n_distinct(sample) > 1){
 
@@ -372,15 +376,15 @@ compileSeuratObject <- function(object,
 
 # 2. Passing data ---------------------------------------------------------
 
-  counts <- object@data@counts
+  counts <- getCountMatrix(object)
   cnames_counts <- base::colnames(counts)
 
-  pattern <- stringr::str_c("_", sample, sep = "")
+  pattern <- stringr::str_c("_", sample, "$", sep = "")
   cnames_new <- stringr::str_remove_all(string = cnames_counts, pattern = pattern)
 
   base::colnames(counts) <- cnames_new
 
-  meta_data <- featureData(object)
+  meta_data <- getFeatureData(object)
   base::rownames(meta_data) <- stringr::str_remove_all(string = meta_data$barcodes, pattern = pattern)
 
   seurat_object <- Seurat::CreateSeuratObject(counts = counts, meta.data = meta_data, ...)

@@ -7,13 +7,11 @@
 
 getBarcodes <- function(object, of_sample = "all"){
 
-  cdf <- getCoordinates(object = object, of_sample = of_sample)
+  coords_df <- getCoordinates(object = object, of_sample = of_sample)
 
-  return(dplyr::pull(cdf, barcodes))
+  return(dplyr::pull(coords_df, barcodes))
 
 }
-
-
 
 #' @title Obtain spatial coordinates
 #'
@@ -23,10 +21,9 @@ getBarcodes <- function(object, of_sample = "all"){
 #' @return A data.frame containing the variables \emph{barcods, sample, x, y}
 #' (and \emph{segment} if specified).
 #' @export
-#'
 
-getCoordinates <- function(object,
-                           of_sample = ""){
+getCoordsDf <- function(object,
+                        of_sample = ""){
 
   # 1. Control --------------------------------------------------------------
 
@@ -40,16 +37,20 @@ getCoordinates <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  coords <- coordinates(object, of_sample = of_sample)
+  coords_df <-
+    object@coordinates %>%
+    dplyr::filter(sample %in% {{of_sample}})
 
   # -----
 
-  base::return(coords)
+  base::return(coords_df)
 
 
 }
 
-#' @rdname getCoordinates
+getCoordinates <- getCoordsDf
+
+#' @rdname getCoordsDf
 #' @export
 getCoordinatesSegment <- function(object,
                                   of_segment,
@@ -80,7 +81,163 @@ getCoordinatesSegment <- function(object,
 }
 
 
-#' Obtain count and expression matrix
+
+# DE-analysis -------------------------------------------------------------
+
+#' @title Obtain info on de-analysis storage
+#'
+#' @inherit check_object params
+#'
+#' @return A summarizing list.
+#' @export
+
+getAvailableDeResults <- function(object){
+
+  check_object(object)
+
+  purrr::map(.x = object@dea, .f = function(sample){
+
+    purrr::map(.x = sample, .f = ~ base::names(.x))
+
+  })
+
+}
+
+#' @title Obtain de-analysis results
+#'
+#' @inherit check_sample params
+#' @inherit across params
+#' @inherit check_method params
+#' @param p_val_adj Numeric value. Denotes the max. adjusted p-value a gene can have
+#' in order to be kept in the results.
+#' @param n_threshold Numeric value or vector of length two. See details for more.
+#'
+#' @details De-analysis results are stored in a data.frame in which each gene that turned out
+#' to be a marker gene for a specific group is evaluated by it's p-value, p-adjusted-value,
+#' logfold-change etc.
+#'
+#' If the arguments \code{p_val_adj} and \code{n_threshold} are set to NULL the results are returned
+#' as they are which however can result in several hundred genes per group. The results can be additionally
+#' subsetted. \code{getDeResults()} does that by
+#'
+#' \enumerate{
+#'  \item{discarding genes with \emph{avg_logFC}-values that are either infinite or negative}
+#'  \item{discarding genes with a p-adjusted-value higher than the threshold denoted in \code{p_val_adj}}
+#'  \item{slicing the data.frame in order that for every unique group of the feature denoted in \code{across}}:
+#'  \enumerate{
+#'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_threshold[1]}}
+#'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_threshold[2]}}
+#'   }
+#'  \item{arranging the genes according to the highest \emph{avg_logFC}-values}
+#'  }
+#'
+#'
+#' @return A data.frame:
+#'
+#' \itemize{
+#'   \item{\emph{gene}} Character. The differentially expressed genes.
+#'   \item{\emph{cluster}} Character. The clusters (or experimental groups) across which the analysis was performed.
+#'   \item{\emph{avg_logFC}} Numeric. The average log-fold change to which the belonging gene was differentially expressed..
+#'   \item{\emph{p_val}} Numeric. The p-values.
+#'   \item{\emph{p_val_adj}} Numeric. The adjusted p-values.
+#'  }
+#'
+#' If \code{getDeGenes()} is used the \emph{gene}-variable is returned as a named character vector.
+#'
+#' @export
+
+getDeResults <- function(object,
+                         of_sample = "",
+                         across,
+                         method_de,
+                         p_val_adj = 0.5,
+                         n_threshold = c(50, 50)){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_method(method_de = method_de)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  de_results <- de_result_list[["data"]]
+
+  # filter according to p val adjusted limit
+  if(!base::is.null(p_val_adj)){
+
+    confuns::is_value(x = p_val_adj, mode = "numeric")
+
+    de_results <- dplyr::filter(.data = de_results, p_val_adj <= {{p_val_adj}})
+
+  }
+
+  # filter according to n threshold
+  if(!base::is.null(n_threshold)){
+
+    confuns::is_vec(x = n_threshold, mode = "numeric", min.length = 1, max.length = 2)
+
+    if(base::length(n_threshold) == 1){
+
+      de_results <- filterDE(de_df = de_results,
+                             n_highest_FC = n_threshold,
+                             n_lowest_pvalue = n_threshold)
+
+    } else if(base::length(n_threshold) == 2){
+
+      de_results <- filterDE(de_df = de_results,
+                             n_highest_FC = n_threshold[1],
+                             n_lowest_pvalue = n_threshold[2])
+
+    }
+
+  }
+
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(de_results)
+
+}
+
+#' @rdname getDeResults
+#' @export
+getDeGenes <- function(object,
+                       of_sample = "",
+                       across,
+                       method_de = "wilcox",
+                       p_val_adj = NULL,
+                       n_threshold = NULL){
+
+  de_results <- getDeResults(object = object,
+                             across = across,
+                             method_de = method_de,
+                             p_val_adj = p_val_adj,
+                             n_threshold = n_threshold)
+
+  # extract gene names and name according to cluster belonging
+  gene_names <-
+    dplyr::pull(de_results, var = "gene") %>%
+    purrr::set_names(nm = dplyr::pull(de_results, var = {{across}}))
+
+  base::return(gene_names)
+
+}
+
+
+#' @title Obtain count and expression matrix
 #'
 #' @inherit check_sample params
 #'
@@ -90,15 +247,20 @@ getCoordinatesSegment <- function(object,
 getExpressionMatrix <- function(object,
                                 of_sample = ""){
 
-  # lazy check
+  # lazy control
   check_object(object)
 
-  # adjusting check
+  # adjusitng control
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  rna_assay <- exprMtr(object = object, of_sample = of_sample)
+  bc_in_sample <-
+    object@coordinates %>%
+    dplyr::filter(sample %in% {{of_sample}}) %>%
+    dplyr::pull(barcodes)
 
-  base::return(rna_assay)
+  expr_mtr <- object@data$scaled[,bc_in_sample]
+
+  return(base::as.matrix(expr_mtr))
 
 }
 
@@ -107,19 +269,24 @@ getExpressionMatrix <- function(object,
 getCountMatrix <- function(object,
                            of_sample = ""){
 
-  # lazy check
+  # lazy control
   check_object(object)
 
-  # adjusting check
+  # adjusting control
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  rna_assay <- countMtr(object = object, of_sample = of_sample)
+  bc_in_sample <-
+    object@coordinates %>%
+    dplyr::filter(sample %in% of_sample) %>%
+    dplyr::pull(barcodes)
 
-  base::return(rna_assay)
+  count_mtr <- object@data$counts[,bc_in_sample]
+
+  return(count_mtr)
 
 }
 
-
+# -----
 
 #' @title Obtain a spata-data.frame
 #'
@@ -159,16 +326,15 @@ getSpataDf <- function(object, of_sample = ""){
 #' (keys): \emph{barcodes, sample} and:.
 #'
 #'  \itemize{
-#'   \item{ \code{getTsneData()}: \emph{tsne1, tsne2}}
-#'   \item{ \code{getUmapData()}: \emph{umap1, umap2}}
+#'   \item{ \code{getTsneDf()}: \emph{tsne1, tsne2}}
+#'   \item{ \code{getUmapDf()}: \emph{umap1, umap2}}
+#'   \item{ \code{getPcaDf()}: \emph{PC_1, PC_2, PC_3, ...PC_n}}
 #'   }
 #'
-#' @export
-#'
 
-getDimRedData <- function(object,
+getDimRedDf <- function(object,
                           of_sample = "",
-                          method_dr = c("UMAP", "TSNE")){
+                          method_dr = c("pca", "tsne", "umap")){
 
   # 1. Control --------------------------------------------------------------
 
@@ -183,10 +349,8 @@ getDimRedData <- function(object,
 
   # 2. Data extraction ------------------------------------------------------
 
-  dr_strings <- stringr::str_c(base::tolower(x = method_dr), 1:2, sep = "")
-
   dim_red_df <-
-    methods::slot(object = object@dim_red, name = method_dr) %>%
+    object@dim_red[[method_dr]] %>%
     dplyr::filter(sample %in% of_sample)
 
   # -----
@@ -201,28 +365,45 @@ getDimRedData <- function(object,
 
 }
 
-#' @rdname getDimRedData
-#' @export
-getUmapData <- function(object,
-                        of_sample = ""){
-
-
-  getDimRedData(object = object,
-                of_sample = of_sample,
-                method_dr = "UMAP")
-
-}
+getDimRedData <- getDimRedDf
 
 #' @rdname getDimRedData
 #' @export
-getTsneData <- function(object,
-                        of_sample = ""){
+getPcaDf <- function(object,
+                       of_sample = ""){
 
-  getDimRedData(object = object,
+  getDimRedDf(object = object,
                 of_sample = of_sample,
-                method_dr = "TSNE")
+                method_dr = "pca")
 
 }
+
+#' @rdname getDimRedDf
+#' @export
+getUmapDf <- function(object,
+                        of_sample = ""){
+
+  getDimRedDf(object = object,
+                of_sample = of_sample,
+                method_dr = "uamp")
+
+}
+
+getUmapData <- getUmapDf
+
+#' @rdname getDimRedDf
+#' @export
+getTsneDf <- function(object,
+                        of_sample = ""){
+
+  getDimRedDf(object = object,
+                of_sample = of_sample,
+                method_dr = "tsne")
+
+}
+
+getTsneData <- getTsneDf
+
 # -----
 
 
@@ -265,7 +446,6 @@ getGeneSetOverview <- function(object){
       magrittr::set_colnames(value = c("Class", "Available Gene Sets"))
 
   }
-
 
 }
 
@@ -455,6 +635,21 @@ getGeneSetsInteractive <- function(object){
 
 }
 
+
+#' @title Obtain gene set data.frame
+#'
+#' @inherit check_object params
+#'
+#' @return A data.frame.
+#' @export
+
+getGeneSetDf <- function(object){
+
+  check_object(object)
+
+  object@used_genesets
+
+}
 
 
 #' @title Obtain gene names
@@ -648,7 +843,7 @@ getFeatureNames <- function(object, of_class = NULL){
     feature_names <- feature_names[classes %in% of_class]
   }
 
-  if(base::length(samples(object)) > 1){
+  if(base::length(getSampleNames(object)) > 1){
 
     base::return(feature_names[feature_names != c("barcodes")])
 
@@ -668,15 +863,17 @@ getFeatureNames <- function(object, of_class = NULL){
 #' @return The feature data data.frame of the specfied object and sample(s).
 #' @export
 
-getFeatureData <- function(object, of_sample = ""){
+getFeatureDf <- function(object, of_sample = ""){
 
   check_object(object)
   of_sample <- check_sample(object, of_sample)
 
-  featureData(object = object,
-              of_sample = of_sample)
+  object@fdata %>%
+    dplyr::filter(sample %in% {{of_sample}})
 
 }
+
+getFeatureData <- getFeatureDf
 
 
 #' @title Obtain a feature variable
@@ -803,6 +1000,22 @@ getFeatureValues <- function(object, of_sample = "", features){
 # -----
 
 
+#' @title Obtain sample image
+#'
+#' @inherit check_sample params
+#'
+#' @return Object of class\emph{image}.
+#' @export
+
+getImage <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample, desired_length = 1)
+
+  object@image[[of_sample]]
+
+}
+
 # Segmentation related ----------------------------------------------------
 
 #' @title Obtain segment names
@@ -831,7 +1044,7 @@ getSegmentNames <- function(object,
                 FUN = function(i){
 
                   segment_names <-
-                    featureData(object) %>%
+                    getFeatureData(object) %>%
                     dplyr::filter(sample == i) %>%
                     dplyr::pull(segment) %>% base::unique()
 
@@ -876,13 +1089,24 @@ getSegmentNames <- function(object,
 #'
 #' @export
 
-getSamples <- function(object){
+getSampleNames <- function(object){
 
   check_object(object)
 
   object@samples
 
 }
+
+#' @rdname getSampleNames
+getSamples <- function(object){
+
+  warning("getSamples is deprecated. Use getSampleNames")
+
+  object@samples
+
+}
+
+
 
 
 # -----
@@ -908,8 +1132,8 @@ getSamples <- function(object){
 
 getTrajectoryLength <- function(object,
                                 trajectory_name,
-                                of_sample,
-                                binwidth){
+                                of_sample = "",
+                                binwidth = 5){
 
 
   # 1. Control --------------------------------------------------------------
@@ -920,8 +1144,6 @@ getTrajectoryLength <- function(object,
   confuns::is_value(x = binwidth, mode = "numeric")
 
   # -----
-
-
 
   # 2. Extraction -----------------------------------------------------------
 
@@ -1056,6 +1278,7 @@ getTrajectoryDf <- function(object,
 
 }
 
+
 #' @title Obtain trajectory object
 #'
 #' @inherit check_sample params
@@ -1066,13 +1289,15 @@ getTrajectoryDf <- function(object,
 
 getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
 
+  check_trajectory(object = object,
+                   trajectory_name = trajectory_name,
+                   of_sample = of_sample)
+
   of_sample <- check_sample(object = object,
                             of_sample = of_sample,
                             desired_length = 1)
 
-  trajectory(object = object,
-             trajectory_name = trajectory_name,
-             of_sample = of_sample)
+  object@trajectories[[of_sample]][[trajectory_name]]
 
 }
 
