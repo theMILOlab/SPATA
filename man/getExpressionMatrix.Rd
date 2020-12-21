@@ -5,7 +5,7 @@
 \alias{getCountMatrix}
 \title{Obtain count and expression matrix}
 \usage{
-getExpressionMatrix(object, of_sample = "")
+getExpressionMatrix(object, of_sample = "", name = NULL)
 
 getCountMatrix(object, of_sample = "")
 }
@@ -16,7 +16,7 @@ getCountMatrix(object, of_sample = "")
 If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-The expression/count matrix of the specified object and sample(s).
+The active expression or count matrix of the specified object and sample(s).
 }
 \description{
 Obtain count and expression matrix

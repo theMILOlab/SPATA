@@ -4,7 +4,14 @@
 \alias{check_genes}
 \title{Check gene input}
 \usage{
-check_genes(object, genes, rna_assay = NULL, max_length = NULL)
+check_genes(
+  object,
+  genes,
+  rna_assay = NULL,
+  max_length = NULL,
+  fdb_fn = "warning",
+  ...
+)
 }
 \arguments{
 \item{genes}{The genes of interest specified as a character vector.}

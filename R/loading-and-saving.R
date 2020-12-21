@@ -59,6 +59,9 @@ loadGeneSetDf <- loadGSDF
 #' @description Wrapper around \code{base::readRDS()} and \code{base::saveRDS()}.
 #'
 #' @param input_path Character value. The directory leading to the spata-object.
+#' @param update Logical. If set to TRUE \code{updateSpataObject()} is used to check
+#' whether the loaded spata-object is of the most recent version - if it's not it is
+#' updated.
 #' @inherit check_object params
 #' @inherit initiateSpataObject_10X params
 #' @param overwrite Logical. Needs to be set to TRUE if the resulting directory from
@@ -66,12 +69,27 @@ loadGeneSetDf <- loadGSDF
 #'
 #' @export
 
-loadSpataObject <- function(input_path){
+loadSpataObject <- function(input_path, update = FALSE, verbose = TRUE ){
 
   confuns::is_value(input_path, "character", "input_path")
   confuns::check_directories(directories = input_path, ref = "input_path", type = "files")
 
   spata_obj <- base::readRDS(file = input_path)
+
+  if(base::isTRUE(update)){
+
+    spata_obj <- base::tryCatch({
+
+      spata_obj <-
+        updateSpataObject(object = spata_obj, verbose = verbose)
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Could not update spata-object as the following error message was thrown: {error}"))
+
+    })
+
+  }
 
   if(!methods::is(spata_obj, "spata")){
 

@@ -271,11 +271,13 @@ check_features <- function(object,
 check_genes <- function(object,
                         genes,
                         rna_assay = NULL,
-                        max_length = NULL){
+                        max_length = NULL,
+                        fdb_fn = "warning",
+                        ...){
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::is_vec(genes, "character", "genes")
+  confuns::is_vec(genes, mode = "character", ...)
 
   if(!base::is.matrix(rna_assay) && !base::is.null(rna_assay)){
 
@@ -295,7 +297,7 @@ check_genes <- function(object,
 
   if(!base::any(genes %in% base::rownames(rna_assay))){
 
-    stop("Could not find any of the specified genes.")
+    base::stop("Could not find any of the specified genes.")
 
   } else if(base::all(genes %in% base::rownames(rna_assay))){
 
@@ -312,7 +314,9 @@ check_genes <- function(object,
 
     not_found <- stringr::str_c(not_found, collapse = "', '")
 
-    base::warning(glue::glue("Did not find {n_not_found} {ref}: '{not_found}'"))
+    msg <- glue::glue("Did not find {n_not_found} {ref}: '{not_found}'")
+
+    confuns::give_feedback(fdb.fn = fdb_fn, msg = msg)
 
   }
 
@@ -584,7 +588,7 @@ check_segment <- function(object,
   if(!is.null(segment_name)){
 
     bc_segm <-
-      featureData(object, of_sample = of_sample) %>%
+      getFeatureDf(object, of_sample = of_sample) %>%
       dplyr::filter(segment == segment_name) %>%
       dplyr::pull(barcodes)
 

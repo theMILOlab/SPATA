@@ -9,7 +9,7 @@ plotTrajectoryFeaturesDiscrete(
   trajectory_name,
   of_sample = "",
   discrete_feature,
-  binwidth = 5,
+  binwidth = 10,
   clrp = "milo",
   display_trajectory_parts = FALSE,
   verbose = TRUE,

@@ -9,7 +9,7 @@
 #' @return A valid spata object.
 #' @export
 
-updateSpataObject <- function(object){
+updateSpataObject <- function(object, verbose = TRUE){
 
   check_object(object)
 
@@ -50,7 +50,16 @@ updateSpataObject <- function(object){
     # lists
     images <- object@image
     trajectories <- object@trajectories
-    scvelo <- object@scvelo
+
+    if(base::is.list(object@scvelo)){
+
+      scvelo <- object@svelo
+
+    } else {
+
+      scvelo <- list()
+
+    }
 
     # vectors
     samples <- object@samples
@@ -72,7 +81,13 @@ updateSpataObject <- function(object){
 
   } else {
 
-    base::message("According to slot 'version' the provided spata object does not need any updating.")
+
+    if(base::isTRUE(verbose)){
+
+      base::message("According to slot 'version' the provided spata object does not need any updating.")
+
+    }
+
 
     new_object <- object
 

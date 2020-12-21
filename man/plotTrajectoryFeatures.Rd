@@ -50,7 +50,7 @@ plotTrajectoryGeneSets(
   smooth_se = TRUE,
   binwidth = 5,
   clrp = "milo",
-  display_trajectory_parts = TRUE,
+  display_trajectory_parts = FALSE,
   split = FALSE,
   ...,
   verbose = TRUE

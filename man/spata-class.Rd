@@ -26,7 +26,7 @@ spata object
 \item{\code{data}}{See documentation for S4-object 'data'}
 
 \item{\code{dea}}{A list in which every slot is named according to a discrete feature for which differential gene expression
-analysis has been conducted (via \code{findDE()}).}
+analysis has been conducted (via \code{findDeGenes()}). Every slot contains a data.frame (output of \code{Seurat::FindAllMarkers()}).}
 
 \item{\code{dim_red}}{See documentation for S4-object 'dim_red'}
 
@@ -43,8 +43,7 @@ analysis has been conducted (via \code{findDE()}).}
 \item{\code{scvelo}}{Currently not in use.}
 
 \item{\code{trajectories}}{A list named according to the samples the object contains. Each slot in
-that list contains another list of all 'spatial_trajectory'-objects created for that sample.
-Every slot contains a data.frame (output of \code {Seurat::FindAllMarkers()})}
+that list contains another list of all 'spatial_trajectory'-objects created for that sample.}
 
 \item{\code{used_genesets}}{A data.frame containing the defined gene-sets. Must contain the variables:
 

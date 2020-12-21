@@ -4,7 +4,7 @@
 \alias{updateSpataObject}
 \title{Update a spata object}
 \usage{
-updateSpataObject(object)
+updateSpataObject(object, verbose = TRUE)
 }
 \arguments{
 \item{object}{A valid spata-object.}

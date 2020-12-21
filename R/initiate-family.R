@@ -515,8 +515,8 @@ initiateSpataObject_10X <- function(input_paths,
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::is_vec(input_paths, "character", ref = "input_paths")
-  confuns::is_vec(sample_names, "character", ref = "sample_names")
+  confuns::is_vec(x = input_paths, "character")
+  confuns::is_vec(x = sample_names, "character")
 
   if(base::any(sample_names %in% c("", "all"))){
 

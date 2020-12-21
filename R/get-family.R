@@ -1,3 +1,49 @@
+
+
+#' @title Obtain name of currently active matrix
+#'
+#' @inherit check_object params
+#'
+#' @return Character value.
+#' @export
+
+getActiveMatrixName <- function(object){
+
+  check_object(object)
+
+  object@information$active_mtr
+
+}
+
+
+#' @title Obtain information about the optimal neural network set up
+#'
+#' @description Extracts the results from \code{assessAutoencoderOptions()}.
+#'
+#' @inherit check_object params
+#'
+#' @return A data.frame containing the total variance measured by \code{irlba::prcomp_irlba()} after each
+#' combination of activations/bottlenecks.
+#' @export
+#'
+
+getAutoencoderAssessment <- function(object){
+
+  check_object(object)
+
+  assessment_df <- object@information$autoencoder$assessment
+
+  if(base::identical(assessment_df, data.frame())){
+
+    base::stop("Could not find any information. It seems as if function 'assessAutoencoderOptions()' as not been called yet.")
+
+  }
+
+  base::return(assessment_df)
+
+}
+
+
 #' Obtain barcodes of a sample
 #'
 #' @inherit check_sample params
@@ -48,6 +94,8 @@ getCoordsDf <- function(object,
 
 }
 
+#' @rdname getCoordsDf
+#' @export
 getCoordinates <- getCoordsDf
 
 #' @rdname getCoordsDf
@@ -69,14 +117,14 @@ getCoordinatesSegment <- function(object,
 
   # 2. Data wrangling -------------------------------------------------------
 
-  coords <-
-    coordinates(object = object, of_sample = of_sample) %>%
+  coords_df <-
+    getCoordsDf(object = object, of_sample = of_sample) %>%
     dplyr::filter(barcodes %in% bc_segm) %>%
     dplyr::mutate(segment = {{of_segment}})
 
   # -----
 
-  base::return(coords)
+  base::return(coords_df)
 
 }
 
@@ -91,15 +139,29 @@ getCoordinatesSegment <- function(object,
 #' @return A summarizing list.
 #' @export
 
-getAvailableDeResults <- function(object){
+getDeOverview <- function(object){
 
   check_object(object)
 
-  purrr::map(.x = object@dea, .f = function(sample){
+  all_results <-
+    purrr::map(.x = object@dea, .f = function(sample){
 
-    purrr::map(.x = sample, .f = ~ base::names(.x))
+      purrr::map(.x = sample, .f = ~ base::names(.x))
 
-  })
+    })
+
+  if(base::length(getSampleNames(object)) == 1){
+
+    final_results <-
+      purrr::flatten(.x = all_results)
+
+  } else {
+
+    final_results <- all_results
+
+  }
+
+  base::return(final_results)
 
 }
 
@@ -108,29 +170,7 @@ getAvailableDeResults <- function(object){
 #' @inherit check_sample params
 #' @inherit across params
 #' @inherit check_method params
-#' @param p_val_adj Numeric value. Denotes the max. adjusted p-value a gene can have
-#' in order to be kept in the results.
-#' @param n_threshold Numeric value or vector of length two. See details for more.
-#'
-#' @details De-analysis results are stored in a data.frame in which each gene that turned out
-#' to be a marker gene for a specific group is evaluated by it's p-value, p-adjusted-value,
-#' logfold-change etc.
-#'
-#' If the arguments \code{p_val_adj} and \code{n_threshold} are set to NULL the results are returned
-#' as they are which however can result in several hundred genes per group. The results can be additionally
-#' subsetted. \code{getDeResults()} does that by
-#'
-#' \enumerate{
-#'  \item{discarding genes with \emph{avg_logFC}-values that are either infinite or negative}
-#'  \item{discarding genes with a p-adjusted-value higher than the threshold denoted in \code{p_val_adj}}
-#'  \item{slicing the data.frame in order that for every unique group of the feature denoted in \code{across}}:
-#'  \enumerate{
-#'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_threshold[1]}}
-#'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_threshold[2]}}
-#'   }
-#'  \item{arranging the genes according to the highest \emph{avg_logFC}-values}
-#'  }
-#'
+#' @inherit filterDeDf params details
 #'
 #' @return A data.frame:
 #'
@@ -146,12 +186,14 @@ getAvailableDeResults <- function(object){
 #'
 #' @export
 
-getDeResults <- function(object,
-                         of_sample = "",
-                         across,
-                         method_de,
-                         p_val_adj = 0.5,
-                         n_threshold = c(50, 50)){
+getDeResultDf <- function(object,
+                          of_sample = "",
+                          across,
+                          across_subset = NULL,
+                          method_de = "wilcox",
+                          max_adj_pval = NULL,
+                          n_highest_lfc = NULL,
+                          n_lowest_pval = NULL){
 
   # 1. Control --------------------------------------------------------------
 
@@ -161,7 +203,6 @@ getDeResults <- function(object,
   of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
 
   across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
-
 
   # 2. Extract and filter ---------------------------------------------------
 
@@ -173,38 +214,12 @@ getDeResults <- function(object,
 
   }
 
-  de_results <- de_result_list[["data"]]
-
-  # filter according to p val adjusted limit
-  if(!base::is.null(p_val_adj)){
-
-    confuns::is_value(x = p_val_adj, mode = "numeric")
-
-    de_results <- dplyr::filter(.data = de_results, p_val_adj <= {{p_val_adj}})
-
-  }
-
-  # filter according to n threshold
-  if(!base::is.null(n_threshold)){
-
-    confuns::is_vec(x = n_threshold, mode = "numeric", min.length = 1, max.length = 2)
-
-    if(base::length(n_threshold) == 1){
-
-      de_results <- filterDE(de_df = de_results,
-                             n_highest_FC = n_threshold,
-                             n_lowest_pvalue = n_threshold)
-
-    } else if(base::length(n_threshold) == 2){
-
-      de_results <- filterDE(de_df = de_results,
-                             n_highest_FC = n_threshold[1],
-                             n_lowest_pvalue = n_threshold[2])
-
-    }
-
-  }
-
+  de_results <- filterDeDf(de_df = de_result_list[["data"]],
+                           across_subset = across_subset,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval,
+                           return = "data.frame")
 
   # 3. Return ---------------------------------------------------------------
 
@@ -212,27 +227,47 @@ getDeResults <- function(object,
 
 }
 
+
 #' @rdname getDeResults
 #' @export
 getDeGenes <- function(object,
                        of_sample = "",
                        across,
+                       across_subset = NULL,
                        method_de = "wilcox",
-                       p_val_adj = NULL,
-                       n_threshold = NULL){
+                       max_adj_pval = NULL,
+                       n_highest_lfc = 50,
+                       n_lowest_pval = 50){
 
-  de_results <- getDeResults(object = object,
-                             across = across,
-                             method_de = method_de,
-                             p_val_adj = p_val_adj,
-                             n_threshold = n_threshold)
+  # 1. Control --------------------------------------------------------------
 
-  # extract gene names and name according to cluster belonging
-  gene_names <-
-    dplyr::pull(de_results, var = "gene") %>%
-    purrr::set_names(nm = dplyr::pull(de_results, var = {{across}}))
+  check_object(object)
+  check_method(method_de = method_de)
 
-  base::return(gene_names)
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  de_results <- filterDeDf(de_df = de_result_list[["data"]],
+                           across_subset = across_subset,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval,
+                           return = "vector")
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(de_results)
 
 }
 
@@ -241,24 +276,41 @@ getDeGenes <- function(object,
 #'
 #' @inherit check_sample params
 #'
-#' @return The expression/count matrix of the specified object and sample(s).
+#' @return The active expression or count matrix of the specified object and sample(s).
 #' @export
 
 getExpressionMatrix <- function(object,
-                                of_sample = ""){
+                                of_sample = "",
+                                name = NULL){
 
   # lazy control
   check_object(object)
 
-  # adjusitng control
+  # adjusting control
   of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  if(base::is.null(name)){
+
+    active_mtr <- getActiveMatrixName(object)
+
+  } else {
+
+    active_mtr <- name
+
+  }
 
   bc_in_sample <-
     object@coordinates %>%
     dplyr::filter(sample %in% {{of_sample}}) %>%
     dplyr::pull(barcodes)
 
-  expr_mtr <- object@data$scaled[,bc_in_sample]
+  expr_mtr <- object@data[[active_mtr]][,bc_in_sample]
+
+  if(base::is.null(expr_mtr)){
+
+    base::stop(glue::glue("Did not find expression matrix '{name}' in provided spata-object."))
+
+  }
 
   return(base::as.matrix(expr_mtr))
 
@@ -1154,7 +1206,7 @@ getTrajectoryLength <- function(object,
 
   t_object@compiled_trajectory_df %>%
     dplyr::mutate(pl_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor)) %>%
-    dplyr::group_by(pl_binned) %>%
+    dplyr::group_by(pl_binned, trajectory_part) %>%
     dplyr::summarise(n = dplyr::n(), .groups = "drop_last") %>%
     base::nrow()
 

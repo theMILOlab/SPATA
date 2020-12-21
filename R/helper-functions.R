@@ -590,7 +590,7 @@ hlpr_save_spata_object <- function(object, object_file, ref_step, verbose){
 
     if(base::isTRUE(verbose)){glue::glue(base::message("Step {ref_step}: Saving spata-object."))}
 
-    base::saveRDS(spata_object, file = object_file)
+    base::saveRDS(object, file = object_file)
 
     if(base::isTRUE(verbose)){
 

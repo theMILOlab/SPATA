@@ -436,7 +436,7 @@ plotTrajectoryGenes <- function(object,
 
     y_title <- "Mean expression score"
 
-    rna_assay <- exprMtr(object = object, of_sample = of_sample)
+    rna_assay <- getExpressionMatrix(object = object, of_sample = of_sample)
     genes <- check_genes(object, genes = genes, rna_assay = rna_assay)
 
     if(base::length(genes) == 1){
@@ -454,7 +454,7 @@ plotTrajectoryGenes <- function(object,
 
   } else {
 
-    rna_assay <- exprMtr(object = object, of_sample = of_sample)
+    rna_assay <- getExpressionMatrix(object = object, of_sample = of_sample)
     genes <- check_genes(object, genes = genes, max_length = 10, rna_assay = rna_assay)
     y_title <- "Expression score"
     labs_add_on <- NULL
@@ -585,7 +585,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_se = TRUE,
                                    binwidth = 5,
                                    clrp = "milo",
-                                   display_trajectory_parts = TRUE,
+                                   display_trajectory_parts = FALSE,
                                    split = FALSE,
                                    ...,
                                    verbose = TRUE){
@@ -706,7 +706,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
                                            trajectory_name,
                                            of_sample = "",
                                            discrete_feature,
-                                           binwidth = 5,
+                                           binwidth = 10,
                                            clrp = "milo",
                                            display_trajectory_parts = FALSE,
                                            verbose = TRUE,
@@ -748,7 +748,6 @@ plotTrajectoryFeaturesDiscrete <- function(object,
     facet_add_on <-
       ggplot2::facet_wrap(. ~ trajectory_part, scales = "free_x", ...)
 
-
   } else {
 
     facet_add_on <- list()
@@ -759,7 +758,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
   ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[feature]]), position = "fill", width = 0.9) +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    confuns::scale_color_add_on(aes = "fill", variable = plot_df[[feature]], clrp = clrp) +
     facet_add_on +
     ggplot2::theme_minimal() +
     ggplot2::theme(

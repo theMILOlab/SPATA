@@ -10,8 +10,9 @@ plotDeHeatmap(
   across,
   across_subset = NULL,
   method_de = "wilcox",
-  p_val_adj = 0.5,
-  n_threshold = 50,
+  max_adj_pval = 0.5,
+  n_highest_lfc = 50,
+  n_lowest_pval = 50,
   breaks = NULL,
   genes = NULL,
   n_barcode_spots = NULL,
@@ -44,16 +45,20 @@ feature-variable.}
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
 
-\item{p_val_adj}{Numeric value. Denotes the max. adjusted p-value a gene can have
-in order to be kept in the results.}
+\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
+with adjusted p-values above that threshold are ignored.}
 
-\item{n_threshold}{Numeric value or vector of length two. See details for more.}
+\item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
+
+\item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
 
 \item{breaks}{Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
 numeric vector is specified it is taken as input. If a function is specified the expression matrix is
 passed to it as the first argument and the length of \code{hm_colors} as the second argument.}
 
-\item{genes}{Character vector.}
+\item{genes}{Character vector or NULL. If you want to display specific genes irrespective of de-anaylsis results you
+can specifiy them in \code{genes}. If \code{genes} is specified that way arguments referring to de-anylsis results are
+ignored and only the genes specified are taken and displayed.}
 
 \item{n_barcode_spots}{The number of barcode-spots belonging to each cluster you want to
 include in the matrix. Should be lower than the total number of barcode-spots of every cluster
@@ -81,28 +86,19 @@ A heatmap of class 'pheatmap'.
 Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
 from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
 differently expressed genes of every group of the feature denoted in the argument \code{across}.
-
-If you want to display specific genes irrespective of de-anaylsis results you can specifiy them in \code{genes}. If \code{genes} is
-specified that way arguments referring to de-anylsis results are ignored and only the genes specified are taken and
-displayed.
 }
 \details{
-De-analysis results are stored in a data.frame in which each gene that turned out
-to be a marker gene for a specific group is evaluated by it's p-value, p-adjusted-value,
-logfold-change etc.
-
-If the arguments \code{p_val_adj} and \code{n_threshold} are set to NULL the results are returned
-as they are which however can result in several hundred genes per group. The results can be additionally
-subsetted. \code{getDeResults()} does that by
+The de-data.frame is processed such that the following steps are performed for every experimental
+group. (With "genes" we refer to the rows (observations) of \code{data}.)
 
 \enumerate{
- \item{discarding genes with \emph{avg_logFC}-values that are either infinite or negative}
- \item{discarding genes with a p-adjusted-value higher than the threshold denoted in \code{p_val_adj}}
- \item{slicing the data.frame in order that for every unique group of the feature denoted in \code{across}}:
+ \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
+ \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
+ \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
  \enumerate{
-  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_threshold[1]}}
-  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_threshold[2]}}
+  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
+  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}
   }
- \item{arranging the genes according to the highest \emph{avg_logFC}-values}
+ \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
  }
 }

@@ -92,7 +92,7 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #'
 #' @slot data See documentation for S4-object 'data'
 #' @slot dea A list in which every slot is named according to a discrete feature for which differential gene expression
-#' analysis has been conducted (via \code{findDE()}).
+#' analysis has been conducted (via \code{findDeGenes()}). Every slot contains a data.frame (output of \code{Seurat::FindAllMarkers()}).
 #' @slot dim_red See documentation for S4-object 'dim_red'
 #' @slot fdata A data.frame containing the additionally computed features. Must contain the variables:
 #'  \describe{
@@ -105,14 +105,13 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #' @slot scvelo Currently not in use.
 #' @slot trajectories A list named according to the samples the object contains. Each slot in
 #' that list contains another list of all 'spatial_trajectory'-objects created for that sample.
-#' Every slot contains a data.frame (output of \code {Seurat::FindAllMarkers()})
+#'
 #' @slot used_genesets A data.frame containing the defined gene-sets. Must contain the variables:
 #'
 #' \describe{
 #'  \item{\emph{ont}}{Character. The gene-set name.}
 #'  \item{\emph{gene}}{Character. The belonging genes.}
 #'  }
-#'
 #'
 #' @slot version A list of four slots denoting the version of SPATA under which the object has been
 #' created.

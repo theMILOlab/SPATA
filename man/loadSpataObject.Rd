@@ -5,12 +5,21 @@
 \alias{saveSpataObject}
 \title{Load and save a spata-object}
 \usage{
-loadSpataObject(input_path)
+loadSpataObject(input_path, update = FALSE, verbose = TRUE)
 
 saveSpataObject(object, output_path, file_name, overwrite = FALSE)
 }
 \arguments{
 \item{input_path}{Character value. The directory leading to the spata-object.}
+
+\item{update}{Logical. If set to TRUE \code{updateSpataObject()} is used to check
+whether the loaded spata-object is of the most recent version - if it's not it is
+updated.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
 
 \item{object}{A valid spata-object.}
 

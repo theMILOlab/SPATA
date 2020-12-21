@@ -455,7 +455,7 @@ plotFourStates <- function(object,
   # 2. Data extraction ------------------------------------------------------
 
   data <-
-    getCoordinates(object = object,
+    getCoordsDf(object = object,
                    of_sample = of_sample) %>%
     joinWithGeneSets(object,
                      spata_df = .,
@@ -1569,6 +1569,20 @@ plotDistributionDiscrete <- function(object,
 
   # ----
 
+  if(position == "fill"){
+
+    scale_y_add_on <- ggplot2::scale_y_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = c("0", "25", "50", "75", "100"))
+
+    y_title <- "Percentage"
+
+  } else {
+
+    scale_y_add_on <- list()
+
+    y_title <- "Count"
+
+  }
+
   ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_bar(position = position, color = "black",
                       mapping = ggplot2::aes(x = values, fill = .data[[fill]])) +
@@ -1577,7 +1591,8 @@ plotDistributionDiscrete <- function(object,
     ggplot2::theme_classic() +
     theme_add_on +
     ggplot2::theme(strip.background = ggplot2::element_blank()) +
-    ggplot2::labs(y = NULL, x = "Groups / Clusters")
+    scale_y_add_on +
+    ggplot2::labs(y = y_title, x = NULL)
 
 }
 
@@ -1667,13 +1682,9 @@ plotPseudotime <- function(object,
 #' from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
 #' differently expressed genes of every group of the feature denoted in the argument \code{across}.
 #'
-#' If you want to display specific genes irrespective of de-anaylsis results you can specifiy them in \code{genes}. If \code{genes} is
-#' specified that way arguments referring to de-anylsis results are ignored and only the genes specified are taken and
-#' displayed.
-#'
 #' @inherit check_sample params
 #' @inherit across params
-#' @inherit getDeResults params details
+#' @inherit getDeResultDf params details
 #' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
@@ -1683,7 +1694,9 @@ plotPseudotime <- function(object,
 #' @param breaks Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
 #' numeric vector is specified it is taken as input. If a function is specified the expression matrix is
 #' passed to it as the first argument and the length of \code{hm_colors} as the second argument.
-#' @param genes Character vector.
+#' @param genes Character vector or NULL. If you want to display specific genes irrespective of de-anaylsis results you
+#' can specifiy them in \code{genes}. If \code{genes} is specified that way arguments referring to de-anylsis results are
+#' ignored and only the genes specified are taken and displayed.
 #' @inherit verbose params
 #' @param hm_colors A vector of colors to be used for the continuous heatmap annotation..
 #' @param hm_clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
@@ -1698,8 +1711,9 @@ plotDeHeatmap <- function(object,
                           across,
                           across_subset = NULL,
                           method_de = "wilcox",
-                          p_val_adj = 0.5,
-                          n_threshold = 50,
+                          max_adj_pval = 0.5,
+                          n_highest_lfc = 50,
+                          n_lowest_pval = 50,
                           breaks = NULL,
                           genes = NULL,
                           n_barcode_spots = NULL,
@@ -1738,20 +1752,13 @@ plotDeHeatmap <- function(object,
 
   } else {
 
-    de_df <- getDeResults(object = object,
-                          across = across,
-                          of_sample = of_sample,
-                          method_de = method_de,
-                          p_val_adj = p_val_adj,
-                          n_threshold = n_threshold)
-
-    if(!base::is.null(across_subset)){
-
-      de_df <- confuns::check_across_subset(df = de_df,
-                                            across = across,
-                                            across.subset = across_subset)
-
-    }
+    de_df <- getDeResultDf(object = object,
+                           across = across,
+                           across_subset = across_subset,
+                           of_sample = of_sample,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval)
 
     across_subset <- base::unique(de_df[[across]])
 
@@ -1780,9 +1787,8 @@ plotDeHeatmap <- function(object,
     dplyr::group_by(!!rlang::sym(across)) %>%
     dplyr::slice_sample(n = n_barcode_spots)
 
-
-  # determine heatmap gaps
-  if(base::is.character(genes)){
+  # heatmap gaps
+  if(base::is.null(de_df)){
 
     gaps_row <- NULL
 
@@ -1926,23 +1932,110 @@ plotSegmentation <- function(object,
   if(base::isTRUE(encircle)){
 
     encircle_add_on <-
-      ggalt::geom_encircle(data = segment_df, alpha = 0.5, expand = 0.025,
-                           mapping = ggplot2::aes(x = x, y = y, group = segment, fill = segment))
+      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment))
+
 
   } else {
 
     encircle_add_on <- list()
+
   }
 
   # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
-    #ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment, label = segment)) +
     encircle_add_on +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
     confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
     ggplot2::theme_void() +
     ggplot2::labs(fill = "Segments")
+
+}
+
+
+
+# Autoencoder -------------------------------------------------------------
+
+
+#' @title Plot total variance of different neural networks
+#'
+#' @description Visualizes the results of \code{assessAutoencoderOptions()} by displaying the
+#' total variance of each combination of an activation function (such as \emph{relu, sigmoid})
+#' and the number of bottleneck neurons.
+#'
+#' The results depend on further adjustments like number of layers, dropout and number of epochs.
+#'
+#' @inherit check_object params
+#'
+#' @return plot_family return
+#' @export
+#'
+
+plotAutoencoderAssessment <- function(object){
+
+  plot_df <- getAutoencoderAssessment(object)
+
+  ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = bottleneck, y = total_var)) +
+    ggplot2::geom_line(mapping = ggplot2::aes(group = activation, color = activation), size = 1.5) +
+    ggplot2::facet_wrap(facets = . ~ activation) +
+    ggplot2::theme_bw()  +
+    ggplot2::theme(
+      legend.position = "none",
+    ) +
+    ggplot2::labs(x = "Number of Bottleneck Neurons", y = "Total Variance")
+
+}
+
+#' @title Plot scaled vs. denoised expression
+#'
+#' @description Compares the distribution of the expression levels of \code{genes}
+#' between the scaled matrix and the denoised matrix.
+#'
+#' @inherit check_sample params
+#' @inherit runAutoencoderDenoising params
+#' @inherit check_pt params
+#' @inherit plot_family return
+#'
+#' @details This function requires a denoised matrix in slot @@data generated
+#' by \code{runAutoEncoderDenoising()} as well as a scaled matrix.
+#'
+#' @export
+
+plotAutoencoderResults <- function(object, genes, pt_size = 1.5, pt_alpha = 0.75, pt_clrp = "milo"){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrp = pt_clrp)
+
+  of_sample <- check_sample(object, of_sample = of_sample)
+  genes <- check_genes(object, genes = genes, of.length = 2, fdb_fn = "stop")
+
+  denoised <- getExpressionMatrix(object, of_sample = of_sample, name = "denoised")
+  scaled <- getExpressionMatrix(object, of_sample = of_sample, name = "scaled")
+
+  # 2. Join data ------------------------------------------------------------
+
+  plot_df <-
+    base::rbind(
+      data.frame(base::t(denoised[genes, ]), type = "Denoised"),
+      data.frame(base::t(scaled[genes, ]), type = "Scaled")
+    ) %>%
+    dplyr::mutate(type = base::factor(x = type, levels = c("Scaled", "Denoised")))
+
+
+  # 3. Plot -----------------------------------------------------------------
+
+  ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[genes[1]]], y = .data[[genes[2]]], color = type)) +
+    ggplot2::geom_point(alpha = pt_alpha, size = pt_size) +
+    ggplot2::geom_smooth(method = "lm", formula = y ~ x) +
+    ggplot2::facet_wrap(. ~ type, scales = "free") +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      strip.background = ggplot2::element_blank(),
+      legend.position = "none"
+    ) +
+    scale_color_add_on(variable = "discrete", clrp = pt_clrp)
 
 }

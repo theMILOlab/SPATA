@@ -136,56 +136,59 @@ findDeGenes <- function(object,
 
 #' @title Postprocess de-results
 #'
-#' @description Processes the results of \code{findDE()}. See details.
+#' @description Processes the results of \code{findDeGenes()}. See details.
 #'
 #' @inherit check_de_df params
-#' @param n_highest_FC Numeric value. Affects the number of genes that are kept. See details.
-#' @param n_lowest_pvalue Numeric value. Affects the number of genes that are kept. See details.
+#' @param max_adj_pval Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
+#' with adjusted p-values above that threshold are ignored.
+#' @param n_highest_lfc Numeric value. Affects the total number of genes that are kept. See details.
+#' @param n_lowest_pval Numeric value. Affects the total number of genes that are kept. See details.
 #' @inherit across params
 #' @param return Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}
 #'
-#' @details \code{filterDE()} processes the input by grouping the data.frame according to the unique
-#' values of the \emph{cluster}-variable such that the following steps are performed for every experimental
+#' @details The de-data.frame is processed such that the following steps are performed for every experimental
 #' group. (With "genes" we refer to the rows (observations) of \code{data}.)
 #'
 #' \enumerate{
 #'  \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
+#'  \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
 #'  \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
 #'  \enumerate{
-#'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_FC}}
-#'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pvalue}}
+#'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
+#'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}
 #'   }
 #'  \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
 #'  }
 #'
 #'
-#' @return Depends on input of arguemnt \code{return}:
+#' @return Depends on input of argument \code{return}:
 #'
 #'  \itemize{
 #'    \item{ \code{return} = \emph{'data.frame'}: The filtered data.frame of \code{de_df} with all it's variables.}
 #'    \item{ \code{return} = \emph{'vector'}: A named vector of all genes that remain. Named by the experimental
-#'    group in which they were differentially expressed.}
+#'    group in which they were differently expressed.}
 #'    \item{ \code{return} = \emph{'list}: A list named according to the experimental groups. Every slot of that list is
-#'    a character vector containing the differentially expressed genes of the respective experimental group.}
+#'    a character vector containing the differently expressed genes of the respective experimental group.}
 #'   }
 #'
 #' @export
 
-filterDE <- function(de_df,
-                     n_highest_FC = 100,
-                     n_lowest_pvalue = 100,
-                     across_subset = NULL,
-                     return = "data.frame"){
+filterDeDf <- function(de_df,
+                       max_adj_pval = 0.05,
+                       n_highest_lfc = 25,
+                       n_lowest_pval = 25,
+                       across_subset = NULL,
+                       return = "data.frame"){
 
   # 1. Control --------------------------------------------------------------
 
-  confuns::is_value(n_highest_FC, "numeric", "n_highest_FC")
-  confuns::is_value(n_lowest_pvalue, "numeric", "n_lowest_pvalue")
-  confuns::is_value(return, "character", "return")
+  confuns::are_values(c("max_adj_pval", "n_highest_lfc", "n_lowest_pval"),
+                      mode = "numeric", skip.allow = TRUE, skip.val = NULL)
 
   confuns::check_one_of(input = return,
                         against = c("data.frame", "vector", "list"),
                         ref.input = "argument 'return'")
+
   check_de_df(de_df)
 
   across <-
@@ -196,15 +199,39 @@ filterDE <- function(de_df,
 
   # 2. Pipeline -------------------------------------------------------------
 
-  res_df <-
+  de_df <-
     dplyr::ungroup(de_df) %>%
     confuns::check_across_subset(df = ., across = across, across.subset = across_subset) %>%
-    dplyr::filter(!avg_logFC %in% c(Inf, -Inf) &
-                  !avg_logFC < 0) %>%
-    dplyr::group_by(!!rlang::sym(across)) %>%
-    dplyr::slice_max(avg_logFC, n = n_highest_FC, with_ties = FALSE) %>%
-    dplyr::slice_min(p_val_adj, n = n_lowest_pvalue, with_ties = FALSE) %>%
-    dplyr::arrange(dplyr::desc(avg_logFC), .by_group = TRUE) %>%
+    dplyr::filter(!avg_logFC %in% c(Inf, -Inf) & !avg_logFC < 0) %>%
+    dplyr::group_by(!!rlang::sym(across))
+
+  across_subset <-
+    dplyr::pull(de_df, var = {{across}}) %>%
+    base::unique()
+
+  if(!base::is.null(max_adj_pval)){
+
+    de_df <-
+      dplyr::filter(.data = de_df, p_val_adj <= {{max_adj_pval}})
+
+  }
+
+  if(!base::is.null(n_highest_lfc)){
+
+    de_df <-
+      dplyr::slice_max(.data = de_df, avg_logFC, n = n_highest_lfc, with_ties = FALSE)
+
+  }
+
+  if(!base::is.null(n_lowest_pval)){
+
+    de_df <-
+      dplyr::slice_min(.data = de_df, p_val_adj, n = n_lowest_pval, with_ties = FALSE)
+
+  }
+
+  res_df <-
+    dplyr::arrange(de_df, dplyr::desc(avg_logFC), .by_group = TRUE) %>%
     dplyr::ungroup()
 
   # -----
@@ -212,7 +239,7 @@ filterDE <- function(de_df,
   if(return == "vector"){
 
     dplyr::pull(res_df, gene) %>%
-      magrittr::set_names(value = dplyr::pull(res_df, cluster)) %>%
+      magrittr::set_names(value = dplyr::pull(res_df, var = {{across}})) %>%
       base::return()
 
   } else if(return == "data.frame") {
@@ -223,7 +250,7 @@ filterDE <- function(de_df,
 
     purrr::map(.x = across_subset, .f = function(i){
 
-      dplyr::filter(.data = res_df, cluster == {{i}}) %>%
+      dplyr::filter(.data = res_df, !!rlang::sym(across) == {{i}}) %>%
         dplyr::pull(gene)
 
     }) %>%
