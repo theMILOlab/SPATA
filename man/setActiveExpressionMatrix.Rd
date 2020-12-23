@@ -2,7 +2,7 @@
 % Please edit documentation in R/set-family.R
 \name{setActiveExpressionMatrix}
 \alias{setActiveExpressionMatrix}
-\title{}
+\title{Denote the default expression matrix}
 \usage{
 setActiveExpressionMatrix(object, of_sample = "", mtr_name)
 }
@@ -16,5 +16,5 @@ the active expression matrix.}
 
 }
 \description{
-
+Denote the default expression matrix
 }

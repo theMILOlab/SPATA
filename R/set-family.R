@@ -199,7 +199,7 @@ setImage <- function(object, image, of_sample = ""){
 
 # Slot: information -------------------------------------------------------
 
-#' @title
+#' @title Denote the default expression matrix
 #'
 #' @inherit check_object params
 #' @param name Character value. The name of the matrix that is to be set as
