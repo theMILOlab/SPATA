@@ -9,12 +9,6 @@ runUmap(object, of_sample = "", ...)
 
 runUmap2(object, of_sample = "", ...)
 }
-\arguments{
-\item{...}{}
-}
-\value{
-
-}
 \description{
 Title
 }

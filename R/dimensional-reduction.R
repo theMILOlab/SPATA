@@ -6,7 +6,7 @@
 #'
 #' @inherit check_sample params
 #' @inherit getExpressionMatrix params
-#' @pca_comp Numeric value. Denotes the number of principal components to be computed.
+#' @param pca_comp Numeric value. Denotes the number of principal components to be computed.
 #'
 #' @inherit runDimRed_dummy return
 #'
@@ -53,12 +53,6 @@ runPca2 <- function(object, of_sample = "", pca_comp = 30, mtr_name = NULL){
 
 
 #' @title Run t-Stochastic Neighbour Embedding
-#'
-#' @param object
-#' @param of_sample
-#' @param tsne_perplexity
-#'
-#' @return
 #' @export
 
 runTsne <- function(object, of_sample = "", tsne_perplexity = 30){
@@ -101,12 +95,6 @@ runTsne2 <- function(object, of_sample = "", tsne_perplexity = 30){
 
 
 #' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param ...
-#'
-#' @return
 #' @export
 
 runUmap <- function(object, of_sample = "", ...){

@@ -15,6 +15,8 @@ runPca2(object, of_sample = "", pca_comp = 30, mtr_name = NULL)
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
+\item{pca_comp}{Numeric value. Denotes the number of principal components to be computed.}
+
 \item{mtr_name}{Character value. The name of the expression matrix of interest. If set to NULL
 the currently active matrix is chosen.}
 }

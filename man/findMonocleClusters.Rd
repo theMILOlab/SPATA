@@ -60,7 +60,7 @@ names for the clusters they generate. If you want to these numbers to have a cer
 prefix (like \emph{'Cluster'}, the default) you can specify it with this argument.}
 }
 \value{
-A tidy spata-data.frame
+A tidy spata-data.frame containing the cluster variables.
 }
 \description{
 Assign barcode spots to clusters according to different clustering

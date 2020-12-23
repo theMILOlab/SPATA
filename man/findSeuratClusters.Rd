@@ -32,7 +32,7 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{FindClusters}{A named list of arguments given to \code{Seurat::FindClusters()}, TRUE or FALSE.}
 }
 \value{
-A tidy spata-data.frame
+A tidy spata-data.frame containing the cluster variables.
 }
 \description{
 Cluster sample via Seurat

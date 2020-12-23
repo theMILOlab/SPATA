@@ -2,7 +2,7 @@
 % Please edit documentation in R/intern-analysis.R
 \name{findNearestNeighbourClusters}
 \alias{findNearestNeighbourClusters}
-\title{Title}
+\title{Cluster sample via nearest neighbour analysis}
 \usage{
 findNearestNeighbourClusters(
   object,
@@ -17,11 +17,35 @@ findNearestNeighbourClusters(
 )
 }
 \arguments{
-\item{verbose}{}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{k}{The maximum number of nearest neighbours to compute. The default value
+is set to the smaller of the number of columnns in data.}
+
+\item{treetype}{Character vector. Character vector specifying the standard
+\emph{'kd'} tree or a \emph{'bd'} (box-decomposition, AMNSW98) tree which
+ may perform better for larger point sets.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{searchtypes}{Character value. Either \emph{'priority', 'standard'} or \emph{'radius '}. See details for more.}
 }
 \value{
-
+A tidy spata-data.frame containing the cluster variables.
 }
 \description{
-Title
+Cluster sample via nearest neighbour analysis
+}
+\details{
+Search types: priority visits cells in increasing order of distance from the
+query point, and hence, should converge more rapidly on the true nearest neighbour,
+but standard is usually faster for exact searches. radius only searches for neighbours
+within a specified radius of the point. If there are no neighbours then nn.idx will
+contain 0 and nn.dists will contain 1.340781e+154 for that point.
 }

@@ -34,7 +34,7 @@
 #' Due to the \emph{barcodes}-variable it can be easily joined to your-spata object via `addFeature()`.
 #' and thus be made available for all spata-functions.
 #'
-#' @return A tidy spata-data.frame
+#' @return A tidy spata-data.frame containing the cluster variables.
 #' @export
 #'
 
@@ -186,20 +186,29 @@ findMonocleClusters <- function(object,
 
 }
 
-#' Title
+#' @title Cluster sample via nearest neighbour analysis
 #'
-#' @param object
-#' @param k
-#' @param searchtype
-#' @param treetype
-#' @param radius
-#' @param eps
-#' @param verbose
+#' @inherit check_sample params
+#' @param k The maximum number of nearest neighbours to compute. The default value
+#'  is set to the smaller of the number of columnns in data.
+#' @param treetype Character vector. Character vector specifying the standard
+#'  \emph{'kd'} tree or a \emph{'bd'} (box-decomposition, AMNSW98) tree which
+#'   may perform better for larger point sets.
+#' @param searchtypes Character value. Either \emph{'priority', 'standard'} or \emph{'radius '}. See details for more.
+#' @inherit verbose params
 #'
-#' @return
+#' @details
+#'
+#' Search types: priority visits cells in increasing order of distance from the
+#' query point, and hence, should converge more rapidly on the true nearest neighbour,
+#' but standard is usually faster for exact searches. radius only searches for neighbours
+#' within a specified radius of the point. If there are no neighbours then nn.idx will
+#' contain 0 and nn.dists will contain 1.340781e+154 for that point.
+#'
+#' @return A tidy spata-data.frame containing the cluster variables.
 #' @export
 #'
-#' @examples
+
 findNearestNeighbourClusters <- function(object,
                                          of_sample = "",
                                          n_pcs = 30,
@@ -318,7 +327,7 @@ findNearestNeighbourClusters <- function(object,
 #' @inherit getExpressionMatrix params
 #' @inherit initiateSpataObject_CountMtr params
 #'
-#' @return A tidy spata-data.frame
+#' @return A tidy spata-data.frame containing the cluster variables.
 #' @export
 
 findSeuratClusters <- function(object,

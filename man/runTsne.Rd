@@ -9,12 +9,6 @@ runTsne(object, of_sample = "", tsne_perplexity = 30)
 
 runTsne2(object, of_sample = "", tsne_perplexity = 30)
 }
-\arguments{
-\item{tsne_perplexity}{}
-}
-\value{
-
-}
 \description{
 Run t-Stochastic Neighbour Embedding
 }
