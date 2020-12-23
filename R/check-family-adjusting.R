@@ -155,7 +155,8 @@ check_color_to <- function(color_to,
 check_features <- function(object,
                            features,
                            valid_classes = NULL,
-                           max_length = NULL){
+                           max_length = NULL,
+                           of_sample = ""){
 
   # 1. Control --------------------------------------------------------------
 
@@ -167,7 +168,7 @@ check_features <- function(object,
 
   # -----
 
-  fnames <- getFeatureNames(object = object)
+  fnames <- getFeatureNames(object = object, of_sample = of_sample)
 
   # 2. Check if/how many features actually exist  ---------------------------
 
@@ -237,12 +238,10 @@ check_features <- function(object,
 
   # 4. Check whether fnames is of desired length ----------------------------
 
-  if(!base::is.null(max_length) &&
-     base::length(fnames) > max_length) {
+  if(!base::is.null(max_length) && base::length(fnames) > max_length) {
 
     base::warning(stringr::str_c("Reducing length of feature input to required length: ", max_length))
     fnames <- fnames[1:max_length]
-
 
   }
 
@@ -439,12 +438,13 @@ check_gene_sets <- function(object,
 
 check_sample <- function(object,
                          of_sample = "",
-                         desired_length = NULL){
+                         desired_length = NULL,
+                         ...){
 
 
   # 0. Default sample -------------------------------------------------------
 
-  confuns::is_vec(of_sample, "character", "of_sample")
+  confuns::is_vec(of_sample, mode = "character", ...)
 
   if(base::all(of_sample == "")){
 
@@ -687,8 +687,7 @@ check_variables <- function(variables,
 
   return_list <-
     purrr::discard(.x = found_all, .p = base::is.null) %>%
-    purrr::imap(.x = .,
-                max_length = max_length,
+    purrr::imap(max_length = max_length,
                 .f = function(slot, name, max_length){
 
       if(name == "genes"){

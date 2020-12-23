@@ -35,9 +35,9 @@ assessAutoencoderOptions2(
 \item{layers}{Numeric vector of length 3. Denotes the number of neurons in the three hidden layers.
 (default = c(128, 64, 32))}
 
-\item{dropout}{Numeric value. Denotes the dropout. (default = 0.1)}
+\item{dropout}{Numeric value. Denotes the dropout. (defaults to 0.1)}
 
-\item{epochs}{Numeric value. Denotes the epochs of the neural network. (default = 20)}
+\item{epochs}{Numeric value. Denotes the epochs of the neural network. (defaults to 20)}
 
 \item{expr_mtr}{The expression matrix that is to be used as input for the neural network.}
 }

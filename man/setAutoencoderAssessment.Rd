@@ -4,7 +4,7 @@
 \alias{setAutoencoderAssessment}
 \title{Title}
 \usage{
-setAutoencoderAssessment(object, assessment_list)
+setAutoencoderAssessment(object, assessment_list, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}

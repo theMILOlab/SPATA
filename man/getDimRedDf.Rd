@@ -2,11 +2,17 @@
 % Please edit documentation in R/get-family.R
 \name{getDimRedDf}
 \alias{getDimRedDf}
+\alias{getPcaDf}
+\alias{getPcaMtr}
 \alias{getUmapDf}
 \alias{getTsneDf}
 \title{Obtain dimensional reduction data}
 \usage{
 getDimRedDf(object, of_sample = "", method_dr = c("pca", "tsne", "umap"))
+
+getPcaDf(object, of_sample = "", n_pcs = 30)
+
+getPcaMtr(object, of_sample = "", n_pcs = 30)
 
 getUmapDf(object, of_sample = "")
 
@@ -29,7 +35,7 @@ A data.frame that contains the unique identifiers
  \itemize{
   \item{ \code{getTsneDf()}: \emph{tsne1, tsne2}}
   \item{ \code{getUmapDf()}: \emph{umap1, umap2}}
-  \item{ \code{getPcaDf()}: \emph{PC_1, PC_2, PC_3, ...PC_n}}
+  \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
   }
 }
 \description{

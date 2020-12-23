@@ -85,6 +85,7 @@ hlpr_breaks <- function(mtr, length_out){
 
 }
 
+
 #' @title Compare samples within an object
 #'
 #' @description Checks whether the sample column in \code{df}
@@ -153,7 +154,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
                                     object,
                                     sample){
 
-  validation(object)
+  check_object(object)
 
   all_trajectories_list <- list()
 
@@ -255,7 +256,6 @@ hlpr_gene_set_name <- function(string){
 #' Easy switch between geom line and and geom smooth
 #'
 #' @description To be used in plotTrajectoryFit()/-Customized()
-#'
 
 hlpr_geom_trajectory_fit <- function(smooth, smooth_span, plot_df){
 
@@ -332,14 +332,13 @@ hlpr_geom_trajectory_fit <- function(smooth, smooth_span, plot_df){
 #' @param display_image Logical value.
 #'
 #' @return Either null or a ggplot2::geom_annotation_raster
-#'
 
 hlpr_image_add_on <- function(object, display_image, of_sample){
 
   # set up background
   if(base::isTRUE(display_image)){
 
-    sample_image <- image(object, of_sample)
+    sample_image <- getImage(object, of_sample)
 
     if("Image" %in% base::class(sample_image)){
 
@@ -427,7 +426,6 @@ hlpr_image_add_on2 <- function(image){
 #' @param display_title Logical. If set to FALSE only the legend-title will be specified.
 #'
 #' @return A customized \code{ggplot2::labs()}-function.
-#' @export
 
 hlpr_labs_add_on <- function(input,
                              input_str,
@@ -470,7 +468,6 @@ hlpr_labs_add_on <- function(input,
 #' @param pb An R6 progress bar object.
 #'
 #' @return A normalized variable (data.frame within \code{purrr::imap()})
-#' @export
 
 hlpr_normalize_imap <- function(variable,
                                 var_name,
@@ -608,6 +605,117 @@ hlpr_save_spata_object <- function(object, object_file, ref_step, verbose){
 
   }
 
+
+}
+
+
+
+
+#' @title Color to + scatterplot helper
+#'
+#' @inherit joinWith params
+#' @param color_to Named list.
+#'
+#' @return A named list. Slot \emph{data} contains a data.frame as input for \code{data} of \code{ggplot2::ggplot()} and
+#' slot \emph{add_on} contains a list of ggplot-add-ons.
+#'
+
+hlpr_scatterplot <- function(spata_df,
+                             color_to,
+                             method_gs = "mean",
+                             pt_size = 2,
+                             pt_alpha = 1,
+                             pt_clrsp = "inferno",
+                             pt_clrp = "milo",
+                             pt_clr = "black",
+                             smooth = FALSE,
+                             smooth_span = 0.02,
+                             normalize = TRUE,
+                             verbose = TRUE){
+
+  # if feature
+  if("features" %in% base::names(color_to)){
+
+    feature <- color_to$features
+
+    spata_df <- joinWithFeatures(object = object,
+                                 spata_df = spata_df,
+                                 features = feature,
+                                 smooth = smooth,
+                                 smooth_span = smooth_span,
+                                 verbose = verbose)
+
+    # assemble ggplot add on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes(color = .data[[feature]])),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp,
+                                  variable = spata_df[[feature]]),
+      ggplot2::labs(color = feature)
+    )
+
+    # if gene set
+  } else if("gene_sets" %in% base::names(color_to)){
+
+    gene_set <- color_to$gene_sets
+
+    spata_df <- joinWithGeneSets(object = object,
+                                 spata_df = spata_df,
+                                 gene_sets = gene_set,
+                                 method_gs = method_gs,
+                                 smooth = smooth,
+                                 smooth_span = smooth_span,
+                                 normalize = normalize,
+                                 verbose = verbose)
+
+    title <-
+      stringr::str_c("Gene set: ", gene_set, " (", method_gs, ")", sep = "")
+
+    # assemble ggplot add-on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes(color = .data[[gene_set]])),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
+      ggplot2::labs(color = "Expr.\nscore", title = title)
+    )
+
+    # if genes
+  } else if("genes" %in% base::names(color_to)){
+
+    spata_df <- joinWithGenes(object = object,
+                              spata_df = spata_df,
+                              genes = color_to$genes,
+                              average_genes = TRUE,
+                              smooth = smooth,
+                              smooth_span = smooth_span,
+                              normalize = normalize,
+                              verbose = verbose)
+
+    title <-
+      glue::glue("Genes: {genes}",
+                 genes = glue::glue_collapse(x = color_to$genes, sep = ", ", width = 7, last = " and "))
+
+    # assemble ggplot add-on
+    ggplot_add_on <- list(
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
+                          mapping = ggplot2::aes(color = .data[["mean_genes"]])),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
+      ggplot2::labs(color = "Mean expr.\nscore", title = title)
+    )
+
+    # else if color_to has not been specified
+  } else if("color" %in% base::names(color_to)){
+
+    ggplot_add_on <-
+      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha, color = color_to$color)
+
+  }
+
+  base::return(
+    list(data = spata_df,
+         add_on = ggplot_add_on
+    )
+  )
 
 }
 
@@ -871,7 +979,7 @@ hlpr_summarize_trajectory_df <- function(object,
   # adjusting check
 
   variables <- check_variables(variables = variables,
-                               all_features = getFeatureNames(object, c("numeric", "integer")),
+                               all_features = getFeatureNames(object, of_class = c("numeric", "integer")),
                                all_gene_sets = getGeneSets(object),
                                all_genes = getGenes(object),
                                max_slots = 3,

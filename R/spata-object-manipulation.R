@@ -13,52 +13,28 @@
 subsetSpataObject <- function(object, sample){
 
   check_object(object)
-  sample <- check_sample(object, sample, 1)
+  sample <- check_sample(object, of_sample = sample, of.length = 1)
 
-  if(base::length(samples(object)) == 1){
+  if(base::length(getSampleNames(object)) == 1){
 
     base::stop("Spata-object contains only one sample.")
 
   }
 
-  counts_new <- getCountMatrix(object, sample)
-  expr_mtr_new <- getExpressionMatrix(object, sample)
+  new_object <- methods::new(Class = "spata",
+                             coordinates = object@coordinates[sample],
+                             data = object@data[sample],
+                             dim_red = object@dim_red[sample],
+                             fdata = object@fdata[sample],
+                             images = object@images[sample],
+                             information = purrr::map(.x = object@information, .f = ~ .x[sample]),
+                             dea = object@dea[sample],
+                             samples = sample,
+                             scvelo = object@scvelo[sample],
+                             trajectories = object@trajectories[sample],
+                             used_genesets = object@used_genesets,
+                             version = object@version)
 
-  fdata_new <- getFeatureData(object, sample)
-
-  coords_new <- coordinates(object, sample)
-
-  trajectories_new <- object@trajectories[[sample]]
-
-  if(base::is.null(trajectories_new)){
-
-    trajectories_new <- list(list()) %>% magrittr::set_names(sample)
-
-  }
-
-  sample_image <- object@image[[sample]]
-  images_new <- list(sample_image) %>% magrittr::set_names(sample)
-
-  additional_new <- list(Seurat = list(images = list()))
-  additional_new$Seurat$images[[sample]] <- object@additional$Seurat$images[[sample]]
-
-  umap_new <- getUmapData(object, sample)
-  tsne_new <- getTsneData(object, sample)
-
-  new_object <-
-    methods::new("spata",
-                 coordinates = coords_new,
-                 data = methods::new("data_counts",
-                                     counts = counts_new,
-                                     norm_exp = expr_mtr_new),
-                 dim_red = methods::new("dim_red",
-                                        UMAP = umap_new,
-                                        TSNE = tsne_new),
-                 fdata = fdata_new,
-                 samples = sample,
-                 used_genesets = object@used_genesets,
-                 trajectories = trajectories_new,
-                 version = spata_version,
-                 additional = additional_new)
+  base::return(new_object)
 
 }

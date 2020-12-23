@@ -21,12 +21,12 @@
 #' @return A spata-object containing the results in slot @@dea.
 #' @export
 
-findDeGenes <- function(object,
-                        of_sample = "",
-                        across,
-                        method_de = "wilcox",
-                        verbose = TRUE,
-                        ...){
+runDeAnalysis <- function(object,
+                          of_sample = "",
+                          across,
+                          method_de = "wilcox",
+                          verbose = TRUE,
+                          ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -85,9 +85,9 @@ findDeGenes <- function(object,
           # 2. De analysis ----------------------------------------------------------
 
           # prepare seurat object
-          seurat_object <- Seurat::CreateSeuratObject(counts = getCountMatrix(object, of_sample))
+          seurat_object <- Seurat::CreateSeuratObject(counts = getCountMatrix(object, of_sample = of_sample))
 
-          seurat_object@assays$RNA@scale.data <- getExpressionMatrix(object, of_sample)
+          seurat_object@assays$RNA@scale.data <- getExpressionMatrix(object, of_sample = of_sample, verbose = TRUE)
 
           seurat_object@meta.data$orig.ident <- groups
 

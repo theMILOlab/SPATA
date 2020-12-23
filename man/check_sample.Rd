@@ -4,7 +4,7 @@
 \alias{check_sample}
 \title{Check sample input}
 \usage{
-check_sample(object, of_sample = "", desired_length = NULL)
+check_sample(object, of_sample = "", desired_length = NULL, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}

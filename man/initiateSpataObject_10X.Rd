@@ -5,8 +5,8 @@
 \title{Initiate a spata-object from 10X Visium}
 \usage{
 initiateSpataObject_10X(
-  input_paths,
-  sample_names,
+  input_path,
+  sample_name,
   gene_set_path = NULL,
   output_path = NULL,
   file_name = NULL,
@@ -23,7 +23,7 @@ initiateSpataObject_10X(
 )
 }
 \arguments{
-\item{input_paths}{Character vector. Specifies the 10X visium-folders from
+\item{input_path}{Character value. Specifies the 10X visium-folders from
 which to load the information. This folder must contain the following sub directories:
 
 \itemize{
@@ -31,7 +31,7 @@ which to load the information. This folder must contain the following sub direct
  \item{\emph{'/outs/spatial/*.jpg}}
  }}
 
-\item{sample_names}{Character vector. The sample name with which to refer to the
+\item{sample_name}{Character value. The sample name with which to refer to the
 respective sample. Should start with a letter.}
 
 \item{gene_set_path}{Character value (or NULL). Specifies the path to a

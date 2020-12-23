@@ -21,6 +21,21 @@ seurat_coords_from_opts <- c("umap", "tsne")
 
 # Trajectory analysis -----------------------------------------------------
 
+empty_ctdf <- data.frame(barcodes = character(0),
+                         sample = character(0),
+                         x = numeric(0),
+                         y = numeric(0),
+                         projection_length = numeric(0),
+                         trajectory_part = character(0),
+                         stringsAsFactors = FALSE)
+
+empty_segment_df <- data.frame(x = numeric(0),
+                               y = numeric(0),
+                               xend = numeric(0),
+                               yend = numeric(0),
+                               part = character(0),
+                               stringsAsFactors = FALSE)
+
 trajectory_df_colnames <- c("trajectory_part", "trajectory_order", "trajectory_part_order")
 
 

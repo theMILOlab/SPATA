@@ -4,7 +4,12 @@
 \alias{plotAutoencoderAssessment}
 \title{Plot total variance of different neural networks}
 \usage{
-plotAutoencoderAssessment(object)
+plotAutoencoderAssessment(
+  object,
+  activation_subset = NULL,
+  clrp = "milo",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{A valid spata-object.}

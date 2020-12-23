@@ -186,3 +186,194 @@ findMonocleClusters <- function(object,
 
 }
 
+#' Title
+#'
+#' @param object
+#' @param k
+#' @param searchtype
+#' @param treetype
+#' @param radius
+#' @param eps
+#' @param verbose
+#'
+#' @return
+#' @export
+#'
+#' @examples
+findNearestNeighbourClusters <- function(object,
+                                         of_sample = "",
+                                         n_pcs = 30,
+                                         k = 50,
+                                         searchtype = "priority",
+                                         treetype = "bd",
+                                         radius = 0,
+                                         eps = 0,
+                                         verbose = TRUE){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  confuns::are_values(c("k", "radius", "eps", "n_pcs"), mode = "numeric")
+  confuns::are_vectors(c("treetype", "searchtype"), mode = "character")
+
+  valid_searchtypes <-
+    confuns::check_vector(
+      input = searchtype,
+      against = c("standard", "priority", "radius"),
+      fdb.fn = "stop",
+      ref.input = "input for argument 'searchtype'",
+      ref.against = "valid searchtypes"
+    )
+
+  n_searchtypes <- base::length(valid_searchtypes)
+
+  valid_treetypes <-
+    confuns::check_vector(
+      input = treetype,
+      against = c("kd", "bd"),
+      fdb.fn = "stop",
+      ref.input = "input for argument 'treetype'",
+      ref.against = "valid treetypes"
+    )
+
+  n_treetypes <- base::length(valid_treetypes)
+
+
+  # 2. Data extraction and for loop -----------------------------------------
+
+  pca_mtr <-
+    getPcaDf(object, of_sample = of_sample, n_pcs = n_pcs) %>%
+    tibble::column_to_rownames(var = "barcodes") %>%
+    dplyr::select(-sample) %>%
+    base::as.matrix()
+
+  cluster_df <- data.frame(barcodes = base::rownames(pca_mtr))
+
+  for(t in base::seq_along(valid_treetypes)){
+
+    treetype <- valid_treetypes[t]
+
+    for(s in base::seq_along(valid_searchtypes)){
+
+      searchtype <- valid_searchtypes[s]
+
+      cluster_name <- stringr::str_c("cluster_nn2", treetype, searchtype, sep = "_")
+
+      if(base::isTRUE(verbose)){
+
+        base::message(glue::glue("Running algorithm with treetype ({t}/{n_treetypes}) '{treetype}' and with searchtype ({s}/{n_searchtypes}) '{searchtype}'."))
+
+      }
+
+      nearest <- RANN::nn2(data = pca_mtr,
+                           k = k,
+                           treetype = treetype,
+                           searchtype = searchtype,
+                           radius = radius,
+                           eps = eps)
+
+      edges <-
+        reshape::melt(base::t(nearest$nn.idx[, 1:k])) %>%
+        dplyr::select(A = X2, B = value) %>%
+        dplyr::mutate(C = 1)
+
+      edges <-
+        base::transform(edges, A = base::pmin(A, B), B = base::pmax(A, B)) %>%
+        base::unique() %>%
+        dplyr::rename(V1 = A, V2 = B, weight = C)
+
+      edges$V1 <- base::rownames(pca_mtr)[edges$V1]
+      edges$V2 <- base::rownames(pca_mtr)[edges$V2]
+
+      g_df <- igraph::graph.data.frame(edges, directed = FALSE)
+
+      graph_out <- igraph::cluster_louvain(g_df)
+
+      clust_assign <- base::factor(x = graph_out$membership,
+                                   levels = base::sort(base::unique(graph_out$membership)))
+
+      cluster_df <-
+        dplyr::mutate(.data = cluster_df, cluster_var = base::factor(clust_assign)) %>%
+        dplyr::rename({{cluster_name}} := cluster_var)
+
+    }
+
+  }
+
+
+  # 3. Return cluster data.frame --------------------------------------------
+
+  base::return(cluster_df)
+
+}
+
+
+
+#' @title Cluster sample via Seurat
+#'
+#' @inherit check_sample params
+#' @inherit getExpressionMatrix params
+#' @inherit initiateSpataObject_CountMtr params
+#'
+#' @return A tidy spata-data.frame
+#' @export
+
+findSeuratClusters <- function(object,
+                               mtr_name = "scaled",
+                               of_sample = "",
+                               FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+                               RunPCA = list(npcs = 60),
+                               FindNeighbors = list(dims = 1:30),
+                               FindClusters = list(resolution = 0.8)){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  seurat_object <-
+    Seurat::CreateSeuratObject(count = getCountMatrix(object = object, of_sample = of_sample))
+
+  seurat_object@assays$RNA@scale.data <-
+    getExpressionMatrix(object = object, mtr_name = mtr_name, of_sample = of_sample, verbose = TRUE)
+
+  seurat_object <-
+    confuns::call_flexibly(
+      fn = "FindVariableFeatures",
+      fn.ns = "Seurat",
+      default = list(object = seurat_object),
+      v.fail = seurat_object
+    )
+
+  seurat_object <-
+    confuns::call_flexibly(
+      fn = "RunPCA",
+      fn.ns = "Seurat",
+      default = list(object = seurat_object),
+      v.fail = seurat_object
+    )
+
+  seurat_object <-
+    confuns::call_flexibly(
+      fn = "FindNeighbors",
+      fn.ns = "Seurat",
+      default = list(object = seurat_object),
+      v.fail = seurat_object
+    )
+
+  seurat_object <-
+    confuns::call_flexibly(
+      fn = "FindClusters",
+      fn.ns = "Seurat",
+      default = list(object = seurat_object)
+    )
+
+  seurat_object@meta.data %>%
+    tibble::rownames_to_column(var = "barcodes") %>%
+    dplyr::select(barcodes, seurat_clusters)
+
+}
+
+

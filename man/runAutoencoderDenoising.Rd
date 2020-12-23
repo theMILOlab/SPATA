@@ -8,35 +8,41 @@ runAutoencoderDenoising(
   object,
   activation,
   bottleneck,
+  mtr_name_output = "denoised",
+  of_sample = "",
   layers = c(128, 64, 32),
   dropout = 0.1,
   epochs = 20,
-  plot = FALSE,
+  display_plot = FALSE,
   genes,
-  discard_scaled_mtr = FALSE,
+  set_as_active = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{activation}{Character value. Denotes the activation function. (default = \emph{'relu'})}
+\item{activation}{Character value. Denotes the activation function. (defaults to \emph{'relu'})}
 
-\item{bottleneck}{Numeric value. Denotes the number of bottleneck neurons. (default = 32)}
+\item{bottleneck}{Numeric value. Denotes the number of bottleneck neurons.}
+
+\item{mtr_name_output}{Character value. Denotes the name under which the denoised matrix is stored
+in the data slot.}
 
 \item{layers}{Numeric vector of length 3. Denotes the number of neurons in the three hidden layers.
 (default = c(128, 64, 32))}
 
-\item{dropout}{Numeric value. Denotes the dropout. (default = 0.1)}
+\item{dropout}{Numeric value. Denotes the dropout. (defaults to 0.1)}
 
-\item{epochs}{Numeric value. Denotes the epochs of the neural network. (default = 20)}
+\item{epochs}{Numeric value. Denotes the epochs of the neural network. (defaults to 20)}
 
-\item{plot}{Logical. If set to TRUE a scatter plot of the result is displayed in the viewer pane.
+\item{display_plot}{Logical. If set to TRUE a scatter plot of the result is displayed in the viewer pane.
 See documentation for \code{plotAutoencoderResults()} for more information.}
 
 \item{genes}{Character vector of length two. Denotes the genes to be used for the validation plot.}
 
-\item{discard_scaled_mtr}{Logical. If set to TRUE the matrix in slot @data$scaled is discarded.}
+\item{set_as_active}{Logical. If set to TRUE the denoised matrix is set as the active matrix via
+\code{setActiveExpressionMatrix()}.}
 }
 \value{
 A spata-object containing the denoised expression matrix in slot @data$denoised. This matrix

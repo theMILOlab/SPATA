@@ -5,6 +5,7 @@
 #' surface according to the expression of genes, gene sets or features.
 #'
 #' \itemize{
+#'
 #'  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
 #'  necessary data.frame from scratch according to additional parameters.}
 #'  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}
@@ -59,115 +60,39 @@ plotSurface <- function(object,
                             of_sample = of_sample,
                             desired_length = 1)
 
-  all_genes <- getGenes(object, in_sample = of_sample)
-  all_gene_sets <- getGeneSets(object)
-  all_features <- getFeatureNames(object)
 
-  if(!base::all(color_to %in% all_genes)){
+  if(!base::is.null(color_to)){
 
     color_to <- check_color_to(color_to = color_to,
-                               all_features = all_features,
-                               all_gene_sets = all_gene_sets,
-                               all_genes = all_genes)
-
-  } else if(base::is.null(color_to)){
-
-    base::message("No specification for argument 'color_to'. Color according to sample belonging.")
+                               all_genes = getGenes(object, in_sample = of_sample),
+                               all_gene_sets = getGeneSets(object),
+                               all_features = getFeatureNames(object))
 
   } else {
 
-    color_to <- list("genes" = color_to)
+    color_to <- list("color" = pt_clr)
 
   }
+
 
   # -----
 
-  spata_df <- getCoordsDf(object, of_sample = of_sample)
+  # 2. Data extraction and plot preparation ---------------------------------
 
-  # 2. Join data and prepare ggplot add-ons ---------------------------------
+  coords_df <- getCoordsDf(object, of_sample = of_sample)
 
-  # if of length one and feature
-  if("features" %in% base::names(color_to)){
-
-    spata_df <- joinWithFeatures(object = object,
-                                  spata_df = spata_df,
-                                  features = color_to$features,
-                                  smooth = smooth,
-                                  smooth_span = smooth_span,
-                                  verbose = verbose)
-
-    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
-                                    color_str = color_to,
-                                    display_title = display_title)
-
-    # assemble ggplot add on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$features]])),
-      confuns::scale_color_add_on(clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(spata_df, var = color_to$features)),
-      labs_add_on
-    )
-
-    # if of length one and gene set
-  } else if("gene_sets" %in% base::names(color_to)){
-
-    spata_df <- joinWithGeneSets(object = object,
-                                  spata_df = spata_df,
-                                  gene_sets = color_to$gene_sets,
-                                  method_gs = method_gs,
-                                  smooth = smooth,
-                                  smooth_span = smooth_span,
-                                  normalize = normalize,
-                                  verbose = verbose)
-
-    labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets, input_str = "Gene set:",
-                                    color_str = hlpr_gene_set_name(color_to$gene_sets),
-                                    display_title = display_title)
-
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to$gene_sets]])),
-      confuns::scale_color_add_on(clrsp = pt_clrsp),
-      labs_add_on
-    )
-
-  } else if("genes" %in% base::names(color_to)){
-
-    spata_df <- joinWithGenes(object = object,
-                               spata_df = spata_df,
-                               genes = color_to$genes,
-                               average_genes = TRUE,
-                               smooth = smooth,
-                               smooth_span = smooth_span,
-                               normalize = normalize,
-                               verbose = verbose)
-
-    color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
-                              yes = color_to$genes,
-                              no = "Mean expr.\nscore")
-
-    labs_add_on <- hlpr_labs_add_on(input = color_to$genes, input_str = "Genes:",
-                                    color_str = color_str,
-                                    display_title = display_title)
-
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes_string(x = "x",
-                                                        y = "y",
-                                                        color = "mean_genes")),
-      confuns::scale_color_add_on(clrsp = pt_clrsp),
-      labs_add_on
-    )
-
-
-  } else if(base::is.null(color_to)){
-
-    ggplot_add_on <- list(ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha, color = pt_clr,
-                                              mapping = ggplot2::aes(x = x, y = y)))
-
-  }
+  plot_list <-
+    hlpr_scatterplot(spata_df = coords_df,
+                     color_to = color_to,
+                     pt_size = pt_size,
+                     pt_alpha = pt_alpha,
+                     pt_clrp = pt_clrp,
+                     pt_clrsp = pt_clrsp,
+                     method_gs = method_gs,
+                     normalize = normalize,
+                     smooth = smooth,
+                     smooth_span = smooth_span,
+                     verbose = verbose)
 
   # -----
 
@@ -178,9 +103,9 @@ plotSurface <- function(object,
               object = list("point" = spata_df),
               name = assign_name)
 
-  ggplot2::ggplot() +
+  ggplot2::ggplot(data = plot_list$data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +
-    ggplot_add_on +
+    plot_list$add_on +
     ggplot2::coord_equal() +
     ggplot2::theme_void()
 

@@ -8,6 +8,7 @@ transformSeuratToSpata(
   seurat_object,
   sample_name,
   assay = "Spatial",
+  slice_name = "slice1",
   method = "spatial",
   coords_from = "umap",
   gene_set_path = NULL,

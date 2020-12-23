@@ -1,17 +1,19 @@
 
 
-#' @title Obtain name of currently active matrix
+#' @title Obtain name of currently active expression matrix
 #'
 #' @inherit check_object params
 #'
 #' @return Character value.
 #' @export
 
-getActiveMatrixName <- function(object){
+getActiveMatrixName <- function(object, of_sample = ""){
 
   check_object(object)
 
-  object@information$active_mtr
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  object@information$active_mtr[[of_sample]]
 
 }
 
@@ -27,19 +29,51 @@ getActiveMatrixName <- function(object){
 #' @export
 #'
 
-getAutoencoderAssessment <- function(object){
+getAutoencoderAssessment <- function(object, of_sample = ""){
 
   check_object(object)
 
-  assessment_df <- object@information$autoencoder$assessment
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  if(base::identical(assessment_df, data.frame())){
+  assessment <- object@information$autoencoder[[of_sample]]$assessment
+
+  if(base::identical(assessment, list()) | base::is.null(assessment)){
 
     base::stop("Could not find any information. It seems as if function 'assessAutoencoderOptions()' as not been called yet.")
 
   }
 
-  base::return(assessment_df)
+  base::return(assessment)
+
+}
+
+
+#' @title Obtain information on neural network
+#'
+#' @description Returns the argument input that was chosen to construct the
+#' neural network that generated the matrix denoted in \code{mtr_name}.
+#'
+#' @inherit getExpressionMatrix params
+#'
+#' @return A named list.
+#' @export
+
+getAutoencoderSetUp <- function(object, mtr_name, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  nn_set_up <-
+    object@information$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]]
+
+  if(base::is.null(nn_set_up)){
+
+    base::stop(glue::glue("Could not find any autoencoder information for matrix '{mtr_name}' of sample '{of_sample}'"))
+
+  }
+
+  base::return(nn_set_up)
 
 }
 
@@ -51,11 +85,12 @@ getAutoencoderAssessment <- function(object){
 #' @return All barcodes of the specified sample(s) as a character vector.
 #' @export
 
-getBarcodes <- function(object, of_sample = "all"){
+getBarcodes <- function(object, of_sample = ""){
 
-  coords_df <- getCoordinates(object = object, of_sample = of_sample)
+  check_object(object)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  return(dplyr::pull(coords_df, barcodes))
+  object@information$barcodes[[of_sample]]
 
 }
 
@@ -84,8 +119,7 @@ getCoordsDf <- function(object,
   # 2. Data wrangling -------------------------------------------------------
 
   coords_df <-
-    object@coordinates %>%
-    dplyr::filter(sample %in% {{of_sample}})
+    object@coordinates[[of_sample]]
 
   # -----
 
@@ -275,13 +309,16 @@ getDeGenes <- function(object,
 #' @title Obtain count and expression matrix
 #'
 #' @inherit check_sample params
+#' @param mtr_name Character value. The name of the expression matrix of interest. If set to NULL
+#' the currently active matrix is chosen.
 #'
 #' @return The active expression or count matrix of the specified object and sample(s).
 #' @export
 
 getExpressionMatrix <- function(object,
                                 of_sample = "",
-                                name = NULL){
+                                mtr_name = NULL,
+                                verbose = FALSE){
 
   # lazy control
   check_object(object)
@@ -289,30 +326,37 @@ getExpressionMatrix <- function(object,
   # adjusting control
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  if(base::is.null(name)){
+  if(base::is.null(mtr_name)){
 
-    active_mtr <- getActiveMatrixName(object)
+    active_mtr <- getActiveMatrixName(object, of_sample = of_sample)
+
+    if(base::is.null(active_mtr) || !active_mtr %in% getExpressionMatrixNames(object, of_sample = of_sample)){
+
+      active_mtr <- base::ifelse(test = base::is.null(active_mtr), yes = "NULL", no = active_mtr)
+
+      base::stop(glue::glue("Did not find active matrix '{active_mtr}' in data slot of sample '{of_sample}'. Don't know which matrix to return. Please denote a valid active expression matrix with 'setActiveExpressionMatrix()'."))
+
+    }
 
   } else {
 
-    active_mtr <- name
+    if(!mtr_name %in% getExpressionMatrixNames(object, of_sample = of_sample)){
+
+      base::stop(glue::glue("Could not find expression matrix '{mtr_name}' of sample '{of_sample}' in provided object."))
+
+    }
+
+    active_mtr <- mtr_name
 
   }
 
-  bc_in_sample <-
-    object@coordinates %>%
-    dplyr::filter(sample %in% {{of_sample}}) %>%
-    dplyr::pull(barcodes)
+  if(base::isTRUE(verbose)){ base::message(glue::glue("Using expression matrix '{active_mtr}'."))}
 
-  expr_mtr <- object@data[[active_mtr]][,bc_in_sample]
+  expr_mtr <-
+    object@data[[of_sample]][[active_mtr]] %>%
+    base::as.matrix()
 
-  if(base::is.null(expr_mtr)){
-
-    base::stop(glue::glue("Did not find expression matrix '{name}' in provided spata-object."))
-
-  }
-
-  return(base::as.matrix(expr_mtr))
+  return(expr_mtr)
 
 }
 
@@ -327,16 +371,38 @@ getCountMatrix <- function(object,
   # adjusting control
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  bc_in_sample <-
-    object@coordinates %>%
-    dplyr::filter(sample %in% of_sample) %>%
-    dplyr::pull(barcodes)
+  count_mtr <- object@data[[of_sample]][["counts"]]
 
-  count_mtr <- object@data$counts[,bc_in_sample]
+  if(base::is.null(count_mtr)){
+
+    base::stop(glue::glue("Did not find count matrix of sample '{of_sample}' in provided spata-object."))
+
+  }
 
   return(count_mtr)
 
 }
+
+
+#' @title Obtain names of stored expression matrices
+#'
+#' @inherit check_object params
+#'
+#' @return Character vector.
+#' @export
+
+getExpressionMatrixNames <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  object@data[[of_sample]] %>% base::names() %>%
+    purrr::discard(.p = ~ .x == "counts")
+
+}
+
+
 
 # -----
 
@@ -362,7 +428,7 @@ getSpataDf <- function(object, of_sample = ""){
   check_object(object)
   of_sample <- check_sample(object, of_sample)
 
-  getCoordinates(object, of_sample)[,c("barcodes", "sample")]
+  getCoordsDf(object, of_sample)[,c("barcodes", "sample")]
 
 }
 
@@ -380,13 +446,13 @@ getSpataDf <- function(object, of_sample = ""){
 #'  \itemize{
 #'   \item{ \code{getTsneDf()}: \emph{tsne1, tsne2}}
 #'   \item{ \code{getUmapDf()}: \emph{umap1, umap2}}
-#'   \item{ \code{getPcaDf()}: \emph{PC_1, PC_2, PC_3, ...PC_n}}
+#'   \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
 #'   }
 #'
 
 getDimRedDf <- function(object,
-                          of_sample = "",
-                          method_dr = c("pca", "tsne", "umap")){
+                        of_sample = "",
+                        method_dr = c("pca", "tsne", "umap")){
 
   # 1. Control --------------------------------------------------------------
 
@@ -402,12 +468,11 @@ getDimRedDf <- function(object,
   # 2. Data extraction ------------------------------------------------------
 
   dim_red_df <-
-    object@dim_red[[method_dr]] %>%
-    dplyr::filter(sample %in% of_sample)
+    object@dim_red[[of_sample]][[method_dr]]
 
   # -----
 
-  if(base::nrow(dim_red_df) == 0){
+  if(base::is.null(dim_red_df) || base::nrow(dim_red_df) == 0){
 
     base::stop("There seems to be no data for method: ", method_dr)
 
@@ -417,18 +482,44 @@ getDimRedDf <- function(object,
 
 }
 
-getDimRedData <- getDimRedDf
 
-#' @rdname getDimRedData
+#' @rdname getDimRedDf
 #' @export
 getPcaDf <- function(object,
-                       of_sample = ""){
+                     of_sample = "",
+                     n_pcs = 30){
 
+  confuns::is_value(x = n_pcs, mode = "numeric")
+
+  pca_df <-
   getDimRedDf(object = object,
-                of_sample = of_sample,
-                method_dr = "pca")
+              of_sample = of_sample,
+              method_dr = "pca")
+
+  subset_pcs <- stringr::str_c("PC", 1:n_pcs, sep = "")
+
+  subsetted_pca_df <-
+    dplyr::select(pca_df, barcodes, sample, dplyr::all_of(subset_pcs))
+
+  base::return(subsetted_pca_df)
 
 }
+
+#' @rdname getDimRedDf
+#' @export
+getPcaMtr <- function(object,
+                      of_sample = "",
+                      n_pcs = 30){
+
+  confuns::is_value(x = n_pcs, mode = "numeric")
+
+  getPcaDf(object = object, n_pcs = n_pcs) %>%
+    tibble::column_to_rownames(var = "barcodes") %>%
+    dplyr::select_if(.predicate = base::is.numeric) %>%
+    base::as.matrix()
+
+}
+
 
 #' @rdname getDimRedDf
 #' @export
@@ -436,12 +527,11 @@ getUmapDf <- function(object,
                         of_sample = ""){
 
   getDimRedDf(object = object,
-                of_sample = of_sample,
-                method_dr = "uamp")
+              of_sample = of_sample,
+              method_dr = "umap")
 
 }
 
-getUmapData <- getUmapDf
 
 #' @rdname getDimRedDf
 #' @export
@@ -449,12 +539,11 @@ getTsneDf <- function(object,
                         of_sample = ""){
 
   getDimRedDf(object = object,
-                of_sample = of_sample,
-                method_dr = "tsne")
+              of_sample = of_sample,
+              method_dr = "tsne")
 
 }
 
-getTsneData <- getTsneDf
 
 # -----
 
@@ -528,13 +617,9 @@ getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE)
 
   # lazy check
   check_object(object)
-  stopifnot(base::is.character(index) | base::is.null(index))
 
-  if(!base::is.character(of_class)){
-
-    stop("Please specify 'of_class' as a character vector.")
-
-  }
+  confuns::is_value(x = of_class, mode = "character")
+  confuns::is_value(x = index, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   # -----
 
@@ -730,11 +815,8 @@ getGenes <- function(object,
   # lazy check
   check_object(object)
 
-  if(!is.character(of_gene_sets) | base::length(of_gene_sets) == 0){
+  confuns::is_vec(x = of_gene_sets, mode = "character", min.length = 1)
 
-    stop("Argument 'of_gene_sets' is empty or invalid. Has to be a character vector of length one or more.")
-
-  }
 
   # adjusting check
   in_sample <- check_sample(object = object, of_sample = in_sample)
@@ -744,7 +826,7 @@ getGenes <- function(object,
 
   # 2. Main part ------------------------------------------------------------
 
-  rna_assay <- getExpressionMatrix(object = object, of_sample = in_sample)
+  expr_mtr <- getExpressionMatrix(object = object, of_sample = in_sample)
 
   # -----
 
@@ -752,7 +834,7 @@ getGenes <- function(object,
 
   if(base::all(of_gene_sets == "all")){
 
-    base::return(base::rownames(rna_assay))
+    base::return(base::rownames(expr_mtr))
 
   }
 
@@ -773,7 +855,7 @@ getGenes <- function(object,
                        dplyr::pull(gene)
 
                      genes_in_sample <-
-                       genes[genes %in% base::rownames(rna_assay)]
+                       genes[genes %in% base::rownames(expr_mtr)]
 
                        return(genes_in_sample)
 
@@ -880,14 +962,18 @@ getGenesInteractive <- function(object){
 #' @return A named character vector of the variables in the feature data slot.
 #' @export
 
-getFeatureNames <- function(object, of_class = NULL){
+getFeatureNames <- function(object, of_class = NULL, of_sample = ""){
 
   check_object(object)
-  if(!base::is.null(of_class)){confuns::is_vec(of_class, "character", "of_class")}
+  confuns::is_vec(x = of_class, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
-  feature_names <- base::colnames(object@fdata)
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  classes <- base::sapply(object@fdata[,feature_names], base::class)
+  feature_df <- getFeatureDf(object = object, of_sample = of_sample)
+
+  feature_names <- base::colnames(feature_df)
+
+  classes <- base::sapply(feature_df[,feature_names], base::class)
 
   base::names(feature_names) <- classes
 
@@ -895,15 +981,7 @@ getFeatureNames <- function(object, of_class = NULL){
     feature_names <- feature_names[classes %in% of_class]
   }
 
-  if(base::length(getSampleNames(object)) > 1){
-
-    base::return(feature_names[feature_names != c("barcodes")])
-
-  } else {
-
-    base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
-
-  }
+  base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
 
 }
 
@@ -920,12 +998,17 @@ getFeatureDf <- function(object, of_sample = ""){
   check_object(object)
   of_sample <- check_sample(object, of_sample)
 
-  object@fdata %>%
-    dplyr::filter(sample %in% {{of_sample}})
+  fdata <- object@fdata[[of_sample]]
+
+  if(base::is.null(fdata) | base::nrow(fdata) == 0){
+
+    base::stop(glue::glue("Could not find feature data for sample '{of_sample}'."))
+
+  }
+
+  base::return(fdata)
 
 }
-
-getFeatureData <- getFeatureDf
 
 
 #' @title Obtain a feature variable
@@ -958,7 +1041,7 @@ getFeatureVariables <- function(object,
   check_object(object)
   features <- check_features(object, features)
 
-  confuns::is_value(return, "character", "return")
+  confuns::is_value(x = return, mode = "character")
   confuns::check_one_of(input = return,
                         against = c("data.frame", "vector"),
                         ref.input = "return")
@@ -973,13 +1056,13 @@ getFeatureVariables <- function(object,
   if(base::length(features) == 1 && return == "vector"){
 
     res <-
-      getFeatureData(object, of_sample) %>%
+      getFeatureDf(object, of_sample = of_sample) %>%
         dplyr::pull(var = {{features}})
 
   } else if(return == "data.frame"){
 
     res <-
-      getFeatureData(object, of_sample) %>%
+      getFeatureDf(object, of_sample = of_sample) %>%
         dplyr::select(barcodes, sample, dplyr::all_of(features))
 
   } else if(return == "list"){
@@ -988,7 +1071,7 @@ getFeatureVariables <- function(object,
       purrr::map(.x = features,
                  .f = function(f){
 
-                   getFeatureData(object, of_sample) %>%
+                   getFeatureDf(object, of_sample) %>%
                      dplyr::pull(var = {{f}})
 
                  }) %>%
@@ -1018,7 +1101,7 @@ getFeatureValues <- function(object, of_sample = "", features){
   check_object(object)
   features <- check_features(object, features, valid_classes = c("character", "factor"))
 
-  of_sample <- check_sample(object, of_sample)
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
   # -----
 
@@ -1026,7 +1109,7 @@ getFeatureValues <- function(object, of_sample = "", features){
 
   if(base::length(features) == 1){
 
-    getFeatureData(object, of_sample) %>%
+    getFeatureDf(object, of_sample = of_sample) %>%
       dplyr::pull(var = {{features}}) %>%
       base::unique() %>%
       base::return()
@@ -1036,7 +1119,7 @@ getFeatureValues <- function(object, of_sample = "", features){
     purrr::map(.x = features,
                .f = function(f){
 
-                 getFeatureData(object, of_sample) %>%
+                 getFeatureDf(object, of_sample = of_sample) %>%
                    dplyr::pull(var = {{f}}) %>%
                    base::unique() %>%
                    base::return()
@@ -1062,9 +1145,9 @@ getFeatureValues <- function(object, of_sample = "", features){
 getImage <- function(object, of_sample = ""){
 
   check_object(object)
-  of_sample <- check_sample(object, of_sample, desired_length = 1)
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  object@image[[of_sample]]
+  object@images[[of_sample]]
 
 }
 
@@ -1092,30 +1175,31 @@ getSegmentNames <- function(object,
 
   # main part
   res_list <-
-    base::lapply(X = of_sample,
-                FUN = function(i){
+    purrr::map(.x = of_sample,
+               .f = function(i){
 
                   segment_names <-
-                    getFeatureData(object) %>%
-                    dplyr::filter(sample == i) %>%
-                    dplyr::pull(segment) %>% base::unique()
+                    getFeatureDf(object, of_sample = of_sample) %>%
+                    dplyr::pull(segment) %>%
+                    base::unique()
 
-                  if(base::length(segment_names) == 1 && segment_names == ""){
+                  if(base::length(segment_names) == 1 && segment_names %in% c("none", "")){
 
                      base::warning(stringr::str_c("There seems to be no segmentation for '", i, "'."))
 
                      base::return(NULL)
 
-                    }
+                  } else {
 
-                  return(segment_names[segment_names != ""])
+                    return(segment_names[!segment_names %in% c("none", "")])
+
+                  }
 
                 })
 
   base::names(res_list) <- of_sample
 
   res_list <- purrr::discard(.x = res_list, .p = base::is.null)
-
 
   if(base::isTRUE(simplify)){
 
@@ -1234,7 +1318,7 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 
   # main part
   t_names_list <-
-    base::lapply(X = of_sample, FUN = function(i){
+    purrr::map(.x = of_sample, .f = function(i){
 
       t_names <-
         base::names(object@trajectories[[i]])

@@ -711,18 +711,7 @@ check_pt <- function(pt_size = NULL,
                      pt_clrp = NULL,
                      pt_clr = NULL){
 
-
-  if(!base::is.null(pt_size) && !base::is.numeric(pt_size)){
-
-    base::stop("Argument 'pt_size' needs to be a single numeric value.")
-
-  }
-
-  if(!base::is.null(pt_alpha) && !base::is.numeric(pt_alpha)){
-
-    base::stop("Argument 'pt_alpha' needs to be a single numeric value.")
-
-  }
+  confuns::are_values(c("pt_size", "pt_alpha"), mode = "numeric", skip.allow = TRUE, skip.val = NULL)
 
   if(!base::is.null(pt_clrsp) && !pt_clrsp %in% base::unlist(confuns::all_colorspectra(), use.names = FALSE)){
 

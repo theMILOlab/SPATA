@@ -7,9 +7,13 @@
 plotAutoencoderResults(
   object,
   genes,
+  mtr_name = "denoised",
+  scales = "free",
   pt_size = 1.5,
   pt_alpha = 0.75,
-  pt_clrp = "milo"
+  pt_clrp = "milo",
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{

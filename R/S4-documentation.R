@@ -125,11 +125,11 @@ spatial_trajectory <- setClass("spatial_trajectory",
 
 spata <- setClass("spata",
                   slots = c(compatibility = "list",
-                            coordinates ="data.frame", #coordinates: bc, x, y, sample
+                            coordinates ="list", #coordinates: bc, x, y, sample
                             data = "list",
                             dim_red = "list", #PCA, UMAP, TSNE: bc, umap1, umap2, sample
-                            fdata = "data.frame", #fdata : bc, ...
-                            image = "list",
+                            fdata = "list", #fdata : bc, ...
+                            images = "list",
                             information = "list",
                             dea = "list",
                             samples = "character",

@@ -145,7 +145,7 @@ joinWithFeatures <- function(object,
   # 2. Join data ------------------------------------------------------------
 
   fdata <-
-    getFeatureData(object, of_sample = base::unique(spata_df$sample)) %>%
+    getFeatureDf(object, of_sample = base::unique(spata_df$sample)) %>%
     dplyr::select(dplyr::all_of(x = c("barcodes", features)))
 
   joined_df <-

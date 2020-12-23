@@ -8,14 +8,16 @@ initiateSpataObject_ExprMtr(
   coords_df,
   expr_mtr,
   count_mtr = NULL,
+  mtr_name = "scaled",
+  sample_name = "sample1",
   image = NULL,
-  sample_name,
   gene_set_path = NULL,
   output_path = NULL,
   file_name = NULL,
   pca_comp = 30,
-  nn = 50,
+  k = 50,
   tsne_perplexity = 30,
+  ...,
   verbose = TRUE
 )
 }
@@ -27,9 +29,9 @@ of the input matrix (\code{expr_mtr}).}
 
 \item{expr_mtr}{A numeric matrix. The expression matrix to be used.}
 
-\item{image}{An Image of the sample that can be displayed as the surface plot's background.}
-
 \item{sample_name}{Character value. The future input for SPATA's \code{of_sample}-argument.}
+
+\item{image}{An Image of the sample that can be displayed as the surface plot's background.}
 
 \item{gene_set_path}{Character value (or NULL). Specifies the path to a
 .RDS-file containing a data.frame that is to be used as input for slot @used_genesets.
@@ -53,15 +55,15 @@ spata-object is stored if \code{output_path} is a valid directory. Is prefixed w
 \item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
 the number of components to return.}
 
-\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
-of nearest neighbours to compute.}
-
 \item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
+of nearest neighbours to compute.}
 }
 \value{
 A spata-object.

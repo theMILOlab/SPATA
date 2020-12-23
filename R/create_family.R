@@ -68,12 +68,11 @@ createSegmentation <- function(object){
           segmentation_df <- reactive({
 
             segm_df <-
-              getFeatureData(object = spata_obj()) %>%
-              dplyr::filter(sample == current()$sample) %>%
-              dplyr::filter(segment != "") %>%
+              getFeatureDf(object = spata_obj(), of_sample = current()$sample) %>%
+              dplyr::filter(!segment %in% c("", "none")) %>%
               dplyr::select(barcodes, segment)
 
-            return(segm_df)
+            base::return(segm_df)
 
           })
 
@@ -160,7 +159,7 @@ createSegmentation <- function(object){
             checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
             checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
 
-            sample_coords <- getCoordinates(objec = spata_obj(), of_sample = current()$sample)
+            sample_coords <- getCoordsDf(objec = spata_obj(), of_sample = current()$sample)
 
             ## 1. determine positions of each point with respect to the defined segment
             positions <-  sp::point.in.polygon(point.x = sample_coords$x, # x coordinates of all spatial positions
@@ -176,11 +175,10 @@ createSegmentation <- function(object){
             # 2.2 update fdata
 
             # extract feature data
-            fdata <- getFeatureDf(spata_obj)
 
             # update sample subset
-            fdata_subset <-
-              dplyr::filter(.data = fdata, sample == current()$sample) %>%
+            fdata <-
+              getFeatureDf(spata_obj, of_sample = current()$sample) %>%
               dplyr::mutate(
                 positions = positions,
                 segment = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segment)
@@ -188,14 +186,12 @@ createSegmentation <- function(object){
               dplyr::select(-positions)
 
             # exchange sample subset
-            fdata[fdata$sample == current()$sample, ] <- fdata_subset
-
-            spata_obj@fdata <- fdata
+            spata_obj <- setFeatureDf(object = spata_obj, feature_df = fdata, of_sample = current()$sample)
 
             # 2.4 update and check
             spata_obj(spata_obj)
 
-            if(input$name_segment %in% base::unique(getFeatureData(spata_obj(), of_sample = current()$sample)$segment)){
+            if(input$name_segment %in% base::unique(getFeatureDf(spata_obj(), of_sample = current()$sample)$segment)){
 
               shiny::showNotification(ui = stringr::str_c(input$name_segment, "has been saved.", sep = " "), type = "message")
 
@@ -211,20 +207,18 @@ createSegmentation <- function(object){
           oe <- shiny::observeEvent(input$remove_segment, {
 
             spata_obj <- spata_obj()
-            fdata <- getFeatureDf(spata_obj)
+            fdata <- getFeatureDf(spata_obj, of_sample = current()$sample)
 
             checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segment), case_false = "segment_name_not_found")
 
             fdata_new <-
-              dplyr::filter(.data = fdata, sample == current()$sample) %>%
-              dplyr::mutate(segment = dplyr::if_else(segment == input$name_segment_rmv, "", segment))
+              dplyr::mutate(.data = fdata, segment = dplyr::if_else(segment == input$name_segment_rmv, true = "none", false = segment))
 
-            fdata[fdata$sample == current()$sample, ] <- fdata_new
-            spata_obj@fdata <- fdata
+            spata_obj <- setFeatureDf(spata_obj, feature_df = fdata_new, of_sample = current()$sample)
 
             spata_obj(spata_obj)
 
-            if(!input$name_segment_rmv %in% getFeatureData(spata_obj(), of_sample = current()$sample)$segment){
+            if(!input$name_segment_rmv %in% getFeatureDf(spata_obj(), of_sample = current()$sample)$segment){
 
               shiny::showNotification(ui = stringr::str_c("Segment '", input$name_segment_rmv, "' has been successfully removed.", sep = ""), type = "message")
 
@@ -322,23 +316,9 @@ createTrajectories <- function(object){
             shiny::reactiveVal(value = data.frame(x = numeric(0),
                                                   y = numeric(0)))
 
-          segment_trajectory_df <- shiny::reactiveVal(
-            value = data.frame(x = numeric(0),
-                               y = numeric(0),
-                               xend = numeric(0),
-                               yend = numeric(0),
-                               part = character(0))
-          )
+          segment_trajectory_df <- shiny::reactiveVal(value = empty_segment_df)
 
-          compiled_trajectory_df <- shiny::reactiveVal(
-            value = data.frame(barcodes = character(0),
-                               sample = character(0),
-                               x = numeric(0),
-                               y = numeric(0),
-                               projection_length = numeric(0),
-                               trajectory_part = character(0),
-                               stringsAsFactors = F)
-          )
+          compiled_trajectory_df <- shiny::reactiveVal(value = empty_ctdf)
 
           current <- shiny::reactiveVal(value = list())
 
@@ -480,7 +460,7 @@ createTrajectories <- function(object){
           # 2.1
           oe <- shiny::observeEvent(input$highlight_trajectory, {
 
-            checkpoint(evaluate = nrow(segment_trajectory_df()) >= 1, case_false = "insufficient_n_vertices2")
+            checkpoint(evaluate = base::nrow(segment_trajectory_df()) >= 1, case_false = "insufficient_n_vertices2")
 
             compiled_trajectory_df <-
               hlpr_compile_trajectory(segment_trajectory_df = segment_trajectory_df(),
@@ -499,20 +479,9 @@ createTrajectories <- function(object){
             vertices_df(data.frame(x = numeric(0),
                                    y = numeric(0)))
 
-            segment_trajectory_df(data.frame(x = numeric(0),
-                                             y = numeric(0),
-                                             xend = numeric(0),
-                                             yend = numeric(0),
-                                             part = character(0),
-                                             stringsAsFactors = F))
+            segment_trajectory_df(empty_segment_df)
 
-            compiled_trajectory_df(data.frame(barcodes = character(0),
-                                              sample = character(0),
-                                              x = numeric(0),
-                                              y = numeric(0),
-                                              projection_length = numeric(0),
-                                              trajectory_part = character(0),
-                                              stringsAsFactors = F))
+            compiled_trajectory_df(empty_ctdf)
 
             highlighted(FALSE)
 
@@ -521,24 +490,28 @@ createTrajectories <- function(object){
           ##--- 3. save the highlighted trajectory
           oe <- shiny::observeEvent(input$save_trajectory, {
 
-            traj_names <- spata_obj()@trajectories[[current()$sample]] %>% base::names()
+            traj_names <- getTrajectoryNames(object = spata_obj(), of_sample = current()$sample)
 
             ## control
             checkpoint(evaluate = base::nrow(compiled_trajectory_df()) > 0, case_false = "insufficient_n_vertices2")
             checkpoint(evaluate = shiny::isTruthy(x = input$name_trajectory), case_false = "invalid_trajectory_name")
-            checkpoint(evaluate = !input$name_trajectory %in% traj_names,
-                       case_false = "occupied_trajectory_name")
+            checkpoint(evaluate = !input$name_trajectory %in% traj_names, case_false = "occupied_trajectory_name")
 
             ## save trajectory
             spata_obj <- spata_obj()
 
-            spata_obj@trajectories[[current()$sample]][[input$name_trajectory]] <-
+            trajectory_object <-
               methods::new("spatial_trajectory",
                            compiled_trajectory_df = compiled_trajectory_df(),
                            segment_trajectory_df = segment_trajectory_df(),
                            comment = input$comment_trajectory,
                            name = input$name_trajectory,
                            sample = current()$sample)
+
+            spata_obj <- addTrajectoryObject(object = spata_obj,
+                                             trajectory_object = trajectory_object,
+                                             trajectory_name = input$name_trajectory,
+                                             of_sample = current()$sample)
 
             spata_obj(spata_obj)
 
@@ -555,20 +528,9 @@ createTrajectories <- function(object){
               vertices_df(data.frame(x = numeric(0),
                                      y = numeric(0)))
 
-              segment_trajectory_df(data.frame(x = numeric(0),
-                                               y = numeric(0),
-                                               xend = numeric(0),
-                                               yend = numeric(0),
-                                               part = character(0),
-                                               stringsAsFactors = F))
+              segment_trajectory_df(empty_segment_df)
 
-              compiled_trajectory_df(data.frame(barcodes = character(0),
-                                                sample = character(0),
-                                                x = numeric(0),
-                                                y = numeric(0),
-                                                projection_length = numeric(0),
-                                                trajectory_part = character(0),
-                                                stringsAsFactors = F))
+              compiled_trajectory_df(empty_ctdf)
 
               highlighted(FALSE)
 
@@ -583,7 +545,7 @@ createTrajectories <- function(object){
           ##--- 5. close application and return spata object
           oe <- shiny::observeEvent(input$close_app, {
 
-            stopApp(returnValue = spata_obj())
+            shiny::stopApp(returnValue = spata_obj())
 
           })
 

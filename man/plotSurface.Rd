@@ -108,6 +108,7 @@ Displays the spatial dimension of the sample and colors the
 surface according to the expression of genes, gene sets or features.
 
 \itemize{
+
  \item{ \code{plotSurface()} Takes the spata-object as the starting point and creates the
  necessary data.frame from scratch according to additional parameters.}
  \item{ \code{plotSurface2()} Takes a data.frame as the starting point.}

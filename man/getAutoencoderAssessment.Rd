@@ -4,7 +4,7 @@
 \alias{getAutoencoderAssessment}
 \title{Obtain information about the optimal neural network set up}
 \usage{
-getAutoencoderAssessment(object)
+getAutoencoderAssessment(object, of_sample = "")
 }
 \arguments{
 \item{object}{A valid spata-object.}

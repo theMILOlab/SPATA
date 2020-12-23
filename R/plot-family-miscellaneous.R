@@ -31,106 +31,46 @@ plotDimRed <- function(object,
 
   } else {
 
-    color_to$color <- pt_clr
+    color_to <- list("color" = pt_clr)
 
   }
 
   # -----
 
 
-  # 2. Extract dimensional reduction ----------------------------------------
+  # 2. Data extraction and plot preparation ---------------------------------
 
-  dimRed_df <- getDimRedDf(object, method_dr = method_dr, of_sample = of_sample)
+  dim_red_df <-
+    getDimRedDf(object, method_dr = method_dr, of_sample = of_sample)
 
-  # -----
-
-  # 3. Join data and prepare ggplot add-ons ---------------------------------
-
-  # if of length one and feature
-  if("features" %in% base::names(color_to)){
-
-    dimRed_df <- joinWithFeatures(object = object,
-                                  spata_df = dimRed_df,
-                                  features = color_to$features,
-                                  smooth = FALSE,
-                                  verbose = verbose)
-
-    # assemble ggplot add on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
-                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
-                                                        color = color_to$features)),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp, variable = dplyr::pull(dimRed_df, color_to$features)),
-      ggplot2::labs(color = color_to)
-    )
-
-    # if of length one and gene set
-  } else if("gene_sets" %in% base::names(color_to)){
-
-    dimRed_df <- joinWithGeneSets(object = object,
-                                  spata_df = dimRed_df,
-                                  gene_sets = color_to$gene_sets,
-                                  method_gs = method_gs,
-                                  smooth = FALSE,
-                                  normalize = normalize,
-                                  verbose = verbose)
-
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
-                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
-                                                        color = color_to$gene_sets)),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
-      ggplot2::labs(color = "Expr.\nscore", title = stringr::str_c("Gene set: ", color_to$gene_sets, " (", method_gs, ")", sep = ""))
-    )
-
-  } else if("genes" %in% base::names(color_to)){
-
-    dimRed_df <- joinWithGenes(object = object,
-                               spata_df = dimRed_df,
-                               genes = color_to$genes,
-                               average_genes = TRUE,
-                               smooth = FALSE,
-                               normalize = normalize,
-                               verbose = verbose)
-
-    # assemble ggplot add-on
-    ggplot_add_on <- list(
-      ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha,
-                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
-                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""),
-                                                        color = "mean_genes")),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
-      ggplot2::labs(color = "Mean expr.\nscore")
-    )
-
-
-  } else if("color" %in% base::names(color_to)){
-
-    ggplot_add_on <-
-      list(ggplot2::geom_point(data = dimRed_df, size = pt_size, alpha = pt_alpha, color = color_to$color,
-                          mapping = ggplot2::aes_string(x = stringr::str_c(base::tolower(method_dr), 1, sep = ""),
-                                                        y = stringr::str_c(base::tolower(method_dr), 2, sep = ""))))
-
-  }
+  plot_list <-
+    hlpr_scatterplot(spata_df = dim_red_df,
+                     color_to = color_to,
+                     pt_size = pt_size,
+                     pt_alpha = pt_alpha,
+                     pt_clrp = pt_clrp,
+                     pt_clrsp = pt_clrsp,
+                     method_gs = method_gs,
+                     normalize = normalize,
+                     verbose = verbose)
 
   # -----
 
-  # 4. Plotting -------------------------------------------------------------
+  # 3. Plotting -------------------------------------------------------------
 
+  x <- stringr::str_c(method_dr, 1, sep = "")
+  y <- stringr::str_c(method_dr, 2, sep = "")
 
-    ggplot2::ggplot(data = dimRed_df) +
-      ggplot_add_on +
-      ggplot2::theme_classic() +
-      ggplot2::theme(
-        axis.text = ggplot2::element_blank(),
-        axis.ticks = ggplot2::element_blank(),
-        axis.title = ggplot2::element_blank(),
-        panel.grid.major = ggplot2::element_blank(),
-        panel.grid.minor = ggplot2::element_blank()
-      )
+  ggplot2::ggplot(data = plot_list$data, mapping = ggplot2::aes_string(x = x, y = y)) +
+    plot_list$add_on +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
+      axis.title = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank()
+    )
 
   # -----
 
@@ -156,7 +96,7 @@ plotDimRed <- function(object,
 #' @export
 #'
 
-plotUMAP <- function(object,
+plotUmap <- function(object,
                      of_sample = "",
                      color_to = NULL,
                      method_gs = "mean",
@@ -185,7 +125,7 @@ plotUMAP <- function(object,
 
 #' @rdname plotUMAP
 #' @export
-plotTSNE <- function(object,
+plotTsne <- function(object,
                      of_sample = "",
                      color_to = NULL,
                      method_gs = "mean",
@@ -213,9 +153,9 @@ plotTSNE <- function(object,
 
 
 
-#' @rdname plotUMAP
+#' @rdname plotUmap
 #' @export
-plotPCA <- function(object,
+plotPca <- function(object,
                     of_sample = "",
                     color_to = NULL,
                     n_pcs = 10,
@@ -237,9 +177,7 @@ plotPCA <- function(object,
   check_object(object)
 
   of_sample <-
-    check_sample(object = object,
-                 of_sample = of_sample,
-                 desired_length = 1)
+    check_sample(object = object, of_sample = of_sample, of.length = 1)
 
   if(!base::is.null(color_to)){
 
@@ -249,8 +187,9 @@ plotPCA <- function(object,
                      all_genes = getGenes(object),
                      all_gene_sets = getGeneSets(object))
 
-    color_to_string <- base::unlist(color_to, use.names = FALSE)
+  } else {
 
+    color_to <- list("color" = pt_clr)
   }
 
   # get data
@@ -265,11 +204,11 @@ plotPCA <- function(object,
 
   if(length_n_pcs > total_pcs){
 
-    base::stop(glue::glue("Length of input for argument 'n_pcs' ({length_n_pcs}) exceeds total number of pcs ({total_pcs})."))
+    base::stop(glue::glue("Input for argument 'n_pcs' ({length_n_pcs}) exceeds total number of pcs ({total_pcs})."))
 
   } else if(length_n_pcs %% 2 != 0){
 
-    base::stop(glue::glue("Length of input for argument 'n_pcs' must be an even number."))
+    base::stop(glue::glue("Input for argument 'n_pcs' must be an even number."))
 
   }
 
@@ -279,7 +218,7 @@ plotPCA <- function(object,
   # -----
 
 
-  # 2. Data joining  --------------------------------------------------------
+  # 2. Data wrangling ------------------------------------------------------
 
   selected_df <-
     dplyr::select(.data= pca_df,
@@ -314,52 +253,24 @@ plotPCA <- function(object,
 
   unique_pc_pairs <- dplyr::pull(joined_df, var = "pc_pairs") %>% base::unique()
 
-  joined_df <-
-    dplyr::mutate(.data = joined_df,
-                  pc_pairs = base::factor(pc_pairs, levels = unique_pc_pairs)
-    )
+  dim_red_df <-
+    dplyr::mutate(.data = joined_df, pc_pairs = base::factor(pc_pairs, levels = unique_pc_pairs))
 
   # -----
 
+  plot_list <-
+    hlpr_scatterplot(spata_df = dim_red_df,
+                     color_to = color_to,
+                     pt_size = pt_size,
+                     pt_alpha = pt_alpha,
+                     pt_clrp = pt_clrp,
+                     pt_clrsp = pt_clrsp,
+                     method_gs = method_gs,
+                     normalize = normalize,
+                     verbose = verbose)
 
-  # 3. Plotting -------------------------------------------------------------
-
-  if(!base::is.null(color_to)){
-
-    joined_df <-
-      joinWithVariables(object = object,
-                        spata_df = joined_df,
-                        variables = color_to,
-                        method_gs = method_gs,
-                        average_genes = TRUE,
-                        normalize = normalize,
-                        verbose = verbose)
-
-    ggplot_main <-
-      ggplot2::ggplot(data = joined_df,
-                      mapping = ggplot2::aes(x = x, y = y, color = .data[[color_to_string]]))
-
-    point_add_on <-
-      list(
-        confuns::call_flexibly(fn = "geom_point", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::geom_point(),
-                               default = list(size = pt_size, alpha = pt_alpha, mapping = ggplot2::aes())),
-        confuns::scale_color_add_on(aes = "color", variable = joined_df[[color_to_string]], clrp = pt_clrp, clrsp = pt_clrsp)
-      )
-
-
-  } else if(base::is.null(color_to)) {
-
-    ggplot_main <-
-      ggplot2::ggplot(data = joined_df, mapping = ggplot2::aes(x = x, y = y))
-
-    point_add_on <-
-      confuns::call_flexibly(fn = "geom_point", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::geom_point(),
-                             default = list(size = pt_size, alpha = pt_alpha, color = pt_clr, mapping = ggplot2::aes()))
-
-  }
-
-  ggplot_main +
-    point_add_on +
+  ggplot(data = plot_list$data, mapping = ggplot2::aes(x = x, y = y)) +
+    plot_list$add_on +
     confuns::call_flexibly(fn = "facet_wrap", fn.ns = "ggplot2", verbose = verbose, v.fail = ggplot2::facet_wrap(facets = . ~ pc_pairs),
                            default = list(facets = stats::as.formula(. ~ pc_pairs))) +
     ggplot2::theme_classic() +
@@ -367,6 +278,59 @@ plotPCA <- function(object,
       strip.background = ggplot2::element_blank(),
       axis.title = ggplot2::element_blank()
     )
+
+}
+
+
+#' @title Plot Pca Variation
+#'
+#' @description Displays a scree plot of the current pca data stored.
+#'
+#' @inherit check_sample params
+#' @inherit getPcaMtr params
+#'
+#' @inherit plot_family return
+#' @export
+
+plotPcaVariation <- function(object,
+                             of_sample = "",
+                             n_pcs = 15){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  confuns::is_value(x = n_pcs, mode = "numeric")
+
+  of_sample <- check_sample(object, of_sample = of_sample)
+
+  # 2. Data extraction ------------------------------------------------------
+
+  pca_mtr <- getPcaMtr(object, n_pcs = n_pcs, of_sample = of_sample)
+
+  plot_df <-
+    base::apply(X = pca_mtr, MARGIN = 2, FUN = stats::sd) %>%
+    base::as.data.frame() %>%
+    magrittr::set_colnames(value = "sdev") %>%
+    tibble::rownames_to_column(var = "pcs") %>%
+    dplyr::mutate(
+      pcs = base::factor(x = pcs, levels = base::colnames(pca_mtr)),
+      group = "group"
+    )
+
+  # 3. Plotting -------------------------------------------------------------
+
+  ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = pcs, y = sdev)) +
+    ggplot2::geom_col(mapping = ggplot2::aes(y = sdev), fill = "steelblue") +
+    ggplot2::geom_path(mapping = ggplot2::aes(group = group), size = 1) +
+    ggplot2::geom_point(size = 2) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      panel.grid.major = ggplot2::element_line() ,
+      panel.grid.minor.y = ggplot2::element_line()
+    ) +
+    ggplot2::labs(y = "Standard Deviation", x = NULL)
 
 }
 
@@ -1953,7 +1917,7 @@ plotSegmentation <- function(object,
 
 }
 
-
+# -----
 
 # Autoencoder -------------------------------------------------------------
 
@@ -1972,17 +1936,44 @@ plotSegmentation <- function(object,
 #' @export
 #'
 
-plotAutoencoderAssessment <- function(object){
+plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = "milo", verbose = TRUE){
 
-  plot_df <- getAutoencoderAssessment(object)
+  check_object(object)
+
+  assessment_list <- getAutoencoderAssessment(object)
+
+  plot_df <- assessment_list$df
+
+  if(base::is.character(activation_subset)){
+
+    confuns::check_vector(input = activation_subset,
+                          against = activation_fns,
+                          ref.input = "input for argumetn 'activation_subset'",
+                          ref.against = "valid activation functions.")
+
+    plot_df <- dplyr::filter(plot_df, activation %in% activation_subset)
+
+  }
+
+  if(base::isTRUE(verbose)){
+
+    msg <- glue::glue("Additional set up of neural network: \n\nEpochs: {epochs}\nDropout: {dropout}\nLayers: {layers}",
+                      epochs = assessment_list$set_up$epochs,
+                      dropout = assessment_list$set_up$dropout,
+                      layers = glue::glue_collapse(x = assessment_list$set_up$layers, sep = ", ", last = " and "))
+
+    base::writeLines(text = msg)
+
+  }
+
 
   ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = bottleneck, y = total_var)) +
+    ggplot2::geom_point(mapping = ggplot2::aes(color = activation), size = 3) +
     ggplot2::geom_line(mapping = ggplot2::aes(group = activation, color = activation), size = 1.5) +
     ggplot2::facet_wrap(facets = . ~ activation) +
+    scale_color_add_on(aes = "color", clrp = clrp, variable = plot_df$activation) +
     ggplot2::theme_bw()  +
-    ggplot2::theme(
-      legend.position = "none",
-    ) +
+    ggplot2::theme(legend.position = "none") +
     ggplot2::labs(x = "Number of Bottleneck Neurons", y = "Total Variance")
 
 }
@@ -2002,18 +1993,28 @@ plotAutoencoderAssessment <- function(object){
 #'
 #' @export
 
-plotAutoencoderResults <- function(object, genes, pt_size = 1.5, pt_alpha = 0.75, pt_clrp = "milo"){
+plotAutoencoderResults <- function(object,
+                                   genes,
+                                   mtr_name = "denoised",
+                                   scales = "free",
+                                   pt_size = 1.5,
+                                   pt_alpha = 0.75,
+                                   pt_clrp = "milo",
+                                   verbose = TRUE,
+                                   ...){
+
+  confuns::make_available(..., verbose = verbose)
 
   # 1. Control --------------------------------------------------------------
 
   check_object(object)
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrp = pt_clrp)
 
-  of_sample <- check_sample(object, of_sample = of_sample)
+  of_sample <- check_sample(object, of_sample = "")
   genes <- check_genes(object, genes = genes, of.length = 2, fdb_fn = "stop")
 
-  denoised <- getExpressionMatrix(object, of_sample = of_sample, name = "denoised")
-  scaled <- getExpressionMatrix(object, of_sample = of_sample, name = "scaled")
+  denoised <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = mtr_name)
+  scaled <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = "scaled")
 
   # 2. Join data ------------------------------------------------------------
 
@@ -2030,7 +2031,7 @@ plotAutoencoderResults <- function(object, genes, pt_size = 1.5, pt_alpha = 0.75
   ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[genes[1]]], y = .data[[genes[2]]], color = type)) +
     ggplot2::geom_point(alpha = pt_alpha, size = pt_size) +
     ggplot2::geom_smooth(method = "lm", formula = y ~ x) +
-    ggplot2::facet_wrap(. ~ type, scales = "free") +
+    confuns::call_flexibly(fn = "facet_wrap", fn.ns = "ggplot2", default = list(facets = stats::as.formula(. ~ type), scales = scales)) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       strip.background = ggplot2::element_blank(),
@@ -2039,3 +2040,5 @@ plotAutoencoderResults <- function(object, genes, pt_size = 1.5, pt_alpha = 0.75
     scale_color_add_on(variable = "discrete", clrp = pt_clrp)
 
 }
+
+# -----

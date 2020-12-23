@@ -72,6 +72,7 @@ getFromSeurat <- function(return_value, error_handling, error_value, error_ref){
 transformSeuratToSpata <- function(seurat_object,
                                    sample_name,
                                    assay = "Spatial",
+                                   slice_name = "slice1",
                                    method = "spatial",
                                    coords_from = "umap",
                                    gene_set_path = NULL,
@@ -86,11 +87,11 @@ transformSeuratToSpata <- function(seurat_object,
   confuns::are_values("sample_name", "method", mode = "character")
 
   # spata object
-  spata_obj <- methods::new(Class = "spata")
+  spata_object <- methods::new(Class = "spata", samples = sample_name)
 
   if(base::is.null(gene_set_path) | base::is.character(gene_set_path)){
 
-    spata_obj@used_genesets <-
+    spata_object@used_genesets <-
       loadGSDF(gene_set_path = gene_set_path, verbose = verbose)
 
   }
@@ -101,7 +102,7 @@ transformSeuratToSpata <- function(seurat_object,
   if(method == "spatial"){
 
     # get coordinates
-    coordinates <-
+    coords_df <-
       getFromSeurat(
         return_value = Seurat::GetTissueCoordinates(seurat_object),
         error_handling = "stop",
@@ -109,24 +110,24 @@ transformSeuratToSpata <- function(seurat_object,
         error_value = NULL
       )
 
-    coordinates <-
-      tibble::rownames_to_column(.data = coordinates, var = "barcodes") %>%
+    coords_df <-
+      tibble::rownames_to_column(.data = coords_df, var = "barcodes") %>%
       dplyr::rename("x" = "imagecol", "y" = "imagerow") %>%
       dplyr::mutate(sample = {{sample_name}}) %>%
       dplyr::select(barcodes, sample, x, y)
 
     slice <-
       getFromSeurat(
-        return_value = seurat_object@images$slice1,
+        return_value = seurat_object@images[[slice_name]],
         error_handling = "stop",
-        error_ref = "slice-object",
+        error_ref = glue::glue("slice-object '{slice_name}'"),
         error_value = NULL
       )
 
-    spata_obj@compatibility <- list("Seurat" = list("slice" = slice))
+    spata_object@compatibility <- list("Seurat" = list("slice" = slice))
 
     # get scaled matrix
-    expr_matrix <-
+    scaled_mtr <-
       getFromSeurat(
         return_value = seurat_object@assays[[assay]]@scale.data,
         error_handling = "stop",
@@ -169,7 +170,7 @@ transformSeuratToSpata <- function(seurat_object,
     second_choice <- seurat_coords_from_opts[seurat_coords_from_opts != coords_from]
 
     # get coordinates/ umap cell embedding
-    coordinates <-
+    coords_df <-
       getFromSeurat(
         return_value = base::as.data.frame(seurat_object@reductions[[first_choice]]@cell.embeddings),
         error_handling = "warning",
@@ -178,11 +179,11 @@ transformSeuratToSpata <- function(seurat_object,
       )
 
     # try tsne if umap did not work
-    if(base::is.null(coordinates)){
+    if(base::is.null(coords_df)){
 
       base::warning(glue::glue("Trying to extract surrogate coordinates from slot {second_choice}."))
 
-      coordinates <-
+      coords_df <-
         getFromSeurat(
           return_value = base::as.data.frame(seurat_object@reductions[[second_choice]]@cell.embeddings),
           error_handling = "stop",
@@ -192,14 +193,14 @@ transformSeuratToSpata <- function(seurat_object,
 
     }
 
-    coordinates <-
-      tibble::rownames_to_column(.data = coordinates, var = "barcodes") %>%
+    coords_df <-
+      tibble::rownames_to_column(.data = coords_df, var = "barcodes") %>%
       magrittr::set_colnames(value = c("barcodes", "x", "y")) %>%
       dplyr::mutate(sample = {{sample_name}}) %>%
       dplyr::select(barcodes, sample, x, y)
 
     # get expression matrix
-    expr_matrix <-
+    scaled_mtr <-
       getFromSeurat(
         return_value = seurat_object@assays[[assay]]@scale.data,
         error_handling = "stop",
@@ -224,12 +225,9 @@ transformSeuratToSpata <- function(seurat_object,
 
 # 3. Postprocess ----------------------------------------------------------
 
-  # barcode check
-  barcode_pattern <- stringr::str_c("_", sample_name, "$", sep = "")
-
   # check if barcodes are identical
-  barcodes_matrix <- base::colnames(expr_matrix) %>% base::sort()
-  barcodes_coordinates <- dplyr::pull(coordinates, var = "barcodes") %>% base::sort()
+  barcodes_matrix <- base::colnames(scaled_mtr) %>% base::sort()
+  barcodes_coordinates <- dplyr::pull(coords_df, var = "barcodes") %>% base::sort()
 
   if(!base::identical(barcodes_matrix, barcodes_coordinates)){
 
@@ -237,14 +235,14 @@ transformSeuratToSpata <- function(seurat_object,
 
   }
 
-  # meta data
-  fdata <- seurat_object@meta.data
-  fdata$barcodes <- NULL
+  # feature data
+
+  seurat_object@meta.data$barcodes <- NULL
 
   fdata <-
-    tibble::rownames_to_column(.data = fdata, var = "barcodes") %>%
-    dplyr::mutate(sample = {{sample_name}}, segment = "") %>%
-    dplyr::select(barcodes, sample, dplyr::everything())
+    tibble::rownames_to_column(.data = seurat_object@meta.data, var = "barcodes") %>%
+    dplyr::mutate(segment = "none") %>%
+    dplyr::select(barcodes, dplyr::everything())
 
   # savely discard colum 'orig.ident'
   fdata <- base::tryCatch(
@@ -255,18 +253,19 @@ transformSeuratToSpata <- function(seurat_object,
 
   )
 
+  spata_object <- setFeatureDf(object = spata_object, feature_df = fdata)
+
 # 4. Pass to Spata --------------------------------------------------------
 
-  # dimensional reduction
-  dim_red_new <- list()
 
-  dim_red_new$pca <- base::tryCatch({
+  # dimensional reduction: pca
+
+  pca_df <- base::tryCatch({
 
     pca_df <-
       base::as.data.frame(seurat_object@reductions$pca@cell.embeddings) %>%
       tibble::rownames_to_column(var = "barcodes") %>%
-      dplyr::mutate(sample = {{sample_name}}) %>%
-      dplyr::select(barcodes, sample, dplyr::everything())
+      dplyr::select(barcodes, dplyr::everything())
 
     base::colnames(pca_df) <- stringr::str_remove_all(base::colnames(pca_df), pattern = "_")
 
@@ -284,16 +283,21 @@ transformSeuratToSpata <- function(seurat_object,
 
   )
 
-  dim_red_new$umap <- base::tryCatch(
+  spata_object <- setPcaDf(object = spata_object, pca_df = pca_df)
+
+
+  # dimensional reduction: umap
+
+  umap_df <- base::tryCatch({
+
     base::data.frame(
-      barcodes = coordinates$barcodes,
-      sample = coordinates$sample,
+      barcodes = base::rownames(seurat_object@reductions$umap@cell.embeddings),
       umap1 = seurat_object@reductions$umap@cell.embeddings[,1],
       umap2 = seurat_object@reductions$umap@cell.embeddings[,2],
       stringsAsFactors = FALSE
-    ) %>% tibble::remove_rownames() ,
+    ) %>% tibble::remove_rownames()
 
-    error = function(error){
+    }, error = function(error){
 
       base::warning("Could not find or transfer UMAP-data. Did you process the seurat-object correctly?")
 
@@ -303,18 +307,21 @@ transformSeuratToSpata <- function(seurat_object,
 
   )
 
-  dim_red_new$tsne <- base::tryCatch(
+  spata_object <- setUmapDf(object = spata_object, umap_df = umap_df)
+
+
+  # dimensional reduction: tsne
+
+  tsne_df <- base::tryCatch({
 
     base::data.frame(
-      barcodes = coordinates$barcodes,
-      sample = coordinates$sample,
+      barcodes = base::rownames(seurat_object@reductions$tsne@cell.embeddings),
       tsne1 = seurat_object@reductions$tsne@cell.embeddings[,1],
       tsne2 = seurat_object@reductions$tsne@cell.embeddings[,2],
-      stringsAsFactors = F
+      stringsAsFactors = FALSE
     ) %>% tibble::remove_rownames()
-    ,
 
-    error = function(error){
+    }, error = function(error){
 
       base::warning("Could not find or transfer TSNE-data. Did you process the seurat-object correctly?")
 
@@ -324,41 +331,46 @@ transformSeuratToSpata <- function(seurat_object,
 
   )
 
-  # data
-  data <- list()
-
-  data$counts <- count_matrix[base::rowSums(base::as.matrix(count_matrix)) != 0, ]
-  data$scaled <- expr_matrix[base::rowSums(base::as.matrix(expr_matrix)) != 0, ]
+  spata_object <- setTsneDf(object = spata_object, tsne_df = tsne_df)
 
 
-  # passing
-  spata_obj@coordinates <- coordinates
+  # data matrices
 
-  spata_obj@samples <- sample_name
+  spata_object <-
+    setCountMatrix(
+      object = spata_object,
+      count_mtr = count_matrix[base::rowSums(base::as.matrix(count_matrix)) != 0, ]
+      )
 
-  spata_obj@fdata <- fdata
+  spata_object <-
+    setScaledMatrix(
+      object = spata_object,
+      scaled_mtr = scaled_mtr[base::rowSums(base::as.matrix(scaled_mtr)) != 0, ]
+      )
 
-  spata_obj@data <- data
 
-  spata_obj@dim_red <- dim_red_new
+  # coordinates & image
 
-  spata_obj@image <-
-    magrittr::set_names(x = list(image), value = sample_name)
+  spata_object <-
+    setCoordsDf(object = spata_object, coords_df = coords_df) %>%
+    setImage(object = ., image = image)
 
-  spata_obj@information <-
-    list("initiation" = list(timepoint = base::Sys.time()))
 
-  spata_obj@trajectories <-
+  # other lists
+  spata_object@information <-
+    list("active_mtr" = magrittr::set_names(x = list("scaled"), value = sample_name),
+         "autoencoder" = magrittr::set_names(x = list(list()), value = sample_name),
+         "barcodes" = magrittr::set_names(x = list(barcodes_matrix), value = sample_name))
+
+  spata_object@trajectories <-
     magrittr::set_names(x = list(list()), value = sample_name)
 
-  spata_obj@version <-
-    current_spata_version
+  spata_object@version <- current_spata_version
 
-  spata_obj <- check_all_barcodes(spata_obj)
 
 # 5. Return spata object ---------------------------------------------------
 
-  base::return(spata_obj)
+  base::return(spata_object)
 
 }
 
@@ -749,7 +761,7 @@ transformSpataToSeurat <- function(object,
   base::colnames(counts) <- cnames_new
 
   meta_data <-
-    getFeatureData(object) %>%
+    getFeatureDf(object) %>%
     dplyr::mutate(barcodes = stringr::str_remove_all(string = barcodes, pattern = pattern)) %>%
     tibble::column_to_rownames(var = "barcodes")
 

@@ -25,12 +25,11 @@ updateSpataObject <- function(object, verbose = TRUE){
 
   )
 
-
 # Version < 1.1.0 ---------------------------------------------------------
 
   # adds slots '@dea = list()', '@information = list()'
   # transforms '@data from S4 to list()', '@dim_red from S4 list()'
-  if(version$major <= 1 & version$minor < 1){
+  if(version$major <= 1 & version$minor <= 1){
 
     # extract data from old slots
 
@@ -79,6 +78,7 @@ updateSpataObject <- function(object, verbose = TRUE){
                    used_genesets = gs_df,
                    version = current_spata_version)
 
+
   } else {
 
 
@@ -96,3 +96,6 @@ updateSpataObject <- function(object, verbose = TRUE){
   base::return(new_object)
 
 }
+
+
+

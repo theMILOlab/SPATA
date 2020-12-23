@@ -28,7 +28,7 @@ examineClusterResults <- function(cluster_df){
   )
 
   dplyr::select(.data = cluster_df, -barcodes) %>%
-    dplyr::select_if(.predicate = base::is.character) %>%
+    purrr::discard(.x = ., .p = base::is.numeric) %>%
     purrr::map(.f = function(i){base::unique(i) %>% base::sort()})
 
 }

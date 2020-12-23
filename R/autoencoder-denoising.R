@@ -28,7 +28,7 @@ assessAutoencoderOptions <- function(object,
   check_object(object)
 
   assessment_list <-
-    assessAutoencoderOptions2(expr_mtr = getExpressionMatrix(object, of_sample = "", name = "scaled"),
+    assessAutoencoderOptions2(expr_mtr = getExpressionMatrix(object, of_sample = "", mtr_name = "scaled"),
                               activations = activations,
                               bottlenecks = bottlenecks,
                               layers = layers,
@@ -81,12 +81,12 @@ assessAutoencoderOptions2 <- function(expr_mtr,
       bottleneck <- bottlenecks[b]
 
       base::message(Sys.time())
-      base::message(glue::glue("Calculating with activation option {a}/{base::length(activations)}: activations = {activation} and bottleneck option {b}/{base::length(bottlenecks)}: bottleneck = {bottleneck}"))
+      base::message(glue::glue("Assessing activation option {a}/{base::length(activations)}:'{activation}' and bottleneck option {b}/{base::length(bottlenecks)}: {bottleneck}"))
 
       # Neural network ----------------------------------------------------------
 
       input_layer <-
-        keras::layer_input(shape = c(ncol(expr_mtr)))
+        keras::layer_input(shape = c(base::ncol(expr_mtr)))
 
       encoder <-
         input_layer %>%
@@ -130,14 +130,13 @@ assessAutoencoderOptions2 <- function(expr_mtr,
 
       # PCA afterwards ----------------------------------------------------------
 
-      bottlenecks_list[[b]] <- irlba::prcomp_irlba((reconstructed_points), n = 30)
+      bottlenecks_list[[b]] <- irlba::prcomp_irlba(base::t(reconstructed_points), n = 30)
 
     }
 
     activations_list[[a]] <- bottlenecks_list
 
   }
-
 
   # 3. Summarize in data.frame ----------------------------------------------
 
@@ -154,8 +153,11 @@ assessAutoencoderOptions2 <- function(expr_mtr,
 
   res_df$bottleneck <- base::factor(res_df$bottleneck, levels = base::unique(res_df$bottleneck))
 
+  pca_scaled <- irlba::prcomp_irlba(x = base::t(expr_mtr), n = 30)
+
   assessment_list <- list("df" = res_df,
-                          "set_up" = list("epochs" = epochs, "dropout" = dropout, "layers" = layers))
+                          "set_up" = list("epochs" = epochs, "dropout" = dropout, "layers" = layers),
+                          "scaled_var" = pca_scaled$totalvar)
 
   base::return(assessment_list)
 
@@ -171,13 +173,16 @@ assessAutoencoderOptions2 <- function(expr_mtr,
 #' @param layers Numeric vector of length 3. Denotes the number of neurons in the three hidden layers.
 #'  (default = c(128, 64, 32))
 #' @param bottleneck Numeric value. Denotes the number of bottleneck neurons.
+#' @param mtr_name_output Character value. Denotes the name under which the denoised matrix is stored
+#' in the data slot.
 #' @param dropout Numeric value. Denotes the dropout. (defaults to 0.1)
 #' @param activation Character value. Denotes the activation function. (defaults to \emph{'relu'})
-#' @param epochs Numeric value. Denotes the epochs of the neural network. (defaults to20)
-#' @param plot Logical. If set to TRUE a scatter plot of the result is displayed in the viewer pane.
+#' @param epochs Numeric value. Denotes the epochs of the neural network. (defaults to 20)
+#' @param display_plot Logical. If set to TRUE a scatter plot of the result is displayed in the viewer pane.
 #' See documentation for \code{plotAutoencoderResults()} for more information.
 #' @param genes Character vector of length two. Denotes the genes to be used for the validation plot.
-#' @param discard_scaled_mtr Logical. If set to TRUE the matrix in slot @@data$scaled is discarded.
+#' @param set_as_active Logical. If set to TRUE the denoised matrix is set as the active matrix via
+#' \code{setActiveExpressionMatrix()}.
 #'
 #' @return A spata-object containing the denoised expression matrix in slot @@data$denoised. This matrix
 #' is then denoted as the active matrix.
@@ -189,38 +194,45 @@ assessAutoencoderOptions2 <- function(expr_mtr,
 runAutoencoderDenoising <- function(object,
                                     activation,
                                     bottleneck,
+                                    mtr_name_output = "denoised",
+                                    of_sample = "",
                                     layers = c(128, 64, 32),
                                     dropout = 0.1,
                                     epochs = 20,
-                                    plot = FALSE,
+                                    display_plot = FALSE,
                                     genes,
-                                    discard_scaled_mtr = FALSE,
+                                    set_as_active = FALSE,
                                     verbose = TRUE){
 
 # 1. Control --------------------------------------------------------------
 
+  if(base::isTRUE(verbose)){ base::message("Checking input for validity.")}
+
   check_object(object)
 
   confuns::are_values(c("dropout", "epochs"), mode = "numeric")
-  confuns::are_values(c("activation"), mode = "character")
-  confuns::are_values(c("val_plot", "verbose"), mode = "logical")
+  confuns::are_vectors(c("activation"), mode = "character")
+  confuns::are_values(c("display_plot", "set_as_active", "verbose"), mode = "logical")
 
   confuns::is_vec(x = layers, mode = "numeric", of.length = 3)
 
-  if(base::isTRUE(val_plot)){
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-    val_genes <- check_genes(object, genes = val_genes, max_length = 2, of.length = 2)
+  if(base::isTRUE(display_plot)){
+
+    # check validation genes
+    val_genes <- check_genes(object, genes = genes, max_length = 2, of.length = 2)
 
     base::stopifnot(base::length(val_genes) == 2)
 
   }
 
-  x_train <- getExpressionMatrix(object)
+  x_train <- getExpressionMatrix(object, mtr_name = "scaled" , of_sample = of_sample)
 
   # assess optimum if any of the two inputs are vectors
   if(base::any(purrr::map_int(.x = list(bottleneck, activation), .f = base::length) > 1)){
 
-    assessment <-
+    assessment_list <-
       assessAutoencoderOptions2(expr_mtr = x_train,
                                 dropout = dropout,
                                 epochs = epochs,
@@ -229,23 +241,32 @@ runAutoencoderDenoising <- function(object,
                                 activations = activation,
                                 verbose = FALSE)
 
-    assessment_df <- assessment$df
+    assessment_df <- assessment_list$df
 
     max_df <- dplyr::filter(assessment_df, total_var == base::max(total_var))
 
     activation <- max_df$activation[1]
     bottleneck <- base::as.character(max_df$bottleneck[1]) %>% base::as.numeric()
 
+    base::message(glue::glue("Assessment done. Running autoencoder with: \nActivation function: '{activation}'\nBottleneck neurons: {bottleneck} "))
+
   } else {
 
-    assessment_list <- list()
-    assessment_df <- data.frame()
+    assessment_list <- base::tryCatch({
+
+      getAutoencoderAssessment(object, of_sample = of_sample)
+
+    }, error = function(error){
+
+      return(list())
+
+    })
 
   }
 
   # -----
 
-# 2. Create netork --------------------------------------------------------
+# 2. Create network --------------------------------------------------------
 
   input_layer <-
     keras::layer_input(shape = c(ncol(x_train)))
@@ -289,7 +310,7 @@ runAutoencoderDenoising <- function(object,
   base::rownames(reconstructed_points) <- base::rownames(x_train)
   base::colnames(reconstructed_points) <- base::colnames(x_train)
 
-  if(base::isTRUE(val_plot)){
+  if(base::isTRUE(display_plot)){
 
     plot_df <-
       base::rbind(
@@ -297,7 +318,6 @@ runAutoencoderDenoising <- function(object,
         data.frame(base::t(x_train[val_genes, ]), type = "Scaled")
       ) %>%
       dplyr::mutate(type = base::factor(x = type, levels = c("Scaled", "Denoised")))
-
 
     val_plot <-
       ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[val_genes[1]]], y = .data[[val_genes[2]]], color = type)) +
@@ -317,30 +337,29 @@ runAutoencoderDenoising <- function(object,
 
 # 3. Return updated object ------------------------------------------------
 
-  info_list <- list("activation" = activation,
-                    "assessment" = assessment_list,
-                    "bottleneck" = bottleneck,
-                    "dropout" = dropout,
-                    "epochs" = epochs,
-                    "layers" = layers)
+  set_up <- list("activation" = activation,
+                 "bottleneck" = bottleneck,
+                 "dropout" = dropout,
+                 "epochs" = epochs,
+                 "input_mtr" = "scaled",
+                 "output_mtr" = mtr_name_output,
+                 "layers" = layers)
 
-  if(base::isFALSE(discard_scaled_mtr)){
+  object <- addAutoencoderSetUp(object = object,
+                                mtr_name = mtr_name_output,
+                                set_up_list = set_up,
+                                of_sample = of_sample)
 
-    if(base::isTRUE(verbose)){base::message("Denoting denoised matrix as the active expression matrix.")}
+  object <- addExpressionMatrix(object = object,
+                                mtr_name = mtr_name_output,
+                                expr_mtr = reconstructed_points,
+                                of_sample = of_sample)
 
-  } else if(base::isTRUE(discard_scaled_mtr)){
+  if(base::isTRUE(set_as_active)){
 
-    if(base::isTRUE(verbose)){base::message("Discarding scaled expression matrix. Denoting denoised matrix as the active expression matrix.")}
-
-    object <- setScaledMatrix(object = object, scaled_mtr = NULL)
+    object <- setActiveExpressionMatrix(object = object, mtr_name = mtr_name_output)
 
   }
-
-  object <- setAutoencoderInfo(object = object, info_list = info_list)
-
-  object <- setDenoisedMatrix(object = object, denoised_mtr = reconstructed_points)
-
-  object <- setActiveMatrix(object = object, name = "denoised")
 
   return(object)
 

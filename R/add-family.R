@@ -1,4 +1,214 @@
 
+
+# Autoencoder related -----------------------------------------------------
+
+#' Title
+#'
+#' @inherit check_object params
+#' @param set_up_list A named list with slots \code{$activation, $bottleneck, $dropout, $epochs, $layers}.
+#'
+#' @return A spata-object.
+#' @export
+#'
+
+addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = ""){
+
+  check_object(object)
+  confuns::is_list(set_up_list)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  object@information$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]] <- set_up_list
+
+  base::return(object)
+
+}
+
+# -----
+# Feature related ---------------------------------------------------------
+
+
+#' @title Add a new feature
+#'
+#' @description Adds a new variable to the objects feature data.
+#'
+#' @inherit check_object
+#' @param overwrite Logical. If the specified feature name already exists in the
+#' current spata-object this argument must be set to TRUE in order to overwrite it.
+#' @param key_variable Character value. Either \emph{'barcodes'} or \emph{'coordinates'}.
+#' If set to \emph{'coordinates'} the \code{feature_df}-input must contain numeric x- and
+#' y- variables.
+#'
+#' Key variables are variables in a data.frame that uniquely identify each observation -
+#' in this case each barcode-spot. In SPATA the barcode-variable is a key-variable on its own,
+#' x- and y-coordinates work as key-variables if they are used combined.
+#'
+#' @inherit check_feature_df params
+#'
+#' @details Eventually the new feature will be joined via \code{dplyr::left_join()} over the
+#' key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure the joining process.
+#'
+#' @return An updated spata-object.
+#' @export
+
+addFeatures <- function(object,
+                        feature_names,
+                        feature_df,
+                        key_variable = "barcodes",
+                        of_sample = "",
+                        overwrite = FALSE){
+
+  # 1. Control --------------------------------------------------------------
+  check_object(object)
+
+  confuns::is_vec(x = feature_names, mode = "character")
+  confuns::is_value(x = key_variable, mode = "character")
+
+  confuns::check_one_of(input = key_variable, against = c("barcodes", "coordinates"), ref.input = "argument 'key_variable'")
+
+
+  feature_names <- confuns::check_vector(
+    input = feature_names,
+    against = base::colnames(feature_df),
+    verbose = TRUE,
+    ref.input = "specified feature names",
+    ref.against = "variables of provided feature data.frame")
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  if(key_variable  == "barcodes"){
+
+    confuns::check_data_frame(df = feature_df,
+                              var.class = list("barcodes" = "character"),
+                              ref = "feature_df")
+
+  } else if(key_variable == "coordinates"){
+
+    confuns::check_data_frame(df = feature_df,
+                              var.class = list(
+                                "x" = c("numeric", "integer", "double"),
+                                "y" = c("numeric", "integer", "double")
+                              ),
+                              ref = "feature_df")
+
+  }
+
+  # 2. Extract and compare --------------------------------------------------
+
+  existing_fnames <- getFeatureNames(object = object, of_sample = of_sample)
+
+  # throw error if there intersecting feature names and overwrite is FALSE
+  if(base::any(feature_names %in% existing_fnames) && !base::isTRUE(overwrite)){
+
+    found <- feature_names[feature_names %in% existing_fnames]
+
+    if(base::length(found) > 1){
+
+      ref <- c("are", "them")
+
+    } else {
+
+      ref <- c("is", "it")
+
+    }
+
+    found_ref <- stringr::str_c(found, collapse = "', '")
+
+    base::stop(glue::glue("Specified feature names '{found_ref}' {ref[1]} already present in current feature data. Set overwrite to TRUE in order to overwrite {ref[2]}."))
+
+    # discard existing, intersecting feature names if overwrite is TRUE
+  } else if(base::any(feature_names %in% existing_fnames) && base::isTRUE(overwrite)){
+
+    overwrite_features <- existing_fnames[existing_fnames %in% feature_names]
+
+    fdata <-
+      getFeatureDf(object, of_sample = of_sample) %>%
+      dplyr::select(-dplyr::all_of(overwrite_features))
+
+    #
+  } else {
+
+    fdata <- getFeatureDf(object, of_sample = of_sample)
+
+  }
+
+  # join over coordinates
+  if(key_variable == "coordinates"){
+
+    coords_df <-
+      getCoordsDf(object, of_sample = of_sample) %>%
+      purrr::map_at(.at = c("x", "y"), .f = function(i){ base::round(i, digits = 0)}) %>%
+      purrr::map_df(.f = function(i){ base::return(i) })
+
+    fdata <- dplyr::left_join(x = fdata, y = coords_df, key = "barcodes")
+
+    feature_df <-
+      purrr::map_at(.x = feature_df, .at = c("x", "y"), .f = function(i){ base::round(i, digits = 0)}) %>%
+      purrr::map_df(.f = function(i){ base::return(i) }) %>%
+      dplyr::left_join(y = coords_df, key = c("x", "y"))
+
+    # feedback about how many barcode-spots can be joined
+    barcodes_feature_df <- feature_df$barcodes
+    barcodes_obj <- fdata$barcodes
+
+    n_bc_feat <- base::length(barcodes_feature_df)
+    n_bc_obj <- base::length(barcodes_obj)
+
+    if(!base::all(barcodes_obj %in% barcodes_feature_df)){
+
+      not_found <- barcodes_obj[!barcodes_obj %in% barcodes_feature_df]
+      n_not_found <- base::length(not_found)
+
+      if(n_not_found == n_bc_obj){base::stop("Did not find any barcode-spots of the specified object in input for 'feature_df'.")}
+
+      base::warning(glue::glue("Only {n_bc_feat} barcode-spots of {n_bc_obj} were found in 'feature_df'. Not found barcode-spots obtain NAs for all features to be joined."))
+
+    }
+
+    new_feature_df <-
+      dplyr::left_join(x = fdata,
+                       y = feature_df[,c("x", "y", feature_names)],
+                       by = c("x", "y")) %>%
+      dplyr::select(-x, -y)
+
+    object <- setFeatureDf(object = object, feature_df = new_feature_df, of_sample = of_sample)
+
+    # join over coordinates
+  } else if(key_variable == "barcodes") {
+
+    # feedback about how many barcode-spots can be joined
+    barcodes_feature_df <- feature_df$barcodes
+    barcodes_obj <- fdata$barcodes
+
+    n_bc_feat <- base::length(barcodes_feature_df)
+    n_bc_obj <- base::length(barcodes_obj)
+
+    if(!base::all(barcodes_obj %in% barcodes_feature_df)){
+
+      not_found <- barcodes_obj[!barcodes_obj %in% barcodes_feature_df]
+      n_not_found <- base::length(not_found)
+
+      if(n_not_found == n_bc_obj){base::stop("Did not find any barcode-spots of the specified object in input for 'feature_df'.")}
+
+      base::warning(glue::glue("Only {n_bc_feat} barcode-spots of {n_bc_obj} were found in 'feature_df'. Not found barcode-spots obtain NAs for all features to be joined."))
+
+    }
+
+    new_feature_df <-
+      dplyr::left_join(x = fdata,
+                       y = feature_df[,c("barcodes", feature_names)],
+                       by = "barcodes")
+
+    object <- setFeatureDf(object = object, feature_df = new_feature_df, of_sample = of_sample)
+
+  }
+
+  base::return(object)
+
+}
+
+# -----
+
 # Gene set related --------------------------------------------------------
 
 #' @title Add a new gene set
@@ -149,317 +359,81 @@ discardGeneSets <- function(object, gs_names){
 
 # -----
 
-# Feature related ---------------------------------------------------------
 
 
-#' @title Add a new feature
+
+# Data related ------------------------------------------------------------
+
+#' @title Discard an expression matrix
 #'
-#' @description Adds a new variable to the objects feature data.
+#' @description Discards the expression matrix of choice.
 #'
-#' @inherit check_object
-#' @param overwrite Logical. If the specified feature name already exists in the
-#' current spata-object this argument must be set to TRUE in order to overwrite it.
-#' @param key_variable Character value. Either \emph{'barcodes'} or \emph{'coordinates'}.
-#' If set to \emph{'coordinates'} the \code{feature_df}-input must contain numeric x- and
-#' y- variables.
-#'
-#' Key variables are variables in a data.frame that uniquely identify each observation -
-#' in this case each barcode-spot. In SPATA the barcode-variable is a key-variable on its own,
-#' x- and y-coordinates work as key-variables if they are used combined.
-#'
-#' @inherit check_feature_df params
-#'
-#' @details Eventually the new feature will be joined via \code{dplyr::left_join()} over the
-#' key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure the joining process.
-#'
-#' @return An updated spata-object.
-#' @export
-
-addFeatures <- function(object,
-                        feature_names,
-                        feature_df,
-                        key_variable = "barcodes",
-                        of_sample = "",
-                        overwrite = FALSE){
-
-  # lazy control
-  check_object(object)
-  confuns::is_value(key_variable, "character", "key_variable")
-  confuns::is_vec(feature_names, "character", "feauture_name")
-
-  feature_names <- confuns::check_vector(
-    input = feature_names,
-    against = base::colnames(feature_df),
-    verbose = TRUE,
-    ref.input = "specified feature names",
-    ref.against = "variables of provided feature data.frame")
-
-  if(key_variable  == "barcodes"){
-
-    confuns::check_data_frame(df = feature_df,
-                              var.class = list(
-                                "barcodes" = "character"),
-                              ref = "feature_df")
-
-  } else if(key_variable == "coordinates"){
-
-    confuns::check_data_frame(df = feature_df,
-                              var.class = list(
-                                "x" = c("numeric", "integer", "double"),
-                                "y" = c("numeric", "integer", "double")
-                              ))
-
-    of_sample <- check_sample(object, of_sample = of_sample, 1)
-
-  } else {
-
-    base::stop("Argument 'key_variable' needs to be either 'barcodes' or 'coordinates'.")
-
-  }
-
-
-  # extract data
-  if(base::any(feature_names %in% getFeatureNames(object)) &&
-     !base::isTRUE(overwrite)){
-
-    found <- feature_names[feature_names %in% getFeatureNames(object)]
-
-    if(base::length(found) > 1){
-
-      ref <- c("are", "them")
-
-    } else {
-
-      ref <- c("is", "it")
-
-    }
-
-    found_ref <- stringr::str_c(found, collapse = "', '")
-
-    base::stop(glue::glue("Specified feature names '{found_ref}' {ref[1]} already present in current feature data. Set overwrite to TRUE in order to overwrite {ref[2]}."))
-
-  } else if(base::any(feature_names %in% getFeatureNames(object)) &&
-            base::isTRUE(overwrite)){
-
-    overwrite_features <-
-      purrr::keep(.x = getFeatureNames(object), .p = ~ .x %in% feature_names)
-
-    fdata <-
-      object@fdata %>%
-      dplyr::select(-dplyr::all_of(overwrite_features))
-
-  } else {
-
-    fdata <- getFeatureData(object)
-
-  }
-
-  # join over coordinates
-  if(key_variable == "coordinates"){
-
-    coords_df <-
-      getCoordinates(object, of_sample = of_sample) %>%
-      purrr::map_at(.at = c("x", "y"), .f = function(i){ base::round(i, digits = 0)}) %>%
-      purrr::map_df(.f = function(i){ base::return(i) })
-
-    fdata <- dplyr::left_join(x = fdata, y = coords_df, key = "barcodes")
-
-    feature_df <-
-      purrr::map_at(.x = feature_df, .at = c("x", "y"), .f = function(i){ base::round(i, digits = 0)}) %>%
-      purrr::map_df(.f = function(i){ base::return(i) }) %>%
-      dplyr::left_join(y = coords_df, key = c("x", "y"))
-
-    # feedback about how many barcode-spots can be joined
-    barcodes_feature_df <- feature_df$barcodes
-    barcodes_obj <- fdata$barcodes
-
-    n_bc_feat <- base::length(barcodes_feature_df)
-    n_bc_obj <- base::length(barcodes_obj)
-
-    if(!base::all(barcodes_obj %in% barcodes_feature_df)){
-
-      not_found <- barcodes_obj[!barcodes_obj %in% barcodes_feature_df]
-      n_not_found <- base::length(not_found)
-
-      if(n_not_found == n_bc_obj){base::stop("Did not find any barcode-spots of the specified object in input for 'feature_df'.")}
-
-      base::warning(glue::glue("Only {n_bc_feat} barcode-spots of {n_bc_obj} were found in 'feature_df'. Not found barcode-spots obtain NAs for all features to be joined."))
-
-    }
-
-    object@fdata <-
-      dplyr::left_join(x = fdata,
-                       y = feature_df[,c("x", "y", feature_names)],
-                       by = c("x", "y")) %>%
-      dplyr::select(-x, -y)
-
-  # join over coordinates
-  } else if(key_variable == "barcodes") {
-
-    # feedback about how many barcode-spots can be joined
-    barcodes_feature_df <- feature_df$barcodes
-    barcodes_obj <- fdata$barcodes
-
-    n_bc_feat <- base::length(barcodes_feature_df)
-    n_bc_obj <- base::length(barcodes_obj)
-
-    if(!base::all(barcodes_obj %in% barcodes_feature_df)){
-
-      not_found <- barcodes_obj[!barcodes_obj %in% barcodes_feature_df]
-      n_not_found <- base::length(not_found)
-
-      if(n_not_found == n_bc_obj){base::stop("Did not find any barcode-spots of the specified object in input for 'feature_df'.")}
-
-      base::warning(glue::glue("Only {n_bc_feat} barcode-spots of {n_bc_obj} were found in 'feature_df'. Not found barcode-spots obtain NAs for all features to be joined."))
-
-    }
-
-    object@fdata <-
-      dplyr::left_join(x = fdata,
-                       y = feature_df[,c("barcodes", feature_names)],
-                       by = "barcodes")
-
-  }
-
-  base::return(object)
-
-}
-
-# -----
-
-
-# Dimensional reductions --------------------------------------------------
-
-#' @title Add dimensional reductions
-#'
-#' @description Adds or replaces dimensional reduction data. If the object contains
-#' several sample the sample-variable of the input data.frame denotes the sample
-#' belonging.
-#'
-#' @inherit check_object params
-#' @param umap_df A data.frame containing the character variables \emph{barcodes, sample} and
-#' the numeric variables \emph{umap1, umap2}.
-#' @param tsne_df A data.frame containing the character variables \emph{barcodes, sample} and
-#' the numeric variables \emph{tsne1, tsne2}.
-#' @param overwrite Logical. Must be set to TRUE in order to overwrite already existing data.
+#' @inherit getExpressionMatrix params
 #'
 #' @return An updated spata-object.
 #' @export
 #'
 
-addUmapData <- function(object, umap_df, overwrite = FALSE){
-
-  # Control -----------------------------------------------------------------
+discardExpressionMatrix <- function(object, mtr_name, of_sample = ""){
 
   check_object(object)
-  confuns::check_data_frame(
-    df = umap_df,
-    var.class = list(
-      "umap1" = c("numeric", "integer", "double"),
-      "umap2" = c("numeric", "integer", "double"),
-      "sample" = c("character"),
-      "barcodes" = c("character")
-    ),
-    ref = "umap_df"
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  confuns::check_one_of(
+    input = mtr_name,
+    against = getExpressionMatrixNames(object, of_sample = of_sample),
+    ref.input = "argument 'mtr_name'"
   )
 
-  of_sample <- base::unique(umap_df$sample)
+  object <- addExpressionMatrix(object = object,
+                                expr_mtr = NULL,
+                                mtr_name = mtr_name,
+                                of_sample = of_sample)
 
-  if(!base::all(of_sample %in% samples(object))){
-
-    base::stop("All values of variable 'samples' in data.frame 'umap_df' must be samples of the specified spata-object.")
-
-  }
-
-  # -----
-
-
-  # Extract data ------------------------------------------------------------
-
-  # extract old data
-  object_data <- object@dim_red@UMAP
-
-  old_data <- dplyr::filter(object_data[,c("barcodes", "sample")], sample %in% {{of_sample}})
-
-  if(base::nrow(old_data) > 0 && !base::isTRUE(overwrite)){
-
-    base::stop(glue::glue("It already exists umap-data for sample '{of_sample}'. Set overwrite to TRUE in order to overwrite it."))
-
-  } else if(base::nrow(old_data) > 0 && base::isTRUE(overwrite)){
-
-    object_data[object_data$sample %in% of_sample, ] <- new_data
-
-  } else if(base::nnrow(old_data) == 0){
-
-    object_data <- new_data
-
-  }
-
-  # add data
-  object@dim_red@UMAP <- object_data
-
-  base::return(object)
-
-}
-
-#' @rdname addUmapData
-#' @export
-
-addTsneData <- function(object, tsne_df, overwrite = FALSE){
-
-  # Control -----------------------------------------------------------------
-
-  check_object(object)
-  confuns::check_data_frame(
-    df = tsne_df,
-    var.class = list(
-      "tsne1" = c("numeric", "integer", "double"),
-      "tsne2" = c("numeric", "integer", "double"),
-      "sample" = c("character"),
-      "barcodes" = c("character")
-    ),
-    ref = "tsne_df"
-  )
-
-  of_sample <- base::unique(tsne_df$sample)
-
-  if(!base::all(of_sample %in% samples(object))){
-
-    base::stop("All values of variable 'samples' in data.frame 'tsne_df' must be samples of the specified spata-object.")
-
-  }
-
-  # -----
-
-
-  # Extract data ------------------------------------------------------------
-
-  # extract old data
-  object_data <- object@dim_red@TSNE
-
-  old_data <- dplyr::filter(object_data[,c("barcodes", "sample")], sample %in% {{of_sample}})
-
-  if(base::nrow(old_data) > 0 && !base::isTRUE(overwrite)){
-
-    base::stop(glue::glue("It already exists umap-data for sample '{of_sample}'. Set overwrite to TRUE in order to overwrite it."))
-
-  } else if(base::nrow(old_data) > 0 && base::isTRUE(overwrite)){
-
-    object_data[object_data$sample %in% of_sample, ] <- new_data
-
-  } else if(base::nnrow(old_data) == 0){
-
-    object_data <- new_data
-
-  }
-
-  # add data
-  object@dim_red@TSNE <- object_data
+  base::message(glue::glue("Expression matrix '{mtr_name}' discarded."))
 
   base::return(object)
 
 }
 
 
+# Trajectory related ------------------------------------------------------
 
 
+addTrajectoryObject <- function(object,
+                                trajectory_name,
+                                trajectory_object,
+                                of_sample = ""){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  confuns::is_value(x = trajectory_name, mode = "character")
+
+  base::stopifnot(methods::is(trajectory_object, class2 = "spatial_trajectory"))
+
+  if(trajectory_name %in% getTrajectoryNames(object, of_sample = of_sample)){
+
+    base::stop(glue::glue("Trajectory name '{trajectory_name}' is already taken."))
+
+  } else if(trajectory_name == ""){
+
+    base::stop("'' is not a valid trajectory name.")
+
+  }
+
+  # 2. Set trajectory object ------------------------------------------------
+
+  object@trajectories[[of_sample]][[trajectory_name]] <-
+    trajectory_object
+
+  base::return(object)
+
+}
+
+
+# ------

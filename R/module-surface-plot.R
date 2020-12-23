@@ -286,7 +286,7 @@ moduleSurfacePlotServer <- function(id,
 
         ns <- session$ns
 
-        shinyWidgets::pickerInput(ns("pt_clrp"),
+        shinyWidgets::pickerInput(ns("pt_clrp"),###!
                            choices = c(
                              "MILO Research Group" = "milo",
                              "Journal of Oncology" = "jco",
@@ -405,13 +405,13 @@ moduleSurfacePlotServer <- function(id,
 
           ## extract image info
           img_info <-
-            image(object, of_sample = current$sample) %>%
+            getImage(object, of_sample = current$sample) %>%
             grDevices::as.raster() %>%
             magick::image_read() %>%
             magick::image_info()
 
           st_image <-
-            grDevices::as.raster(image(object, of_sample = current$sample)) %>%
+            grDevices::as.raster(getImage(object, of_sample = current$sample)) %>%
             magick::image_read() %>% magick::image_flip()
 
           image_add_on <-
@@ -436,7 +436,7 @@ moduleSurfacePlotServer <- function(id,
       sample_coords <- shiny::reactive({
 
         sample_coords <-
-          getCoordinates(object = object, of_sample = current$sample)
+          getCoordsDf(object = object, of_sample = current$sample)
 
         return(sample_coords)
 
@@ -525,7 +525,7 @@ moduleSurfacePlotServer <- function(id,
       fdata <- shiny::reactive({
 
         fdata <-
-          getFeatureData(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
+          getFeatureDf(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
 
         return(fdata)
 
