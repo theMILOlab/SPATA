@@ -1,4 +1,41 @@
 
+
+# Clustering --------------------------------------------------------------
+
+
+#' @title Visualize clustering results
+#'
+#' @description Plots a dendrogram of the distance matrix calculated via \code{runSpatialCorrelation()}.
+#'
+#' @inherit check_sample params
+#' @inherit check_method params
+#' @param ... Additional arguments given to \code{ggdendro::ggdendrogram()}
+#'
+#' @return plot_family return
+#' @export
+
+plotGeneDendrogram <- function(object,
+                               of_sample = "",
+                               method_hclust = "complete",
+                               ...){
+
+  check_object(object)
+  check_method(method_hclust = method_hclust)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  sp_cor <- getSpatialCorrelationResults(object, of_sample = of_sample)
+
+  hcluster_out <-
+    stats::hclust(d = sp_cor$dist_mtr, method = method_hclust)
+
+  ggdendro::ggdendrogram(data = hcluster_out, labels = FALSE, ...)
+
+}
+
+# -----
+
+
 # Dimensional reduction related -------------------------------------------
 plotDimRed <- function(object,
                        method_dr,
@@ -44,7 +81,8 @@ plotDimRed <- function(object,
     getDimRedDf(object, method_dr = method_dr, of_sample = of_sample)
 
   plot_list <-
-    hlpr_scatterplot(spata_df = dim_red_df,
+    hlpr_scatterplot(objcet = object,
+                     spata_df = dim_red_df,
                      color_to = color_to,
                      pt_size = pt_size,
                      pt_alpha = pt_alpha,
@@ -123,7 +161,7 @@ plotUmap <- function(object,
 
 }
 
-#' @rdname plotUMAP
+#' @rdname plotUmap
 #' @export
 plotTsne <- function(object,
                      of_sample = "",
@@ -259,7 +297,8 @@ plotPca <- function(object,
   # -----
 
   plot_list <-
-    hlpr_scatterplot(spata_df = dim_red_df,
+    hlpr_scatterplot(object = object,
+                     spata_df = dim_red_df,
                      color_to = color_to,
                      pt_size = pt_size,
                      pt_alpha = pt_alpha,
@@ -1648,7 +1687,7 @@ plotPseudotime <- function(object,
 #'
 #' @inherit check_sample params
 #' @inherit across params
-#' @inherit getDeResultDf params details
+#' @inherit getDeResultsDf params details
 #' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
@@ -1716,7 +1755,7 @@ plotDeHeatmap <- function(object,
 
   } else {
 
-    de_df <- getDeResultDf(object = object,
+    de_df <- getDeResultsDf(object = object,
                            across = across,
                            across_subset = across_subset,
                            of_sample = of_sample,
@@ -1888,7 +1927,7 @@ plotSegmentation <- function(object,
     joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
 
   segment_df <-
-    dplyr::filter(plot_df, segment != "") %>%
+    dplyr::filter(plot_df, !segment %in% c("", "none")) %>%
     tidyr::drop_na()
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
@@ -1911,9 +1950,9 @@ plotSegmentation <- function(object,
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
     encircle_add_on +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
-    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp, guide = FALSE) +
+    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp) +
     ggplot2::theme_void() +
-    ggplot2::labs(fill = "Segments")
+    ggplot2::labs(fill = "Segments", color = "Segments")
 
 }
 

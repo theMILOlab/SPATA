@@ -7,6 +7,7 @@
 check_genes(
   object,
   genes,
+  valid_genes = NULL,
   rna_assay = NULL,
   max_length = NULL,
   fdb_fn = "warning",

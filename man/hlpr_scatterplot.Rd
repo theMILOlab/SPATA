@@ -5,6 +5,7 @@
 \title{Color to + scatterplot helper}
 \usage{
 hlpr_scatterplot(
+  object,
   spata_df,
   color_to,
   method_gs = "mean",
@@ -16,10 +17,13 @@ hlpr_scatterplot(
   smooth = FALSE,
   smooth_span = 0.02,
   normalize = TRUE,
-  verbose = TRUE
+  verbose = TRUE,
+  complete = FALSE
 )
 }
 \arguments{
+\item{object}{A valid spata-object.}
+
 \item{spata_df}{A data.frame containing information of barcode-spots. Must contain the variables.
 
 \describe{

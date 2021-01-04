@@ -269,6 +269,7 @@ check_features <- function(object,
 #' @export
 check_genes <- function(object,
                         genes,
+                        valid_genes = NULL,
                         rna_assay = NULL,
                         max_length = NULL,
                         fdb_fn = "warning",
@@ -284,9 +285,33 @@ check_genes <- function(object,
 
   }
 
-  if(base::is.null(rna_assay)){
 
-    rna_assay <- getExpressionMatrix(object = object)
+  if(base::is.character(valid_genes)){
+
+    ref_genes <- valid_genes
+
+  } else if(base::is.null(rna_assay)){
+
+    ce <- rlang::caller_env()
+
+    of_sample <- base::tryCatch({
+
+      rlang::parse_expr(x = "of_sample") %>%
+        base::eval(envir = ce)
+
+    }, error = function(error){
+
+      base::return("")
+
+    })
+
+    ref_genes <-
+      getExpressionMatrix(object = object, of_sample = of_sample) %>%
+      base::rownames()
+
+  } else if(!base::is.null(rna_assay)){
+
+    ref_genes <- base::rownames(rna_assay)
 
   }
 
@@ -294,17 +319,17 @@ check_genes <- function(object,
 
   # 2. Check if/how many genes actually exist -------------------------------
 
-  if(!base::any(genes %in% base::rownames(rna_assay))){
+  if(!base::any(genes %in% ref_genes)){
 
     base::stop("Could not find any of the specified genes.")
 
-  } else if(base::all(genes %in% base::rownames(rna_assay))){
+  } else if(base::all(genes %in% ref_genes)){
 
     genes_found <- genes
 
-  } else if(base::any(genes %in% base::rownames(rna_assay))){
+  } else if(base::any(genes %in% ref_genes)){
 
-    genes_found <- base::rownames(rna_assay)[base::rownames(rna_assay) %in% genes]
+    genes_found <- ref_genes[ref_genes %in% genes]
 
     not_found <- genes[!genes %in% genes_found]
     n_not_found <- base::length(not_found)

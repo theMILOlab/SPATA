@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot-family-miscellaneous.R
 \name{plotUmap}
 \alias{plotUmap}
+\alias{plotTsne}
 \alias{plotPca}
 \title{Plot dimensional reduction}
 \usage{
@@ -15,6 +16,19 @@ plotUmap(
   pt_clrsp = "inferno",
   pt_clrp = "milo",
   pt_clr = "black",
+  normalize = TRUE,
+  verbose = TRUE
+)
+
+plotTsne(
+  object,
+  of_sample = "",
+  color_to = NULL,
+  method_gs = "mean",
+  pt_size = 2,
+  pt_alpha = 1,
+  pt_clrsp = "inferno",
+  pt_clrp = "milo",
   normalize = TRUE,
   verbose = TRUE
 )

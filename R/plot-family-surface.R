@@ -24,6 +24,9 @@
 #' @inherit check_assign params
 #' @inherit verbose params
 #' @inherit image_dummy params
+#' @param complete Logical. If the provided spata-object has been subsetted by
+#'  \code{subsetBySegment()} the original sample is completed with grey barcode
+#'  spots.
 #'
 #' @inherit plot_family params
 #'
@@ -45,6 +48,7 @@ plotSurface <- function(object,
                         display_title = FALSE,
                         assign = FALSE,
                         assign_name,
+                        complete = FALSE,
                         verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -82,7 +86,8 @@ plotSurface <- function(object,
   coords_df <- getCoordsDf(object, of_sample = of_sample)
 
   plot_list <-
-    hlpr_scatterplot(spata_df = coords_df,
+    hlpr_scatterplot(object = object,
+                     spata_df = coords_df,
                      color_to = color_to,
                      pt_size = pt_size,
                      pt_alpha = pt_alpha,
@@ -92,7 +97,8 @@ plotSurface <- function(object,
                      normalize = normalize,
                      smooth = smooth,
                      smooth_span = smooth_span,
-                     verbose = verbose)
+                     verbose = verbose,
+                     complete = complete)
 
   # -----
 
@@ -102,6 +108,9 @@ plotSurface <- function(object,
   hlpr_assign(assign = assign,
               object = list("point" = spata_df),
               name = assign_name)
+
+
+
 
   ggplot2::ggplot(data = plot_list$data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +

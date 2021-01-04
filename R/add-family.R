@@ -351,7 +351,6 @@ discardGeneSets <- function(object, gs_names){
       dplyr::filter(object@used_genesets,
                     !ont %in% gs_names)
 
-
   return(object)
 
 }
@@ -380,9 +379,11 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
+  all_mtr_names <- getExpressionMatrixNames(object, of_sample = of_sample)
+
   confuns::check_one_of(
     input = mtr_name,
-    against = getExpressionMatrixNames(object, of_sample = of_sample),
+    against = all_mtr_names,
     ref.input = "argument 'mtr_name'"
   )
 
@@ -392,6 +393,22 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = ""){
                                 of_sample = of_sample)
 
   base::message(glue::glue("Expression matrix '{mtr_name}' discarded."))
+
+  # feedback if discarded matrix was denoted as active matrix
+  if(mtr_name == getActiveMatrixName(object, of_sample = of_sample)){
+
+    base::warning(glue::glue("Expression matrix '{mtr_name}' was denoted as the active matrix. Make sure to denote a new one with 'setActiveExpressionMatrix()'"))
+
+  }
+
+  # feedback if no expression matrix left
+  remaining_mtr_names <- all_mtr_names[all_mtr_names != mtr_name]
+
+  if(base::is.null(remaining_mtr_names) | base::identical(remaining_mtr_names, base::character(0))){
+
+    base::warning("There are no expression matrices left in the provided spata-object. Make sure to add one with 'addExpressionMatrix()'.")
+
+  }
 
   base::return(object)
 

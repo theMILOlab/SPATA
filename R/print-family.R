@@ -24,7 +24,7 @@ printAutoencoderSummary <- function(object, mtr_name, of_sample = ""){
 
   if(base::is.null(info_list)){
 
-    base::stop("Could not find any at It seems as if function 'runAutoEncoderDenoising()' has not been run yet.")
+    base::stop("Could not find any information. It seems as if function 'runAutoEncoderDenoising()' has not been run yet.")
 
   }
 

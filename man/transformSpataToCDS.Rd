@@ -6,16 +6,16 @@
 \usage{
 transformSpataToCDS(
   object,
+  of_sample = "",
   preprocess_method = "PCA",
   reduction_method = c("PCA", "UMAP"),
   cluster_method = "leiden",
-  estimate_size_factors_args = list(),
-  preprocess_cds_args = list(),
-  reduce_dimension_args = list(),
-  cluster_cells_args = list(),
-  learn_graph_args = list(),
-  order_cells_args = list(),
-  save_cds_file = NULL,
+  estimate_size_factors = list(),
+  preprocess_cds = list(),
+  reduce_dimension = list(),
+  cluster_cells = list(),
+  learn_graph = list(),
+  order_cells = list(),
   verbose = TRUE
 )
 }
@@ -43,6 +43,11 @@ String indicating the clustering method to use. Options are
 "louvain" or "leiden". Default is "leiden". Resolution parameter
 is ignored if set to "louvain".}
 
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
 \item{estimate_size_factors_args}{A list of arguments given to \code{monocle3::estimate_size_factors()}.}
 
 \item{preprocess_cds_args}{A list of arguments given to \code{monocle3::preprocess_cds()}.}
@@ -57,11 +62,6 @@ is ignored if set to "louvain".}
 
 \item{save_cds_file}{Character value or NULL. A file-directory (that does not already exists) under which created cell_data_set-object
 is saved. Should end with \emph{'.RDS'}.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
 }
 \value{
 A monocle3::cell_data_set object.
@@ -73,16 +73,16 @@ the arguments.
 }
 \details{
 \code{compileCellDataSet()} is a convenient wrapper around all pre processing functions
-monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from unique
-arguments this function has two argument families, denoted with \code{_method} and \code{_args}.
+monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from \code{object}
+and \code{of_sample} arguments this function has two argument families.
 
-Handling \code{_method}-arguments:
+Handling \code{*_method}-arguments:
 
 Monocle3 allows to use different methods for dimensional-reduction or clustering which depend
-on each other. These arguments take a character vector of all valid inputs. \code{compileCellDataSet()} iterates
+on each other. These arguments take a character vector of all valid inputs. \code{transformSpataToCDS()} iterates
 over all valid combinations and returns the cell_data_set with the computed information inside.
 
-Handling \code{_args}-arguments.
+Handling monocle-function-arguments.
 
 These arguments take named lists of arguments that are given to the respective function. The \code{_method}-arguments
 as well as the argument \code{cds} are automatically defined and must not be included in the given lists!!! Empty lists - the default -

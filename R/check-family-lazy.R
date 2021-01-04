@@ -22,6 +22,32 @@ lazy_check_dummy <- function(){}
 #################################################################################################
 
 
+# Miscellaneous -----------------------------------------------------------
+
+#' @title Gives feedback if object was not found
+#'
+#' @param test Logical test that checks if something was found.
+#' @param ref_x Object reference.
+#' @param ref_fns Function(s) that needs
+
+
+check_availability <- function(test, ref_x, ref_fns){
+
+  if(!base::isTRUE(test)){
+
+    base::stop(
+      glue::glue(
+        "Could not find {ref_x}. Consider using {ref_fns}."
+      )
+    )
+
+  }
+
+  base::invisible(TRUE)
+
+}
+
+
 # Recurring data.frame input ----------------------------------------------
 
 #' @title Check assessed trajectory data.frame
@@ -480,6 +506,9 @@ check_feature_df <- function(feature_name,
 #' specified as a character of length one. This can be either \emph{'mean'} or one
 #' of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 #' \code{gsva::GSVA()}.
+#' @param method_hclust Character value. Denotes the hierarchical clustering method  according
+#' to which the clustering is performed. Valid input options are \emph{'ward.D', 'ward.D2', 'single',
+#'  'complete', 'average', 'mcquitty', 'median'} and \emph{'centroid'}.
 #' @param method_padj Character value. The method according to which the adjusted p-values will
 #' be calculated. Given to \code{stats::p.adjust()}. Run \code{stats::p.adjust.methods} to obtain
 #' all valid input options.
@@ -491,11 +520,31 @@ check_feature_df <- function(feature_name,
 #' @inherit lazy_check_dummy description details return
 #' @export
 
-check_method <- function(method_dr = NULL,
+check_method <- function(method_de = NULL,
+                         method_dr = NULL,
                          method_gs = NULL,
-                         method_de = NULL,
-                         method_padj = NULL,
-                         method_ovl = NULL){
+                         method_hclust = NULL,
+                         method_ovl = NULL,
+                         method_padj = NULL
+                         ){
+
+  # differential expression methods -----------------------------------------
+
+  if(!base::is.null(method_de)){
+
+    if(confuns::is_value(x = method_de, mode = "character")){
+
+      confuns::check_one_of(
+        input = method_de,
+        against = de_methods,
+        ref.input = "for argument 'method_de'"
+      )
+
+    }
+
+  }
+
+  # -----
 
   # dimensional reduction methods -------------------------------------------
 
@@ -514,6 +563,7 @@ check_method <- function(method_dr = NULL,
   }
 
   # -----
+
 
   # gene set methods --------------------------------------------------------
 
@@ -534,6 +584,39 @@ check_method <- function(method_dr = NULL,
   # -----
 
 
+  # hierarchical clustering methods -----------------------------------------
+
+  if(!base::is.null(method_hclust)){
+
+    if(confuns::is_value(x = method_hclust, mode = "character")){
+
+      confuns::check_one_of(
+        input = method_hclust,
+        against = hclust_methods,
+        ref.input = "for argumnet 'method_hclust'"
+      )
+
+    }
+
+
+  }
+
+  # find overlap methods ----------------------------------------------------
+
+  if(!base::is.null(method_ovl)){
+
+    if(confuns::is_value(x = method_ovl, mode = "character")) {
+
+      confuns::check_one_of(
+        input = method_ovl,
+        against = c("classic", "bayesian"),
+        ref.input = "for argument 'method_ovl'"
+      )
+
+    }
+
+  }
+
   # adjusted pvalue methods -------------------------------------------------
 
   if(!base::is.null(method_padj)){
@@ -551,41 +634,6 @@ check_method <- function(method_dr = NULL,
   }
 
   # -----
-
-
-  # differential expression methods -----------------------------------------
-
-  if(!base::is.null(method_de)){
-
-    if(confuns::is_value(x = method_de, mode = "character")){
-
-      confuns::check_one_of(
-        input = method_de,
-        against = de_methods,
-        ref.input = "for argument 'method_de'"
-      )
-
-    }
-
-  }
-
-  # -----
-
-  # find overlap methods ----------------------------------------------------
-
-  if(!base::is.null(method_ovl)){
-
-    if(confuns::is_value(x = method_ovl, mode = "character")) {
-
-      confuns::check_one_of(
-        input = method_ovl,
-        against = c("classic", "bayesian"),
-        ref.input = "for argument 'method_ovl'"
-      )
-
-    }
-
-  }
 
 }
 

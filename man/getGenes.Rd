@@ -2,10 +2,22 @@
 % Please edit documentation in R/get-family.R
 \name{getGenes}
 \alias{getGenes}
+\alias{getSpCorGenes}
 \alias{getGenesInteractive}
 \title{Obtain gene names}
 \usage{
 getGenes(object, of_gene_sets = "all", in_sample = "", simplify = TRUE)
+
+getSpCorGenes(
+  object,
+  of_sample = "",
+  similar_to = NULL,
+  distinct_to = NULL,
+  top_n = 25,
+  method_hclust = NULL,
+  clusters = NULL,
+  simplify = TRUE
+)
 
 getGenesInteractive(object)
 }

@@ -14,7 +14,7 @@ initiateSpataObject_ExprMtr(
   gene_set_path = NULL,
   output_path = NULL,
   file_name = NULL,
-  pca_comp = 30,
+  n_pcs = 30,
   k = 50,
   tsne_perplexity = 30,
   ...,
@@ -52,15 +52,15 @@ the object if the directory is valid. If set to NULL saving is skipped.}
 spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
  \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
 
-\item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
-the number of components to return.}
-
 \item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
+the number of components to return.}
 
 \item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
 of nearest neighbours to compute.}

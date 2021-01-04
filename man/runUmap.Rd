@@ -3,12 +3,30 @@
 \name{runUmap}
 \alias{runUmap}
 \alias{runUmap2}
-\title{Title}
+\title{Run UMAP-Analysis}
 \usage{
-runUmap(object, of_sample = "", ...)
+runUmap(object, of_sample = "", n_pcs = 20, ...)
 
-runUmap2(object, of_sample = "", ...)
+runUmap2(object, of_sample = "", n_pcs = 20, ...)
+}
+\arguments{
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{n_pcs}{Numeric value. Denotes the number of principal components used. Must be
+smaller or equal to the number of principal components the pca data.frame contains.}
+
+\item{...}{Additional arguments given to \code{umap::umap()}.}
+}
+\value{
+\itemize{
+  \item{\code{runUmap()}}{ An updated spata-object containing the reduction variables in the umap data.frame.}
+  \item{\code{runUmap2()}}{ The direct output-object of \code{umap::umap()}}
+  }
 }
 \description{
-Title
+Takes the pca-data of the object up to the principal component denoted
+in argument \code{n_pcs} and performs UMAP with it.
 }

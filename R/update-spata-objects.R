@@ -31,63 +31,13 @@ updateSpataObject <- function(object, verbose = TRUE){
   # transforms '@data from S4 to list()', '@dim_red from S4 list()'
   if(version$major <= 1 & version$minor <= 1){
 
-    # extract data from old slots
-
-    # data.frames
-    coords_df <- object@coordinates
-    feature_df <- object@fdata
-
-    umap_df <- object@dim_red@UMAP
-    tsne_df <- object@dim_red@TSNE
-
-    gs_df <- object@used_genesets
-
-    # assays
-    count_mtr <- object@data@counts
-    expr_mtr <- object@data@norm_exp
-
-    # lists
-    images <- object@image
-    trajectories <- object@trajectories
-
-    if(base::is.list(object@scvelo)){
-
-      scvelo <- object@svelo
-
-    } else {
-
-      scvelo <- list()
-
-    }
-
-    # vectors
-    samples <- object@samples
-
-    new_object <-
-      methods::new(Class = "spata",
-                   coordinates = coords_df,
-                   data = list("counts" = count_mtr, "scaled" = expr_mtr),
-                   dim_red = list("umap" = umap_df, "tsne" = tsne_df),
-                   fdata = feature_df,
-                   image = images,
-                   information = list("autoencoder" = list()),
-                   dea = list(),
-                   samples = samples,
-                   scvelo = scvelo,
-                   trajectories = trajectories,
-                   used_genesets = gs_df,
-                   version = current_spata_version)
-
-
   } else {
-
 
     if(base::isTRUE(verbose)){
 
       base::message("According to slot 'version' the provided spata object does not need any updating.")
 
     }
-
 
     new_object <- object
 

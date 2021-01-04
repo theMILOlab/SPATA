@@ -58,17 +58,17 @@ findMonocleClusters <- function(object,
 
   if(base::isTRUE(verbose)){base::message("Creating 'cell_data_set'-object.")}
 
-  expression_matrix <- base::as.matrix(getCountMatrix(object, of_sample = of_sample))
+  count_mtr <- base::as.matrix(getCountMatrix(object, of_sample = of_sample))
 
-  gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
-  base::rownames(gene_metadata) <- base::rownames(expression_matrix)
+  gene_metadata <- data.frame(gene_short_name = base::rownames(count_mtr))
+  base::rownames(gene_metadata) <- base::rownames(count_mtr)
 
   cell_metadata <-
     getFeatureDf(object, of_sample = of_sample) %>%
     tibble::column_to_rownames(var = "barcodes")
 
   cds <- monocle3::new_cell_data_set(
-    expression_data = expression_matrix,
+    expression_data = count_mtr,
     cell_metadata = cell_metadata,
     gene_metadata = gene_metadata)
 
@@ -166,16 +166,7 @@ findMonocleClusters <- function(object,
 
                                 i <- stringr::str_c(prefix, i, sep = "")
 
-                                if(base::is.factor(i)){
-
-                                  S4Vectors::unfactor(i) %>%
-                                    base::as.character()
-
-                                } else {
-
-                                  base::as.character(i)
-
-                                }
+                                base::factor(x = i)
 
                               }) %>%
     dplyr::mutate(barcodes = cluster_df$barcodes)

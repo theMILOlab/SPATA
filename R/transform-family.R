@@ -348,7 +348,6 @@ transformSeuratToSpata <- function(seurat_object,
       scaled_mtr = scaled_mtr[base::rowSums(base::as.matrix(scaled_mtr)) != 0, ]
       )
 
-
   # coordinates & image
 
   spata_object <-
@@ -357,10 +356,21 @@ transformSeuratToSpata <- function(seurat_object,
 
 
   # other lists
+  confuns::give_feedback(
+    msg = "Calculating gene meta data.",
+    verbose = verbose
+  )
+
   spata_object@information <-
-    list("active_mtr" = magrittr::set_names(x = list("scaled"), value = sample_name),
-         "autoencoder" = magrittr::set_names(x = list(list()), value = sample_name),
+    list("autoencoder" = magrittr::set_names(x = list(list()), value = sample_name),
          "barcodes" = magrittr::set_names(x = list(barcodes_matrix), value = sample_name))
+
+  spata_object <-
+    setActiveExpressionMatrix(spata_object, mtr_name = "scaled")
+
+  spata_object <- computeGeneMetaData(object = spata_object, verbose = verbose)
+
+  spata_object@spatial <- magrittr::set_names(x = list(list()), value = sample_name)
 
   spata_object@trajectories <-
     magrittr::set_names(x = list(list()), value = sample_name)
@@ -395,16 +405,16 @@ transformSeuratToSpata <- function(seurat_object,
 #' @inherit verbose params
 #'
 #' @details \code{compileCellDataSet()} is a convenient wrapper around all pre processing functions
-#' monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from unique
-#' arguments this function has two argument families, denoted with \code{_method} and \code{_args}.
+#' monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from \code{object}
+#' and \code{of_sample} arguments this function has two argument families.
 #'
-#' Handling \code{_method}-arguments:
+#' Handling \code{*_method}-arguments:
 #'
 #' Monocle3 allows to use different methods for dimensional-reduction or clustering which depend
-#' on each other. These arguments take a character vector of all valid inputs. \code{compileCellDataSet()} iterates
+#' on each other. These arguments take a character vector of all valid inputs. \code{transformSpataToCDS()} iterates
 #' over all valid combinations and returns the cell_data_set with the computed information inside.
 #'
-#' Handling \code{_args}-arguments.
+#' Handling monocle-function-arguments.
 #'
 #' These arguments take named lists of arguments that are given to the respective function. The \code{_method}-arguments
 #' as well as the argument \code{cds} are automatically defined and must not be included in the given lists!!! Empty lists - the default -
@@ -416,74 +426,48 @@ transformSeuratToSpata <- function(seurat_object,
 #' @export
 
 transformSpataToCDS <- function(object,
+                                of_sample = "",
                                 preprocess_method = "PCA",
                                 reduction_method = c("PCA", "UMAP"),
                                 cluster_method = "leiden",
-                                estimate_size_factors_args = list(),
-                                preprocess_cds_args = list(),
-                                reduce_dimension_args = list(),
-                                cluster_cells_args = list(),
-                                learn_graph_args = list(),
-                                order_cells_args = list(),
-                                save_cds_file = NULL,
+                                estimate_size_factors = list(),
+                                preprocess_cds = list(),
+                                reduce_dimension = list(),
+                                cluster_cells = list(),
+                                learn_graph = list(),
+                                order_cells = list(),
                                 verbose = TRUE){
 
   check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
   confuns::is_value(preprocess_method, "character", "preprocess_method")
   confuns::is_value(cluster_method, mode = "character", "cluster_method")
-
-  monocle_funs <-
-    rlang::fn_fmls_names(fn = compileCellDataSet) %>%
-    stringr::str_subset(pattern = "args$")
-
-  for(mf in monocle_funs){
-
-    input <- base::parse(text = mf) %>% base::eval()
-
-    if(!base::is.list(input) | base::is.data.frame(input)){
-
-      base::stop(glue::glue("Invalid input for argument '{mf}'. Must be a named list of arguments."))
-
-    }
-
-  }
 
   check_monocle_input(preprocess_method = preprocess_method,
                       reduction_method = reduction_method,
                       cluster_method = cluster_method)
 
-  if(!base::is.null(save_cds_file)){
-
-    confuns::is_value(save_cds_file, "character", "save_cds_file")
-    if(base::file.exists(save_cds_file)){
-
-      base::stop(glue::glue("Directory '{save_cds_file}' already exists. "))
-
-    }
-
-  }
 
   # check if valid cds files
 
   # Step 1 - Create cds -----------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("No cds-file specified. Performing monocle anylsis from scratch.")}
-
-  base::stopifnot(preprocess_method %in% c("PCA", "LSI"))
-  base::stopifnot(cluster_method %in% c("leiden", "louvain"))
 
   if(base::isTRUE(verbose)){base::message("Step 1/7 Creating 'cell data set'-object.")}
 
-  expression_matrix <- base::as.matrix(object@data@counts)
+  count_mtr <- base::as.matrix(getCountMatrix(object = object, of_sample = of_sample))
 
-  gene_metadata <- data.frame(gene_short_name = base::rownames(expression_matrix))
-  base::rownames(gene_metadata) <- base::rownames(expression_matrix)
+  gene_metadata <- data.frame(gene_short_name = base::rownames(count_mtr))
+  base::rownames(gene_metadata) <- base::rownames(count_mtr)
 
-  cell_metadata <- data.frame(object@fdata)
-  base::rownames(cell_metadata) <- object@fdata$barcodes
+  cell_metadata <- getFeatureDf(object = object, of_sample = of_sample)
+  base::rownames(cell_metadata) <- cell_metadata$barcodes
+
 
   cds <- monocle3::new_cell_data_set(
-    expression_data = expression_matrix,
+    expression_data = count_mtr,
     cell_metadata = cell_metadata,
     gene_metadata = gene_metadata)
 
@@ -497,10 +481,8 @@ transformSpataToCDS <- function(object,
 
   if(base::isTRUE(verbose)){base::message("Step 2/7 Estimating size factors.")}
 
-  estimate_size_factors_args <- purrr::prepend(x = estimate_size_factors_args,
-                                               values = list("cds" = cds))
-
-  cds <- rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::estimate_size_factors")), estimate_size_factors_args)
+  cds <- confuns::call_flexibly(fn = "estimate_size_factors", fn.ns = "monocle3",
+                                default = list(cds = cds), v.fail = cds, verbose = verbose)
 
   if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
 
@@ -512,10 +494,8 @@ transformSpataToCDS <- function(object,
 
     }
 
-    preprocess_cds_args_p <- purrr::prepend(x = preprocess_cds_args,
-                                            values = list("cds" = cds, "preprocess_method" = preprocess_method[p]))
-
-    cds <- rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::preprocess_cds")), preprocess_cds_args_p)
+    cds <- confuns::call_flexibly(fn = "preprocess_cds", fn.ns = "monocle3",
+                                  default = list(cds = cds), v.fail = cds, verbose = verbose)
 
   }
 
@@ -539,23 +519,9 @@ transformSpataToCDS <- function(object,
 
       } else {
 
-        reduce_dimension_args_r <- purrr::prepend(x = reduce_dimension_args,
-                                                  values = list("cds" = cds,
-                                                                reduction_method = reduction_method[r],
-                                                                preprocess_method = preprocess_method[p]))
-
-        cds <- base::tryCatch(
-
-          rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::reduce_dimension")), reduce_dimension_args_r),
-
-          error = function(error){
-
-            base::message(glue::glue("Attempting to call 'reduce_dimensions()' resulted in an error: {error$message}.
-                                       Skipping."))
-
-            base::return(cds)
-
-          })
+        cds <- confuns::call_flexibly(fn = "reduce_dimension", fn.ns = "monocle3",
+                                      default = list(cds = cds, reduction_method = reduction_method[r], preprocess_method = preprocess_method[p]),
+                                      v.fail = cds, verbose = verbose)
 
       }
 
@@ -585,88 +551,36 @@ transformSpataToCDS <- function(object,
 
       }
 
-      cluster_cells_args_c <- purrr::prepend(x = cluster_cells_args,
-                                             values = list("cds" = cds,
-                                                           "reduction_method" = reduction_method[r],
-                                                           "cluster_method" = cluster_method[c]))
-
-      cds <- base::tryCatch(
-
-        rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::cluster_cells")), cluster_cells_args_c),
-
-        error = function(error){
-
-          base::message(glue::glue("Attempting to call 'cluster_cells()' resulted in an error: {error$message}.
-                                     Skipping."))
-
-          base::return(cds)
-
-        })
+      cds <- confuns::call_flexibly(fn = "cluster_cells", fn.ns = "monocle3",
+                                    default = list(cds = cds, reduction_method = reduction_method[r], cluster_method = cluster_method[c]),
+                                    v.fail = cds, verbose = verbose)
 
     }
 
   }
-
-  if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
-
-  learn_graph_args <- purrr::prepend(x = learn_graph_args, values = list(cds = cds))
-
-  cds <- base::tryCatch(
-
-    rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::learn_graph")), learn_graph_args),
-
-    error = function(error){
-
-      base::message(glue::glue("Attempting to call 'learn_graph()' resulted in an error: {error$message}.
-                               Skipping step 6/7."))
-
-      base::return(cds)
-
-    })
-
-  if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
-
-  order_cells_args <- purrr::prepend(x = order_cells_args, values = list(cds = cds))
-
-  cds <- base::tryCatch(
-
-    rlang::invoke(.fn = base::eval(base::parse(text = "monocle3::order_cells")), order_cells_args),
-
-    error = function(error){
-
-      base::message(glue::glue("Attempting to call 'order_cells()' resulted in an error: {error$message}.
-                               Skipping step 7/7."))
-
-      base::return(cds)
-
-    })
 
   # -----
 
 
-  # Save cds-file and return ------------------------------------------------
+  # Step 6 Learn trajectory -------------------------------------------------
 
-  # save cds file if save_cds_file is specified as a character
-  if(base::is.character(save_cds_file)){
+  if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
 
-    if(base::isTRUE(verbose)){
+  cds <- confuns::call_flexibly(fn = "learn_graph", fn.ns = "monocle3",
+                                default = list(cds = cds), v.fail = cds, verbose = verbose)
 
-      base::message(stringr::str_c("Saving cell data set object 'cds' under directory: '", save_cds_file, "'"))
+  # -----
 
-    }
 
-    base::tryCatch(
+  # Step 7 Ordering cells ---------------------------------------------------
 
-      base::saveRDS(cds, file = save_cds_file),
+  if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
 
-      error = function(error){
+  cds <- confuns::call_flexibly(fn = "order_cells", fn.ns = "monocle3",
+                                default = list(cds = cds), v.fail = cds, verbose = verbose)
 
-        base::warning(glue::glue("Attempting to save the cell_data_set resulted in an error: {error}.
-                                 Skip saving."))
+  # -----
 
-      })
-
-  }
 
   base::return(cds)
 

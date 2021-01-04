@@ -1,22 +1,7 @@
 
 
-#' @title Obtain name of currently active expression matrix
-#'
-#' @inherit check_object params
-#'
-#' @return Character value.
-#' @export
 
-getActiveMatrixName <- function(object, of_sample = ""){
-
-  check_object(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  object@information$active_mtr[[of_sample]]
-
-}
-
+# Slot: autoencoder -------------------------------------------------------
 
 #' @title Obtain information about the optimal neural network set up
 #'
@@ -27,7 +12,6 @@ getActiveMatrixName <- function(object, of_sample = ""){
 #' @return A data.frame containing the total variance measured by \code{irlba::prcomp_irlba()} after each
 #' combination of activations/bottlenecks.
 #' @export
-#'
 
 getAutoencoderAssessment <- function(object, of_sample = ""){
 
@@ -77,22 +61,10 @@ getAutoencoderSetUp <- function(object, mtr_name, of_sample = ""){
 
 }
 
+# -----
 
-#' Obtain barcodes of a sample
-#'
-#' @inherit check_sample params
-#'
-#' @return All barcodes of the specified sample(s) as a character vector.
-#' @export
 
-getBarcodes <- function(object, of_sample = ""){
-
-  check_object(object)
-  of_sample <- check_sample(object = object, of_sample = of_sample)
-
-  object@information$barcodes[[of_sample]]
-
-}
+# Slot: coordinates -------------------------------------------------------
 
 #' @title Obtain spatial coordinates
 #'
@@ -164,7 +136,8 @@ getCoordinatesSegment <- function(object,
 
 
 
-# DE-analysis -------------------------------------------------------------
+# -----
+# Slot: dea -------------------------------------------------------------
 
 #' @title Obtain info on de-analysis storage
 #'
@@ -220,7 +193,7 @@ getDeOverview <- function(object){
 #'
 #' @export
 
-getDeResultDf <- function(object,
+getDeResultsDf <- function(object,
                           of_sample = "",
                           across,
                           across_subset = NULL,
@@ -262,7 +235,7 @@ getDeResultDf <- function(object,
 }
 
 
-#' @rdname getDeResults
+#' @rdname getDeResultsDf
 #' @export
 getDeGenes <- function(object,
                        of_sample = "",
@@ -302,6 +275,27 @@ getDeGenes <- function(object,
   # 3. Return ---------------------------------------------------------------
 
   base::return(de_results)
+
+}
+
+# -----
+
+# Slot: data --------------------------------------------------------------
+
+#' @title Obtain name of currently active expression matrix
+#'
+#' @inherit check_object params
+#'
+#' @return Character value.
+#' @export
+
+getActiveMatrixName <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  object@information$active_mtr[[of_sample]]
 
 }
 
@@ -397,8 +391,19 @@ getExpressionMatrixNames <- function(object, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  object@data[[of_sample]] %>% base::names() %>%
+  mtr_names <-
+    object@data[[of_sample]] %>% base::names() %>%
     purrr::discard(.p = ~ .x == "counts")
+
+  if(base::is.null(mtr_names) | base::identical(mtr_names, base::character(0))){
+
+    base::stop("Could not find any expression matrices in the provided spata-object.")
+
+  } else {
+
+    base::return(mtr_names)
+
+  }
 
 }
 
@@ -433,7 +438,7 @@ getSpataDf <- function(object, of_sample = ""){
 }
 
 
-# Dimensional reduction ---------------------------------------------------
+# Slot: dim_red ---------------------------------------------------
 
 #' @title Obtain dimensional reduction data
 #'
@@ -548,7 +553,719 @@ getTsneDf <- function(object,
 # -----
 
 
-# Genes and gene set related ----------------------------------------------
+# Slot: fdata & samples ---------------------------------------------------
+
+#' @title Obtain feature names
+#'
+#' @description An easy way to obtain all features of interest along with their
+#' class.
+#'
+#' @param object A valid spata-object.
+#' @param of_class Character vector. Specify the classes a feature must be of for
+#' it's name to be returned.
+#'
+#' @return A named character vector of the variables in the feature data slot.
+#' @export
+
+getFeatureNames <- function(object, of_class = NULL, of_sample = ""){
+
+  check_object(object)
+  confuns::is_vec(x = of_class, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  feature_df <- getFeatureDf(object = object, of_sample = of_sample)
+
+  feature_names <- base::colnames(feature_df)
+
+  classes <- base::sapply(feature_df[,feature_names], base::class)
+
+  base::names(feature_names) <- classes
+
+  if(!base::is.null(of_class)){
+    feature_names <- feature_names[classes %in% of_class]
+  }
+
+  base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
+
+}
+
+
+#' Obtain feature data
+#'
+#' @inherit check_sample params
+#'
+#' @return The feature data data.frame of the specfied object and sample(s).
+#' @export
+
+getFeatureDf <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample)
+
+  fdata <- object@fdata[[of_sample]]
+
+  if(base::is.null(fdata) | base::nrow(fdata) == 0){
+
+    base::stop(glue::glue("Could not find feature data for sample '{of_sample}'."))
+
+  }
+
+  base::return(fdata)
+
+}
+
+
+#' @title Obtain a feature variable
+#'
+#' @description Extracts the specified feature variables from the
+#' feature data.
+#'
+#' @inherit check_sample params
+#' @inherit check_features params
+#' @param return Character value. One of \emph{'vector', 'data.frame'} or
+#' \emph{'list'}. In order to return a vector input of \code{features} must
+#' be of length one.
+#' @param unique Deprecated.
+#'
+#' @return A data.frame or a vector.
+#' @export
+
+getFeatureVariables <- function(object,
+                                features,
+                                of_sample = "",
+                                return = "data.frame",
+                                unique = "deprecated"){
+
+  if(unique != "deprecated"){
+    base::warning("Argument 'unique' is deprecated.")
+  }
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  features <- check_features(object, features)
+
+  confuns::is_value(x = return, mode = "character")
+  confuns::check_one_of(input = return,
+                        against = c("data.frame", "vector"),
+                        ref.input = "return")
+
+  of_sample <- check_sample(object, of_sample)
+
+  # -----
+
+  # 2. Extracting -----------------------------------------------------------
+
+
+  if(base::length(features) == 1 && return == "vector"){
+
+    res <-
+      getFeatureDf(object, of_sample = of_sample) %>%
+      dplyr::pull(var = {{features}})
+
+  } else if(return == "data.frame"){
+
+    res <-
+      getFeatureDf(object, of_sample = of_sample) %>%
+      dplyr::select(barcodes, sample, dplyr::all_of(features))
+
+  } else if(return == "list"){
+
+    res <-
+      purrr::map(.x = features,
+                 .f = function(f){
+
+                   getFeatureDf(object, of_sample) %>%
+                     dplyr::pull(var = {{f}})
+
+                 }) %>%
+      magrittr::set_names(value = features)
+
+  }
+
+  base::return(res)
+
+}
+
+
+#' @title Obtain unique categorical feature values
+#'
+#' @description Extracts the unique values of discrete features.
+#'
+#' @inherit check_sample params
+#' @inherit check_features params
+#'
+#' @return A vector or a named list according to the length of \code{features}.
+#' @export
+
+getFeatureValues <- function(object, of_sample = "", features){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  features <- check_features(object, features, valid_classes = c("character", "factor"))
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  # -----
+
+  # 2. Main part ------------------------------------------------------------
+
+  if(base::length(features) == 1){
+
+    getFeatureDf(object, of_sample = of_sample) %>%
+      dplyr::pull(var = {{features}}) %>%
+      base::unique() %>%
+      base::return()
+
+  } else {
+
+    purrr::map(.x = features,
+               .f = function(f){
+
+                 getFeatureDf(object, of_sample = of_sample) %>%
+                   dplyr::pull(var = {{f}}) %>%
+                   base::unique() %>%
+                   base::return()
+
+               }) %>%
+      magrittr::set_names(features) %>%
+      base::return()
+  }
+
+
+}
+
+
+#' @title Obtain segment names
+#'
+#' @inherit check_sample params
+#'
+#' @return A list named according to the \code{of_sample} in which each element is
+#' a character vector containing the names of segments which were drawn for the
+#' specific sample.
+#'
+#' @export
+
+getSegmentNames <- function(object,
+                            of_sample = "",
+                            simplify = TRUE){
+
+  # lazy check
+  check_object(object)
+
+  # adjusting check
+  of_sample <- check_sample(object, of_sample = of_sample)
+
+  # main part
+  res_list <-
+    purrr::map(.x = of_sample,
+               .f = function(i){
+
+                 segment_names <-
+                   getFeatureDf(object, of_sample = of_sample) %>%
+                   dplyr::pull(segment) %>%
+                   base::unique()
+
+                 if(base::length(segment_names) == 1 && segment_names %in% c("none", "")){
+
+                   base::warning(stringr::str_c("There seems to be no segmentation for '", i, "'."))
+
+                   base::return(NULL)
+
+                 } else {
+
+                   return(segment_names[!segment_names %in% c("none", "")])
+
+                 }
+
+               })
+
+  base::names(res_list) <- of_sample
+
+  res_list <- purrr::discard(.x = res_list, .p = base::is.null)
+
+  if(base::isTRUE(simplify)){
+
+    base::unlist(res_list, use.names = FALSE) %>%
+      base::return()
+
+  } else {
+
+    base::return(res_list)
+
+  }
+
+
+}
+
+#' @title Obtain sample names
+#'
+#' @inherit check_object params
+#'
+#' @return A character vector.
+#'
+#' @export
+
+getSampleNames <- function(object){
+
+  check_object(object)
+
+  object@samples
+
+}
+
+#' @rdname getSampleNames
+getSamples <- function(object){
+
+  warning("getSamples is deprecated. Use getSampleNames")
+
+  object@samples
+
+}
+
+# -----
+
+
+# Slot: gdata -------------------------------------------------------------
+
+#' @title Obtain gene hotspot evaluation data frame
+#'
+#' @inherit getGeneMetaData params
+#' @param genes NULL or character vector. Denotes the genes of interest. The data.frame
+#' is filtered for them in addition to beeing filtered for those gene that
+#' were included in hotspot analysis process. Ignored if set to NULL.
+#'
+#' @return A nested data.frame.
+#' @export
+
+getGeneHotspotDf <- function(object,
+                             of_sample = "",
+                             genes = NULL){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  gmdf <- object@spatial[[of_sample]][["hotspot"]]$df
+
+  if(base::is.character(genes)){
+
+    genes <-
+      confuns::check_vector(
+        input = genes,
+        against = gmdf$genes,
+        ref.input = "input for argument 'genes'",
+        ref.against = "those genes that were included in hotspot evaluation.",
+        fdb.fn = "warning"
+      )
+
+    gmdf <-
+      dplyr::filter(gmdf, genes %in% {{genes}})
+
+  }
+
+  base::return(gmdf_final)
+
+}
+
+#' @title Obtain gene meta data
+#'
+#' @inherit check_sample params
+#' @param only_df Logical. If set to TRUE only the data.frame is returned.
+#' If set to FALSE (the default) the whole list is returned.
+#' @inherit getExpressionMatrix params
+#'
+#' @return A data.frame from \code{getMetaDataDf()} or a list from \code{getGeneMetaData()}.
+#' @export
+
+getGeneMetaData <- function(object, of_sample = "", mtr_name = NULL, only_df = FALSE){
+
+  check_object(object)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  if(base::is.null(mtr_name)){
+
+    mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
+
+  }
+
+  gdata <- object@gdata[[of_sample]][[mtr_name]]
+
+  check_availability(
+    test = (base::is.list(gdata) & !base::identical(gdata, list())),
+    ref_x = glue::glue("gene meta data for expression matrix '{mtr_name}' of sample '{of_sample}'"),
+    ref_fns = "computeGeneMetaData() or addGeneMetaData()"
+  )
+
+  if(base::isTRUE(only_df)){
+
+    base::return(gdata$data)
+
+  } else {
+
+    base::return(gdata)
+
+  }
+
+}
+
+#' @rdname getGeneMetaData
+#' @export
+getGeneMetaDf <- function(object, of_sample = "", mtr_name = NULL){
+
+  getGeneMetaData(object = object, of_sample = of_sample, mtr_name = mtr_name, only_df = TRUE)
+
+}
+
+# -----
+
+# Slot: information -------------------------------------------------------
+
+#' Obtain barcodes of a sample
+#'
+#' @inherit check_sample params
+#'
+#' @return All barcodes of the specified sample(s) as a character vector.
+#' @export
+
+getBarcodes <- function(object, of_sample = ""){
+
+  check_object(object)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  object@information$barcodes[[of_sample]]
+
+}
+
+# -----
+
+
+
+# Slot: spatial -----------------------------------------------------------
+
+#' @title Obtain distance measurements of spatially correlated genes
+#'
+#' @inherit check_sample params
+#'
+#' @return A data.frame or a distance matrix.
+#' @export
+
+getGeneDistMtr <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  sp_cor <- getSpCorResults(object, of_sample = of_sample)
+
+  base::return(sp_cor$dist_mtr)
+
+}
+
+getGeneDistDf <- function(object, of_sample = ""){
+
+  getGeneDistMtr(object = object, of_sample = of_sample) %>%
+    hlpr_dist_mtr_to_df()
+
+}
+
+#' Title
+#'
+#' @inherit check_sample params
+#' @inherit method_hclust params
+#'
+#' @return
+#' @export
+
+getSpCorCluster <- function(object,
+                                         method_hclust = "complete",
+                                         of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  sp_cor <-
+    getSpCorResults(object, of_sample = of_sample)
+
+  cor_clusters <-
+    sp_cor$clusters
+
+  if(base::is.null(cor_clusters) | base::identical(list(), cor_clusters)){
+
+    base::stop("Could not find any correlation clusters. It seems as if function 'clusterSpCorResults()' has not been run yet.")
+
+  } else if(!method_hclust %in% base::names(cor_clusters)) {
+
+    base::stop("Could not find correlation clusters for to method '{method_hclust}'.")
+
+  } else {
+
+    base::return(cor_clusters[[method_hclust]])
+
+  }
+
+}
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+
+getSpCorClusterNames <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  sp_cor <- getSpCorResults(object, of_sample = of_sample)
+
+  cluster_names <- base::names(sp_cor$clusters)
+
+  if(base::is.null(cluster_names) | base::length(cluster_names) == 0){
+
+    base::stop(glue::glue("Could not find any spatial correlation clusters for sample '{of_sample}'. It seems as if 'clusterSpCorResults()' has not been run yet."))
+
+  } else {
+
+    base::return(cluster_names)
+
+  }
+
+}
+
+
+#' Title
+#'
+#' @inherit check_sample params
+#'
+#' @return
+#' @export
+
+getSpCorResults <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  corr_assessment <-
+    object@spatial[[of_sample]]$correlation
+
+  if(base::is.null(corr_assessment)){
+
+    base::stop(glue::glue("Could not find any correlation assessment for sample '{of_sample}'. It seems as if function 'assessSpCor()' has not been run yet."))
+
+  } else {
+
+    base::return(corr_assessment)
+
+  }
+
+}
+
+
+# -----
+
+# Slot: trajectories ------------------------------------------------------
+
+#- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
+
+
+
+#' @title Obtain the length of a trajectory
+#'
+#' @description This function returns the length (the number of bins) of a trajectory
+#' depending on the chosen \code{binwidth}.
+#'
+#' @inherit check_trajectory params
+#' @inherit check_trajectory_binwidth params
+#'
+#' @return Numeric value.
+#' @export
+#'
+
+getTrajectoryLength <- function(object,
+                                trajectory_name,
+                                of_sample = "",
+                                binwidth = 5){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_trajectory(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
+
+  confuns::is_value(x = binwidth, mode = "numeric")
+
+  # -----
+
+  # 2. Extraction -----------------------------------------------------------
+
+  t_object <-
+    getTrajectoryObject(object = object,
+                        trajectory_name = trajectory_name,
+                        of_sample = of_sample)
+
+  t_object@compiled_trajectory_df %>%
+    dplyr::mutate(pl_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor)) %>%
+    dplyr::group_by(pl_binned, trajectory_part) %>%
+    dplyr::summarise(n = dplyr::n(), .groups = "drop_last") %>%
+    base::nrow()
+
+
+}
+
+
+#' @title Obtain trajectory names
+#'
+#' @inherit check_sample params
+#'
+#' @return A list named according to the \code{of_sample} in which each element is
+#' a character vector containing the names of trajectories which were drawn for the
+#' specific sample.
+#'
+#' @export
+
+getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
+
+  # lazy check
+  check_object(object)
+
+  # adjusting check
+  of_sample <- check_sample(object = object, of_sample = of_sample)
+
+  # main part
+  t_names_list <-
+    purrr::map(.x = of_sample, .f = function(i){
+
+      t_names <-
+        base::names(object@trajectories[[i]])
+
+      if(base::length(t_names) == 0){
+
+        base::message(stringr::str_c("No trajectories found in sample: ", i, sep = ""))
+
+        base::return(NULL)
+
+      } else {
+
+        base::return(t_names)
+
+      }
+
+    })
+
+  base::names(t_names_list) <- of_sample
+
+  t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
+
+  if(base::isTRUE(simplify)){
+
+    t_names_list <- base::unlist(t_names_list) %>% base::unname()
+
+  }
+
+  if(!base::length(t_names_list) == 0){
+
+    base::return(t_names_list)
+
+  } else {
+
+    base::return(base::invisible(NULL))
+
+  }
+
+
+}
+
+
+
+#' @title Obtain a summarized trajectory data.frame
+#'
+#' @description Computes the expression trends of all specified variables
+#' along the direction of the spatial trajectory.
+#'
+#' @inherit check_sample params
+#' @inherit check_trajectory params
+#' @inherit hlpr_summarize_trajectory_df params
+#' @param shift_wider Logical. If set to TRUE the trajectory data.frame is
+#' shifted to it's wider format. Formats can be changed via \code{shiftTrajectoryDf()}.
+#'
+#' @return A summarized trajectory data.frame.
+#'
+#' @inherit hlpr_summarize_trajectory_df details
+#'
+#' @export
+
+getTrajectoryDf <- function(object,
+                            trajectory_name,
+                            of_sample = "",
+                            variables,
+                            method_gs = "mean",
+                            binwidth = 5,
+                            normalize = TRUE,
+                            shift_wider = FALSE,
+                            verbose = TRUE){
+
+
+  confuns::are_values(c("normalize", "shift_wider", "verbose"), mode = "logical")
+
+  tobj <-
+    getTrajectoryObject(object, trajectory_name, of_sample)
+
+  stdf <-
+    hlpr_summarize_trajectory_df(object,
+                                 ctdf = tobj@compiled_trajectory_df,
+                                 binwidth = binwidth,
+                                 variables = variables,
+                                 method_gs = method_gs,
+                                 verbose = verbose,
+                                 normalize = normalize)
+
+  if(base::isTRUE(shift_wider)){
+
+    stdf <- shiftTrajectoryDf(stdf = stdf, shift = "wider")
+
+  }
+
+  base::return(stdf)
+
+}
+
+
+#' @title Obtain trajectory object
+#'
+#' @inherit check_sample params
+#' @inherit check_trajectory params
+#'
+#' @return An object of class \code{spatialTrajectory}.
+#' @export
+
+getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
+
+  check_trajectory(object = object,
+                   trajectory_name = trajectory_name,
+                   of_sample = of_sample)
+
+  of_sample <- check_sample(object = object,
+                            of_sample = of_sample,
+                            desired_length = 1)
+
+  object@trajectories[[of_sample]][[trajectory_name]]
+
+}
+
+# -----
+
+
+
+# Slot: used_genesets ----------------------------------------------
 
 #' @title Overview about the current gene sets
 #'
@@ -883,6 +1600,111 @@ getGenes <- function(object,
 
 #' @rdname getGenes
 #' @export
+getSpCorGenes <- function(object,
+                          of_sample = "",
+                          similar_to = NULL,
+                          distinct_to = NULL,
+                          top_n = 25,
+                          method_hclust = NULL,
+                          clusters = NULL,
+                          simplify = TRUE){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  if(base::is.character(similar_to)){
+
+    dist_df <- getGeneDistDf(object, of_sample = of_sample)
+
+    confuns::is_value(x = top_n, mode = "numeric")
+
+    confuns::check_one_of(
+      input = similar_to,
+      against = base::unique(dist_df$gene2),
+      ref.input = "input for argument 'similar_to'"
+    )
+
+    res_genes <-
+      dplyr::filter(.data = dist_df, gene2 == {{similar_to}}) %>%
+      dplyr::slice_min(order_by = distance, n = top_n) %>%
+      dplyr::pull(var = "gene1") %>%
+      base::as.character()
+
+  } else if(base::is.character(distinct_to)){
+
+    dist_df <- getGeneDistDf(object, of_sample = of_sample)
+
+    confuns::is_value(x = top_n, mode = "numeric")
+
+    confuns::check_one_of(
+      input = distinct_to,
+      against = base::unique(dist_df$gene2),
+      ref.input = "input for argument 'distinct_to'"
+    )
+
+    res_genes <-
+      dplyr::filter(.data = dist_df, gene2 == {{distinct_to}}) %>%
+      dplyr::slice_max(order_by = distance, n = top_n) %>%
+      dplyr::pull(var = "gene1") %>%
+      base::as.character()
+
+  } else if(base::is.character(method_hclust)){
+
+    sp_cor_cluster <-
+      getSpCorCluster(object = object, method_hclust = method_hclust)
+
+    if(base::is.numeric(clusters)){
+
+      cluster_names <- stringr::str_c("cluster", clusters, sep = "_")
+
+    } else if(!base::is.character(clusters)){
+
+      base::stop("Input for argument 'clusters' must be a character or a numeric vector.")
+
+    }
+
+    gene_names_list <- sp_cor_cluster$gene_names_list
+
+    cluster_names <-
+      confuns::check_vector(
+        input = cluster_names,
+        against = base::names(sp_cor_cluster$gene_names_list),
+        ref.input = "cluster names",
+        ref.against = "valid valid cluster names."
+      )
+
+    res_genes <-
+      purrr::map(.x = cluster_names, .f = ~ gene_names_list[[.x]]) %>%
+      purrr::set_names(nm = cluster_names)
+
+    if(simplify == TRUE | base::length(res_genes) >= 2){
+
+      res_genes <-
+        purrr::imap(.x = res_genes, .f = function(x, cluster_name){
+
+          base::names(x) <-
+            base::rep(x = cluster_name, base::length(x))
+
+          base::return(x)
+
+        }) %>%
+        purrr::flatten_chr()
+
+    }
+
+  } else {
+
+    base::stop("Either argument 'similar_to' or 'method_hclust' must be specified.")
+
+  }
+
+  base::return(res_genes)
+
+}
+
+#' @rdname getGenes
+#' @export
 getGenesInteractive <- function(object){
 
   check_object(object)
@@ -948,496 +1770,6 @@ getGenesInteractive <- function(object){
 # -----
 
 
-# Feature related ---------------------------------------------------------
 
-#' @title Obtain feature names
-#'
-#' @description An easy way to obtain all features of interest along with their
-#' class.
-#'
-#' @param object A valid spata-object.
-#' @param of_class Character vector. Specify the classes a feature must be of for
-#' it's name to be returned.
-#'
-#' @return A named character vector of the variables in the feature data slot.
-#' @export
 
-getFeatureNames <- function(object, of_class = NULL, of_sample = ""){
 
-  check_object(object)
-  confuns::is_vec(x = of_class, mode = "character", skip.allow = TRUE, skip.val = NULL)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  feature_df <- getFeatureDf(object = object, of_sample = of_sample)
-
-  feature_names <- base::colnames(feature_df)
-
-  classes <- base::sapply(feature_df[,feature_names], base::class)
-
-  base::names(feature_names) <- classes
-
-  if(!base::is.null(of_class)){
-    feature_names <- feature_names[classes %in% of_class]
-  }
-
-  base::return(feature_names[!feature_names %in% c("barcodes", "sample")])
-
-}
-
-
-#' Obtain feature data
-#'
-#' @inherit check_sample params
-#'
-#' @return The feature data data.frame of the specfied object and sample(s).
-#' @export
-
-getFeatureDf <- function(object, of_sample = ""){
-
-  check_object(object)
-  of_sample <- check_sample(object, of_sample)
-
-  fdata <- object@fdata[[of_sample]]
-
-  if(base::is.null(fdata) | base::nrow(fdata) == 0){
-
-    base::stop(glue::glue("Could not find feature data for sample '{of_sample}'."))
-
-  }
-
-  base::return(fdata)
-
-}
-
-
-#' @title Obtain a feature variable
-#'
-#' @description Extracts the specified feature variables from the
-#' feature data.
-#'
-#' @inherit check_sample params
-#' @inherit check_features params
-#' @param return Character value. One of \emph{'vector', 'data.frame'} or
-#' \emph{'list'}. In order to return a vector input of \code{features} must
-#' be of length one.
-#' @param unique Deprecated.
-#'
-#' @return A data.frame or a vector.
-#' @export
-
-getFeatureVariables <- function(object,
-                                features,
-                                of_sample = "",
-                                return = "data.frame",
-                                unique = "deprecated"){
-
-  if(unique != "deprecated"){
-    base::warning("Argument 'unique' is deprecated.")
-  }
-
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  features <- check_features(object, features)
-
-  confuns::is_value(x = return, mode = "character")
-  confuns::check_one_of(input = return,
-                        against = c("data.frame", "vector"),
-                        ref.input = "return")
-
-  of_sample <- check_sample(object, of_sample)
-
-  # -----
-
-  # 2. Extracting -----------------------------------------------------------
-
-
-  if(base::length(features) == 1 && return == "vector"){
-
-    res <-
-      getFeatureDf(object, of_sample = of_sample) %>%
-        dplyr::pull(var = {{features}})
-
-  } else if(return == "data.frame"){
-
-    res <-
-      getFeatureDf(object, of_sample = of_sample) %>%
-        dplyr::select(barcodes, sample, dplyr::all_of(features))
-
-  } else if(return == "list"){
-
-    res <-
-      purrr::map(.x = features,
-                 .f = function(f){
-
-                   getFeatureDf(object, of_sample) %>%
-                     dplyr::pull(var = {{f}})
-
-                 }) %>%
-      magrittr::set_names(value = features)
-
-  }
-
-  base::return(res)
-
-}
-
-
-#' @title Obtain unique categorical feature values
-#'
-#' @description Extracts the unique values of discrete features.
-#'
-#' @inherit check_sample params
-#' @inherit check_features params
-#'
-#' @return A vector or a named list according to the length of \code{features}.
-#' @export
-
-getFeatureValues <- function(object, of_sample = "", features){
-
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  features <- check_features(object, features, valid_classes = c("character", "factor"))
-
-  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
-
-  # -----
-
-  # 2. Main part ------------------------------------------------------------
-
-  if(base::length(features) == 1){
-
-    getFeatureDf(object, of_sample = of_sample) %>%
-      dplyr::pull(var = {{features}}) %>%
-      base::unique() %>%
-      base::return()
-
-  } else {
-
-    purrr::map(.x = features,
-               .f = function(f){
-
-                 getFeatureDf(object, of_sample = of_sample) %>%
-                   dplyr::pull(var = {{f}}) %>%
-                   base::unique() %>%
-                   base::return()
-
-               }) %>%
-      magrittr::set_names(features) %>%
-      base::return()
-  }
-
-
-}
-
-# -----
-
-
-#' @title Obtain sample image
-#'
-#' @inherit check_sample params
-#'
-#' @return Object of class\emph{image}.
-#' @export
-
-getImage <- function(object, of_sample = ""){
-
-  check_object(object)
-  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
-
-  object@images[[of_sample]]
-
-}
-
-# Segmentation related ----------------------------------------------------
-
-#' @title Obtain segment names
-#'
-#' @inherit check_sample params
-#'
-#' @return A list named according to the \code{of_sample} in which each element is
-#' a character vector containing the names of segments which were drawn for the
-#' specific sample.
-#'
-#' @export
-
-getSegmentNames <- function(object,
-                            of_sample = "",
-                            simplify = TRUE){
-
-  # lazy check
-  check_object(object)
-
-  # adjusting check
-  of_sample <- check_sample(object, of_sample = of_sample)
-
-  # main part
-  res_list <-
-    purrr::map(.x = of_sample,
-               .f = function(i){
-
-                  segment_names <-
-                    getFeatureDf(object, of_sample = of_sample) %>%
-                    dplyr::pull(segment) %>%
-                    base::unique()
-
-                  if(base::length(segment_names) == 1 && segment_names %in% c("none", "")){
-
-                     base::warning(stringr::str_c("There seems to be no segmentation for '", i, "'."))
-
-                     base::return(NULL)
-
-                  } else {
-
-                    return(segment_names[!segment_names %in% c("none", "")])
-
-                  }
-
-                })
-
-  base::names(res_list) <- of_sample
-
-  res_list <- purrr::discard(.x = res_list, .p = base::is.null)
-
-  if(base::isTRUE(simplify)){
-
-    base::unlist(res_list, use.names = FALSE) %>%
-      base::return()
-
-  } else {
-
-    base::return(res_list)
-
-  }
-
-
-}
-
-
-
-#' @title Obtain sample names
-#'
-#' @inherit check_object params
-#'
-#' @return A character vector.
-#'
-#' @export
-
-getSampleNames <- function(object){
-
-  check_object(object)
-
-  object@samples
-
-}
-
-#' @rdname getSampleNames
-getSamples <- function(object){
-
-  warning("getSamples is deprecated. Use getSampleNames")
-
-  object@samples
-
-}
-
-
-
-
-# -----
-
-
-# Trajectory related ------------------------------------------------------
-
-#- 'getTrajectoryComment()' is documented in 'S4_generic_functions.R' -#
-
-
-
-#' @title Obtain the length of a trajectory
-#'
-#' @description This function returns the length (the number of bins) of a trajectory
-#' depending on the chosen \code{binwidth}.
-#'
-#' @inherit check_trajectory params
-#' @inherit check_trajectory_binwidth params
-#'
-#' @return Numeric value.
-#' @export
-#'
-
-getTrajectoryLength <- function(object,
-                                trajectory_name,
-                                of_sample = "",
-                                binwidth = 5){
-
-
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  check_trajectory(object = object, trajectory_name = trajectory_name, of_sample = of_sample)
-
-  confuns::is_value(x = binwidth, mode = "numeric")
-
-  # -----
-
-  # 2. Extraction -----------------------------------------------------------
-
-  t_object <-
-    getTrajectoryObject(object = object,
-                        trajectory_name = trajectory_name,
-                        of_sample = of_sample)
-
-  t_object@compiled_trajectory_df %>%
-    dplyr::mutate(pl_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor)) %>%
-    dplyr::group_by(pl_binned, trajectory_part) %>%
-    dplyr::summarise(n = dplyr::n(), .groups = "drop_last") %>%
-    base::nrow()
-
-
-}
-
-
-#' @title Obtain trajectory names
-#'
-#' @inherit check_sample params
-#'
-#' @return A list named according to the \code{of_sample} in which each element is
-#' a character vector containing the names of trajectories which were drawn for the
-#' specific sample.
-#'
-#' @export
-
-getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
-
-  # lazy check
-  check_object(object)
-
-  # adjusting check
-  of_sample <- check_sample(object = object, of_sample = of_sample)
-
-  # main part
-  t_names_list <-
-    purrr::map(.x = of_sample, .f = function(i){
-
-      t_names <-
-        base::names(object@trajectories[[i]])
-
-      if(base::length(t_names) == 0){
-
-        base::message(stringr::str_c("No trajectories found in sample: ", i, sep = ""))
-
-        base::return(NULL)
-
-      } else {
-
-        base::return(t_names)
-
-      }
-
-    })
-
-  base::names(t_names_list) <- of_sample
-
-  t_names_list <- purrr::discard(.x = t_names_list, .p = is.null)
-
-  if(base::isTRUE(simplify)){
-
-    t_names_list <- base::unlist(t_names_list) %>% base::unname()
-
-  }
-
-  if(!base::length(t_names_list) == 0){
-
-    base::return(t_names_list)
-
-  } else {
-
-    base::return(base::invisible(NULL))
-
-  }
-
-
-}
-
-
-
-#' @title Obtain a summarized trajectory data.frame
-#'
-#' @description Computes the expression trends of all specified variables
-#' along the direction of the spatial trajectory.
-#'
-#' @inherit check_sample params
-#' @inherit check_trajectory params
-#' @inherit hlpr_summarize_trajectory_df params
-#' @param shift_wider Logical. If set to TRUE the trajectory data.frame is
-#' shifted to it's wider format. Formats can be changed via \code{shiftTrajectoryDf()}.
-#'
-#' @return A summarized trajectory data.frame.
-#'
-#' @inherit hlpr_summarize_trajectory_df details
-#'
-#' @export
-
-getTrajectoryDf <- function(object,
-                            trajectory_name,
-                            of_sample = "",
-                            variables,
-                            method_gs = "mean",
-                            binwidth = 5,
-                            normalize = TRUE,
-                            shift_wider = FALSE,
-                            verbose = TRUE){
-
-
-  confuns::are_values(c("normalize", "shift_wider", "verbose"), mode = "logical")
-
-  tobj <-
-    getTrajectoryObject(object, trajectory_name, of_sample)
-
-  stdf <-
-    hlpr_summarize_trajectory_df(object,
-                                 ctdf = tobj@compiled_trajectory_df,
-                                 binwidth = binwidth,
-                                 variables = variables,
-                                 method_gs = method_gs,
-                                 verbose = verbose,
-                                 normalize = normalize)
-
-  if(base::isTRUE(shift_wider)){
-
-    stdf <- shiftTrajectoryDf(stdf = stdf, shift = "wider")
-
-  }
-
-  base::return(stdf)
-
-}
-
-
-#' @title Obtain trajectory object
-#'
-#' @inherit check_sample params
-#' @inherit check_trajectory params
-#'
-#' @return An object of class \code{spatialTrajectory}.
-#' @export
-
-getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
-
-  check_trajectory(object = object,
-                   trajectory_name = trajectory_name,
-                   of_sample = of_sample)
-
-  of_sample <- check_sample(object = object,
-                            of_sample = of_sample,
-                            desired_length = 1)
-
-  object@trajectories[[of_sample]][[trajectory_name]]
-
-}
-
-
-
-
-# -----

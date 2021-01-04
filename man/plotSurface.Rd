@@ -23,6 +23,7 @@ plotSurface(
   display_title = FALSE,
   assign = FALSE,
   assign_name,
+  complete = FALSE,
   verbose = TRUE
 )
 
@@ -86,6 +87,10 @@ customize the output plot of this function.}
 
 \item{assign_name}{The name the assigned list is supposed to have specified as
 a single character value.}
+
+\item{complete}{Logical. If the provided spata-object has been subsetted by
+\code{subsetBySegment()} the original sample is completed with grey barcode
+spots.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

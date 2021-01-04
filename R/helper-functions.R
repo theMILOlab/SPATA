@@ -47,6 +47,42 @@ hlpr_add_barcode_suffix <- function(input, sample_name){
 
 }
 
+#' @title Adds old coordinates
+#'
+#' @description Adds old coordinates of subsetted object to
+#' plot_df in \code{plotSurface()}.
+#'
+#' @inherit check_object params
+#' @param plot_df The plot_df.
+#' @param complete Logical.
+#'
+#' @return
+#' @export
+
+
+hlpr_add_old_coords <- function(object, plot_df, complete){
+
+  if(base::isTRUE(complete)){
+
+    old_coords_df <- object@information$old_coordinates
+
+    res_df <-
+      dplyr::add_row(.data = plot_df,
+                     barcodes = old_coords_df$barcodes,
+                     sample = old_coords_df$sample,
+                     x = old_coords_df$x,
+                     y = old_coords_df$y)
+
+  } else {
+
+    res_df <- plot_df
+
+  }
+
+
+  base::return(res_df)
+}
+
 
 #' Assign objects into the global environment
 #'
@@ -236,6 +272,30 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 
 }
 
+
+
+
+
+#' @title Convert distance matrix to distance data.frame
+#'
+#' @description Reshapes a distance matrix with a wrapper around \code{reshape2::melt()}.
+#'
+#' @param dist_mtr A distance matrix gene expression - gene expression distances
+
+hlpr_dist_mtr_to_df <- function(dist_mtr){
+
+  dist_mtr <- base::as.matrix(dist_mtr)
+
+  dist_mtr[base::upper.tri(x = dist_mtr, diag = TRUE)] <- NA
+
+  reshape2::melt(data = dist_mtr,
+                 na.rm = TRUE,
+                 varnames = c("gene1", "gene2"),
+                 value.name = "distance") %>%
+    dplyr::mutate_if(.predicat = base::is.factor, .funs = base::as.character)
+
+}
+
 #' Removes the class part of a gene set string
 #'
 #' @param string Gene sets as a character vector
@@ -248,8 +308,6 @@ hlpr_gene_set_name <- function(string){
   stringr::str_remove(string = string, pattern = "^.+?_")
 
 }
-
-
 
 
 
@@ -321,8 +379,6 @@ hlpr_geom_trajectory_fit <- function(smooth, smooth_span, plot_df){
   base::return(list(customized_add_on, expression_add_on))
 
 }
-
-
 
 
 #' @title Provides the image as ggplot background
@@ -573,6 +629,96 @@ hlpr_one_distinct <- function(x, rna_assay, pb = NULL, verbose = TRUE){
 }
 
 
+#' @title Process spatial correlation results
+#'
+#' @description Helper function to be used in \code{clusterSpatialCorrelationResults()}.
+#' Takes a cutree data.frame and a distance data.frame and returns a named list:
+#'
+#' \itemize{
+#'  \item{\emph{assessment_df}: A data.frame that attempts to evaluate all cluster's
+#'   quality by providing the average distance between it's genes.}
+#'   \item{\emph{distances_list}: A named list of data.frames. Each data.frame contains the
+#'   gene-gene distances between all genes the cluster it corresponds to contains.}
+#'   \item{\emph{gene_names_list}: A named list of character vectors. Each vector contains the
+#'   unique gene names of the cluster it corresponds to.}
+#'   \item{\emph{k}: k-value}
+#'   \item{\emph{h}: h-value}
+#'   }
+#'
+#' @param cutree_df Data.frame of two variables: gene and cluster-belonging.
+#' @param dist_df Data.frame of three variables: gene1, gene2, distance
+#'
+
+hlpr_process_spatial_correlation_cluster <- function(cutree_df, dist_df, input){
+
+  cluster_list_genes <-
+    purrr::map(.x = base::unique(cutree_df$cluster),
+               cutree_df = cutree_df,
+               .f = function(cluster, cutree_df){
+
+                 dplyr::filter(.data = cutree_df, cluster == {{cluster}}) %>%
+                   dplyr::pull(var = "genes")
+
+               }) %>%
+    purrr::set_names(nm = base::unique(cutree_df$cluster))
+
+
+  cluster_list_distances <-
+    purrr::map(.x = cluster_list_genes,
+               dist_df = dist_df,
+               .f = function(cluster_genes, dist_df){
+
+                 arranged_dist_df <-
+                   dplyr::filter(dist_df,
+                                 gene1 %in% {{cluster_genes}} &
+                                   gene2 %in% {{cluster_genes}}) %>%
+                   dplyr::filter(gene1 != gene2) %>%
+                   dplyr::arrange(distance) %>%
+                   tibble::as_tibble()
+
+               }) %>%
+    purrr::keep(.p = ~ base::nrow(.x) >= 2)
+
+  cluster_df_assessment <-
+    purrr::map_df(.x = cluster_list_distances,
+                  .f = function(dist_df){
+
+                    dplyr::summarise(.data = dist_df,
+                                     mean_distance = base::mean(distance),
+                                     median_distance = stats::median(distance),
+                                     n_genes = dplyr::n_distinct(gene1))
+
+
+                  }) %>%
+    dplyr::mutate(cluster = base::names(cluster_list_distances)) %>%
+    dplyr::select(cluster, dplyr::everything()) %>%
+    dplyr::arrange(mean_distance)
+
+  cluster_list_genes <-
+    purrr::map(.x = cluster_list_distances,
+               .f = function(dist_df){
+
+                 dplyr::select(dist_df, gene1, gene2) %>%
+                   base::as.matrix() %>%
+                   base::t() %>%
+                   base::as.character() %>%
+                   base::unique()
+
+               })
+
+  cluster_list <-
+    list("assessment_df" = cluster_df_assessment,
+         "distances_list" = cluster_list_distances,
+         "gene_names_list" = cluster_list_genes,
+         "h" = input$h,
+         "k" = input$k,
+         "method" = input$method)
+
+  base::return(cluster_list)
+
+}
+
+
 #' @title Save spata object inside functions
 #'
 #' @inherit check_object params
@@ -620,7 +766,8 @@ hlpr_save_spata_object <- function(object, object_file, ref_step, verbose){
 #' slot \emph{add_on} contains a list of ggplot-add-ons.
 #'
 
-hlpr_scatterplot <- function(spata_df,
+hlpr_scatterplot <- function(object,
+                             spata_df,
                              color_to,
                              method_gs = "mean",
                              pt_size = 2,
@@ -631,7 +778,8 @@ hlpr_scatterplot <- function(spata_df,
                              smooth = FALSE,
                              smooth_span = 0.02,
                              normalize = TRUE,
-                             verbose = TRUE){
+                             verbose = TRUE,
+                             complete = FALSE){
 
   # if feature
   if("features" %in% base::names(color_to)){
@@ -644,6 +792,17 @@ hlpr_scatterplot <- function(spata_df,
                                  smooth = smooth,
                                  smooth_span = smooth_span,
                                  verbose = verbose)
+
+    if(is_subsetted_by_segment(object)){
+
+      spata_df <-
+        hlpr_add_old_coords(
+          object = object,
+          plot_df = spata_df,
+          complete = complete
+        )
+
+    }
 
     # assemble ggplot add on
     ggplot_add_on <- list(
@@ -668,6 +827,17 @@ hlpr_scatterplot <- function(spata_df,
                                  normalize = normalize,
                                  verbose = verbose)
 
+    if(is_subsetted_by_segment(object)){
+
+      spata_df <-
+        hlpr_add_old_coords(
+          object = object,
+          plot_df = spata_df,
+          complete = complete
+        )
+
+    }
+
     title <-
       stringr::str_c("Gene set: ", gene_set, " (", method_gs, ")", sep = "")
 
@@ -690,6 +860,17 @@ hlpr_scatterplot <- function(spata_df,
                               smooth_span = smooth_span,
                               normalize = normalize,
                               verbose = verbose)
+
+    if(is_subsetted_by_segment(object)){
+
+      spata_df <-
+        hlpr_add_old_coords(
+          object = object,
+          plot_df = spata_df,
+          complete = complete
+        )
+
+    }
 
     title <-
       glue::glue("Genes: {genes}",

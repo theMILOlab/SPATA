@@ -228,7 +228,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
                                         gene_set_path = NULL,
                                         output_path = NULL,
                                         file_name = NULL,
-                                        pca_comp = 30,
+                                        n_pcs = 30,
                                         k = 50,
                                         tsne_perplexity = 30,
                                         ...,
@@ -259,7 +259,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   confuns::are_values("output_path", "file_name", mode = "character", skip.allow = TRUE, skip.val = NULL)
 
-  confuns::are_values("pca_comp", "k", "tsne_perplexity", mode = "numeric")
+  confuns::are_values("n_pcs", "k", "tsne_perplexity", mode = "numeric")
 
   # check if gene names are valid
   if(base::any(stringr::str_detect(base::rownames(expr_mtr), pattern = "_"))){
@@ -358,7 +358,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   if(base::isTRUE(verbose)){ base::message("---------- PCA Analysis 1/4 ------------- ")}
 
-  spata_object <- runPca(object = spata_object, pca_comp = pca_comp)
+  spata_object <- runPca(object = spata_object, n_pcs = n_pcs)
 
   if(base::isTRUE(verbose)){ base::message("---------- SNN-Cluster Analysis 2/3 ------------- ") }
 
@@ -382,7 +382,6 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   if(base::isTRUE(verbose)){ base::message("---------- Dimensional Reduction 3/3 ------------- ")}
 
-
   if(base::isTRUE(verbose)){ base::message("Running TSNE.") }
 
   spata_object <- runTsne(object = spata_object, tsne_perplexity = tsne_perplexity)
@@ -402,7 +401,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
                          ref_step = "4/4",
                          verbose = verbose)
 
-  return(spata_obj)
+  return(spata_object)
 
 }
 

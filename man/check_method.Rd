@@ -5,14 +5,19 @@
 \title{Check method input}
 \usage{
 check_method(
+  method_de = NULL,
   method_dr = NULL,
   method_gs = NULL,
-  method_de = NULL,
-  method_padj = NULL,
-  method_ovl = NULL
+  method_hclust = NULL,
+  method_ovl = NULL,
+  method_padj = NULL
 )
 }
 \arguments{
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
+
 \item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
 either \emph{'pca'}, \emph{'umap'} or \emph{'tsne'}).}
@@ -22,16 +27,16 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
-Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
-to obtain all valid input options.}
+\item{method_hclust}{Character value. Denotes the hierarchical clustering method  according
+to which the clustering is performed. Valid input options are \emph{'ward.D', 'ward.D2', 'single',
+ 'complete', 'average', 'mcquitty', 'median'} and \emph{'centroid'}.}
+
+\item{method_ovl}{Character value. One of \emph{'classic', 'bayesian'}. Decides
+according to which method the spatial overlap is calculated.}
 
 \item{method_padj}{Character value. The method according to which the adjusted p-values will
 be calculated. Given to \code{stats::p.adjust()}. Run \code{stats::p.adjust.methods} to obtain
 all valid input options.}
-
-\item{method_ovl}{Character value. One of \emph{'classic', 'bayesian'}. Decides
-according to which method the spatial overlap is calculated.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

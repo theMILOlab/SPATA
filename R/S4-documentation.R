@@ -124,15 +124,18 @@ spatial_trajectory <- setClass("spatial_trajectory",
 #'
 
 spata <- setClass("spata",
-                  slots = c(compatibility = "list",
+                  slots = c(autoencoder = "list",
+                            compatibility = "list",
                             coordinates ="list", #coordinates: bc, x, y, sample
                             data = "list",
                             dim_red = "list", #PCA, UMAP, TSNE: bc, umap1, umap2, sample
                             fdata = "list", #fdata : bc, ...
+                            gdata = "list",
                             images = "list",
                             information = "list",
                             dea = "list",
                             samples = "character",
+                            spatial = "list",
                             scvelo = "list",
                             trajectories = "list",
                             used_genesets = "data.frame",

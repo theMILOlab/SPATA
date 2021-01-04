@@ -13,7 +13,7 @@ setActiveExpressionMatrix(object, of_sample = "", mtr_name)
 the active expression matrix.}
 }
 \value{
-
+An updated spta-object.
 }
 \description{
 Denote the default expression matrix

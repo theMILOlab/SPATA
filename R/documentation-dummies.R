@@ -133,3 +133,21 @@ pheatmap <- function(de_df){}
 
 gene_set_path <- function(gene_set_path){}
 
+
+
+
+
+#' @title method_hclust
+#'
+#' @param method_hclust Character value. Denotes the method that was used to generate the
+#' clustering results you want to extract.
+#'
+
+method_hclust <- function(method_hclust){}
+
+
+
+
+
+
+

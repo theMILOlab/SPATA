@@ -50,6 +50,38 @@ setFeatureDf <- function(object, feature_df, of_sample = ""){
 }
 
 
+
+
+# Slot: gdata -------------------------------------------------------------
+
+#' @title Add gene meta data to the object
+#'
+#' @description Safely adds the output of \code{computeGeneMetaData2()}
+#' to the spata-object.
+#'
+#' @inherit check_sample params
+#' @param meta_data_list Output list of \code{computeGeneMetaData2()}. An additional
+#' slot named \emph{mtr_name} needs to be added manually.
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+
+addGeneMetaData <- function(object, of_sample = "", meta_data_list){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  mtr_name <- meta_data_list$mtr_name
+
+  object@gdata[[of_sample]][[mtr_name]] <- meta_data_list
+
+  base::return(object)
+
+}
+
+
 # Slot: data --------------------------------------------------------------
 
 setCountMatrix <- function(object, count_mtr, of_sample = ""){
@@ -87,6 +119,23 @@ setScaledMatrix <- function(object, scaled_mtr, of_sample = ""){
   base::return(object)
 
 }
+
+
+
+#' @title Add an expression matrix
+#'
+#' @description Adds an expression matrix to the object's data slot and
+#' makes it available for all SPATA-intern function. Use \code{setActiveExpressionMatrix()}
+#' to denote it as the default to use.
+#'
+#' @inherit check_sample params
+#' @param expr_mtr A matrix in which the rownames correspond to the gene names and the
+#' column names correspond to the barcode-spots.
+#' @param mtr_name A character value that denotes the name of the exprssion matrix with
+#' which one can refer to it in subsequent functions.
+#'
+#' @return An updated spata-object.
+#' @export
 
 addExpressionMatrix <- function(object, expr_mtr, mtr_name, of_sample = ""){
 
@@ -205,7 +254,7 @@ setImage <- function(object, image, of_sample = ""){
 #' @param name Character value. The name of the matrix that is to be set as
 #' the active expression matrix.
 #'
-#' @return
+#' @return An updated spta-object.
 #' @export
 
 setActiveExpressionMatrix <- function(object, of_sample = "",  mtr_name){
@@ -260,6 +309,100 @@ setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
 
 }
 
+
+
+
+
+# Slot: spatial  ----------------------------------------------------------
+
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param hotspot_list
+#'
+#' @return
+#' @export
+#'
+#' @examples
+setHotspotList <- function(object, of_sample = "", hotspot_list){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  object@spatial[[of_sample]][["hotspot"]] <- hotspot_list
+
+  base::return(object)
+
+}
+
+
+#' Title
+#'
+#' @inherit check_sample params
+#' @param assessment_list
+#'
+#' @return
+#' @export
+
+setSpCorResults <- function(object,
+                                         sp_cor_list,
+                                         of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  object@spatial[[of_sample]][["correlation"]] <- sp_cor_list
+
+  base::return(object)
+
+}
+
+
+#' Title
+#'
+#' @param object
+#' @param cluster_list
+#' @param of_sample
+#'
+#' @return
+#' @export
+#'
+#' @examples
+addSpCorCluster <- function(object,
+                                         cluster_list,
+                                         of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  method <- cluster_list$method
+
+  sp_cor <- getSpCorResults(object, of_sample = of_sample)
+
+  if(method %in% base::names(sp_cor$clusters)){
+
+    confuns::give_feedback(
+      msg = glue::glue("Overwriting preexisting results of method '{method}'."),
+      verbose = verbose
+    )
+
+  }
+
+  sp_cor[["cluster"]][[method]] <- cluster_list
+
+  object <- setSpCorResults(object = object,
+                                         sp_cor_list = sp_cor,
+                                         of_sample = of_sample)
+
+  base::return(object)
+
+}
 
 
 # Slot: used_genesets -----------------------------------------------------
