@@ -333,7 +333,7 @@ setHotspotList <- function(object, of_sample = "", hotspot_list){
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  object@spatial[[of_sample]][["hotspot"]] <- hotspot_list
+  object@spatial[[of_sample]][["hotspots"]] <- hotspot_list
 
   base::return(object)
 

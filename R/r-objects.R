@@ -25,6 +25,15 @@ dim_red_methods <- c("pca", "umap", "tsne")
 
 gene_set_methods <- c("mean", "gsva", "ssgsea", "zscore", "plage")
 
+
+
+# Hotspot analysis --------------------------------------------------------
+
+hotspot_list_slots <-
+  c("df", "max_hotspots", "mtr_name", "n_start", "sample", "smooth_span", "suggestion",
+    "threshold_icld", "threshold_stw", "threshold_stpv", "tot_wss")
+
+
 # Seurat analysis ---------------------------------------------------------
 
 seurat_process_fns <- c("SCTransform","NormalizeData", "FindVariableFeatures", "ScaleData",

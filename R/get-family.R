@@ -830,45 +830,6 @@ getSamples <- function(object){
 
 # Slot: gdata -------------------------------------------------------------
 
-#' @title Obtain gene hotspot evaluation data frame
-#'
-#' @inherit getGeneMetaData params
-#' @param genes NULL or character vector. Denotes the genes of interest. The data.frame
-#' is filtered for them in addition to beeing filtered for those gene that
-#' were included in hotspot analysis process. Ignored if set to NULL.
-#'
-#' @return A nested data.frame.
-#' @export
-
-getGeneHotspotDf <- function(object,
-                             of_sample = "",
-                             genes = NULL){
-
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
-
-  gmdf <- object@spatial[[of_sample]][["hotspot"]]$df
-
-  if(base::is.character(genes)){
-
-    genes <-
-      confuns::check_vector(
-        input = genes,
-        against = gmdf$genes,
-        ref.input = "input for argument 'genes'",
-        ref.against = "those genes that were included in hotspot evaluation.",
-        fdb.fn = "warning"
-      )
-
-    gmdf <-
-      dplyr::filter(gmdf, genes %in% {{genes}})
-
-  }
-
-  base::return(gmdf_final)
-
-}
 
 #' @title Obtain gene meta data
 #'
@@ -901,7 +862,7 @@ getGeneMetaData <- function(object, of_sample = "", mtr_name = NULL, only_df = F
 
   if(base::isTRUE(only_df)){
 
-    base::return(gdata$data)
+    base::return(gdata$df)
 
   } else {
 
@@ -920,6 +881,30 @@ getGeneMetaDf <- function(object, of_sample = "", mtr_name = NULL){
 }
 
 # -----
+
+
+
+# Slot: images ------------------------------------------------------------
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getImage <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample = check_sample(object, of_sample = of_sample, of.length = 1)
+
+  object@images[[of_sample]]
+
+}
+
 
 # Slot: information -------------------------------------------------------
 
@@ -970,6 +955,50 @@ getGeneDistDf <- function(object, of_sample = ""){
     hlpr_dist_mtr_to_df()
 
 }
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+
+getHotspotAnalysisResults <- function(object, of_sample = ""){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  hotspot_list <-
+    object@spatial[[of_sample]]$hotspots
+
+  check_availability(
+    test = base::is.list(hotspot_list) & base::all(base::names(hotspot_list) %in% hotspot_list_slots),
+    ref_x = "hotspot analysis results",
+    ref_fns = "/ running runHotspotAnalysis()"
+  )
+
+  base::return(hotspot_list)
+
+}
+
+#' @rdname getHotspotAnalysisResults
+#' @export
+getHotspotSuggestions <- function(object, of_sample = ""){
+
+  hotspot_list <-
+    getHotspotAnalysisResults(object = object, of_sample = of_sample)
+
+  base::return(hotspot_list$suggestion)
+
+}
+
+
+
+
+
 
 #' Title
 #'
@@ -1335,7 +1364,7 @@ getGeneSets <- function(object, of_class = "all", index = NULL, simplify = TRUE)
   # lazy check
   check_object(object)
 
-  confuns::is_value(x = of_class, mode = "character")
+  confuns::is_vec(x = of_class, mode = "character")
   confuns::is_value(x = index, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   # -----

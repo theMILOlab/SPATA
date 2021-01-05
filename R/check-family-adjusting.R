@@ -399,7 +399,7 @@ check_gene_sets <- function(object,
 
   # 2.1 Check if/how many gene sets actually exists ---------
 
-  if(base::all(gene_sets == "all")){
+  if(base::all(gene_sets %in% c("", "all"))){
 
     gene_sets_found <- all_gene_sets
 

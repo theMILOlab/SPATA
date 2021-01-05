@@ -282,7 +282,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 #'
 #' @param dist_mtr A distance matrix gene expression - gene expression distances
 
-hlpr_dist_mtr_to_df <- function(dist_mtr){
+hlpr_dist_mtr_to_df <- function(dist_mtr, varnames = c("gene1", "gene2")){
 
   dist_mtr <- base::as.matrix(dist_mtr)
 
@@ -290,7 +290,7 @@ hlpr_dist_mtr_to_df <- function(dist_mtr){
 
   reshape2::melt(data = dist_mtr,
                  na.rm = TRUE,
-                 varnames = c("gene1", "gene2"),
+                 varnames = varnames,
                  value.name = "distance") %>%
     dplyr::mutate_if(.predicat = base::is.factor, .funs = base::as.character)
 

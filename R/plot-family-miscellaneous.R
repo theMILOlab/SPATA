@@ -33,6 +33,7 @@ plotGeneDendrogram <- function(object,
 
 }
 
+
 # -----
 
 
@@ -677,7 +678,7 @@ plotFourStates2 <- function(data,
 
 
 
-# Plot distribution -------------------------------------------------------
+# Distribution -------------------------------------------------------
 
 
 #' Title
@@ -2081,3 +2082,287 @@ plotAutoencoderResults <- function(object,
 }
 
 # -----
+
+
+
+# Hotspot plotting --------------------------------------------------------
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param of_hotspots
+#' @param of_gene_sets
+#' @param clrp
+#' @param top_n
+#' @param with_ties
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plotHotspotEnrichment <- function(object,
+                                  of_sample = "",
+                                  of_hotspots = "",
+                                  of_gene_sets = "",
+                                  clrp = "milo",
+                                  top_n = 10,
+                                  with_ties = FALSE){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  hotspots <- check_hotspots(object = object, of_sample = of_sample, of_hotspots = of_hotspots)
+
+  gene_sets <- check_gene_sets(object = object, gene_sets = of_gene_sets)
+
+  enrichment_df <-
+    getHotspotSuggestions(object, of_sample = of_sample)$gse_df %>%
+    dplyr::filter(ont %in% {{gene_sets}} & hotspots %in% {{hotspots}}) %>%
+    dplyr::group_by(hotspots) %>%
+    dplyr::mutate(enrichment_score = confuns::normalize(enrichment_score)) %>%
+    dplyr::slice_max(order_by = enrichment_score, with_ties = with_ties, n = top_n) %>%
+    dplyr::mutate(
+      ont = forcats::as_factor(x = ont),
+      ont = tidytext::reorder_within(x = ont, by = enrichment_score, within = hotspots)
+    )
+
+  ggplot2::ggplot(enrichment_df, mapping = ggplot2::aes(x = enrichment_score, y = ont)) +
+    ggplot2::geom_col(mapping = ggplot2::aes(fill = hotspots)) +
+    ggplot2::facet_wrap(facets = . ~ hotspots, nrow = 3, scales = "free_y", drop = TRUE) +
+    tidytext::scale_y_reordered() +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.line = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      legend.position = "none",
+      panel.border = ggplot2::element_blank(),
+      strip.background = ggplot2::element_blank()
+    ) +
+    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    ggplot2::labs(x = "Enrichment Score", y = NULL)
+
+}
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param of_hotspots
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plotIntraHotspotDistance <- function(object, of_sample = "", of_hotspots = ""){
+
+  of_hotspots <- check_hotspots(object,
+                                of_sample = of_sample,
+                                of_hotspots = of_hotspots)
+
+  getHotspotSuggestions(object, of_sample = of_sample)$df %>%
+    dplyr::filter(hotspots %in% {{of_hotspots}}) %>%
+
+    ggplot2::ggplot(mapping = ggplot2::aes(x = intra_cluster_dist)) +
+    ggridges::geom_density_ridges(
+      mapping = ggplot2::aes(fill = hotspots, y = hotspots),
+      alpha = 0.825
+    ) +
+    ggplot2::theme_classic() +
+    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(color = "black"),
+      # axis.text.y = ggplot2::element_blank(),
+      #axis.ticks.y = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_line(),
+      strip.text.y = ggplot2::element_text(angle = 0, face = "italic", size = 14),
+      strip.placement = "outside",
+      strip.background = ggplot2::element_rect(color = "white", fill = "white"),
+      panel.spacing.y = ggplot2::unit(10, "pt"),
+      legend.position = "none",
+    ) +
+    ggplot2::labs(x = "Intrahotspot Distance", y = NULL, fill = "Hotspot")
+
+}
+
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param filled
+#' @param clrsp
+#' @param pt_alpha
+#' @param pt_color
+#' @param pt_size
+#' @param display_image
+#' @param display_labels
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plotSurfaceHotspots <- function(object,
+                                of_sample = "",
+                                plot_type = "expression",
+                                clrsp = "inferno",
+                                pt_alpha = 0.5,
+                                pt_size = 2,
+                                pt_clr = "lightgrey",
+                                smooth = TRUE,
+                                smooth_span = 0.02,
+                                display_points = TRUE,
+                                display_image = FALSE,
+                                display_labels = FALSE,
+                                ...){
+
+  hps <-
+    getHotspotSuggestions(object = object, of_sample = of_sample)
+
+  # 3. Set up add ons -------------------------------------------------------
+
+  # density vs. expression
+
+  if(plot_type == "expression"){
+
+    plot_df <-
+      purrr::map_df(.x = check_hotspots(object, of_sample = of_sample),
+                    .f = function(htsp){
+
+                      genes <-
+                        dplyr::filter(.data = hps$df, hotspots == {{htsp}}) %>%
+                        dplyr::pull(genes)
+
+                      df <-
+                        joinWith(object = object,
+                                 spata_df = getCoordsDf(object, of_sample = of_sample),
+                                 genes = genes,
+                                 smooth = smooth,
+                                 smooth_span = smooth_span,
+                                 average_genes = TRUE,
+                                 verbose = FALSE,
+                                 normalize = TRUE) %>%
+                        dplyr::mutate(hotspot = {{htsp}})
+
+                    })
+
+    hotspot_add_on <-
+      list(
+        ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y, color = mean_genes),
+                            size = pt_size, alpha = pt_alpha),
+        ggplot2::facet_wrap(facets = . ~ hotspot, ...),
+        scale_color_add_on(clrsp = clrsp),
+        ggplot2::theme_void(),
+        ggplot2::theme(legend.position = "none")
+      )
+
+    panel_grid_major <- ggplot2::element_blank()
+    display_points <- FALSE
+
+
+  } else{
+
+    coords_df <-
+      getCoordsDf(object = object, of_sample = of_sample) %>%
+      dplyr::select(x, y) %>%
+      dplyr::mutate(include = TRUE)
+
+    plot_df <-
+      dplyr::select(.data = hps$df, x = center_x, y = center_y) %>%
+      dplyr::mutate(include = TRUE) %>%
+      base::rbind(., coords_df)
+
+
+    if(plot_type == "density_filled"){
+
+      hotspot_add_on <-
+        list(
+          ggplot2::geom_density2d_filled(data = plot_df,
+                                         mapping = ggplot2::aes(x = x, y = y),
+                                         ...),
+          ggplot2::scale_fill_viridis_d(option = clrsp)
+        )
+
+      panel_grid_major <- ggplot2::element_blank()
+      display_points <- FALSE
+
+    } else if(plot_type == "density_2d"){
+
+      hotspot_add_on <-
+        list(
+          ggplot2::geom_density2d(data = plot_df,
+                                  mapping = ggplot2::aes(x = x, y = y),
+                                  ...),
+          ggplot2::scale_fill_viridis_d(option = clrsp)
+        )
+
+      if(base::isTRUE(display_points)){
+
+        panel_grid_major <- ggplot2::element_blank()
+
+      } else {
+
+        panel_grid_major <- ggplot2::element_line()
+
+      }
+
+    }
+
+  }
+
+  # background points
+  if(base::isTRUE(display_points)){
+
+    point_add_on <-
+      ggplot2::geom_point(data = coords_df,
+                          mapping = ggplot2::aes(x = x, y = y),
+                          size = pt_size,
+                          alpha = pt_alpha,
+                          color = pt_clr)
+
+  } else {
+
+    point_add_on <- NULL
+
+  }
+
+  # labels
+  if(base::isTRUE(display_labels)){
+
+    label_add_on <-
+      ggrepel::geom_label_repel(
+        data = hps$info,
+        mapping = ggplot2::aes(x = center_x, y = center_y, label = hotspots)
+      )
+
+  } else {
+
+    label_add_on <- NULL
+  }
+
+
+
+  # 4. Plotting -------------------------------------------------------------
+
+  ggplot2::ggplot() +
+    hlpr_image_add_on(object = object,
+                      display_image = display_image,
+                      of_sample = of_sample) +
+    point_add_on +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      panel.grid.major = panel_grid_major,
+      panel.grid.minor = ggplot2::element_blank(),
+      axis.text = ggplot2::element_text(),
+      legend.position = "none"
+    ) +
+    hotspot_add_on +
+    label_add_on +
+    ggplot2::labs(x = NULL, y = NULL)
+
+}

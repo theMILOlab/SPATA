@@ -43,6 +43,7 @@ Imports:
     tensorflow, 
     tibble,
     tidyr,
+    tidytext,
     umap
 Collate: 
     'S4-documentation.R'
