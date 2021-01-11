@@ -24,7 +24,8 @@ plotSurface(
   assign = FALSE,
   assign_name,
   complete = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 
 plotSurface2(
@@ -34,7 +35,8 @@ plotSurface2(
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
   pt_clrp = "milo",
-  image = NULL
+  image = NULL,
+  ...
 )
 
 plotSurfaceInteractive(object)

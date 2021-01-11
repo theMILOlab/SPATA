@@ -31,7 +31,7 @@ if both are specified as numeric values.}
 An updated spata-object.
 }
 \description{
-It takes the distance matrix that was computed with
+Takes the distance matrix that was computed with
 \code{runSpCorAnalysis()} and clusters it via hierarchical clustering such that
 genes sharing similar expression profiles / patterns throughout the sample are
 clustered together. See details for a more detailed description of what the result

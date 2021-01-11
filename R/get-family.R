@@ -905,7 +905,7 @@ getImage <- function(object, of_sample = ""){
 
 }
 
-
+# -----
 # Slot: information -------------------------------------------------------
 
 #' Obtain barcodes of a sample
@@ -965,38 +965,45 @@ getGeneDistDf <- function(object, of_sample = ""){
 #' @return
 #' @export
 
-getHotspotAnalysisResults <- function(object, of_sample = ""){
+getPrResults <- function(object, of_sample = "", method_pr = "hotspot"){
 
   check_object(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  hotspot_list <-
-    object@spatial[[of_sample]]$hotspots
+  pr_list <-
+    object@spatial[[of_sample]][[method_pr]]
 
   check_availability(
-    test = base::is.list(hotspot_list) & base::all(base::names(hotspot_list) %in% hotspot_list_slots),
-    ref_x = "hotspot analysis results",
-    ref_fns = "/ running runHotspotAnalysis()"
+    test = base::is.list(pr_list) & confuns::is_named(pr_list),
+    ref_x = "pattern recognition results",
+    ref_fns = glue::glue("/ running runPatternRecognition(..., method_pr = {'method_pr'})")
   )
 
-  base::return(hotspot_list)
+  base::return(pr_list)
 
 }
 
-#' @rdname getHotspotAnalysisResults
+#' @rdname getPrResults
 #' @export
-getHotspotSuggestions <- function(object, of_sample = ""){
+getPrSuggestion <- function(object, of_sample = "", method_pr = "hotspot"){
 
-  hotspot_list <-
-    getHotspotAnalysisResults(object = object, of_sample = of_sample)
+  pr_list <-
+    getPrResults(object = object, of_sample = of_sample, method_pr = method_pr)
 
-  base::return(hotspot_list$suggestion)
+  base::return(pr_list$suggestion)
 
 }
 
+#' @rdname getPrResults
+#' @export
+getPatternNames <- function(object, of_sample = "", method_pr = "hotspot"){
 
+  getPrSuggestion(object, of_sample = of_sample, method_pr = method_pr)$info %>%
+    dplyr::pull(var = {{method_pr}}) %>%
+    base::levels()
 
+}
 
 
 
@@ -1540,6 +1547,9 @@ getGeneSetDf <- function(object){
 #' @inherit check_object params
 #' @param of_gene_sets A character vector specifying the gene sets from which to
 #' return the gene names.
+#' @param of_pattern A character vector specifiying the patterns from which to return
+#' the gene names. If denoted as \emph{""} the genes of all patterns are returned.
+#' Set \code{simplify} to FALSE in order to return a named list.
 #' @param in_sample The sample(s) in which the genes have to be expressed in order
 #' to be included.
 #' @param simplify Logical. If set to TRUE the list to be returned will be simplified
@@ -1552,33 +1562,40 @@ getGeneSetDf <- function(object){
 #' @export
 
 getGenes <- function(object,
-                     of_gene_sets = "all",
+                     of_gene_sets = NULL,
+                     of_hotspots = NULL,
+                     of_sample = "",
                      in_sample = "",
                      simplify = TRUE){
+
+  if(!in_sample == ""){warning("change in_sample to of_sample")}
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
   check_object(object)
 
-  confuns::is_vec(x = of_gene_sets, mode = "character", min.length = 1)
+  confuns::are_vectors(c("of_gene_sets", "of_hotspots"), mode = "character",
+                       skip.allow = TRUE, skip.val = NULL)
 
 
   # adjusting check
-  in_sample <- check_sample(object = object, of_sample = in_sample)
+  of_sample <- check_sample(object = object, of_sample = of_sample)
 
   # -----
 
 
   # 2. Main part ------------------------------------------------------------
 
-  expr_mtr <- getExpressionMatrix(object = object, of_sample = in_sample)
-
   # -----
 
-  # 2.2 Return all existing genes if desired ----------
+  # 2.1 Return all existing genes if desired ----------
 
-  if(base::all(of_gene_sets == "all")){
+  if(!base::is.null(of_gene_sets) && base::all(of_gene_sets == "all")){warning("change of_gene_sets to NULL")}
+
+  if(base::all(base::is.null(of_gene_sets), base::is.null(of_hotspots))){
+
+    expr_mtr <- getExpressionMatrix(object = object, of_sample = of_sample)
 
     base::return(base::rownames(expr_mtr))
 
@@ -1586,42 +1603,67 @@ getGenes <- function(object,
 
   # -----
 
-  # 2.3 Return a subset of genes ----------
-  if(!base::all(of_gene_sets == "all")){
+  # 2.2 Return a subset of genes ----------
+  if(!base::is.null(of_gene_sets)){
 
-    gene_sets_df <- object@used_genesets
-    of_gene_sets <- check_gene_sets(object, of_gene_sets)
+    gene_set_df <- getGeneSetDf(object)
+
+    of_gene_sets <- check_gene_sets(object, gene_sets = of_gene_sets)
+    expr_mtr <- getExpressionMatrix(object = object, of_sample = of_sample)
 
     genes_list <-
-      base::lapply(X = of_gene_sets,
-                   FUN = function(i){
+      purrr::map(.x = of_gene_sets,
+                 .f = function(i){
 
                      genes <-
-                       dplyr::filter(gene_sets_df, ont == i) %>%
+                       dplyr::filter(gene_set_df, ont == i) %>%
                        dplyr::pull(gene)
 
                      genes_in_sample <-
                        genes[genes %in% base::rownames(expr_mtr)]
 
-                       return(genes_in_sample)
+                     return(genes_in_sample)
 
-                     })
+                   }) %>%
+      purrr::set_names(nm = of_gene_sets)
 
-    base::names(genes_list) <- of_gene_sets
+  } else if(!base::is.null(of_hotspots)){
 
-    if(base::isTRUE(simplify)){
+    hotspots <-
+      check_pattern(object = object,
+                    of_sample = of_sample,
+                    patterns = of_hotspots,
+                    method_pr = "hotspot")
 
-      genes_list <-
-        genes_list %>%
-        base::unname() %>%
-        base::unlist() %>%
-        base::unique()
+    hotspot_df <- getPrSuggestion(object,
+                                  of_sample = of_sample,
+                                  method_pr = "hotspot")$df
 
-    }
+    genes_list <-
+      purrr::map(.x = hotspots,
+                 .f = function(hotspot){
 
-    base::return(genes_list)
+                   dplyr::filter(hotspot_df, hotspot %in% {{hotspots}}) %>%
+                     dplyr::pull(var = "genes")
+
+
+                 }) %>%
+      purrr::set_names(nm = hotspots)
 
   }
+
+  # simplify output if specifed
+  if(base::isTRUE(simplify)){
+
+    genes_list <-
+      genes_list %>%
+      base::unname() %>%
+      base::unlist() %>%
+      base::unique()
+
+  }
+
+  base::return(genes_list)
 
   # -----
 
@@ -1635,7 +1677,7 @@ getSpCorGenes <- function(object,
                           distinct_to = NULL,
                           top_n = 25,
                           method_hclust = NULL,
-                          clusters = NULL,
+                          cluster_names = NULL,
                           simplify = TRUE){
 
   check_object(object)
@@ -1683,13 +1725,13 @@ getSpCorGenes <- function(object,
     sp_cor_cluster <-
       getSpCorCluster(object = object, method_hclust = method_hclust)
 
-    if(base::is.numeric(clusters)){
+    if(base::is.numeric(cluster_names)){
 
-      cluster_names <- stringr::str_c("cluster", clusters, sep = "_")
+      cluster_names <- stringr::str_c("cluster", cluster_names, sep = "_")
 
-    } else if(!base::is.character(clusters)){
+    } else if(!base::is.character(cluster_names)){
 
-      base::stop("Input for argument 'clusters' must be a character or a numeric vector.")
+      base::stop("Input for argument 'cluster_names' must be a character or a numeric vector.")
 
     }
 
@@ -1707,7 +1749,7 @@ getSpCorGenes <- function(object,
       purrr::map(.x = cluster_names, .f = ~ gene_names_list[[.x]]) %>%
       purrr::set_names(nm = cluster_names)
 
-    if(simplify == TRUE | base::length(res_genes) >= 2){
+    if(base::isTRUE(simplify) && base::length(res_genes) >= 2){
 
       res_genes <-
         purrr::imap(.x = res_genes, .f = function(x, cluster_name){

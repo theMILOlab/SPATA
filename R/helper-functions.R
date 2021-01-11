@@ -84,6 +84,247 @@ hlpr_add_old_coords <- function(object, plot_df, complete){
 }
 
 
+#' Title
+#'
+#' @param object
+#' @param cluster_eval_df
+#' @param max_patterns
+#' @param n_start
+#' @param of_sample
+#' @param smooth_span
+#' @param threshold_stpv
+#' @param threshold_stw
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+
+hlpr_assess_pattern_results <- function(object,
+                                    cluster_eval_df,
+                                    max_patterns = NULL,
+                                    n_start = NULL,
+                                    of_sample = NULL,
+                                    smooth_span = NULL,
+                                    threshold_stpv = NULL,
+                                    threshold_stw = NULL,
+                                    n_patterns = NULL,
+                                    verbose = TRUE,
+                                    ...){
+
+  # compile hotspot df
+  icld_quantiles <-
+    stats::quantile(cluster_eval_df$intra_cluster_dist)
+
+  threshold_icld <- icld_quantiles[2]
+
+  pattern_df <-
+    dplyr::filter(cluster_eval_df, intra_cluster_dist < threshold_icld)
+
+  pattern_k_totwss <-
+    iterate_over_kmeans(pattern_df,
+                        vars = c("center_x", "center_y"),
+                        max_cluster = max_patterns)
+
+  if(base::is.numeric(n_patterns)){
+
+    confuns::give_feedback(
+      msg = glue::glue("Number of desired patterns set to {n_patterns}."),
+      verbose = verbose
+    )
+
+    pattern_optimal_k <- n_patterns
+
+  } else {
+
+    confuns::give_feedback(
+      msg = "Assessing optimal number of patterns.",
+      verbose = verbose
+    )
+
+    pattern_optimal_k <-
+      compute_k_optimum(df = pattern_k_totwss)
+
+  }
+
+  pattern_pam <-
+    dplyr::select(pattern_df, center_x, center_y) %>%
+    cluster::pam(k = pattern_optimal_k)
+
+  pattern_df$patterns <-
+    base::as.factor(stringr::str_c("P", pattern_pam$clustering, sep = ""))
+
+  # compile pattern info df
+  info_df <-
+    dplyr::group_by(.data = pattern_df, patterns) %>%
+    dplyr::summarise(
+      n_genes = dplyr::n_distinct(genes),
+      n_barcode_spots = dplyr::n_distinct(center_barcodes),
+      mean_intra_pattern_dist = base::mean(intra_cluster_dist)
+    ) %>%
+    base::cbind(., pattern_pam$medoids) %>%
+    dplyr::mutate(
+      center_barcodes = pattern_df$center_barcodes[pattern_pam$id.med],
+      center_genes = pattern_df$genes[pattern_pam$id.med],
+      average_sil_widths = pattern_pam$silinfo$clus.avg.widths
+    ) %>%
+    base::cbind(., pattern_pam$clusinfo[, c("max_diss", "av_diss", "diameter", "separation")])
+
+  # compute gse df
+  summarised_df <-
+    dplyr::left_join(x = getGeneSetDf(object), y = pattern_df, by = c("gene" = "genes")) %>%
+    dplyr::group_by(ont) %>%
+    dplyr::mutate(exists = !base::is.na(patterns), n_genes = dplyr::n()) %>%
+    dplyr::group_by(ont, patterns) %>%
+    dplyr::summarise(
+      n_genes_found = base::sum(exists),
+      p_genes_found = n_genes_found/n_genes,
+      n_genes = base::mean(n_genes)
+    ) %>%
+    tidyr::drop_na() %>%
+    dplyr::ungroup()
+
+  gse_df <-
+    dplyr::group_by(summarised_df, patterns, ont) %>%
+    dplyr::summarise(enrichment_score = base::mean(p_genes_found * n_genes)) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(patterns) %>%
+    dplyr::arrange(dplyr::desc(enrichment_score), .by_group = TRUE)
+
+
+  # last. Store results and return object -----------------------------------
+
+  mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
+
+  pr_list <-
+    list(
+      "df" = cluster_eval_df,
+      "max_patterns" = max_patterns,
+      "mtr_name" = mtr_name,
+      "n_start" = n_start,
+      "sample" = of_sample,
+      "smooth_span" = smooth_span,
+      "suggestion" = list("df" = dplyr::arrange(pattern_df, patterns),
+                          "gse_df" = gse_df,
+                          "info_df" = info_df,
+                          "pam" = pattern_pam),
+      "threshold_icld" = threshold_icld,
+      "threshold_stpv" = threshold_stpv,
+      "threshold_stw" = threshold_stw,
+      "totwss" = pattern_k_totwss
+    )
+
+  base::return(pr_list)
+
+}
+
+#' @rdname hlpr_assess_pattern_results
+#' @export
+hlpr_assess_hotspot_results <- function(object,
+                                        cluster_eval_df,
+                                        ignored_genes = NULL,
+                                        of_sample = NULL,
+                                        smooth_span = NULL,
+                                        threshold_certainty = 0.2,
+                                        threshold_qntl = NULL,
+                                        threshold_stpv = NULL,
+                                        threshold_stw = NULL,
+                                        verbose = TRUE,
+                                        ...){
+
+  # filter the size-related 90th percentile of gene-cluster -> gene cluster data.frame
+  gcl_df <-
+    dplyr::mutate(cluster_eval_df, size = mark_with_na(size, n_qntls = 10, keep_qntls = 10)) %>%
+    tidyr::drop_na()
+
+  dbc_res <-
+    dbscan::dbscan(
+      x = base::as.matrix(gcl_df[,center_coords]),
+      eps = dbscan::kNNdist(x = base::as.matrix(gcl_df[,center_coords]), k = 6) %>% base::mean(),
+      minPts = 6
+    )
+
+  # add density based cluster results and filter out noisy points
+  denoised_gcl_df <-
+    dplyr::mutate(gcl_df, db_cluster = base::as.factor(dbc_res$cluster)) %>%
+    dplyr::filter(db_cluster != "0")
+
+  # use knn to again filter out remaining noisy points
+  knn_res <- RANN::nn2(data = denoised_gcl_df[, center_coords], k = 7) #! overlap threshold
+
+  knn_gcl_df <-
+    dplyr::mutate(denoised_gcl_df,  avg_dist =  base::rowMeans(x = knn_res$nn.dists[,-1], na.rm = TRUE)) %>%
+    confuns::bin_numeric_variable(num_variable = "avg_dist", discr_variable = "qntl_dist", n_bins = 4)
+
+  qntls <- base::levels(knn_gcl_df$qntl_dist)
+
+  denoised_gcl_df2 <-
+    dplyr::filter(knn_gcl_df, qntl_dist %in% c(qntls[1:2]))
+
+  # use dbscan for final cluster identification
+  dbc_res2 <-
+    dbscan::dbscan(
+      x = base::as.matrix(denoised_gcl_df2[,center_coords]),
+      eps = dbscan::kNNdist(x = base::as.matrix(gcl_df[,center_coords]), k = 7) %>% base::mean(),
+      minPts = 7
+    )
+
+  final_gcl_df <-
+    dplyr::mutate(denoised_gcl_df2, final_clusters = stringr::str_c("HSP", base::as.character(dbc_res2$cluster))) %>%
+    dplyr::filter(final_clusters != "HSP0")
+
+  n_clusters <- dplyr::n_distinct(final_gcl_df$final_clusters)
+
+  # use model based clustering to assess cluster belonging uncertainties
+
+  mbc_res <- mclust::Mclust(data = final_gcl_df[,center_coords], G = n_clusters)
+
+  suggestion_df <-
+    dplyr::mutate(.data = final_gcl_df, uncertainty = mbc_res$uncertainty) %>%
+    dplyr::group_by(genes) %>%
+    dplyr::mutate(n_cluster = dplyr::n(), cluster = dplyr::row_number(), exclusivity = size/n_bcsp, certainty = exclusivity - uncertainty) %>%
+    dplyr::select(genes, hotspot = final_clusters, n_hotspots = n_cluster, certainty, exclusivity, size, uncertainty, dplyr::all_of(center_coords)) %>%
+    dplyr::group_by(hotspot) %>%
+    dplyr::arrange(dplyr::desc(x = certainty), .by_group = TRUE) %>%
+    dplyr::filter(certainty >= threshold_certainty)
+
+  info_df <-
+    dplyr::group_by(suggestion_df, hotspot) %>%
+    dplyr::summarise(
+      center_x = base::mean(center_x),
+      center_y = base::mean(center_y),
+      mean_exclusivity = base::mean(exclusivity),
+      mean_certainty = base::mean(certainty),
+      n_genes = dplyr::n()
+    ) %>%
+    dplyr::arrange(dplyr::desc(mean_exclusivity)) %>%
+    dplyr::mutate(hotspot = forcats::as_factor(hotspot))
+
+  suggestion_df$hotspot <-
+    base::factor(suggestion_df$hotspot, levels = base::levels(info_df$hotspot))
+
+  # last. Store results and return object -----------------------------------
+
+  mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
+
+  hotspot_list <-
+    list(
+      "df" = cluster_eval_df,
+      "ignored_genes" = ignored_genes,
+      "mtr_name" = mtr_name,
+      "sample" = of_sample,
+      "smooth_span" = smooth_span,
+      "suggestion" = list("df" = suggestion_df,
+                          "info_df" = info_df),
+      "threshold_qntl" = threshold_qntl,
+      "threshold_stpv" = threshold_stpv,
+      "threshold_stw" = threshold_stw
+    )
+
+  base::return(hotspot_list)
+
+}
+
 #' Assign objects into the global environment
 #'
 #' @param assign Logical.
@@ -273,7 +514,37 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 }
 
 
+#' Title
+#'
+#' @description Compute optimal eps input for \code{dbsan::dbscan()}.
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+#'
+hlpr_compute_eps <- function(object, of_sample = ""){
 
+  coords_df <- getCoordsDf(object, of_sample = of_sample)
+
+  bc_origin <- coords_df$barcodes
+  bc_destination <- coords_df$barcodes
+
+  tidyr::expand_grid(bc_origin, bc_destination) %>%
+    dplyr::left_join(x = ., y = dplyr::select(coords_df, bc_origin = barcodes, xo = x, yo = y), by = "bc_origin") %>%
+    dplyr::left_join(x = ., y = dplyr::select(coords_df, bc_destination = barcodes, xd = x, yd = y), by = "bc_destination") %>%
+    dplyr::mutate(distance = base::round(sqrt((xd - xo)^2 + (yd - yo)^2), digits = 0)) %>%
+    dplyr::group_by(bc_origin) %>%
+    dplyr::slice_min(order_by = distance, n = 7) %>%
+    dplyr::group_by(bc_origin, distance) %>%
+    dplyr::summarise(count = n(), .groups = "drop") %>%
+    dplyr::filter(count == 6) %>%
+    dplyr::pull(var = "distance") %>%
+    base::unique() %>%
+    base::min()
+
+}
 
 
 #' @title Convert distance matrix to distance data.frame
@@ -779,7 +1050,8 @@ hlpr_scatterplot <- function(object,
                              smooth_span = 0.02,
                              normalize = TRUE,
                              verbose = TRUE,
-                             complete = FALSE){
+                             complete = FALSE,
+                             ...){
 
   # if feature
   if("features" %in% base::names(color_to)){
@@ -809,7 +1081,7 @@ hlpr_scatterplot <- function(object,
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[[feature]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp,
-                                  variable = spata_df[[feature]]),
+                                  variable = spata_df[[feature]], ...),
       ggplot2::labs(color = feature)
     )
 
@@ -845,7 +1117,7 @@ hlpr_scatterplot <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[[gene_set]])),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
       ggplot2::labs(color = "Expr.\nscore", title = title)
     )
 
@@ -880,7 +1152,7 @@ hlpr_scatterplot <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[["mean_genes"]])),
-      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp),
+      confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
       ggplot2::labs(color = "Mean expr.\nscore", title = title)
     )
 

@@ -80,8 +80,8 @@ computeGeneMetaData2 <- function(expr_mtr, verbose = TRUE, ...){
 
                   shapiro_res <- stats::shapiro.test(x = variable)
 
-                  base::data.frame(st_W = shapiro_res$statistic,
-                                   st_pv = shapiro_res$p.value,
+                  base::data.frame(stw = shapiro_res$statistic,
+                                   stpv = shapiro_res$p.value,
                                    var = stats::var(x = variable))
 
                 }) %>%
@@ -94,7 +94,7 @@ computeGeneMetaData2 <- function(expr_mtr, verbose = TRUE, ...){
   )
 
   describe_df <-
-    psych::describe(x = base::t(expr_mtr), ...) %>%
+    psych::describe(x = base::t(expr_mtr)) %>%
     base::as.data.frame() %>%
     dplyr::select(-vars) %>%
     tibble::rownames_to_column(var = "genes")

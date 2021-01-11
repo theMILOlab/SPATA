@@ -447,6 +447,44 @@ check_gene_sets <- function(object,
 }
 
 
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param of_pattern
+#'
+#' @return
+#' @export
+#'
+#' @examples
+check_pattern <- function(object, of_sample = "", patterns = "", method_pr = "hotspot"){
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  names_pattern <- getPatternNames(object, method_pr = method_pr)
+
+  if(base::all(patterns %in% c("", "all"))){
+
+    base::return(names_pattern)
+
+  } else {
+
+    valid_patterns <-
+      confuns::check_vector(
+        input = patterns,
+        against = names_pattern,
+        fdb.fn = "warning",
+        ref.input = "input for argument 'of_patterns'",
+        ref.against = glue::glue("recognized patterns of sample '{of_sample}'")
+      )
+
+    base::return(valid_patterns)
+
+  }
+
+}
+
+
 #' @title Check sample input
 #'
 #' @description A member of the \code{adjusting-check_*()}-family. Takes a character
@@ -566,7 +604,6 @@ check_saving <- function(output_path, file_name){
   if(!base::is.null(output_path)){
 
     confuns::is_value(output_path, "character", ref = "output_path")
-    confuns::check_directories(directories = input_paths, ref = "input_paths", type = "folders")
 
     confuns::is_value(file_name, "character", ref = "file_name")
     confuns::check_directories(directories = output_path, ref = "output_path", type = "folders")

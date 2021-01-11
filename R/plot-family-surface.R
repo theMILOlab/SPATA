@@ -37,19 +37,20 @@ plotSurface <- function(object,
                         color_to = NULL,
                         method_gs = "mean",
                         normalize = TRUE,
-                        smooth = FALSE,
+                        smooth = TRUE,
                         smooth_span = 0.02,
-                        pt_size = 2,
                         pt_alpha = 1,
-                        pt_clrsp = "inferno",
-                        pt_clrp = "milo",
                         pt_clr = "lightgrey",
+                        pt_clrp = "milo",
+                        pt_clrsp = "inferno",
+                        pt_size = 2,
                         display_image = FALSE,
                         display_title = FALSE,
                         assign = FALSE,
                         assign_name,
                         complete = FALSE,
-                        verbose = TRUE){
+                        verbose = TRUE,
+                        ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -67,10 +68,12 @@ plotSurface <- function(object,
 
   if(!base::is.null(color_to)){
 
-    color_to <- check_color_to(color_to = color_to,
-                               all_genes = getGenes(object, in_sample = of_sample),
-                               all_gene_sets = getGeneSets(object),
-                               all_features = getFeatureNames(object))
+    color_to <- check_color_to(
+      color_to = color_to,
+      all_genes = getGenes(object, of_sample = of_sample),
+      all_gene_sets = getGeneSets(object),
+      all_features = getFeatureNames(object, of_sample = of_sample)
+      )
 
   } else {
 
@@ -98,7 +101,8 @@ plotSurface <- function(object,
                      smooth = smooth,
                      smooth_span = smooth_span,
                      verbose = verbose,
-                     complete = complete)
+                     complete = complete,
+                     ...)
 
   # -----
 
@@ -108,9 +112,6 @@ plotSurface <- function(object,
   hlpr_assign(assign = assign,
               object = list("point" = spata_df),
               name = assign_name)
-
-
-
 
   ggplot2::ggplot(data = plot_list$data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +
@@ -131,7 +132,8 @@ plotSurface2 <- function(coords_df,
                          pt_alpha = 0.9,
                          pt_clrsp = "inferno",
                          pt_clrp = "milo",
-                         image = NULL){
+                         image = NULL,
+                         ...){
 
    # 1. Control --------------------------------------------------------------
   confuns::is_value(color_to, "character", "color_to")
@@ -156,7 +158,11 @@ plotSurface2 <- function(coords_df,
     ggplot2::geom_point(mapping = ggplot2::aes(x = x, y = y,
                                                color = .data[[color_to]]),
                         size = pt_size, alpha = pt_alpha) +
-    confuns::scale_color_add_on(clrp = pt_clrp, clrsp = pt_clrsp, variable = dplyr::pull(coords_df, {{color_to}})) +
+    confuns::scale_color_add_on(
+      clrp = pt_clrp,
+      clrsp = pt_clrsp,
+      variable = dplyr::pull(coords_df, {{color_to}}),
+      ...) +
     ggplot2::theme_void() +
     ggplot2::theme(
       panel.grid = ggplot2::element_blank()
@@ -335,6 +341,7 @@ plotSurfaceInteractive <- function(object){
 
 
 
+
 #' @title Plot several surface plots at the same time
 #'
 #' @description Plots a surface plot for every valid element in argument
@@ -386,10 +393,11 @@ plotSurfaceComparison <- function(object,
   of_sample <- check_sample(object, of_sample, 1)
 
   all_gene_sets <- getGeneSets(object, "all")
-  all_genes <- getGenes(object, in_sample = of_sample)
+  all_genes <- getGenes(object, of_sample = of_sample)
   all_features <-
     base::suppressWarnings(
-      check_features(object, features = getFeatureNames(object), valid_classes = "numeric")
+      check_features(object, features = getFeatureNames(object, of_sample = of_sample),
+                     valid_classes = "numeric")
     )
 
   variables <- check_variables(variables = variables,
@@ -402,47 +410,15 @@ plotSurfaceComparison <- function(object,
 
   # 2. Extract and join data ------------------------------------------------
 
-  data <- getCoordinates(object, of_sample = of_sample)
-
-
-  # join data.frame with variables to compare
-  if("gene_sets" %in% base::names(variables)){
-
-    data <- joinWithGeneSets(object,
-                             spata_df = data,
-                             gene_sets = variables$gene_sets,
-                             method_gs = method_gs,
-                             smooth = smooth,
-                             smooth_span = smooth_span,
-                             normalize = normalize,
-                             verbose = verbose)
-
-  }
-
-  if("genes" %in% base::names(variables)){
-
-    data <- joinWithGenes(object,
-                          spata_df = data,
-                          genes = variables$genes,
-                          average_genes = FALSE,
-                          smooth = smooth,
-                          smooth_span = smooth_span,
-                          normalize = normalize,
-                          verbose = verbose)
-
-  }
-
-  if("features" %in% base::names(variables)){
-
-    data <- joinWithFeatures(object,
-                             spata_df = data,
-                             features = variables$features,
-                             smooth = smooth,
-                             smooth_span = smooth_span,
-                             verbose = verbose)
-
-  }
-
+  joined_df <-
+    joinWithVariables(object = object,
+                      spata_df = getCoordsDf(object, of_sample = of_sample),
+                      variables = variables,
+                      average_genes = FALSE,
+                      smooth = smooth,
+                      smooth_span = smooth_span,
+                      normalize = normalize,
+                      verbose = verbose)
   # -----
 
   # adjust data.frame for use of ggplot2::facets
@@ -450,29 +426,29 @@ plotSurfaceComparison <- function(object,
   variables <- base::unname(base::unlist(variables))
   n_variables <- base::length(variables)
 
-  shifted_data <-
+  plot_df <-
     tidyr::pivot_longer(
-      data = data,
+      data = joined_df,
       cols = dplyr::all_of(variables),
-      names_to = "aspects",
+      names_to = "variables",
       values_to = "values"
     )
 
   # plotting
 
   hlpr_assign(assign = assign,
-              object = list("point" = shifted_data),
+              object = list("point" = plot_df),
               name = assign_name)
 
   if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"))}
 
-  ggplot2::ggplot(data = shifted_data, mapping = ggplot2::aes(x = x, y = y)) +
+  ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +
     ggplot2::geom_point(mapping = ggplot2::aes(color = values),
                         size = pt_size, alpha = pt_alpha) +
-    confuns::scale_color_add_on(variable = shifted_data$values, clrsp = pt_clrsp) +
+    confuns::scale_color_add_on(variable = plot_df$values, clrsp = pt_clrsp) +
     ggplot2::theme_void() +
-    ggplot2::facet_wrap(facets = ~ aspects, ...) +
+    ggplot2::facet_wrap(facets = ~ variables, ...) +
     ggplot2::labs(color = "Expr.\nscore")
 
 }
@@ -558,6 +534,280 @@ plotSurfaceComparison2 <- function(coords_df,
 
 
 
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param filled
+#' @param clrsp
+#' @param pt_alpha
+#' @param pt_color
+#' @param pt_size
+#' @param display_image
+#' @param display_labels
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+plotSurfaceHotspots <- function(object,
+                                of_sample = "",
+                                plot_type = "expression",
+                                clrsp = "inferno",
+                                pt_alpha = 0.9,
+                                pt_clr = "lightgrey",
+                                pt_clrp = "milo",
+                                pt_size = 2,
+                                smooth = TRUE,
+                                smooth_span = 0.02,
+                                display_points = TRUE,
+                                display_image = FALSE,
+                                display_labels = FALSE,
+                                ...){
 
+  confuns::check_one_of(
+    input = plot_type,
+    against = hotspot_plot_types,
+    ref.input = "input for argument 'plot_type'"
+  )
+
+  pr_sugg <-
+    getPrSuggestion(object = object, of_sample = of_sample)
+
+  # 3. Set up add ons -------------------------------------------------------
+
+  # density vs. expression
+
+  if(plot_type == "expression"){
+
+    plot_df <-
+      purrr::map_df(.x = check_pattern(object, of_sample = of_sample),
+                    .f = function(htsp){
+
+                      genes <-
+                        dplyr::filter(.data = pr_sugg$df, hotspot == {{htsp}}) %>%
+                        dplyr::pull(genes)
+
+                      df <-
+                        joinWith(object = object,
+                                 spata_df = getCoordsDf(object, of_sample = of_sample),
+                                 genes = genes,
+                                 smooth = smooth,
+                                 smooth_span = smooth_span,
+                                 average_genes = TRUE,
+                                 verbose = FALSE,
+                                 normalize = TRUE) %>%
+                        dplyr::mutate(hotspot = {{htsp}})
+
+                    }) %>%
+      dplyr::mutate(hotspot = forcats::as_factor(hotspot))
+
+    hotspot_add_on <-
+      list(
+        ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y, color = mean_genes),
+                            size = pt_size, alpha = pt_alpha),
+        ggplot2::facet_wrap(facets = . ~ hotspot, ...),
+        scale_color_add_on(clrsp = clrsp),
+        ggplot2::theme_void(),
+        ggplot2::theme(legend.position = "none")
+      )
+
+    panel_grid_major <- ggplot2::element_blank()
+    display_points <- FALSE
+    display_labels <- TRUE
+
+
+  } else {
+
+    coords_df <-
+      getCoordsDf(object = object, of_sample = of_sample) %>%
+      dplyr::select(x, y) %>%
+      dplyr::mutate(include = TRUE)
+
+    plot_df <-
+      dplyr::select(.data = pr_sugg$df, x = center_x, y = center_y) %>%
+      dplyr::mutate(include = TRUE) %>%
+      base::rbind(., coords_df)
+
+    if(plot_type == "density_filled"){
+
+      hotspot_add_on <-
+        list(
+          ggplot2::geom_density2d_filled(
+            data = plot_df, mapping = ggplot2::aes(x = x, y = y), ...
+          ),
+          ggplot2::scale_fill_viridis_d(option = clrsp)
+        )
+
+      panel_grid_major <- ggplot2::element_blank()
+      display_points <- FALSE
+
+    } else if(plot_type == "density_2d"){
+
+      hotspot_add_on <-
+        list(
+          ggplot2::geom_density2d(
+            data = plot_df, mapping = ggplot2::aes(x = x, y = y), ...
+          ),
+          ggplot2::scale_fill_viridis_d(option = clrsp)
+        )
+
+      if(base::isTRUE(display_points)){
+
+        panel_grid_major <- ggplot2::element_blank()
+
+      } else {
+
+        panel_grid_major <- ggplot2::element_line()
+
+      }
+
+    }
+
+  }
+
+  # background points
+  if(base::isTRUE(display_points)){
+
+    point_add_on <-
+      ggplot2::geom_point(data = coords_df,
+                          mapping = ggplot2::aes(x = x, y = y),
+                          size = pt_size,
+                          alpha = pt_alpha,
+                          color = pt_clr)
+
+  } else {
+
+    point_add_on <- NULL
+
+  }
+
+  # labels
+  if(base::isTRUE(display_labels)){
+
+    label_add_on <-
+      ggrepel::geom_label_repel(
+        data = pr_sugg$info_df,
+        mapping = ggplot2::aes(x = center_x, y = center_y, label = hotspot)
+      )
+
+  } else {
+
+    label_add_on <- NULL
+
+  }
+
+
+
+  # 4. Plotting -------------------------------------------------------------
+
+  ggplot2::ggplot() +
+    hlpr_image_add_on(object = object,
+                      display_image = display_image,
+                      of_sample = of_sample) +
+    point_add_on +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      panel.grid.major = panel_grid_major,
+      panel.grid.minor = ggplot2::element_blank(),
+      axis.text = ggplot2::element_text(),
+      legend.position = "none"
+    ) +
+    hotspot_add_on +
+    label_add_on +
+    ggplot2::labs(x = NULL, y = NULL)
+
+}
+
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#' @param color_to
+#' @param n_qntls
+#' @param keep_qntls
+#' @param pt_alpha
+#' @param pt_clrp
+#' @param pt_size
+#' @param smooth
+#' @param smooth_span
+#'
+#' @return
+#' @export
+
+plotSurfaceQuantiles <- function(object,
+                                 of_sample = "",
+                                 color_to,
+                                 n_qntls = 5,
+                                 keep_qntls = 1:n_qntls,
+                                 pt_alpha = 0.9,
+                                 pt_clrp = "milo",
+                                 pt_size = 2,
+                                 smooth = TRUE,
+                                 smooth_span = 0.02){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  confuns::is_value(x = n_qntls, mode = "numeric")
+  confuns::is_vec(x = keep_qntls, mode = "numeric")
+
+  color_to_list <-
+    check_color_to(
+      color_to = color_to,
+      all_features = getFeatureNames(object, of_sample = of_sample, of_class = numeric_classes),
+      all_genes = getGenes(object, of_sample = of_sample),
+      all_gene_sets = getGeneSets(object)
+    )
+
+  plot_df <-
+    joinWithVariables(
+      object = object,
+      spata_df = getCoordsDf(object, of_sample = of_sample),
+      variables = color_to_list,
+      smooth = smooth,
+      smooth_span = smooth_span,
+      verbose = verbose
+      ) %>%
+    confuns::bin_numeric_variable(
+      df = .,
+      num_variable = color_to,
+      discr_variable = stringr::str_c(color_to, " "),
+      n_bins = n_qntls
+    ) %>%
+    tidyr::pivot_longer(
+      cols = stringr::str_c(color_to, " "),
+      names_to = "variables",
+      values_to = "values"
+    )
+
+  values <-
+    dplyr::pull(plot_df, var = "values") %>%
+    base::levels()
+
+  keep_values <- values[keep_qntls]
+
+  discard <-
+    dplyr::filter(plot_df, !(values %in% base::as.character(keep_values))) %>%
+    dplyr::pull(var = "values") %>%
+    base::unique() %>%
+    base::as.character()
+
+  adjust_clrs <- base::rep("lightgrey", base::length(discard))
+
+  base::names(adjust_clrs) <- discard
+
+  plotSurface2(coords_df = plot_df,
+               color_to = "values",
+               pt_alpha = pt_alpha,
+               pt_clrp = pt_clrp,
+               pt_size = pt_size,
+               adjust = adjust_clrs) +
+    ggplot2::facet_wrap(facets = . ~ variables) +
+    ggplot2::labs(color = "Quantiles")
+
+}
 
 

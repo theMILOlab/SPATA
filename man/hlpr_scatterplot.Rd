@@ -18,7 +18,8 @@ hlpr_scatterplot(
   smooth_span = 0.02,
   normalize = TRUE,
   verbose = TRUE,
-  complete = FALSE
+  complete = FALSE,
+  ...
 )
 }
 \arguments{

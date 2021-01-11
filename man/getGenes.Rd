@@ -15,7 +15,7 @@ getSpCorGenes(
   distinct_to = NULL,
   top_n = 25,
   method_hclust = NULL,
-  clusters = NULL,
+  cluster_names = NULL,
   simplify = TRUE
 )
 

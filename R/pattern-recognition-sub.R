@@ -10,16 +10,37 @@
 #' @export
 #'
 #' @examples
-mark_with_na <- function(variable, n_quantiles = 5, mark_below = 5){
+mark_with_na <- function(variable, n_qntls = 5, keep_qntls = 5){
 
   var_quantiles <-
-    stats::quantile(x = variable, probs = seq(0, 1, length.out = n_quantiles))
+    dplyr::ntile(x = variable, n = n_qntls) %>%
+    base::as.character()
 
-  threshold <- var_quantiles[mark_below - 1]
+  set_to_na <- !var_quantiles %in% base::as.character(keep_qntls)
 
-  variable[variable < threshold] <- NA
+  variable[set_to_na] <- NA
 
   base::return(variable)
+
+}
+
+#' @rdname mark_with_na
+#' @export
+
+mark_all_with_na <- function(coords_df, n_qntls = 5, keep_qntls = 5){
+
+  check_coords_df(coords_df)
+
+  numeric_vars <-
+    dplyr::select(coords_df, -dplyr::all_of(x = coords_df_vars)) %>%
+    dplyr::select_if(.predicate = base::is.numeric) %>%
+    base::colnames()
+
+  dplyr::mutate(
+    .data = coords_df,
+    dplyr::across(.cols = numeric_vars, .fns = mark_with_na,
+                  n_qntls = n_qntls, keep_qntls = keep_qntls)
+  )
 
 }
 
@@ -27,36 +48,7 @@ mark_with_na <- function(variable, n_quantiles = 5, mark_below = 5){
 
 # use for visualization
 
-#' Title
-#'
-#' @param marked_df
-#' @param var
-#' @param pt_size
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-plotSurfaceQuantile <- function(df, var, pt_size = 2){
 
-  var <- df[,var] %>% base::names()
-
-  plot_df <-
-    dplyr::mutate(.data = df,
-                  color = dplyr::if_else(base::is.na(!!rlang::sym(var)), "discard", "keep")
-    ) %>%
-    dplyr::select(x, y, color, dplyr::all_of(x = var))
-
-  ggplot2::ggplot(plot_df, ggplot2::aes(x = x, y = y, color = color, alpha = color)) +
-    ggplot2::geom_point(size = pt_size) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "right", panel.grid = element_blank()) +
-    ggplot2::scale_color_manual(values = c("keep" = "forestgreen", "discard" = "lightgrey")) +
-    ggplot2::scale_alpha_manual(values = c("keep" = 1, "discard" = 0.1)) +
-    ggplot2::legend_none()
-
-}
 
 
 #' Title
@@ -85,26 +77,26 @@ generate_sample <- function(x, l = 250){
 #' @export
 #'
 #' @examples
-generate_reference_df <- function(dropped_df, marked_df){
+generate_reference_df <- function(n, x_coords, y_coords){
 
-  n_barcode_spots <- base::nrow(dropped_df)
+  n_barcode_spots <- n
 
   n_corner <- base::round(n_barcode_spots/4, digits = 0)
 
   s_min_x <-
-    marked_df$x %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
+    x_coords %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
     utils::head(2) %>% generate_sample(l = n_corner)
 
   s_min_y <-
-    marked_df$y %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
+    y_coords %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
     utils::head(2) %>% generate_sample(l = n_corner)
 
   s_max_x <-
-    marked_df$x %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
+    x_coords %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
     utils::tail(2) %>% generate_sample(l = n_corner)
 
   s_max_y <-
-    marked_df$y %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
+    y_coords %>% stats::quantile(probs = base::seq(0,1, length.out = 10)) %>%
     utils::tail(2) %>% generate_sample(l = n_corner)
 
   reference_df <-
@@ -139,7 +131,7 @@ iterate_over_kmeans <- function(dropped_df,
                 n_start = n_start,
                 .f = function(k, df, n_start){
 
-                  model <- stats::kmeans(x = df, centers = k, nstart = n_start, ...)
+                  model <- stats::kmeans(x = df, centers = k, nstart = n_start)
 
                   tibble::tibble(
                     k = k,
@@ -265,6 +257,7 @@ compute_pam_with_k_optimum <- function(dropped_df,
 evaluate_gene_cluster_tendency <- function(marked_df,
                                            verbose = TRUE,
                                            pb = NULL,
+                                           ref_totwss,
                                            ...){
 
   if(base::isTRUE(verbose)){ pb$tick() }
@@ -272,20 +265,14 @@ evaluate_gene_cluster_tendency <- function(marked_df,
   dropped_df <-
     tidyr::drop_na(marked_df[, c("x", "y", "values", "barcodes")])
 
-  reference_df <-
-    generate_reference_df(dropped_df = dropped_df, marked_df = marked_df)
-
   var_twss <-
-    iterate_over_kmeans(dropped_df, ...)
-
-  reference_twss <-
-    iterate_over_kmeans(reference_df, max_cluster = 1)
+    iterate_over_kmeans(dropped_df)
 
   var_twss_n <-
     tibble::add_row(
       .data = var_twss,
       k = 0,
-      tot_wss = reference_twss$tot_wss[1],
+      tot_wss = ref_totwss,
       .before = 1
     )
 
@@ -295,7 +282,7 @@ evaluate_gene_cluster_tendency <- function(marked_df,
   if(optimal_k > 1){
 
     dist_mtr <-
-      stats::dist(x = dropped_df[, c("x", "y")])
+      stats::dist(x = dropped_df[, c("x", "y", "values")])
 
     hclust <-
       stats::hclust(d = dist_mtr)
@@ -320,6 +307,66 @@ evaluate_gene_cluster_tendency <- function(marked_df,
 
 }
 
+#' @rdname evaluate_gene_cluster_tendency
+#' @export
+evaluate_gene_cluster_tendency_dbscan <- function(marked_df, #!!!
+                                                  verbose = TRUE,
+                                                  pb = NULL){
+
+  if(base::isTRUE(verbose)){ pb$tick() }
+
+  {
+    dropped_df <- marked_df
+
+    # use density based clustering to filter out noisy points
+    dbc_res <-
+      dbscan::dbscan(
+        x = base::as.matrix(dropped_df[,c("x", "y")]),
+        eps = dbscan::kNNdist(x = base::as.matrix(dropped_df[,c("x", "y")]), k = 3) %>% base::mean(),
+        minPts = 3
+      )
+
+    dropped_df <-
+      dplyr::mutate(.data = dropped_df, cluster = base::as.character(dbc_res$cluster)) %>%
+      dplyr::filter(cluster != "0")
+
+    n_bcs <- base::nrow(dropped_df)
+    n_clusters <- dplyr::n_distinct(dropped_df$cluster)
+
+    if(n_clusters == 1){
+
+      cluster_keep <- "1"
+
+    } else {
+
+      cluster_count <-
+        dplyr::count(x = dropped_df, cluster) %>%
+        dplyr::filter(n >= n_bcs*1.5/n_clusters)
+
+      cluster_keep <- cluster_count$cluster
+
+    }
+
+    dropped_df <-
+      dplyr::filter(dropped_df, cluster %in% {{cluster_keep}})
+
+    center_df <-
+      dplyr::group_by(dropped_df, cluster) %>%
+      dplyr::summarise(
+        size = dplyr::n(),
+        center_x = base::mean(x),
+        center_y = base::mean(y)
+      ) %>%
+      dplyr::mutate(cluster = base::as.character(dplyr::row_number())) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(n_cluster = dplyr::n()) %>%
+      dplyr::select(n_cluster, cluster, size, center_x, center_y)
+
+  }
+
+  base::return(center_df)
+
+}
 
 
 #' Title
@@ -346,6 +393,8 @@ assess_intra_cluster_distance <- function(clustered_df){
                   df = clustered_df,
                   .f = function(cl, df){
 
+                    size <- base::nrow(df)
+
                     dist_mtr <-
                       dplyr::filter(df, cluster == {{cl}}) %>%
                       tibble::column_to_rownames(var = "barcodes") %>%
@@ -359,14 +408,19 @@ assess_intra_cluster_distance <- function(clustered_df){
 
                     hlpr_dist_mtr_to_df(dist_mtr, varnames = c("barcodes", "barcodes2")) %>%
                       dplyr::group_by(barcodes) %>%
-                      dplyr::summarise(mean_dist = base::mean(distance), .groups = "drop") %>%
+                      dplyr::summarise(
+                        mean_dist = base::mean(distance),
+                        .groups = "drop") %>%
                       dplyr::ungroup() %>%
                       dplyr::filter(mean_dist == base::min(mean_dist)) %>%
-                      dplyr::mutate(intra_cluster_dist = mean_dist / n_barcodes)
+                      dplyr::mutate(
+                        intra_cluster_dist = mean_dist / n_barcodes,
+                        size = {{size}}
+                        )
 
                   }) %>%
     dplyr::mutate(
-      n_cluster = dplyr::row_number(),
+      n_cluster = dplyr::n(),
       cluster = base::levels(clustered_df$cluster),
       mean_intra_cluster_dist = base::mean(intra_cluster_dist),
       median_intra_cluster_dist = stats::median(intra_cluster_dist)
@@ -377,13 +431,14 @@ assess_intra_cluster_distance <- function(clustered_df){
 
   joined_df <-
     dplyr::left_join(x = assessment_res_df, y = original_renamed_df, by = "barcodes") %>%
-    dplyr::select(n_cluster, cluster, median_intra_cluster_dist,
+    dplyr::select(n_cluster, cluster, size, median_intra_cluster_dist,
                   mean_intra_cluster_dist, intra_cluster_dist,
                   center_x, center_y, center_barcodes = barcodes)
 
   base::return(joined_df)
 
 }
+
 
 
 

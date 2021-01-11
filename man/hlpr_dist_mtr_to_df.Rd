@@ -4,7 +4,7 @@
 \alias{hlpr_dist_mtr_to_df}
 \title{Convert distance matrix to distance data.frame}
 \usage{
-hlpr_dist_mtr_to_df(dist_mtr)
+hlpr_dist_mtr_to_df(dist_mtr, varnames = c("gene1", "gene2"))
 }
 \arguments{
 \item{dist_mtr}{A distance matrix gene expression - gene expression distances}

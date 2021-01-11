@@ -315,25 +315,23 @@ setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
 
 # Slot: spatial  ----------------------------------------------------------
 
-
-
 #' Title
 #'
 #' @param object
 #' @param of_sample
-#' @param hotspot_list
+#' @param pr_list
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setHotspotList <- function(object, of_sample = "", hotspot_list){
+setPrResults <- function(object, of_sample = "", pr_list, method_pr = "hotspot"){
 
   check_object(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  object@spatial[[of_sample]][["hotspots"]] <- hotspot_list
+  object@spatial[[of_sample]][[method_pr]] <- pr_list
 
   base::return(object)
 

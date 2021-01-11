@@ -45,17 +45,17 @@
 #' @return An updated spata-object.
 #' @export
 
-runSpCorAnalysis <- function(object,
-                             of_sample = "",
-                             genes = 2000, # gene names, integer
-                             genes_additional = NULL,
-                             threshold_stw = 0.5,
-                             threshold_stpv = 0.1,
-                             with_ties = TRUE,
-                             method_cor = "pearson",
-                             method_dist = "euclidean",
-                             mtr_name = NULL,
-                             verbose = TRUE){
+runSpatialCorrelationAnalysis <- function(object,
+                                          of_sample = "",
+                                          genes = 2000, # gene names, integer
+                                          genes_additional = NULL,
+                                          threshold_stw = 0.5,
+                                          threshold_stpv = 0.1,
+                                          with_ties = TRUE,
+                                          method_cor = "pearson",
+                                          method_dist = "euclidean",
+                                          mtr_name = NULL,
+                                          verbose = TRUE){
 
         # 1. Control --------------------------------------------------------------
 
@@ -64,7 +64,7 @@ runSpCorAnalysis <- function(object,
         confuns::are_values(c("with_ties", "verbose"), mode = "logical")
         confuns::are_values(c("threshold_stw", "threshold_stpv"), mode = "numeric")
 
-        confuns::is_vec(x = genes_additional, skip.allow = TRUE, skip.val = NULL)
+        confuns::is_vec(x = genes_additional, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
         of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -77,9 +77,9 @@ runSpCorAnalysis <- function(object,
           # assess gene variation, sort and select top n genes
           genes <-
             getGeneMetaDf(object = object, of_sample = of_sample) %>%
-            dplyr::filter(st_W >= threshold_stw & st_pv <= threshold_stpv) %>%
+            dplyr::filter(stw >= threshold_stw & stpv <= threshold_stpv) %>%
             dplyr::slice_max(order_by = var, n = genes, with_ties = with_ties) %>%
-            dplyr::pull(var = "gene")
+            dplyr::pull(var = "genes")
 
           if(base::length(genes) == 0){
 
@@ -91,7 +91,7 @@ runSpCorAnalysis <- function(object,
 
             genes_additional <- check_genes(object, genes = genes_additional)
 
-            genes <- c(genes, genes_additional)
+            genes <- c(genes, genes_additional) %>% base::unique()
 
           }
 
@@ -165,7 +165,7 @@ runSpCorAnalysis <- function(object,
 
 #' @title Cluster genes according to their expression profile
 #'
-#' @description It takes the distance matrix that was computed with
+#' @description Takes the distance matrix that was computed with
 #' \code{runSpCorAnalysis()} and clusters it via hierarchical clustering such that
 #' genes sharing similar expression profiles / patterns throughout the sample are
 #' clustered together. See details for a more detailed description of what the result
@@ -208,10 +208,10 @@ runSpCorAnalysis <- function(object,
 #'
 
 clusterSpCorResults <- function(object,
-                                             of_sample = "",
-                                             method_hclust = "complete",
-                                             k = NULL,
-                                             h = NULL){
+                                of_sample = "",
+                                method_hclust = "complete",
+                                k = NULL,
+                                h = NULL){
 
 
   # 1. Control --------------------------------------------------------------
