@@ -22,15 +22,12 @@
 #' @export
 
 runDeAnalysis <- function(object,
-                          of_sample = "",
                           across,
                           method_de = "wilcox",
                           verbose = TRUE,
+                          of_sample = NA,
                           ...){
 
-  # 1. Control --------------------------------------------------------------
-
-  # lazy
   check_object(object)
 
   purrr::walk(.x = method_de, .f = ~ check_method(method_de = .x))
@@ -80,9 +77,7 @@ runDeAnalysis <- function(object,
 
           }
 
-          # -----
-
-          # 2. De analysis ----------------------------------------------------------
+          # De analysis ----------------------------------------------------------
 
           # prepare seurat object
           seurat_object <- Seurat::CreateSeuratObject(counts = getCountMatrix(object, of_sample = of_sample))
@@ -125,7 +120,6 @@ runDeAnalysis <- function(object,
 
   }
 
-  # -----
 
   base::return(object)
 

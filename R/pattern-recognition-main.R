@@ -18,7 +18,6 @@
 #' @export
 
 runPatternRecognition <- function(object,
-                                  of_sample = "",
                                   genes = 1500,
                                   genes_additional = NULL,
                                   with_ties = TRUE,
@@ -28,7 +27,8 @@ runPatternRecognition <- function(object,
                                   threshold_stpv = 0.1,
                                   smooth = TRUE,
                                   smooth_span = 0.02,
-                                  verbose = TRUE){
+                                  verbose = TRUE,
+                                  of_sample = NA){
 
   confuns::are_values(c("genes", "threshold_stw", "threshold_stpv"), mode = "numeric")
 

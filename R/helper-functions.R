@@ -347,6 +347,51 @@ hlpr_assign <- function(assign, object, name){
 }
 
 
+#' Assign arguments to calling function
+#'
+#' @description Mediates between the input of the calling function and
+#' the default instructions within the spata object. Every 'default'-argument
+#' of the calling function that is NULL is replaced by what is defined as
+#' the default.
+#'
+#' @inherit check_object params
+
+hlpr_assign_arguments <- function(object){
+
+  default_instructions <- getDefaultInstructions(object)
+
+  ce <- rlang::caller_env()
+
+  cfn <- rlang::caller_fn()
+
+  cargs <- rlang::fn_fmls_names(fn = cfn)
+
+  default_args <- cargs[cargs %in% methods::slotNames(default_instructions)]
+
+  for(arg in default_args){
+
+    arg_value <-
+      base::parse(text = arg) %>%
+      base::eval(envir = ce)
+
+    if(base::is.null(arg_value)){
+
+      arg_value <- methods::slot(default_instructions, name = arg)
+
+      base::assign(
+        x = arg,
+        value = arg_value,
+        envir = ce
+      )
+    }
+
+  }
+
+  base::invisible(TRUE)
+
+}
+
+
 #' @title Calculates breaks for heatmap according to input matrix
 #'
 
@@ -513,38 +558,6 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 
 }
 
-
-#' Title
-#'
-#' @description Compute optimal eps input for \code{dbsan::dbscan()}.
-#'
-#' @param object
-#' @param of_sample
-#'
-#' @return
-#' @export
-#'
-hlpr_compute_eps <- function(object, of_sample = ""){
-
-  coords_df <- getCoordsDf(object, of_sample = of_sample)
-
-  bc_origin <- coords_df$barcodes
-  bc_destination <- coords_df$barcodes
-
-  tidyr::expand_grid(bc_origin, bc_destination) %>%
-    dplyr::left_join(x = ., y = dplyr::select(coords_df, bc_origin = barcodes, xo = x, yo = y), by = "bc_origin") %>%
-    dplyr::left_join(x = ., y = dplyr::select(coords_df, bc_destination = barcodes, xd = x, yd = y), by = "bc_destination") %>%
-    dplyr::mutate(distance = base::round(sqrt((xd - xo)^2 + (yd - yo)^2), digits = 0)) %>%
-    dplyr::group_by(bc_origin) %>%
-    dplyr::slice_min(order_by = distance, n = 7) %>%
-    dplyr::group_by(bc_origin, distance) %>%
-    dplyr::summarise(count = n(), .groups = "drop") %>%
-    dplyr::filter(count == 6) %>%
-    dplyr::pull(var = "distance") %>%
-    base::unique() %>%
-    base::min()
-
-}
 
 
 #' @title Convert distance matrix to distance data.frame

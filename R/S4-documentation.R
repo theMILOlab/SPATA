@@ -141,3 +141,48 @@ spata <- setClass("spata",
                             used_genesets = "data.frame",
                             version = "list")
                   )
+
+
+
+
+#' default instructions
+
+default_instructions <- methods::setClass(Class = "default_instructions",
+                                          slots = c(
+                                            average_genes = "logical",
+                                            clrp = "character",
+                                            clrsp = "character",
+                                            colors = "character",
+                                            complete = "logical",
+                                            display_image = "logical",
+                                            display_labels = "logical",
+                                            display_points = "logical",
+                                            display_residuals = "logical",
+                                            display_trajectory_parts = "logical",
+                                            display_title = "logical",
+                                            max_adj_pval = "numeric",
+                                            method_de = "character",
+                                            method_dr = "character",
+                                            method_hclust = "character",
+                                            method_ovl = "character",
+                                            method_padj = "character",
+                                            method_gs = "character",
+                                            n_highest_lfc = "numeric",
+                                            n_lowest_pval = "numeric",
+                                            n_pcs = "numeric",
+                                            normalize = "logical",
+                                            position = "character",
+                                            pt_alpha = "numeric",
+                                            pt_clr = "character",
+                                            pt_clrp = "character",
+                                            pt_clrsp = "character",
+                                            pt_size = "numeric",
+                                            show_colnames = "logical",
+                                            show_rownames = "logical",
+                                            smooth = "logical",
+                                            smooth_span = "numeric",
+                                            uniform_genes = "character",
+                                            verbose = "logical")
+                                          )
+
+

@@ -11,7 +11,7 @@
 #' @export
 #'
 
-findNPatterns <- function(object, of_sample = "", n_patterns, plotPrSummary = TRUE){
+findNPatterns <- function(object, n_patterns, plotPrSummary = TRUE,  of_sample = NA){
 
   check_object(object)
 

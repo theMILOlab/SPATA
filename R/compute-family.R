@@ -26,7 +26,7 @@
 #'
 #' @export
 
-computeGeneMetaData <- function(object, of_sample = "", mtr_name = NULL, verbose = TRUE, ...){
+computeGeneMetaData <- function(object, mtr_name = NULL, verbose = TRUE, of_sample = NA, ...){
 
   check_object(object)
 

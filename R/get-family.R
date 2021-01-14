@@ -13,7 +13,7 @@
 #' combination of activations/bottlenecks.
 #' @export
 
-getAutoencoderAssessment <- function(object, of_sample = ""){
+getAutoencoderAssessment <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -42,7 +42,7 @@ getAutoencoderAssessment <- function(object, of_sample = ""){
 #' @return A named list.
 #' @export
 
-getAutoencoderSetUp <- function(object, mtr_name, of_sample = ""){
+getAutoencoderSetUp <- function(object, mtr_name, of_sample = NA){
 
   check_object(object)
 
@@ -75,8 +75,7 @@ getAutoencoderSetUp <- function(object, mtr_name, of_sample = ""){
 #' (and \emph{segment} if specified).
 #' @export
 
-getCoordsDf <- function(object,
-                        of_sample = ""){
+getCoordsDf <- function(object, of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -108,7 +107,7 @@ getCoordinates <- getCoordsDf
 #' @export
 getCoordinatesSegment <- function(object,
                                   of_segment,
-                                  of_sample = ""){
+                                  of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -194,13 +193,13 @@ getDeOverview <- function(object){
 #' @export
 
 getDeResultsDf <- function(object,
-                          of_sample = "",
-                          across,
-                          across_subset = NULL,
-                          method_de = "wilcox",
-                          max_adj_pval = NULL,
-                          n_highest_lfc = NULL,
-                          n_lowest_pval = NULL){
+                           across,
+                           across_subset = NULL,
+                           method_de = "wilcox",
+                           max_adj_pval = NULL,
+                           n_highest_lfc = NULL,
+                           n_lowest_pval = NULL,
+                           of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -238,13 +237,13 @@ getDeResultsDf <- function(object,
 #' @rdname getDeResultsDf
 #' @export
 getDeGenes <- function(object,
-                       of_sample = "",
                        across,
                        across_subset = NULL,
                        method_de = "wilcox",
                        max_adj_pval = NULL,
                        n_highest_lfc = 50,
-                       n_lowest_pval = 50){
+                       n_lowest_pval = 50,
+                       of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -289,7 +288,7 @@ getDeGenes <- function(object,
 #' @return Character value.
 #' @export
 
-getActiveMatrixName <- function(object, of_sample = ""){
+getActiveMatrixName <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -310,9 +309,9 @@ getActiveMatrixName <- function(object, of_sample = ""){
 #' @export
 
 getExpressionMatrix <- function(object,
-                                of_sample = "",
                                 mtr_name = NULL,
-                                verbose = FALSE){
+                                verbose = FALSE,
+                                of_sample = NA){
 
   # lazy control
   check_object(object)
@@ -356,8 +355,7 @@ getExpressionMatrix <- function(object,
 
 #' @rdname getExpressionMatrix
 #' @export
-getCountMatrix <- function(object,
-                           of_sample = ""){
+getCountMatrix <- function(object, of_sample = NA){
 
   # lazy control
   check_object(object)
@@ -385,7 +383,7 @@ getCountMatrix <- function(object,
 #' @return Character vector.
 #' @export
 
-getExpressionMatrixNames <- function(object, of_sample = ""){
+getExpressionMatrixNames <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -428,7 +426,7 @@ getExpressionMatrixNames <- function(object, of_sample = ""){
 #' @export
 #'
 
-getSpataDf <- function(object, of_sample = ""){
+getSpataDf <- function(object, of_sample = NA){
 
   check_object(object)
   of_sample <- check_sample(object, of_sample)
@@ -456,8 +454,8 @@ getSpataDf <- function(object, of_sample = ""){
 #'
 
 getDimRedDf <- function(object,
-                        of_sample = "",
-                        method_dr = c("pca", "tsne", "umap")){
+                        method_dr = c("pca", "tsne", "umap"),
+                        of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -491,8 +489,8 @@ getDimRedDf <- function(object,
 #' @rdname getDimRedDf
 #' @export
 getPcaDf <- function(object,
-                     of_sample = "",
-                     n_pcs = 30){
+                     n_pcs = 30,
+                     of_sample = NA){
 
   confuns::is_value(x = n_pcs, mode = "numeric")
 
@@ -513,8 +511,8 @@ getPcaDf <- function(object,
 #' @rdname getDimRedDf
 #' @export
 getPcaMtr <- function(object,
-                      of_sample = "",
-                      n_pcs = 30){
+                      n_pcs = 30,
+                      of_sample = NA){
 
   confuns::is_value(x = n_pcs, mode = "numeric")
 
@@ -528,8 +526,7 @@ getPcaMtr <- function(object,
 
 #' @rdname getDimRedDf
 #' @export
-getUmapDf <- function(object,
-                        of_sample = ""){
+getUmapDf <- function(object, of_sample = NA){
 
   getDimRedDf(object = object,
               of_sample = of_sample,
@@ -540,8 +537,7 @@ getUmapDf <- function(object,
 
 #' @rdname getDimRedDf
 #' @export
-getTsneDf <- function(object,
-                        of_sample = ""){
+getTsneDf <- function(object, of_sample = NA){
 
   getDimRedDf(object = object,
               of_sample = of_sample,
@@ -567,7 +563,7 @@ getTsneDf <- function(object,
 #' @return A named character vector of the variables in the feature data slot.
 #' @export
 
-getFeatureNames <- function(object, of_class = NULL, of_sample = ""){
+getFeatureNames <- function(object, of_class = NULL, of_sample = NA){
 
   check_object(object)
   confuns::is_vec(x = of_class, mode = "character", skip.allow = TRUE, skip.val = NULL)
@@ -598,7 +594,7 @@ getFeatureNames <- function(object, of_class = NULL, of_sample = ""){
 #' @return The feature data data.frame of the specfied object and sample(s).
 #' @export
 
-getFeatureDf <- function(object, of_sample = ""){
+getFeatureDf <- function(object, of_sample = NA){
 
   check_object(object)
   of_sample <- check_sample(object, of_sample)
@@ -633,9 +629,9 @@ getFeatureDf <- function(object, of_sample = ""){
 
 getFeatureVariables <- function(object,
                                 features,
-                                of_sample = "",
                                 return = "data.frame",
-                                unique = "deprecated"){
+                                unique = "deprecated",
+                                of_sample = NA){
 
   if(unique != "deprecated"){
     base::warning("Argument 'unique' is deprecated.")
@@ -699,7 +695,7 @@ getFeatureVariables <- function(object,
 #' @return A vector or a named list according to the length of \code{features}.
 #' @export
 
-getFeatureValues <- function(object, of_sample = "", features){
+getFeatureValues <- function(object, features, of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -749,8 +745,8 @@ getFeatureValues <- function(object, of_sample = "", features){
 #' @export
 
 getSegmentNames <- function(object,
-                            of_sample = "",
-                            simplify = TRUE){
+                            simplify = TRUE,
+                            of_sample = NA){
 
   # lazy check
   check_object(object)
@@ -841,7 +837,7 @@ getSamples <- function(object){
 #' @return A data.frame from \code{getMetaDataDf()} or a list from \code{getGeneMetaData()}.
 #' @export
 
-getGeneMetaData <- function(object, of_sample = "", mtr_name = NULL, only_df = FALSE){
+getGeneMetaData <- function(object, mtr_name = NULL, only_df = FALSE, of_sample = NA){
 
   check_object(object)
   of_sample <- check_sample(object = object, of_sample = of_sample)
@@ -874,7 +870,7 @@ getGeneMetaData <- function(object, of_sample = "", mtr_name = NULL, only_df = F
 
 #' @rdname getGeneMetaData
 #' @export
-getGeneMetaDf <- function(object, of_sample = "", mtr_name = NULL){
+getGeneMetaDf <- function(object, mtr_name = NULL, of_sample = NA){
 
   getGeneMetaData(object = object, of_sample = of_sample, mtr_name = mtr_name, only_df = TRUE)
 
@@ -895,7 +891,7 @@ getGeneMetaDf <- function(object, of_sample = "", mtr_name = NULL){
 #' @export
 #'
 #' @examples
-getImage <- function(object, of_sample = ""){
+getImage <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -915,12 +911,52 @@ getImage <- function(object, of_sample = ""){
 #' @return All barcodes of the specified sample(s) as a character vector.
 #' @export
 
-getBarcodes <- function(object, of_sample = ""){
+getBarcodes <- function(object, of_sample = NA){
 
   check_object(object)
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
   object@information$barcodes[[of_sample]]
+
+}
+
+
+#' Title
+#'
+#' @param object
+#'
+#' @return
+#' @export
+
+getDefaultInstructions <- function(object){
+
+  check_object(object)
+
+  base::return(object@information$instructions$default)
+
+}
+
+#' @rdname getDefaultInstructions
+#' @export
+getDirectoryInstructions <- function(object, to = c("cell_data_set", "seurat_object", "spata_object")){
+
+  check_object(object)
+
+  check_to(object, to = to)
+
+  directory_list <-
+    purrr::map(.x = to, .f = ~ object@information$instructions$directories[[.x]]) %>%
+    purrr::set_names(nm = to)
+
+  if(base::length(directory_list) > 1){
+
+    base::return(directory_list)
+
+  } else {
+
+    base::unlist(directory_list, use.names = FALSE) %>%
+      base::return()
+  }
 
 }
 
@@ -937,7 +973,7 @@ getBarcodes <- function(object, of_sample = ""){
 #' @return A data.frame or a distance matrix.
 #' @export
 
-getGeneDistMtr <- function(object, of_sample = ""){
+getGeneDistMtr <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -949,7 +985,7 @@ getGeneDistMtr <- function(object, of_sample = ""){
 
 }
 
-getGeneDistDf <- function(object, of_sample = ""){
+getGeneDistDf <- function(object, of_sample = NA){
 
   getGeneDistMtr(object = object, of_sample = of_sample) %>%
     hlpr_dist_mtr_to_df()
@@ -965,7 +1001,7 @@ getGeneDistDf <- function(object, of_sample = ""){
 #' @return
 #' @export
 
-getPrResults <- function(object, of_sample = "", method_pr = "hotspot"){
+getPrResults <- function(object, method_pr = "hotspot", of_sample = NA){
 
   check_object(object)
 
@@ -986,7 +1022,7 @@ getPrResults <- function(object, of_sample = "", method_pr = "hotspot"){
 
 #' @rdname getPrResults
 #' @export
-getPrSuggestion <- function(object, of_sample = "", method_pr = "hotspot"){
+getPrSuggestion <- function(object, method_pr = "hotspot", of_sample = NA){
 
   pr_list <-
     getPrResults(object = object, of_sample = of_sample, method_pr = method_pr)
@@ -997,7 +1033,7 @@ getPrSuggestion <- function(object, of_sample = "", method_pr = "hotspot"){
 
 #' @rdname getPrResults
 #' @export
-getPatternNames <- function(object, of_sample = "", method_pr = "hotspot"){
+getPatternNames <- function(object, method_pr = "hotspot", of_sample = NA){
 
   getPrSuggestion(object, of_sample = of_sample, method_pr = method_pr)$info %>%
     dplyr::pull(var = {{method_pr}}) %>%
@@ -1005,6 +1041,36 @@ getPatternNames <- function(object, of_sample = "", method_pr = "hotspot"){
 
 }
 
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+
+getHotspotInfoDf <- function(object, of_sample = NA){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample, of.length = 1)
+
+  getPrSuggestion(object, method_pr = "hotspot", of_sample = of_sample)$info_df
+
+}
+
+
+#' @rdname getHotspotInfoDf
+#' @export
+getHotspotGeneDf <- function(object, of_sample = NA){
+
+  check_object(object)
+  of_sample <- check_sample(object, of_sample, of.length = 1)
+
+  getPrSuggestion(object, method_pr = "hotspot", of_sample = of_sample)$df
+
+
+}
 
 
 #' Title
@@ -1015,9 +1081,7 @@ getPatternNames <- function(object, of_sample = "", method_pr = "hotspot"){
 #' @return
 #' @export
 
-getSpCorCluster <- function(object,
-                                         method_hclust = "complete",
-                                         of_sample = ""){
+getSpCorCluster <- function(object, method_hclust = "complete", of_sample = NA){
 
   check_object(object)
 
@@ -1054,7 +1118,7 @@ getSpCorCluster <- function(object,
 #' @return
 #' @export
 
-getSpCorClusterNames <- function(object, of_sample = ""){
+getSpCorClusterNames <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -1084,7 +1148,7 @@ getSpCorClusterNames <- function(object, of_sample = ""){
 #' @return
 #' @export
 
-getSpCorResults <- function(object, of_sample = ""){
+getSpCorResults <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -1128,8 +1192,8 @@ getSpCorResults <- function(object, of_sample = ""){
 
 getTrajectoryLength <- function(object,
                                 trajectory_name,
-                                of_sample = "",
-                                binwidth = 5){
+                                binwidth = 5,
+                                of_sample = NA){
 
 
   # 1. Control --------------------------------------------------------------
@@ -1168,7 +1232,7 @@ getTrajectoryLength <- function(object,
 #'
 #' @export
 
-getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
+getTrajectoryNames <- function(object, simplify = TRUE, of_sample = NA){
 
   # lazy check
   check_object(object)
@@ -1241,13 +1305,13 @@ getTrajectoryNames <- function(object, of_sample = "all", simplify = TRUE){
 
 getTrajectoryDf <- function(object,
                             trajectory_name,
-                            of_sample = "",
                             variables,
                             method_gs = "mean",
                             binwidth = 5,
                             normalize = TRUE,
                             shift_wider = FALSE,
-                            verbose = TRUE){
+                            verbose = TRUE,
+                            of_sample = NA){
 
 
   confuns::are_values(c("normalize", "shift_wider", "verbose"), mode = "logical")
@@ -1283,7 +1347,7 @@ getTrajectoryDf <- function(object,
 #' @return An object of class \code{spatialTrajectory}.
 #' @export
 
-getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
+getTrajectoryObject <- function(object, trajectory_name, of_sample = NA){
 
   check_trajectory(object = object,
                    trajectory_name = trajectory_name,
@@ -1302,47 +1366,6 @@ getTrajectoryObject <- function(object, trajectory_name, of_sample = ""){
 
 
 # Slot: used_genesets ----------------------------------------------
-
-#' @title Overview about the current gene sets
-#'
-#' @param object A valid spata-object.
-#'
-#' @return A data.frame with two variables \emph{Class} and \emph{Available Gene
-#' Sets} indicating the number of different gene sets the classes contain.
-#'
-#' @export
-
-getGeneSetOverview <- function(object){
-
-  # lazy check
-  check_object(object)
-
-  # main part
-  gene_sets_df <- dplyr::ungroup(object@used_genesets)
-
-  gene_sets <- object@used_genesets$ont
-
-  if(base::nrow(gene_sets_df) == 0){
-
-    base::message("Gene-set data.frame is empty.")
-    base::return(data.frame())
-
-  } else {
-
-    gene_set_classes <- stringr::str_extract(string = gene_sets, pattern = "^.+?(?=_)")
-
-    dplyr::mutate(gene_sets_df, gs_type = gene_set_classes) %>%
-      dplyr::select(-gene) %>%
-      dplyr::distinct() %>%
-      dplyr::pull(gs_type) %>%
-      base::table() %>%
-      base::as.data.frame() %>%
-      magrittr::set_colnames(value = c("Class", "Available Gene Sets"))
-
-  }
-
-}
-
 
 
 #' @title Obtain gene set names
@@ -1564,11 +1587,9 @@ getGeneSetDf <- function(object){
 getGenes <- function(object,
                      of_gene_sets = NULL,
                      of_hotspots = NULL,
-                     of_sample = "",
-                     in_sample = "",
-                     simplify = TRUE){
-
-  if(!in_sample == ""){warning("change in_sample to of_sample")}
+                     simplify = TRUE,
+                     of_sample = NA,
+                     in_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -1672,13 +1693,13 @@ getGenes <- function(object,
 #' @rdname getGenes
 #' @export
 getSpCorGenes <- function(object,
-                          of_sample = "",
                           similar_to = NULL,
                           distinct_to = NULL,
                           top_n = 25,
                           method_hclust = NULL,
                           cluster_names = NULL,
-                          simplify = TRUE){
+                          simplify = TRUE,
+                          of_sample = NA){
 
   check_object(object)
 

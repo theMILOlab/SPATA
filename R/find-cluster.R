@@ -39,14 +39,14 @@
 #'
 
 findMonocleClusters <- function(object,
-                                of_sample = "",
                                 preprocess_method = c("PCA", "LSI"),
                                 reduction_method = c("UMAP", "tSNE", "PCA", "LSI"),
                                 cluster_method = c("leiden", "louvain"),
                                 k = 20,
                                 num_iter = 5,
                                 prefix = "Cluster ",
-                                verbose = TRUE){
+                                verbose = TRUE,
+                                of_sample = NA){
 
   check_object(object)
 
@@ -201,14 +201,14 @@ findMonocleClusters <- function(object,
 #'
 
 findNearestNeighbourClusters <- function(object,
-                                         of_sample = "",
                                          n_pcs = 30,
                                          k = 50,
                                          searchtype = "priority",
                                          treetype = "bd",
                                          radius = 0,
                                          eps = 0,
-                                         verbose = TRUE){
+                                         verbose = TRUE,
+                                         of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -323,11 +323,11 @@ findNearestNeighbourClusters <- function(object,
 
 findSeuratClusters <- function(object,
                                mtr_name = "scaled",
-                               of_sample = "",
                                FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
                                RunPCA = list(npcs = 60),
                                FindNeighbors = list(dims = 1:30),
-                               FindClusters = list(resolution = 0.8)){
+                               FindClusters = list(resolution = 0.8),
+                               of_sample = NA){
 
   check_object(object)
 

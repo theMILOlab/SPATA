@@ -12,16 +12,15 @@
 #' @return
 #' @export
 #'
-#' @examples
 plotGeneCenter <- function(object,
-                           of_sample = "",
                            genes,
-                           pt_clr = "black",
-                           pt_shape = 19,
-                           pt_size = 4,
-                           plotSurfaceComparison = FALSE){
+                           plotSurfaceComparison = FALSE,
+                           pt_clr = NULL,
+                           pt_size = NULL,
+                           of_sample = NA){
 
   check_object(object)
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -71,7 +70,10 @@ plotGeneCenter <- function(object,
 #' @return
 #' @export
 
-plotIntraPatternDistance <- function(object, of_sample = "", of_pattern = "", clrp = "milo"){
+plotIntraPatternDistance <- function(object, of_pattern = "", clrp = NULL, of_sample = NA){
+
+  check_object(object)
+  hlpr_assign_arguments(object)
 
   of_pattern <-
     check_pattern(object, of_sample = of_sample, patterns = of_pattern)
@@ -109,8 +111,7 @@ plotIntraPatternDistance <- function(object, of_sample = "", of_pattern = "", cl
 #' @return
 #' @export
 #'
-#' @examples
-plotPrAssessment <- function(object, of_sample = ""){
+plotPrAssessment <- function(object, of_sample = NA){
 
   check_object(object)
 
@@ -147,15 +148,15 @@ plotPrAssessment <- function(object, of_sample = ""){
 #' @return
 #' @export
 #'
-#' @examples
 plotPrSummary <- function(object,
-                          of_sample = "",
                           plot_type = "density_2d",
-                          display_points = FALSE,
-                          pt_size = 1,
-                          clrp = "milo"){
+                          display_points = NULL,
+                          pt_size = NULL,
+                          clrp = NULL,
+                          of_sample = NA){
 
   check_object(object)
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 

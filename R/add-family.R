@@ -11,7 +11,7 @@
 #' @export
 #'
 
-addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = ""){
+addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = NA){
 
   check_object(object)
   confuns::is_list(set_up_list)
@@ -55,8 +55,8 @@ addFeatures <- function(object,
                         feature_names,
                         feature_df,
                         key_variable = "barcodes",
-                        of_sample = "",
-                        overwrite = FALSE){
+                        overwrite = FALSE,
+                        of_sample = ""){
 
   # 1. Control --------------------------------------------------------------
   check_object(object)
@@ -373,7 +373,7 @@ discardGeneSets <- function(object, gs_names){
 #' @export
 #'
 
-discardExpressionMatrix <- function(object, mtr_name, of_sample = ""){
+discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 
   check_object(object)
 
@@ -421,7 +421,7 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = ""){
 addTrajectoryObject <- function(object,
                                 trajectory_name,
                                 trajectory_object,
-                                of_sample = ""){
+                                of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 

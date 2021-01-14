@@ -17,7 +17,7 @@
 #'
 #' @export
 
-runPca <- function(object, of_sample = "", n_pcs = 30, mtr_name = NULL){
+runPca <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 
   check_object(object)
 
@@ -42,7 +42,7 @@ runPca <- function(object, of_sample = "", n_pcs = 30, mtr_name = NULL){
 
 #' @rdname runPca
 #' @export
-runPca2 <- function(object, of_sample = "", n_pcs = 30, mtr_name = NULL){
+runPca2 <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 
   check_object(object)
 
@@ -77,7 +77,7 @@ runPca2 <- function(object, of_sample = "", n_pcs = 30, mtr_name = NULL){
 #'
 #' @export
 
-runTsne <- function(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30){
+runTsne <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 
   check_object(object)
 
@@ -103,7 +103,7 @@ runTsne <- function(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30){
 
 #' @rdname runTsne
 #' @export
-runTsne2 <- function(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30){
+runTsne2 <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 
   check_object(object)
 
@@ -136,7 +136,7 @@ runTsne2 <- function(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30){
 #'
 #' @export
 
-runUmap <- function(object, of_sample = "", n_pcs = 20, ...){
+runUmap <- function(object, n_pcs = 20, of_sample = NA, ...){
 
   check_object(object)
 
@@ -165,7 +165,7 @@ runUmap <- function(object, of_sample = "", n_pcs = 20, ...){
 
 #' @rdname runUmap
 #' @export
-runUmap2 <- function(object, of_sample = "", n_pcs = 20,  ...){
+runUmap2 <- function(object, n_pcs = 20, of_sample = NA, ...){
 
   check_object(object)
 

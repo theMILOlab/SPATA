@@ -15,11 +15,12 @@
 #' @export
 
 plotGeneDendrogram <- function(object,
-                               of_sample = "",
                                method_hclust = "complete",
+                               of_sample = NA,
                                ...){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
+
   check_method(method_hclust = method_hclust)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
@@ -40,7 +41,6 @@ plotGeneDendrogram <- function(object,
 # Dimensional reduction related -------------------------------------------
 plotDimRed <- function(object,
                        method_dr,
-                       of_sample = "",
                        color_to = NULL,
                        method_gs = "mean",
                        pt_size = 2,
@@ -49,12 +49,13 @@ plotDimRed <- function(object,
                        pt_clrp = "milo",
                        pt_clr = "black",
                        normalize = TRUE,
-                       verbose = TRUE){
+                       verbose = TRUE,
+                       of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # adjusting check
@@ -136,16 +137,18 @@ plotDimRed <- function(object,
 #'
 
 plotUmap <- function(object,
-                     of_sample = "",
                      color_to = NULL,
-                     method_gs = "mean",
-                     pt_size = 2,
-                     pt_alpha = 1,
-                     pt_clrsp = "inferno",
-                     pt_clrp = "milo",
-                     pt_clr = "black",
-                     normalize = TRUE,
-                     verbose = TRUE){
+                     method_gs = NULL,
+                     pt_size = NULL,
+                     pt_alpha = NULL,
+                     pt_clrsp = NULL,
+                     pt_clrp = NULL,
+                     pt_clr = NULL,
+                     normalize = NULL,
+                     verbose = NULL,
+                     of_sample = NA){
+
+  check_object(object) %>% hlpr_assign_arguments()
 
   plotDimRed(object = object,
              method_dr = "umap",
@@ -165,15 +168,18 @@ plotUmap <- function(object,
 #' @rdname plotUmap
 #' @export
 plotTsne <- function(object,
-                     of_sample = "",
                      color_to = NULL,
-                     method_gs = "mean",
-                     pt_size = 2,
-                     pt_alpha = 1,
-                     pt_clrsp = "inferno",
-                     pt_clrp = "milo",
-                     normalize = TRUE,
-                     verbose = TRUE){
+                     method_gs = NULL,
+                     pt_size = NULL,
+                     pt_alpha = NULL,
+                     pt_clrsp = NULL,
+                     pt_clrp = NULL,
+                     pt_clr = NULL,
+                     normalize = NULL,
+                     verbose = NULL,
+                     of_sampel = NA){
+
+  check_object(object) %>% hlpr_assign_arguments()
 
   plotDimRed(object = object,
              method_dr = "tsne",
@@ -195,17 +201,17 @@ plotTsne <- function(object,
 #' @rdname plotUmap
 #' @export
 plotPca <- function(object,
-                    of_sample = "",
                     color_to = NULL,
-                    n_pcs = 10,
-                    method_gs = "mean",
-                    pt_size = 1.5,
-                    pt_alpha = 0.9,
-                    pt_clrp = "milo",
-                    pt_clrsp = "inferno",
-                    pt_clr = "black",
-                    normalize = TRUE,
-                    verbose = TRUE,
+                    n_pcs = NULL,
+                    method_gs = NULL,
+                    pt_size = NULL,
+                    pt_alpha = NULL,
+                    pt_clrp = NULL,
+                    pt_clrsp = NULL,
+                    pt_clr = NULL,
+                    normalize = NULL,
+                    verbose = NULL,
+                    of_sample = NA,
                     ...){
 
   # 1. Control --------------------------------------------------------------
@@ -213,7 +219,7 @@ plotPca <- function(object,
   confuns::make_available(..., verbose = verbose)
 
   # check input
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
 
   of_sample <-
     check_sample(object = object, of_sample = of_sample, of.length = 1)
@@ -333,13 +339,13 @@ plotPca <- function(object,
 #' @export
 
 plotPcaVariation <- function(object,
-                             of_sample = "",
-                             n_pcs = 15){
+                             n_pcs = NULL,
+                             of_sample = NA){
 
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
 
   confuns::is_value(x = n_pcs, mode = "numeric")
 
@@ -397,14 +403,14 @@ plotPcaVariation <- function(object,
 #'
 #' @examples
 plotGeneMetaData <- function(object,
-                             of_sample = "",
                              variables,
-                             pt_size = 1.5,
-                             pt_alpha = 0.8,
-                             pt_clr = "black",
-                             mtr_name = NULL){
+                             mtr_name = NULL,
+                             pt_alpha = NULL,
+                             pt_clr = NULL,
+                             pt_size = NULL,
+                             of_sample = NA){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -437,14 +443,14 @@ plotGeneMetaData <- function(object,
 #'
 #' @examples
 plotScatter <- function(object,
-                        of_sample = "",
                         variables,
-                        pt_size = 1.5,
-                        pt_alpha = 0.8,
-                        pt_clr = "black",
-                        verbose = TRUE){
+                        pt_size = NULL,
+                        pt_alpha = NULL,
+                        pt_clr = NULL,
+                        verbose = NULL,
+                        of_sample = NA){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -505,25 +511,23 @@ plotScatter <- function(object,
 #' @export
 
 plotFourStates <- function(object,
-                           of_sample = "",
                            states,
                            color_to = NULL,
-                           method_gs = "mean",
-                           average_genes = FALSE,
-                           pt_size = 1.5,
-                           pt_alpha = 0.9,
-                           pt_clrsp = "inferno",
-                           pt_clrp = "milo",
-                           display_labels = TRUE,
-                           assign = FALSE,
-                           assign_name,
-                           verbose = TRUE){
+                           method_gs = NULL,
+                           average_genes = NULL,
+                           pt_alpha = NULL,
+                           pt_clrp = NULL,
+                           pt_clrsp = NULL,
+                           pt_size = NULL,
+                           display_labels = NULL,
+                           verbose = NULL,
+                           of_sample = NA){
 
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
   check_assign(assign, assign_name)
@@ -824,17 +828,15 @@ plotStatisticsInteractive <- function(spata_df){
 #' @export
 
 plotDistribution <- function(object,
-                             of_sample = "",
                              variables,
-                             method_gs = "mean",
                              plot_type = "histogram",
-                             clrp = "milo",
-                             binwidth = 0.05,
-                             ... ,
-                             normalize = TRUE,
-                             assign = FALSE,
-                             assign_name,
-                             verbose = TRUE){
+                             method_gs = NULL,
+                             clrp = NULL,
+                             binwidth = NULL,
+                             normalize = NULL,
+                             verbose = NULL,
+                             of_sample = NA,
+                             ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -854,9 +856,8 @@ plotDistribution <- function(object,
 
   }
 
-  validation(object)
-  check_assign(assign, assign_name)
-  confuns::is_value(clrp, "character", "clrp")
+
+  check_object(object) %>% hlpr_assign_arguments()
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
@@ -1204,19 +1205,17 @@ plotDistribution2 <- function(df,
 #'
 
 plotDistributionAcross <- function(object,
-                                   of_sample = "",
                                    variables,
                                    across,
                                    across_subset = NULL,
-                                   method_gs = "mean",
-                                   plot_type = "violin",
                                    binwidth = 0.05,
-                                   clrp = "milo",
-                                   ... ,
-                                   normalize = TRUE,
-                                   assign = FALSE,
-                                   assign_name,
-                                   verbose = TRUE){
+                                   method_gs = NULL,
+                                   plot_type = NULL,
+                                   clrp = NULL,
+                                   normalize = NULL,
+                                   verbose = NULL,
+                                   of_sample = NA,
+                                   ...){
 
   # 1. Control --------------------------------------------------------------
 
@@ -1226,8 +1225,7 @@ plotDistributionAcross <- function(object,
 
   }
 
-  validation(object)
-  check_assign(assign, assign_name)
+  check_object(object) %>% hlpr_assign_arguments()
 
   confuns::is_value(clrp, "character", "clrp")
 
@@ -1588,16 +1586,16 @@ plotDistributionAcross2 <- function(df,
 #' @export
 
 plotDistributionDiscrete <- function(object,
-                                     of_sample = "",
                                      features,
                                      feature_compare = NULL,
-                                     clrp = "milo",
-                                     position = "fill",
+                                     clrp = NULL,
+                                     position = NULL,
+                                     of_sample = NA,
                                      ...){
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
   confuns::check_one_of(input = position,
                         against = c("fill", "dodge", "stack"),
                         ref.input = "argument 'position'")
@@ -1725,8 +1723,6 @@ plotDistributionDiscrete <- function(object,
 #'  \item{\emph{\code{color_to}}: Monocle3-Umap colored by input of \code{color_to}. (if specified)}
 #' }
 #'
-#' @export
-#'
 
 plotPseudotime <- function(object,
                            use_cds_file = FALSE,
@@ -1737,7 +1733,8 @@ plotPseudotime <- function(object,
                            ...,
                            verbose = TRUE){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
+
   if(!base::is.null(color_to)){confuns::is_value(color_to, "character", "color_to")}
 
   cds <-
@@ -1794,13 +1791,13 @@ plotPseudotime <- function(object,
 #' are displayed in the heatmap.
 #' @param breaks Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
 #' numeric vector is specified it is taken as input. If a function is specified the expression matrix is
-#' passed to it as the first argument and the length of \code{hm_colors} as the second argument.
+#' passed to it as the first argument and the length of \code{colors} as the second argument.
 #' @param genes Character vector or NULL. If you want to display specific genes irrespective of de-anaylsis results you
 #' can specifiy them in \code{genes}. If \code{genes} is specified that way arguments referring to de-anylsis results are
 #' ignored and only the genes specified are taken and displayed.
 #' @inherit verbose params
-#' @param hm_colors A vector of colors to be used for the continuous heatmap annotation..
-#' @param hm_clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
+#' @param colors A vector of colors to be used for the continuous heatmap annotation..
+#' @param clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
 #' to obtain valid input options.
 #' @param ... Additional parameters given to \code{pheatmap::pheatmap()}.
 #'
@@ -1808,19 +1805,19 @@ plotPseudotime <- function(object,
 #' @export
 
 plotDeHeatmap <- function(object,
-                          of_sample = "",
                           across,
                           across_subset = NULL,
-                          method_de = "wilcox",
-                          max_adj_pval = 0.5,
-                          n_highest_lfc = 50,
-                          n_lowest_pval = 50,
+                          method_de = NULL,
+                          max_adj_pval = NULL,
+                          n_highest_lfc = NULL,
+                          n_lowest_pval = NULL,
                           breaks = NULL,
                           genes = NULL,
                           n_barcode_spots = NULL,
-                          hm_clrp = "milo",
-                          hm_colors = viridis::viridis(15),
-                          verbose = TRUE,
+                          clrp = NULL,
+                          colors = NULL,
+                          verbose = NULL,
+                          of_sample = NA,
                           ...){
 
   confuns::make_available(...)
@@ -1828,9 +1825,9 @@ plotDeHeatmap <- function(object,
   # 1. Control --------------------------------------------------------------
 
   #lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
 
-  confuns::are_values("hm_clrp", mode = "character")
+  confuns::are_values("clrp", mode = "character")
 
   if(!base::is.null(across_subset)){ confuns::is_vec(x = across_subset, mode = "character")}
 
@@ -1923,13 +1920,13 @@ plotDeHeatmap <- function(object,
   base::rownames(annotation_col) <- dplyr::pull(barcodes_df, barcodes)
 
   # determine colors used
-  if(hm_clrp == "default"){
+  if(clrp == "default"){
 
     color_vec <- NA
 
   } else {
 
-    color_vec <- confuns::color_vector(clrp = hm_clrp)
+    color_vec <- confuns::color_vector(clrp = clrp)
 
   }
 
@@ -1960,7 +1957,7 @@ plotDeHeatmap <- function(object,
 
     breaks_input <-
       hlpr_breaks(mtr = expr_mtr,
-                  length_out = base::length(hm_colors))
+                  length_out = base::length(colors))
 
   } else if(base::is.numeric(breaks)){
 
@@ -1968,7 +1965,7 @@ plotDeHeatmap <- function(object,
 
   } else if(base::is.function(breaks)){
 
-    breaks_input <- breaks(expr_mtr, base::length(hm_colors))
+    breaks_input <- breaks(expr_mtr, base::length(colors))
 
   }
 
@@ -1981,7 +1978,7 @@ plotDeHeatmap <- function(object,
                    cluster_cols = FALSE,
                    cluster_rows = FALSE,
                    show_colnames = FALSE,
-                   color = hm_colors,
+                   color = colors,
                    annotation_names_col = FALSE,
                    annotation_colors = annotation_colors,
                    gaps_row = gaps_row,
@@ -2009,13 +2006,13 @@ plotDeHeatmap <- function(object,
 #' @export
 
 plotSegmentation <- function(object,
-                             of_sample = "",
                              encircle = TRUE,
-                             pt_size = 2,
-                             pt_clrp = "milo"){
+                             pt_size = NULL,
+                             pt_clrp = NULL,
+                             of_sample = NA){
 
   # control
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
   of_sample <- check_sample(object, of_sample, desired_length = 1)
   check_pt(pt_size = pt_size)
 
@@ -2073,9 +2070,9 @@ plotSegmentation <- function(object,
 #' @export
 #'
 
-plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = "milo", verbose = TRUE){
+plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = NULL, verbose = NULL){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
 
   assessment_list <- getAutoencoderAssessment(object)
 
@@ -2134,17 +2131,18 @@ plotAutoencoderResults <- function(object,
                                    genes,
                                    mtr_name = "denoised",
                                    scales = "free",
-                                   pt_size = 1.5,
-                                   pt_alpha = 0.75,
-                                   pt_clrp = "milo",
-                                   verbose = TRUE,
+                                   pt_size = NULL,
+                                   pt_alpha = NULL,
+                                   pt_clrp = NULL,
+                                   verbose = NULL,
+                                   of_saple = NA,
                                    ...){
 
   confuns::make_available(..., verbose = verbose)
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrp = pt_clrp)
 
   of_sample <- check_sample(object, of_sample = "")
@@ -2199,15 +2197,15 @@ plotAutoencoderResults <- function(object,
 #'
 #' @examples
 plotPatternEnrichment <- function(object,
-                                  of_sample = "",
                                   of_hotspots = "",
                                   of_gene_sets = "",
-                                  clrp = "milo",
                                   top_n = 10,
+                                  clrp = NULL,
                                   with_ties = FALSE,
+                                  of_sample = NA,
                                   ...){
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_adjustment()
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 

@@ -47,6 +47,46 @@ check_availability <- function(test, ref_x, ref_fns){
 
 }
 
+#' @title Gives feedback about input validity
+#'
+#' @param to Character value. Denotes the object to which
+#' the directory leads. Must be one of \emph{'cell_data_set', 'seurat_object'}
+#' or \emph{'spata_object'}.
+#'
+#' @inherit lazy_check_dummy return description details
+#' @export
+
+check_to <- function(object, to){
+
+  confuns::check_one_of(
+    input = to,
+    against = validDirectoryInstructionSlots(),
+    ref.input = "input for argument 'to'"
+  )
+
+  not_defined_directories <-
+    purrr::keep(.x = to, .p = ~ object@information$instructions$directories[[.x]]  == "not defined")
+
+  if(base::length(not_defined_directories) >= 1){
+
+    msg <- glue::glue("The {ref_dir} for '{not_defined}' {ref_have} not been defined yet.",
+                      ref_dir = confuns::adapt_reference(not_defined_directories, sg = "directory", pl = "directories"),
+                      ref_have = confuns::adapt_reference(not_defined_directories, sg = "has", pl = "have"),
+                      not_defined = glue::glue_collapse(x = not_defined_directories, sep = "', '", last = "' and '"))
+
+    fdb.fn <- base::ifelse(base::length(not_defined_directories) == base::length(to), "stop", "warning")
+
+    confuns::give_feedback(
+      msg = msg,
+      fdb.fn = fdb.fn
+    )
+
+  }
+
+
+  base::invisible(TRUE)
+
+}
 
 # Recurring data.frame input ----------------------------------------------
 
@@ -889,7 +929,7 @@ check_summarized_trajectory_df <- function(stdf){
 
 check_trajectory <- function(object,
                              trajectory_name,
-                             of_sample){
+                             of_sample = NA){
 
   confuns::is_value(x = trajectory_name, mode = "character")
 

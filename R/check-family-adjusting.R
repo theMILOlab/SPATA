@@ -156,7 +156,7 @@ check_features <- function(object,
                            features,
                            valid_classes = NULL,
                            max_length = NULL,
-                           of_sample = ""){
+                           of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -457,7 +457,7 @@ check_gene_sets <- function(object,
 #' @export
 #'
 #' @examples
-check_pattern <- function(object, of_sample = "", patterns = "", method_pr = "hotspot"){
+check_pattern <- function(object, patterns = "", method_pr = "hotspot", of_sample = NA){
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -506,6 +506,9 @@ check_sample <- function(object,
 
 
   # 0. Default sample -------------------------------------------------------
+
+  # 'of_sample' is currently not in use
+  if(FALSE){
 
   confuns::is_vec(of_sample, mode = "character", ...)
 
@@ -575,9 +578,11 @@ check_sample <- function(object,
 
   }
 
+  }
+
   # -----
 
-  base::return(samples_found)
+  base::return(getSampleNames(object))
 
 }
 
@@ -643,7 +648,7 @@ check_saving <- function(output_path, file_name){
 
 check_segment <- function(object,
                           segment_name,
-                          of_sample = ""){
+                          of_sample = NA){
 
   confuns::is_value(segment_name, "character", "segment_name")
 

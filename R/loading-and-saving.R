@@ -54,102 +54,316 @@ loadGeneSetDf <- loadGSDF
 
 
 
-#' @title Load and save a spata-object
+#' @title Load corresponding objects
 #'
-#' @description Wrapper around \code{base::readRDS()} and \code{base::saveRDS()}.
+#' @description Family of functions to load corresponding objects of different analysis
+#' platforms. See details and value for more information.
 #'
-#' @param input_path Character value. The directory leading to the spata-object.
-#' @param update Logical. If set to TRUE \code{updateSpataObject()} is used to check
-#' whether the loaded spata-object is of the most recent version - if it's not it is
-#' updated.
 #' @inherit check_object params
-#' @inherit initiateSpataObject_10X params
-#' @param overwrite Logical. Needs to be set to TRUE if the resulting directory from
-#' \code{output_path} and \code{file_name} already exists.
+#' @param directory_spata Character value. The directory from which to load the spata-object.
+#'
+#' @details \code{loadSpataObject()} is a wrapper around \code{base::readRDS()} with which
+#' you could load your spata-object as well. The other two functions take the spata-object
+#' and use \code{getDirectoryInstructions()} to extract the directories of the corresponding object to be loaded under which
+#' they were saved the last time \code{saveCorresponding*()} was used.
+#'
+#' @return The load object of interest.
 #'
 #' @export
 
-loadSpataObject <- function(input_path, update = FALSE, verbose = TRUE ){
+loadSpataObject <- function(directory_spata, verbose = TRUE){
 
-  confuns::is_value(input_path, "character", "input_path")
-  confuns::check_directories(directories = input_path, ref = "input_path", type = "files")
+  confuns::check_directories(
+    directories = directory_spata,
+    ref = "directory_spata",
+    type = "files")
 
-  spata_obj <- base::readRDS(file = input_path)
-
-  if(base::isTRUE(update)){
-
-    spata_obj <- base::tryCatch({
-
-      spata_obj <-
-        updateSpataObject(object = spata_obj, verbose = verbose)
-
-    }, error = function(error){
-
-      base::warning(glue::glue("Could not update spata-object as the following error message was thrown: {error}"))
-
-    })
-
-  }
+  spata_obj <- base::readRDS(file = directory_spata)
 
   if(!methods::is(spata_obj, "spata")){
 
-    base::warning("Return object is not of class 'spata'!")
+    base::warning("Loaded object is not of class 'spata'!")
 
   }
+
+  confuns::give_feedback(
+    msg = "Loading seurat-object.",
+    verbose = verbose
+  )
 
   base::return(spata_obj)
 
-}
+  confuns::give_feedback(
+    msg = "Done.",
+    verbose = verbose
+  )
 
+}
 
 #' @rdname loadSpataObject
 #' @export
-saveSpataObject <- function(object, output_path, file_name, overwrite = FALSE){
-
-  # 1. Control --------------------------------------------------------------
+loadCorrespondingCDS <- function(object){
 
   check_object(object)
-  confuns::is_value(output_path, "character", "output_path")
-  confuns::is_value(file_name, "character", "file_name")
-  confuns::check_directories(output_path, ref = "output_path", type = "folders")
 
-  # -----
+  directory_cds <- getDirectoryInstructions(object, to = "cell_data_set")
 
-  filename <- stringr::str_c(output_path, "/spata-obj-", file_name, ".RDS", sep = "")
+  confuns::give_feedback(
+    msg = "Loading cell-data-set object.",
+    verbose = verbose
+  )
 
-  if(base::file.exists(filename) && !base::isTRUE(overwrite)){
+  base::readRDS(file = directory_cds)
 
-    base::stop(glue::glue("The file '{filename}' already exists. Set argument 'overwrite' to TRUE in order to overwrite."))
-
-  } else if(base::file.exists(filename) && base::isTRUE(overwrite)){
-
-    base::message(glue::glue("Argument 'overwrite' set to TRUE - overwriting {filename} with input for argument 'object'."))
-
-    base::file.remove(filename)
-
-    base::saveRDS(object = object, file = filename)
-
-  } else if(!base::file.exists(filename)){
-
-    base::message(glue::glue("Saving object under '{filename}'."))
-    base::saveRDS(object = object, file = filename)
-
-  }
-
-  if(base::file.exists(filename)){
-
-    base::message("Saving successful.")
-    base::return(base::invisible(TRUE))
-
-  } else {
-
-    base::warning("Saving failed.")
-    base::return(base::invisible(FALSE))
-
-  }
+  confuns::give_feedback(
+    msg = "Done.",
+    verbose = verbose
+  )
 
 }
 
+#' @rdname loadSpataObject
+#' @export
+loadCorrespondingSeuratObject <- function(object, verbose = NULL){
+
+  check_object(object)
+
+  directory_seurat <- getDirectoryInstructions(object, to = "seurat_object")
+
+  confuns::give_feedback(
+    msg = "Loading seurat-object.",
+    verbose = verbose
+  )
+
+  base::readRDS(file = directory_seurat)
+
+  confuns::give_feedback(
+    msg = "Done.",
+    verbose = verbose
+  )
+
+}
+
+
+#' @title Save corresponding objects
+#'
+#' @description Family of functions to save corresponding objects of different analysis
+#' platforms. See details and value for more information.
+#'
+#' @inherit check_object params
+#' @inherit cds_dummy params
+#' @inherit seurat_object_dummy params
+#' @inherit adjustDirectoryInstructions params
+#' @param directory_spata,directory_cds_directory_seurat_object Character value or NULL. Set details for more.
+#'
+#' @details If \code{directory_<platform>} is set to NULL (the default) all functions first check if the spata-object contains any
+#' deposited default directories. If so the specified object to be saved is saved under
+#' that direction. If \code{directory_<platform>} is specified as a character it's input is taken as the
+#' directory under which to store the object and the deposited directory is overwritten
+#' such that the next time you load the spata-object it contains the updated directory.
+#' In order for that to work the \code{saveCorresponding*()}-functions - apart from saving the object of interest -  return the
+#' updated spata-object while \code{saveSpataObject()} simply returns an invisible TRUE
+#' as the  new directory (if provided) is stored inside the object before it is saved.
+#'
+#' @return Apart from their side effect (saving the object of interest) all three functions
+#' return the provided, updated spata-object.
+#'
+#' @export
+saveSpataObject <- function(object,
+                            directory_spata = NULL,
+                            combine_with_wd = FALSE,
+                            verbose = NULL){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object) %>% hlpr_assign_arguments()
+  confuns::is_value(directory_spata, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  if(base::is.character(directory_spata)){
+
+    object <-
+      adjustDirectoryInstructions(
+        object = object,
+        to = "spata_object",
+        directory_new = directory_spata,
+        combine_with_wd = combine_with_wd
+      )
+
+  }
+
+  # -----
+
+  directory_spata <-
+    base::tryCatch({
+
+      getDirectoryInstructions(object, to = "spata_object")
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Attempting to extract a valid directory from the spata-object resulted in the following error: {error}"))
+
+      NULL
+
+    })
+
+  if(base::is.character(directory_spata)){
+
+    confuns::give_feedback(
+      msg = glue::glue("Saving spata-object under '{directory_spata}'."),
+      verbose = verbose
+    )
+
+    base::tryCatch({
+
+      base::saveRDS(object = object, file = directory_spata)
+
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Attempting to save the spata-object under {directory_spata} resulted in the following error: {error} "))
+
+    })
+
+    confuns::give_feedback(
+      msg = "Done.",
+      verbose = verbose
+    )
+
+  } else {
+
+    base::warning("Could not save the spata-object.")
+
+  }
+
+
+  base::return(base::invisible(object))
+
+}
+
+#' @rdname saveSpataObject
+#' @export
+saveCorrespondingCDS <- function(cds,
+                                 object,
+                                 directory_cds = NULL,
+                                 combine_with_wd = FALSE,
+                                 verbose = NULL){
+
+  check_object(object) %>% hlpr_assign_arguments()
+  confuns::is_value(directory_cds, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  if(base::is.character(directory_cds)){
+
+    object <-
+      adjustDirectoryInstructions(
+        object = object,
+        to = "cell_data_set",
+        directory_new = directory_cds,
+        combine_with_wd = combine_with_wd
+      )
+
+  }
+
+  directory_spata <-
+    base::tryCatch({
+
+      getDirectoryInstructions(object, to = "spata_object")
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Attempting to extract a valid directory from the spata-object resulted in the following error: {error}"))
+
+      NULL
+
+    })
+
+  if(base::is.character(directory_cds)){
+
+    confuns::give_feedback(
+      msg = glue::glue("Saving cell-data-set under '{directory_cds}'."),
+      verbose = verbose
+    )
+
+    base::tryCatch({
+
+      base::saveRDS(object = object, file = directory_cds)
+
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Attempting to save the cell-data-set under {directory_cds} resulted in the following error: {error} "))
+
+    })
+
+    confuns::give_feedback(
+      msg = "Done.",
+      verbose = verbose
+    )
+
+  } else {
+
+    base::warning("Could not save the cell-data-set.")
+
+  }
+
+  base::return(base::invisible(object))
+
+}
+
+#' @rdname saveSpataObject
+#' @export
+saveCorrespondingSeuratObject <- function(seurat_object,
+                                          object,
+                                          directory_seurat = NULL,
+                                          combine_with_wd = FALSE,
+                                          verbose = NULL){
+
+  check_object(object) %>% hlpr_assign_arguments()
+  confuns::is_value(directory_seurat, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  if(base::is.character(directory_seurat)){
+
+    object <-
+      adjustDirectoryInstructions(
+        object = object,
+        to = "seurat_object",
+        directory_new = directory_seurat,
+        combine_with_wd = combine_with_wd
+      )
+
+  }
+
+  if(base::is.character(directory_seurat)){
+
+    confuns::give_feedback(
+      msg = glue::glue("Saving seurat-object under '{directory_seurat}'."),
+      verbose = verbose
+    )
+
+    base::tryCatch({
+
+      base::saveRDS(object = object, file = directory_seurat)
+
+
+    }, error = function(error){
+
+      base::warning(glue::glue("Attempting to save the seurat-object under {directory_seurat} resulted in the following error: {error} "))
+
+    })
+
+    confuns::give_feedback(
+      msg = "Done.",
+      verbose = verbose
+    )
+
+  } else {
+
+    base::warning("Could not save the seurat-object.")
+
+  }
+
+  base::return(base::invisible(object))
+
+}
 
 
 #' @title Save a gene set data.frame
@@ -157,40 +371,27 @@ saveSpataObject <- function(object, output_path, file_name, overwrite = FALSE){
 #' @description Extracts the gene-set data.frame and saves it as a .RDS-file.
 #'
 #' @inherit check_object params
-#' @param output_path Character value. A directory leading to the folder in which
-#' to store the data.frame.
-#' @param file_name Character value. The filename. ( is suffixed with \emph{'.RDS'})
+#' @param directory Character value.
 #'
 #' @return An invisible TRUE if saved successfully or an informative error message.
 #' @export
 #'
 
-saveGeneSetDf <- function(object,
-                          output_path,
-                          file_name){
+saveGeneSetDf <- function(object, directory){
 
   check_object(object)
 
-  confuns::is_value(output_path, "character", "output_path")
-  confuns::is_value(file_name, "character", "file_name")
+  gene_set_df <- getGeneSetDf(object)
 
-  confuns::check_directories(output_path, "output_path", type = "folders")
-
-  final_path <- stringr::str_c(output_path, "/", file_name, ".RDS", sep = "")
-
-  if(base::file.exists(final_path)){
-
-    base::stop(glue::glue("The file '{final_path}' already exists."))
-
-  } else if(base::nrow(object@used_genesets) == 0){
+  if(base::nrow(gene_set_df) == 0){
 
     base::stop("The objects's gene-set data.frame is empty.")
 
   } else {
 
-    base::saveRDS(object = object@used_genesets, file = final_path)
+    base::saveRDS(object = gene_set_df, file = directory)
 
-    if(base::file.exists(final_path)){
+    if(base::file.exists(directory)){
 
       file_name <- stringr::str_c("~/", file_name, ".RDS", sep = "")
       base::message(glue::glue("Gene set data.frame has been saved as '{file_name}'."))

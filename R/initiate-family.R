@@ -75,9 +75,10 @@ initiateSpataObject_CountMtr <- function(coords_df,
                                          feature_df = NULL,
                                          sample_name,
                                          image = NULL,
+                                         directory_spata = NULL,
+                                         directory_seurat = NULL,
+                                         combine_with_wd = FALSE,
                                          gene_set_path = NULL,
-                                         output_path = NULL,
-                                         file_name = NULL,
                                          SCTransform = FALSE,
                                          NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
                                          FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
@@ -90,6 +91,10 @@ initiateSpataObject_CountMtr <- function(coords_df,
                                          verbose = TRUE){
 
     # 1. Control --------------------------------------------------------------
+    confuns::give_feedback(
+      msg = "Starting initiation",
+      verbose = verbose
+    )
 
     confuns::is_value(x = sample_name, mode = "character", ref = "sample_name")
 
@@ -165,26 +170,69 @@ initiateSpataObject_CountMtr <- function(coords_df,
       setCoordsDf(object = spata_object, coords_df = coords_df) %>%
       setImage(object = ., image = image)
 
+    spata_object <- setInitiationInfo(spata_object)
+
     # Save and return object -----------------------------------------------
 
-    if(!base::is.null(output_path)){
+    # save seurat
+    if(base::is.character(directory_seurat)){
 
-      if(base::isTRUE(verbose)){base::message("Saving spata-object.")}
+      spata_object <-
+        base::tryCatch({
 
-      base::saveRDS(spata_object, file = object_file)
+          spata_object_return <-
+            saveCorrespondingSeuratObject(
+              seurat_object = seurat_object,
+              object = spata_object,
+              directory_seurat = directory_seurat,
+              combine_with_wd = combine_with_wd
+            )
 
-      if(base::isTRUE(verbose)){
+          spata_object_return
 
-        base::message(glue::glue("The spata-object has been saved under '{object_file}'."))
-        base::message("Done.")
+        }, error = function(error){
 
-      }
+          base::warning(glue::glue("Attempt to save seurat-object under '{directory_seurat}' failed with the following error message: {error}"))
+
+          spata_object
+
+        })
 
     }
 
-    if(base::isTRUE(verbose)){base::message("Done.")}
+    # save spata
+    if(base::is.character(directory_spata)){
 
-    return(spata_object)
+      spata_object <-
+        base::tryCatch({
+
+          spata_object_ret <-
+            saveSpataObject(
+              object = spata_object,
+              directory_spata = directory_spata,
+              combine_with_wd = combine_with_wd
+            )
+
+          spata_object_ret
+
+        }, error = function(error){
+
+          base::warning(glue::glue("Attempt to save spata-object under '{directory_spata}' failed with the following error message: {error}"))
+
+          spata_object
+
+        })
+
+    }
+
+    confuns::give_feedback(
+      msg = "Initiation finished.",
+      verbose = verbose
+    )
+
+    # -----
+
+    base::return(spata_object)
 
   }
 
@@ -225,9 +273,9 @@ initiateSpataObject_ExprMtr <- function(coords_df,
                                         mtr_name = "scaled",
                                         sample_name = "sample1",
                                         image = NULL,
+                                        directory_spata = NULL,
+                                        combine_with_wd = FALSE,
                                         gene_set_path = NULL,
-                                        output_path = NULL,
-                                        file_name = NULL,
                                         n_pcs = 30,
                                         k = 50,
                                         tsne_perplexity = 30,
@@ -235,6 +283,11 @@ initiateSpataObject_ExprMtr <- function(coords_df,
                                         verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
+
+  confuns::give_feedback(
+    msg = "Starting initiation.",
+    verbose = verbose
+  )
 
   if(base::isTRUE(verbose)){base::message("Step 1/4: Checking input for validity.")}
 
@@ -396,12 +449,38 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   # 4. Saving and returning object ------------------------------------------
 
-  hlpr_save_spata_object(object = spata_object,
-                         object_file = object_file,
-                         ref_step = "4/4",
-                         verbose = verbose)
+  if(base::is.character(directory_spata)){
 
-  return(spata_object)
+    spata_object <-
+      base::tryCatch({
+
+        spata_object_ret <-
+          saveSpataObject(
+            object = spata_object,
+            directory_spata = directory_spata,
+            combine_with_wd = combine_with_wd
+          )
+
+        spata_object_ret
+
+      }, error = function(error){
+
+        base::warning(glue::glue("Attempt to save spata-object under '{directory_spata}' failed with the following error message: {error}"))
+
+        spata_object
+
+      })
+
+  }
+
+  confuns::give_feedback(
+    msg = "Initiation finished.",
+    verbose = verbose
+  )
+
+  # -----
+
+  base::return(setInitiationInfo(spata_object))
 
 }
 
@@ -411,7 +490,7 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 #' from scratch. Several samples can be stored in one object, though we recommend to stick
 #' to one. (See details for more.)
 #'
-#' @param input_path Character value. Specifies the 10X visium-folders from
+#' @param directory_10X Character value. Specifies the 10X visium-folder from
 #' which to load the information. This folder must contain the following sub directories:
 #'
 #' \itemize{
@@ -462,11 +541,12 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 #'
 #' @export
 
-initiateSpataObject_10X <- function(input_path,
+initiateSpataObject_10X <- function(directory_10X,
                                     sample_name,
+                                    directory_spata = NULL,
+                                    directory_seurat = NULL,
+                                    combine_with_wd = "/",
                                     gene_set_path = NULL,
-                                    output_path = NULL,
-                                    file_name = NULL,
                                     SCTransform = FALSE,
                                     NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
                                     FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
@@ -480,19 +560,21 @@ initiateSpataObject_10X <- function(input_path,
 
   # 1. Control --------------------------------------------------------------
 
-  # check input for sample and directory
-  confuns::check_directories(directories = input_path, type = "folders")
+  confuns::give_feedback(
+    msg = "Starting initiation.",
+    verbose = verbose
+  )
 
-  confuns::are_values(c("input_path", "sample_name"), mode = "character")
+  # check input for sample and directory
+  confuns::check_directories(directories = directory_10X, type = "folders")
+
+  confuns::are_values(c("directory_10X", "sample_name"), mode = "character")
 
   if(sample_name %in% c("", "all")){
 
     base::stop(glue::glue("' ' and 'all' are invalid sample names."))
 
   }
-
-  # check saving if desired
-  object_file <- check_saving(output_path = output_path, file_name = file_name)
 
 
   # check input for gene set data.frame
@@ -529,8 +611,8 @@ initiateSpataObject_10X <- function(input_path,
 
   if(base::isTRUE(verbose)){base::message("Step 1/4 : Reading in .h5 file.")}
 
-  data_dir <- base::paste0(input_path, "/outs")
-  file_dir <- base::paste0(input_path, "/outs/filtered_feature_bc_matrix.h5")
+  data_dir <- base::paste0(directory_10X, "/outs")
+  file_dir <- base::paste0(directory_10X, "/outs/filtered_feature_bc_matrix.h5")
 
   if(base::file.exists(paths = file_dir)){
 
@@ -543,7 +625,6 @@ initiateSpataObject_10X <- function(input_path,
    base::stop(glue::glue("Directory '{file_dir}' does not exist."))
 
   }
-
 
   # -----
 
@@ -568,7 +649,6 @@ initiateSpataObject_10X <- function(input_path,
       RunUMAP = RunUMAP,
       verbose = verbose)
 
-
   # -----
 
 
@@ -585,14 +665,85 @@ initiateSpataObject_10X <- function(input_path,
       verbose = verbose
     )
 
+  spata_object <- setInitiationInfo(spata_object)
+
   # -----
 
-  # 6. Save and return object -----------------------------------------------
 
-  hlpr_save_spata_object(object = spata_object,
-                         object_file = object_file,
-                         ref_step = "4/4",
-                         verbose = verbose)
+  # 6. Save objects and return spata object ---------------------------------
+
+  # save seurat
+  if(base::is.character(directory_seurat)){
+
+    spata_object <-
+      base::tryCatch({
+
+        spata_object_return <-
+          saveCorrespondingSeuratObject(
+            seurat_object = seurat_object,
+            object = spata_object,
+            directory_seurat = directory_seurat,
+            combine_with_wd = combine_with_wd,
+            verbose = verbose
+          )
+
+        spata_object_return
+
+      }, error = function(error){
+
+        base::warning(glue::glue("Attempt to save seurat-object under '{directory_seurat}' failed with the following error message: {error}"))
+
+        spata_object
+
+      })
+
+  } else {
+
+    confuns::give_feedback(
+      msg = "Skip saving seurat-object.",
+      verbose = verbose
+    )
+
+  }
+
+  if(base::is.character(directory_spata)){
+
+    spata_object <-
+      base::tryCatch({
+
+        spata_object_ret <-
+          saveSpataObject(
+            object = spata_object,
+            directory_spata = directory_spata,
+            combine_with_wd = combine_with_wd,
+            verbose = verbose
+          )
+
+        spata_object_ret
+
+      }, error = function(error){
+
+        base::warning(glue::glue("Attempt to save spata-object under '{directory_spata}' failed with the following error message: {error}"))
+
+        spata_object
+
+      })
+
+  } else {
+
+    confuns::give_feedback(
+      msg = "Skip saving spata-object.",
+      verbose = verbose
+    )
+
+  }
+
+  confuns::give_feedback(
+    msg = "Initiation finished.",
+    verbose = verbose
+  )
+
+  # -----
 
   base::return(spata_object)
 

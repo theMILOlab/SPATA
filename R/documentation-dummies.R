@@ -149,5 +149,19 @@ method_hclust <- function(method_hclust){}
 
 
 
+#' Title
+#'
+#' @param cds A valid cell-data-set. (from the monocle3 platform)
+#'
+cds_dummy <- function(cds){}
+
+
+#' Title
+#'
+#' @param seurat_object A valid seurat-object. (from the Seurat platform)
+#'
+seurat_object_dummy <- function(seurat_object){}
+
+
 
 
