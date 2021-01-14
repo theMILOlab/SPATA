@@ -2,37 +2,31 @@
 % Please edit documentation in R/loading-and-saving.R
 \name{loadSpataObject}
 \alias{loadSpataObject}
-\alias{saveSpataObject}
-\title{Load and save a spata-object}
+\alias{loadCorrespondingCDS}
+\alias{loadCorrespondingSeuratObject}
+\title{Load corresponding objects}
 \usage{
-loadSpataObject(input_path, update = FALSE, verbose = TRUE)
+loadSpataObject(directory)
 
-saveSpataObject(object, output_path, file_name, overwrite = FALSE)
+loadCorrespondingCDS(object)
+
+loadCorrespondingSeuratObject(object)
 }
 \arguments{
-\item{input_path}{Character value. The directory leading to the spata-object.}
-
-\item{update}{Logical. If set to TRUE \code{updateSpataObject()} is used to check
-whether the loaded spata-object is of the most recent version - if it's not it is
-updated.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
+\item{directory}{Character value. The directory from which to load the spata-object.}
 
 \item{object}{A valid spata-object.}
-
-\item{output_path}{Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid. If set to NULL saving is skipped.}
-
-\item{file_name}{Character value. The name-suffix for the file name under which the
-spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
- \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
-
-\item{overwrite}{Logical. Needs to be set to TRUE if the resulting directory from
-\code{output_path} and \code{file_name} already exists.}
+}
+\value{
+The load object of interest.
 }
 \description{
-Wrapper around \code{base::readRDS()} and \code{base::saveRDS()}.
+Family of functions to load corresponding objects of different analysis
+platforms. See details and value for more information.
+}
+\details{
+\code{loadSpataObject()} is a wrapper around \code{base::readRDS()} with which
+you could load your spata-object as well. The other two functions take the spata-object
+and use \code{getDefaultDirectory()} to extract the directories of the corresponding object to be loaded under which
+they were saved the last time \code{saveCorresponding*()} was used.
 }

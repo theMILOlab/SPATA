@@ -2,6 +2,7 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{evaluate_gene_cluster_tendency}
 \alias{evaluate_gene_cluster_tendency}
+\alias{evaluate_gene_cluster_tendency_dbscan}
 \title{Title}
 \usage{
 evaluate_gene_cluster_tendency(
@@ -11,6 +12,8 @@ evaluate_gene_cluster_tendency(
   ref_totwss,
   ...
 )
+
+evaluate_gene_cluster_tendency_dbscan(marked_df, verbose = TRUE, pb = NULL)
 }
 \arguments{
 \item{pb}{}

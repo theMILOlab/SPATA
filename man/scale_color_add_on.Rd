@@ -9,6 +9,7 @@ scale_color_add_on(
   variable = "numeric",
   clrsp = NULL,
   clrp = NULL,
+  adjust = NULL,
   ...
 )
 }
@@ -30,16 +31,28 @@ Run \code{confuns::all_colorpanels()} to see all valid input choices.
 
 (Ignored if \code{variable} is numeric)}
 
+\item{adjust}{Character vector or NULL. Adjusts the resulting named color vector.
+Only named elements are kept. Elements of the color vector with the same names as in
+\code{adjust} are replaced such that the elements of \code{adjust} are displayed by
+the color their name indicates rather than the color the color panel would have assigned
+to them.}
+
 \item{...}{Additional arguments given to the respective function.
 
  \itemize{
-  \item{\code{ggplot2::scale_color_viridis_c(...)}: If \code{variable} is numeric and
-  \code{clrsp} is one of \emph{'cividis', 'viridis', 'inferno', 'magma', 'plasma'}}
+  \item{\code{ggplot2::scale_<aes>_viridis_c(...)}: If \code{variable} is numeric and
+  \code{clrsp} is one of \emph{'cividis', 'viridis', 'inferno', 'magma', 'plasma'}.}
   \item{\code{colorspace::scale_<aes>_continuous_sequential(...)}: If \code{variable} is numeric
-  and \code{clrsp} is sequential}
+  and \code{clrsp} is sequential.}
   \item{\code{colorspace::scale_<aes>_continuous_diverging(...)}: If \code{variable} is numeric
-  and \code{clrsp} is diverging}
-  \item{\code{ggplot2::scale_<aes>_manual(...)}: If \code{variable} is categorical.}
+  and \code{clrsp} is diverging.}
+  \item{\code{ggplot2::scale_<aes>_viridis_d(...)}: If \code{variable} is numeric
+  and \code{clrp} is one of \emph{'cividis', 'viridis', 'inferno', 'magma', 'plasma'}.}
+  \item{\code{ggplot2::scale_<aes>_greyscale(...)}: If \code{variable} is discrete
+  and \code{clrp} is set to \emph{'greyscale'}.}
+  \item{\code{ggplot2:.scale_<aes>_discrete()}: If \code{variable} is discrete
+  and \code{clrp} is set to \emph{'default'}.}
+  \item{\code{ggplot2::scale_<aes>_manual(...)}: If \code{variable} is discrete.}
   }}
 }
 \value{

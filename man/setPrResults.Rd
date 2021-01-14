@@ -4,7 +4,7 @@
 \alias{setPrResults}
 \title{Title}
 \usage{
-setPrResults(object, of_sample = "", pr_list)
+setPrResults(object, of_sample = "", pr_list, method_pr = "hotspot")
 }
 \arguments{
 \item{pr_list}{}

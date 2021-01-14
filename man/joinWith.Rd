@@ -10,7 +10,7 @@
 \usage{
 joinWith(
   object,
-  spata_df = getSpataDf(object),
+  spata_df = getCoordsDf(object),
   features = NULL,
   gene_sets = NULL,
   method_gs = "mean",
@@ -25,7 +25,7 @@ joinWith(
 
 joinWithFeatures(
   object,
-  spata_df = getSpataDf(object),
+  spata_df = getCoordsDf(object),
   features,
   smooth = FALSE,
   smooth_span = 0.02,
@@ -34,7 +34,7 @@ joinWithFeatures(
 
 joinWithGenes(
   object,
-  spata_df = getSpataDf(object),
+  spata_df = getCoordsDf(object),
   genes,
   average_genes = FALSE,
   uniform_genes = "keep",
@@ -46,7 +46,7 @@ joinWithGenes(
 
 joinWithGeneSets(
   object,
-  spata_df = getSpataDf(object),
+  spata_df = getCoordsDf(object),
   gene_sets,
   method_gs = "mean",
   smooth = FALSE,
@@ -57,7 +57,7 @@ joinWithGeneSets(
 
 joinWithVariables(
   object,
-  spata_df = getSpataDf(object),
+  spata_df = getCoordsDf(object),
   variables,
   method_gs = "mean",
   average_genes = FALSE,

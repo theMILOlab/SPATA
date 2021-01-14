@@ -6,7 +6,14 @@
 \alias{getGenesInteractive}
 \title{Obtain gene names}
 \usage{
-getGenes(object, of_gene_sets = "all", in_sample = "", simplify = TRUE)
+getGenes(
+  object,
+  of_gene_sets = NULL,
+  of_hotspots = NULL,
+  of_sample = "",
+  in_sample = "",
+  simplify = TRUE
+)
 
 getSpCorGenes(
   object,
@@ -32,6 +39,10 @@ to be included.}
 
 \item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
 into a character vector.}
+
+\item{of_pattern}{A character vector specifiying the patterns from which to return
+the gene names. If denoted as \emph{""} the genes of all patterns are returned.
+Set \code{simplify} to FALSE in order to return a named list.}
 }
 \value{
 A list named according to the input of \code{of_gene_sets} in which each element is

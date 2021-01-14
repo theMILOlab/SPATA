@@ -10,12 +10,12 @@ runPatternRecognition(
   genes = 1500,
   genes_additional = NULL,
   with_ties = TRUE,
-  threshold_qntl = 0.75,
+  method_pr = "hotspot",
+  threshold_qntl = 0.8,
   threshold_stw = 0.5,
   threshold_stpv = 0.1,
+  smooth = TRUE,
   smooth_span = 0.02,
-  max_patterns = 9,
-  n_start = 15,
   verbose = TRUE
 )
 }

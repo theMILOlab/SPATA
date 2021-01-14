@@ -161,17 +161,28 @@ setPcaDf <- function(object, pca_df, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  confuns::check_data_frame(
-    df = pca_df,
-    var.class = list("barcodes" = "character",
-                     "PC1" = c("integer", "double", "numeric"),
-                     "PC2" = c("integer", "double", "numeric")),
-    ref = "pca_df"
-  )
+  if(base::identical(pca_df, base::data.frame())){
 
-  pca_df <-
-    dplyr::mutate(.data = pca_df, sample = {{of_sample}}) %>%
-    dplyr::select(barcodes, sample, dplyr::everything())
+    confuns::give_feedback(
+      msg = "Input data.frame for PCA is empty.",
+      fdb.fn = "warning"
+    )
+
+  } else {
+
+    confuns::check_data_frame(
+      df = pca_df,
+      var.class = list("barcodes" = "character",
+                       "PC1" = c("integer", "double", "numeric"),
+                       "PC2" = c("integer", "double", "numeric")),
+      ref = "pca_df"
+    )
+
+    pca_df <-
+      dplyr::mutate(.data = pca_df, sample = {{of_sample}}) %>%
+      dplyr::select(barcodes, sample, dplyr::everything())
+
+  }
 
   object@dim_red[[of_sample]][["pca"]] <- pca_df
 
@@ -186,17 +197,28 @@ setTsneDf <- function(object, tsne_df, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  confuns::check_data_frame(
-    df = tsne_df,
-    var.class = list("barcodes" = "character",
-                     "tsne1" = c("integer", "double", "numeric"),
-                     "tsne2" = c("integer", "double", "numeric")),
-    ref = "tsne_df"
-  )
+  if(base::identical(tsne_df, base::data.frame())){
 
-  tsne_df <-
-    dplyr::mutate(.data = tsne_df, sample = {{of_sample}}) %>%
-    dplyr::select(barcodes, sample, dplyr::everything())
+    confuns::give_feedback(
+      msg = "Input data.frame for TSNE is empty.",
+      fdb.fn = "warning"
+    )
+
+  } else {
+
+    confuns::check_data_frame(
+      df = tsne_df,
+      var.class = list("barcodes" = "character",
+                       "tsne1" = c("integer", "double", "numeric"),
+                       "tsne2" = c("integer", "double", "numeric")),
+      ref = "tsne_df"
+    )
+
+    tsne_df <-
+      dplyr::mutate(.data = tsne_df, sample = {{of_sample}}) %>%
+      dplyr::select(barcodes, sample, dplyr::everything())
+
+  }
 
   object@dim_red[[of_sample]][["tsne"]] <- tsne_df
 
@@ -211,17 +233,28 @@ setUmapDf <- function(object, umap_df, of_sample = ""){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  confuns::check_data_frame(
-    df = umap_df,
-    var.class = list("barcodes" = "character",
-                     "umap1" = c("integer", "double", "numeric"),
-                     "umap2" = c("integer", "double", "numeric")),
-    ref = "umap_df"
-  )
+  if(base::identical(umap_df, base::data.frame())){
 
-  umap_df <-
-    dplyr::mutate(.data = umap_df, sample = {{of_sample}}) %>%
-    dplyr::select(barcodes, sample, dplyr::everything())
+    confuns::give_feedback(
+      msg = "Input data.frame for UMAP is empty.",
+      fdb.fn = "warning"
+    )
+
+  } else {
+
+    confuns::check_data_frame(
+      df = umap_df,
+      var.class = list("barcodes" = "character",
+                       "umap1" = c("integer", "double", "numeric"),
+                       "umap2" = c("integer", "double", "numeric")),
+      ref = "umap_df"
+    )
+
+    umap_df <-
+      dplyr::mutate(.data = umap_df, sample = {{of_sample}}) %>%
+      dplyr::select(barcodes, sample, dplyr::everything())
+
+  }
 
   object@dim_red[[of_sample]][["umap"]] <- umap_df
 
@@ -310,8 +343,62 @@ setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
 }
 
 
+#' Title
+#'
+#' @param object
+#' @param ...
+#'
+#' @return
+#' @export
+
+setDefaultInstructions <- function(object){
+
+  object@information$instructions$default <-
+    default_instructions_object
+
+  base::return(object)
+
+}
+
+#' @rdname setDefaultInstructions
+#' @export
+setDirectoryInstructions <- function(object){
+
+  object@information$instructions$directories <-
+    list(
+      "cell_data_set" = "not defined",
+      "seurat_object" = "not defined",
+      "spata_object" = "not defined"
+    )
+
+  base::return(object)
+
+}
 
 
+#' Title
+#'
+#' @param object
+#'
+#' @return
+#' @export
+
+setInitiationInfo <- function(object){
+
+  init_call <- rlang::caller_fn()
+
+  initiation_list <- list(
+    init_call = init_call,
+    args = rlang::fn_fmls(fn = init_call),
+    time = base::Sys.time()
+  )
+
+  object@information$initiation <-
+    initiation_list
+
+  base::return(object)
+
+}
 
 # Slot: spatial  ----------------------------------------------------------
 

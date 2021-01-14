@@ -366,11 +366,16 @@ transformSeuratToSpata <- function(seurat_object,
          "barcodes" = magrittr::set_names(x = list(barcodes_matrix), value = sample_name))
 
   spata_object <-
+    setDefaultInstructions(spata_object) %>%
+    setDirectoryInstructions()
+
+  spata_object <-
     setActiveExpressionMatrix(spata_object, mtr_name = "scaled")
 
   spata_object <- computeGeneMetaData(object = spata_object, verbose = verbose)
 
-  spata_object@spatial <- magrittr::set_names(x = list(list()), value = sample_name)
+  spata_object@spatial <-
+    magrittr::set_names(x = list(list()), value = sample_name)
 
   spata_object@trajectories <-
     magrittr::set_names(x = list(list()), value = sample_name)

@@ -1,5 +1,4 @@
 
-
 # Autoencoder -------------------------------------------------------------
 
 activation_fns <- c("relu", "sigmoid", "softmax", "softplus", "softsign", "tanh", "selu", "elu", "exponential")
@@ -19,7 +18,6 @@ hclust_methods <- c("ward.D", "ward.D2", "single", "complete", "average", "mcqui
 de_methods <- c("wilcox", "bimod", "roc", "t", "negbinom", "poisson", "LR", "MAST", "DESeq2")
 
 de_df_columns <- c("p_val", "avg_logFC", "pct.1", "pct.2", "p_val_adj", "gene")
-
 
 
 # Data structure ----------------------------------------------------------
@@ -46,12 +44,57 @@ hotspot_list_slots <-
   c("df", "mtr_name", "sample", "smooth_span", "suggestion",
     "threshold_qntl", "threshold_stpv", "threshold_stw")
 
+hotspot_plot_types <- c("encircle", "expression", "density_2d", "density_filled")
+
 pr_list_slots <-
   list("hotspot" = hotspot_list_slots)
 
+pr_methods <- c("hotspot")
 
 
-hotspot_plot_types <- c("encircle", "expression", "density_2d", "density_filled")
+
+# Information -------------------------------------------------------------
+
+directory_options <- c("cell_data_set", "seurat_object", "spata_object")
+
+default_colors <- viridis::viridis(15)
+
+default_instructions_object <-
+  methods::new(Class = "default_instructions",
+               average_genes = FALSE,
+               clrp = "milo",
+               clrsp = "inferno",
+               colors = default_colors,
+               complete = TRUE,
+               display_image = FALSE,
+               display_labels = TRUE,
+               display_points = FALSE,
+               display_residuals = TRUE,
+               display_title = TRUE,
+               display_trajectory_parts = TRUE,
+               max_adj_pval = 0.5,
+               method_de = "wilcox",
+               method_dr = "umap",
+               method_gs = "mean",
+               method_hclust = "complete",
+               method_ovl = "classic",
+               method_padj = "fdr",
+               normalize = TRUE,
+               n_highest_lfc = 50,
+               n_lowest_pval = 50,
+               n_pcs = 10,
+               position = "fill",
+               pt_alpha = 0.9,
+               pt_clr = "lightgrey",
+               pt_clrp = "milo",
+               pt_clrsp = "inferno",
+               pt_size = 2,
+               show_rownames = FALSE,
+               show_colnames = FALSE,
+               smooth = TRUE,
+               smooth_span = 0.02,
+               uniform_genes = "discard",
+               verbose = TRUE)
 
 
 # Seurat analysis ---------------------------------------------------------

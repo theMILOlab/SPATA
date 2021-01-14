@@ -12,13 +12,13 @@ plotSurface(
   color_to = NULL,
   method_gs = "mean",
   normalize = TRUE,
-  smooth = FALSE,
+  smooth = TRUE,
   smooth_span = 0.02,
-  pt_size = 2,
   pt_alpha = 1,
-  pt_clrsp = "inferno",
-  pt_clrp = "milo",
   pt_clr = "lightgrey",
+  pt_clrp = "milo",
+  pt_clrsp = "inferno",
+  pt_size = 2,
   display_image = FALSE,
   display_title = FALSE,
   assign = FALSE,
@@ -66,17 +66,17 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
-
 \item{pt_alpha}{The transparency of the points specified as single numeric value.}
 
-\item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
-color is continuous. Run \code{all_colorspectra()} to see valid input..}
+\item{pt_clr}{The base color of every point displayed in the plot.}
 
 \item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
 
-\item{pt_clr}{The base color of every point displayed in the plot.}
+\item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
+color is continuous. Run \code{all_colorspectra()} to see valid input..}
+
+\item{pt_size}{The size of the points specified as a single numeric value.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}

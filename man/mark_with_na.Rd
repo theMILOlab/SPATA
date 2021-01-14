@@ -2,9 +2,12 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{mark_with_na}
 \alias{mark_with_na}
+\alias{mark_all_with_na}
 \title{Title}
 \usage{
-mark_with_na(variable, n_quantiles = 5, mark_below = 5)
+mark_with_na(variable, n_qntls = 5, keep_qntls = 5)
+
+mark_all_with_na(coords_df, n_qntls = 5, keep_qntls = 5)
 }
 \arguments{
 \item{mark_below}{}

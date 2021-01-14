@@ -4,15 +4,12 @@
 \alias{saveGeneSetDf}
 \title{Save a gene set data.frame}
 \usage{
-saveGeneSetDf(object, output_path, file_name)
+saveGeneSetDf(object, directory)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{output_path}{Character value. A directory leading to the folder in which
-to store the data.frame.}
-
-\item{file_name}{Character value. The filename. ( is suffixed with \emph{'.RDS'})}
+\item{directory}{Character value.}
 }
 \value{
 An invisible TRUE if saved successfully or an informative error message.

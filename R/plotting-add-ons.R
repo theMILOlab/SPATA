@@ -1,16 +1,16 @@
 
 #' @title Ggplot add on wrapper
 #' @export
-legend_bottom <- purrr::partial(.f = ggplot2::theme, legend.position = "bottom")
+legendBottom <- purrr::partial(.f = ggplot2::theme, legend.position = "bottom")
 
 #' @rdname legend_bottom
 #' @export
-legend_none <- purrr::partial(.f = ggplot2::theme, legend.position = "none")
+legendNone <- purrr::partial(.f = ggplot2::theme, legend.position = "none")
 
 #' @rdname legend_bottom
 #' @export
-legend_right <- purrr::partial(.f = ggplot2::theme, legend.position = "right")
+legendRight <- purrr::partial(.f = ggplot2::theme, legend.position = "right")
 
 #' @rdname legend_bottom
 #' @export
-legend_top <- purrr::partial(.f = ggplot2::theme, legend.position = "top")
+legendTop <- purrr::partial(.f = ggplot2::theme, legend.position = "top")

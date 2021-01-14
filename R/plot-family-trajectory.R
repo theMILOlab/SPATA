@@ -99,26 +99,26 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 
 plotTrajectory <- function(object,
                            trajectory_name,
-                           of_sample = "",
                            color_to = NULL,
-                           method_gs = "mean",
-                           smooth = FALSE,
-                           smooth_span = 0.02,
-                           pt_size = 2.5,
-                           pt_alpha = 0.4,
-                           pt_clr = "steelblue",
-                           pt_clrp = "milo",
-                           pt_clrsp = "inferno",
-                           sgmt_size = 1.5,
-                           display_image = FALSE,
-                           display_title = FALSE,
-                           uniform_genes = "discard",
-                           verbose = TRUE){
+                           method_gs = NULL,
+                           smooth = NULL,
+                           smooth_span = NULL,
+                           pt_size = NULL,
+                           pt_alpha = NULL,
+                           pt_clr = NULL,
+                           pt_clrp = NULL,
+                           pt_clrsp = NULL,
+                           sgmt_size = NULL,
+                           display_image = NULL,
+                           display_title = NULL,
+                           uniform_genes = NULL,
+                           verbose = NULL,
+                           of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_method(method_gs = method_gs)
   check_pt(pt_size, pt_alpha, pt_clrsp, pt_clr = pt_clr)
   check_display(display_title, display_image)
@@ -288,23 +288,23 @@ plotTrajectory <- function(object,
 
 plotTrajectoryFeatures <- function(object,
                                    trajectory_name,
-                                   of_sample = "",
-                                   features = "percent.mt",
-                                   smooth_method = "loess",
-                                   smooth_span = 0.2,
-                                   smooth_se = TRUE,
+                                   features = NULL,
+                                   smooth_method = NULL,
+                                   smooth_se = NULL,
+                                   smooth_span = NULL,
                                    binwidth = 5,
-                                   clrp = "milo",
-                                   display_trajectory_parts = FALSE,
-                                   split = FALSE,
-                                   ...,
-                                   verbose = TRUE){
+                                   clrp = NULL,
+                                   display_trajectory_parts = NULL,
+                                   split = NULL,
+                                   verbose = NULL,
+                                   of_sample = NA,
+                                   ...){
 
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_trajectory_binwidth(binwidth)
 
@@ -400,24 +400,24 @@ plotTrajectoryFeatures <- function(object,
 #' @export
 plotTrajectoryGenes <- function(object,
                                 trajectory_name,
-                                of_sample = "",
                                 genes,
-                                clrp = "milo",
                                 average_genes = FALSE,
-                                smooth_method = "loess",
-                                smooth_span = 0.2,
-                                smooth_se = TRUE,
                                 binwidth = 5,
-                                display_trajectory_parts = FALSE,
-                                split = FALSE,
-                                ...,
-                                verbose = TRUE){
+                                clrp = NULL,
+                                smooth_method = NULL,
+                                smooth_se = NULL,
+                                smooth_span = NULL,
+                                display_trajectory_parts = NULL,
+                                split = NULL,
+                                verbose = NULL,
+                                of_sample = NA,
+                                ...){
 
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_trajectory_binwidth(binwidth)
 
@@ -577,24 +577,24 @@ plotTrajectoryGenes <- function(object,
 #' @export
 plotTrajectoryGeneSets <- function(object,
                                    trajectory_name,
-                                   of_sample = "",
                                    gene_sets,
-                                   method_gs = "mean",
-                                   smooth_method = "loess",
-                                   smooth_span = 0.2,
-                                   smooth_se = TRUE,
                                    binwidth = 5,
-                                   clrp = "milo",
-                                   display_trajectory_parts = FALSE,
-                                   split = FALSE,
-                                   ...,
-                                   verbose = TRUE){
+                                   method_gs = NULL,
+                                   smooth_method = NULL,
+                                   smooth_span = NULL,
+                                   smooth_se = NULL,
+                                   clrp = NULL,
+                                   display_trajectory_parts = NULL,
+                                   split = NULL,
+                                   verbose = NULL,
+                                   of_sample = NA,
+                                   ...){
 
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_method(method_gs = method_gs)
   check_trajectory_binwidth(binwidth)
@@ -704,18 +704,18 @@ plotTrajectoryGeneSets <- function(object,
 
 plotTrajectoryFeaturesDiscrete <- function(object,
                                            trajectory_name,
-                                           of_sample = "",
                                            discrete_feature,
                                            binwidth = 10,
-                                           clrp = "milo",
-                                           display_trajectory_parts = FALSE,
-                                           verbose = TRUE,
+                                           clrp = NULL,
+                                           display_trajectory_parts = NULL,
+                                           verbose = NULL,
+                                           of_sample = NA,
                                            ...){
 
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_trajectory_binwidth(binwidth)
 
   of_sample <- check_sample(object, of_sample = of_sample, 1)
@@ -808,23 +808,23 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
 plotTrajectoryHeatmap <- function(object,
                                   trajectory_name,
-                                  of_sample = "",
                                   variables,
-                                  method_gs = "mean",
                                   binwidth = 5,
                                   arrange_rows = "none",
-                                  show_rownames = FALSE,
-                                  show_colnames = FALSE,
-                                  split_columns = TRUE,
-                                  smooth_span = 0.5,
-                                  verbose = TRUE,
                                   hm_colors = viridis::inferno(150),
+                                  method_gs = NULL,
+                                  show_rownames = NULL,
+                                  show_colnames = NULL,
+                                  split_columns = NULL,
+                                  smooth_span = NULL,
+                                  verbose = NULL,
+                                  of_sample = NA,
                                   ...){
 
   # 1. Control --------------------------------------------------------------
 
   # all checks
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_trajectory_binwidth(binwidth)
 
   confuns::are_values(c("method_gs", "arrange_rows"), mode = "character")
@@ -1002,20 +1002,20 @@ plotTrajectoryHeatmap <- function(object,
 
 plotTrajectoryFit <- function(object,
                               trajectory_name,
-                              of_sample = "",
                               variable,
-                              method_gs = "mean",
                               binwidth = 5,
-                              smooth = TRUE,
-                              smooth_span = 0.2,
-                              display_residuals = FALSE,
-                              verbose = TRUE,
+                              method_gs = NULL,
+                              smooth = NULL,
+                              smooth_span = NULL,
+                              display_residuals = NULL,
+                              verbose = NULL,
+                              of_sample = NA,
                               ...){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_smooth(smooth = smooth, smooth_span = smooth_span)
   check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
@@ -1121,21 +1121,21 @@ plotTrajectoryFit <- function(object,
 #' @export
 plotTrajectoryFitCustomized <- function(object,
                                         trajectory_name,
-                                        of_sample = "",
                                         variable,
                                         customized_trends,
-                                        method_gs = "mean",
                                         binwidth = 5,
-                                        smooth = TRUE,
-                                        smooth_span = 0.2,
-                                        display_residuals = TRUE,
-                                        verbose = TRUE,
+                                        method_gs = NULL,
+                                        smooth = NULL,
+                                        smooth_span = NULL,
+                                        display_residuals = NULL,
+                                        verbose = NULL,
+                                        of_sample = NA,
                                         ...){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
+  check_object(object) %>% hlpr_assign_arguments()
   check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
   check_trajectory_binwidth(binwidth)

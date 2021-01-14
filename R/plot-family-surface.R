@@ -33,32 +33,32 @@
 #' @export
 
 plotSurface <- function(object,
-                        of_sample = "",
                         color_to = NULL,
-                        method_gs = "mean",
-                        normalize = TRUE,
-                        smooth = TRUE,
-                        smooth_span = 0.02,
-                        pt_alpha = 1,
-                        pt_clr = "lightgrey",
-                        pt_clrp = "milo",
-                        pt_clrsp = "inferno",
-                        pt_size = 2,
-                        display_image = FALSE,
-                        display_title = FALSE,
-                        assign = FALSE,
-                        assign_name,
-                        complete = FALSE,
-                        verbose = TRUE,
+                        method_gs = NULL,
+                        normalize = NULL,
+                        smooth = NULL,
+                        smooth_span = NULL,
+                        pt_alpha = NULL,
+                        pt_clr = NULL,
+                        pt_clrp = NULL,
+                        pt_clrsp = NULL,
+                        pt_size = NULL,
+                        display_image = NULL,
+                        display_title = NULL,
+                        complete = NULL,
+                        verbose = NULL,
+                        of_sample = NA,
                         ...){
 
   # 1. Control --------------------------------------------------------------
 
   # lazy check
   check_object(object)
+  hlpr_assign_arguments(object)
+
+
   check_pt(pt_size, pt_alpha, pt_clrsp)
   check_display(display_title, display_image)
-  check_assign(assign, assign_name)
 
   # adjusting check
   of_sample <- check_sample(object = object,
@@ -108,10 +108,6 @@ plotSurface <- function(object,
 
 
   # 5. Plotting --------------------------------------------------------------
-
-  hlpr_assign(assign = assign,
-              object = list("point" = spata_df),
-              name = assign_name)
 
   ggplot2::ggplot(data = plot_list$data, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +
@@ -368,26 +364,25 @@ plotSurfaceInteractive <- function(object){
 
 
 plotSurfaceComparison <- function(object,
-                                  of_sample = "",
                                   variables,
-                                  method_gs = "mean",
-                                  normalize = TRUE,
-                                  smooth = FALSE,
-                                  smooth_span = 0.02,
-                                  pt_size = 2,
-                                  pt_alpha = 1,
-                                  pt_clrsp = "inferno",
-                                  display_image = FALSE,
-                                  assign = FALSE,
-                                  assign_name,
-                                  verbose = TRUE,
+                                  method_gs = NULL,
+                                  normalize = NULL,
+                                  smooth = NULL,
+                                  smooth_span = NULL,
+                                  pt_size = NULL,
+                                  pt_alpha = NULL,
+                                  pt_clrsp = NULL,
+                                  display_image = NULL,
+                                  verbose = NULL,
+                                  of_sample = NA,
                                   ...){
 
   # 1. Control --------------------------------------------------------------
 
+
   # lazy check
   check_object(object)
-  check_assign(assign, assign_name)
+  hlpr_assign_arguments(object)
 
   # adjusting check
   of_sample <- check_sample(object, of_sample, 1)
@@ -435,10 +430,6 @@ plotSurfaceComparison <- function(object,
     )
 
   # plotting
-
-  hlpr_assign(assign = assign,
-              object = list("point" = plot_df),
-              name = assign_name)
 
   if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"))}
 
@@ -551,19 +542,27 @@ plotSurfaceComparison2 <- function(coords_df,
 #' @export
 #'
 plotSurfaceHotspots <- function(object,
-                                of_sample = "",
                                 plot_type = "expression",
-                                clrsp = "inferno",
-                                pt_alpha = 0.9,
-                                pt_clr = "lightgrey",
-                                pt_clrp = "milo",
-                                pt_size = 2,
-                                smooth = TRUE,
-                                smooth_span = 0.02,
-                                display_points = TRUE,
-                                display_image = FALSE,
-                                display_labels = FALSE,
+                                clrsp = NULL,
+                                pt_alpha = NULL,
+                                pt_clr = NULL,
+                                pt_clrp = NULL,
+                                pt_size = NULL,
+                                pt_clrsp = NULL,
+                                smooth = NULL,
+                                smooth_span = NULL,
+                                display_points = NULL,
+                                display_image = NULL,
+                                display_labels = NULL,
+                                verbose = NULL,
+                                of_sample = NA,
                                 ...){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  hlpr_assign_arguments(object)
 
   confuns::check_one_of(
     input = plot_type,
@@ -571,8 +570,15 @@ plotSurfaceHotspots <- function(object,
     ref.input = "input for argument 'plot_type'"
   )
 
+  # -----
+
+
+  # 2. Data extraction -----------------------------------------------------
+
   pr_sugg <-
     getPrSuggestion(object = object, of_sample = of_sample)
+
+  # -----
 
   # 3. Set up add ons -------------------------------------------------------
 
@@ -607,7 +613,7 @@ plotSurfaceHotspots <- function(object,
         ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y, color = mean_genes),
                             size = pt_size, alpha = pt_alpha),
         ggplot2::facet_wrap(facets = . ~ hotspot, ...),
-        scale_color_add_on(clrsp = clrsp),
+        scale_color_add_on(clrsp = pt_clrsp),
         ggplot2::theme_void(),
         ggplot2::theme(legend.position = "none")
       )
@@ -737,17 +743,20 @@ plotSurfaceHotspots <- function(object,
 #' @export
 
 plotSurfaceQuantiles <- function(object,
-                                 of_sample = "",
                                  color_to,
                                  n_qntls = 5,
                                  keep_qntls = 1:n_qntls,
-                                 pt_alpha = 0.9,
-                                 pt_clrp = "milo",
-                                 pt_size = 2,
-                                 smooth = TRUE,
-                                 smooth_span = 0.02){
+                                 pt_alpha = NULL,
+                                 pt_clrp = NULL,
+                                 pt_size = NULL,
+                                 smooth = NULL,
+                                 smooth_span = NULL,
+                                 verbose = NULL,
+                                 of_sample = NA,
+                                 ...){
 
   check_object(object)
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
