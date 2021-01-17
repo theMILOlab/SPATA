@@ -68,9 +68,9 @@ runPatternRecognition <- function(object,
   )
 
   marked_df <-
-    mark_all_with_na(gene_df, n_qntls = threshold_qntl*10, keep_qntls = threshold_qntl*10)
+    mark_all_with_na(gene_df, n_qntls = threshold_qntl*10, keep_qntls = threshold_qntl*10) # arbitrary threshold
 
-  # 5. Shift the focus to the genes and nest the data.frame -----------------
+  # 5. Shift focus to the genes and nest the data.frame ---------------------
 
   nested_df <-
     tidyr::pivot_longer(
@@ -102,7 +102,7 @@ runPatternRecognition <- function(object,
   pattern_evaluation_list <-
     purrr::map(.x = nested_df$data,
                pb = pb, verbose = verbose,
-               .f = purrr::safely(.f = evaluate_gene_cluster_tendency_dbscan, otherwise = NA))
+               .f = purrr::safely(.f = evaluate_gene_cluster_tendency_hdbscan, otherwise = NA))
 
   # lgl vector where evaluation failed
   failed_evaluation <-
@@ -116,7 +116,7 @@ runPatternRecognition <- function(object,
   confuns::give_feedback(
     msg = glue::glue("Evaluation failed for {f_genes} {ref_genes}.",
                      f_genes = base::length(ignored_genes),
-                     ref_genes = "genes"),
+                     ref_genes = confuns::adapt_reference(ignored_genes, sg = "gene", pl = "genes")),
     verbose = verbose
   )
 

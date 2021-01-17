@@ -84,6 +84,38 @@ hlpr_add_old_coords <- function(object, plot_df, complete){
 }
 
 
+#' @title Adjusts the size of discrete legend points
+#'
+#' @param variable The variable mapped to the color/fill aesthetic.
+#' @param aes The aesthetic used.
+#' @inherit check_pt params
+#'
+#' @return
+#'
+
+hlpr_adjust_legend_size <- function(variable, aes, pt_size){
+
+  if(!base::is.numeric(variable)){
+
+    if(aes == "color"){
+
+      ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = pt_size * 2.5)))
+
+    } else if(aes == "fill"){
+
+      ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size = pt_size * 2.5)))
+
+    }
+
+  } else {
+
+    list()
+
+  }
+
+}
+
+
 #' Title
 #'
 #' @param object
@@ -232,6 +264,8 @@ hlpr_assess_hotspot_results <- function(object,
                                         verbose = TRUE,
                                         ...){
 
+  library(mclust)
+
   # filter the size-related 90th percentile of gene-cluster -> gene cluster data.frame
   gcl_df <-
     dplyr::mutate(cluster_eval_df, size = mark_with_na(size, n_qntls = 10, keep_qntls = 10)) %>%
@@ -357,6 +391,8 @@ hlpr_assign <- function(assign, object, name){
 #' @inherit check_object params
 
 hlpr_assign_arguments <- function(object){
+
+  check_object(object)
 
   default_instructions <- getDefaultInstructions(object)
 
@@ -558,6 +594,24 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 
 }
 
+
+#' Title
+#'
+hlpr_display_title <- function(display_title, title){
+
+  if(base::isTRUE(display_title)){
+
+    add_on <- ggplot2::labs(title = title)
+
+    base::return(add_on)
+
+  } else {
+
+    base::return(NULL)
+
+  }
+
+}
 
 
 #' @title Convert distance matrix to distance data.frame
@@ -1095,6 +1149,7 @@ hlpr_scatterplot <- function(object,
                           mapping = ggplot2::aes(color = .data[[feature]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, clrp = pt_clrp,
                                   variable = spata_df[[feature]], ...),
+      hlpr_adjust_legend_size(aes = "color", pt_size = pt_size, variable = spata_df[[feature]]),
       ggplot2::labs(color = feature)
     )
 
@@ -1232,7 +1287,7 @@ hlpr_smooth <- function(variable,
 
     }
 
-    base::warning("Skip smoothing of ", aspect, " '", var_name, "' as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
+    base::message("Skip smoothing of ", aspect, " '", var_name, "' as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
     base::return(variable)
 
   } else if(base::any(base::is.na(data$rv)) |

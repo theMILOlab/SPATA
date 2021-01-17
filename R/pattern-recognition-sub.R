@@ -1,4 +1,3 @@
-# Subfunctions ------------------------------------------------------------
 
 #' Title
 #'
@@ -309,7 +308,7 @@ evaluate_gene_cluster_tendency <- function(marked_df,
 
 #' @rdname evaluate_gene_cluster_tendency
 #' @export
-evaluate_gene_cluster_tendency_dbscan <- function(marked_df, #!!!
+evaluate_gene_cluster_tendency_dbscan <- function(marked_df,
                                                   verbose = TRUE,
                                                   pb = NULL){
 
@@ -352,6 +351,7 @@ evaluate_gene_cluster_tendency_dbscan <- function(marked_df, #!!!
 
     center_df <-
       dplyr::group_by(dropped_df, cluster) %>%
+      dplyr::mutate(remaining_bcs = )
       dplyr::summarise(
         size = dplyr::n(),
         center_x = base::mean(x),
@@ -367,6 +367,111 @@ evaluate_gene_cluster_tendency_dbscan <- function(marked_df, #!!!
   base::return(center_df)
 
 }
+
+#' @rdname evaluate_gene_cluster_tendency
+#' @export
+evaluate_gene_cluster_tendency_dbscan2 <- function(marked_df, #!!! changed center_df compuation
+                                                   verbose = TRUE,
+                                                   pb = NULL){
+
+  if(base::isTRUE(verbose)){ pb$tick() }
+
+  {
+    dropped_df <- marked_df
+
+    size_total <- base::nrow(dropped_df)
+
+    # use density based clustering to filter out noisy points
+    dbc_res <-
+      dbscan::dbscan(
+        x = base::as.matrix(dropped_df[,c("x", "y")]),
+        eps = dbscan::kNNdist(x = base::as.matrix(dropped_df[,c("x", "y")]), k = 3) %>% base::mean(), # arbitry threshold
+        minPts = 3
+      )
+
+    dropped_df <-
+      dplyr::mutate(.data = dropped_df, cluster = base::as.character(dbc_res$cluster)) %>%
+      dplyr::filter(cluster != "0")
+
+    dropped_df_first_cluster <- dropped_df
+
+    n_bcs <- base::nrow(dropped_df)
+    n_clusters <- dplyr::n_distinct(dropped_df$cluster)
+
+    if(n_clusters == 1){
+
+      cluster_keep <- "1"
+
+    } else {
+
+      cluster_count <-
+        dplyr::count(x = dropped_df, cluster) %>%
+        dplyr::filter(n >= n_bcs*1.5/n_clusters) # arbitrary
+
+      cluster_keep <- cluster_count$cluster
+
+    }
+
+    dropped_df <-
+      dplyr::filter(dropped_df, cluster %in% {{cluster_keep}})
+
+    dropped_df_second_cluster <- dropped_df
+
+    size_noisless <- base::nrow(dropped_df)
+
+    center_df <-
+      dplyr::group_by(dropped_df, cluster) %>%
+      tidyr::nest() %>%
+      dplyr::mutate(
+        remaining_barcodes = purrr::map(data, .f = ~ dplyr::select(.x, barcodes)),
+        center_x = purrr::map_dbl(data, .f = ~ base::mean(.x[["x"]], na.rm = TRUE)),
+        center_y = purrr::map_dbl(data, .f = ~ base::mean(.x[["y"]], na.rm = TRUE)),
+        size_cluster = purrr::map_dbl(data, .f = ~ base::nrow(.x))
+      ) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(
+        cluster = forcats::as_factor(dplyr::row_number()),
+        n_cluster = dplyr::n(),
+        size_total = {{size_total}},
+        size_noisless = {{size_noisless}}
+        ) %>%
+      dplyr::select(cluster, n_cluster, size_cluster, size_noisless, size_total, center_x, center_y,remaining_barcodes, -data )
+
+  }
+
+  base::return(center_df)
+
+}
+
+#' @rdname evaluate_gene_cluster_tendency
+#' @export
+evaluate_gene_cluster_tendency_hdbscan <- function(marked_df, #!!! every barcode spot gets sum of all cluster belonging propabilities
+                                                   verbose = TRUE,
+                                                   pb = NULL){
+
+  if(base::isTRUE(verbose)){ pb$tick() }
+
+  {
+    dropped_df <- marked_df
+
+    # use density based clustering to filter out noisy points
+    hdbscan_res <- dbscan::hdbscan(x = dropped_df[,c("x","y")], minPts = 17)
+
+    dropped_df <-
+      dplyr::mutate(
+        .data = dropped_df,
+        cluster = base::as.character(hdbscan_res$cluster),
+        membership_prob = base::as.numeric(hdbscan_res$membership_prob)
+        ) %>%
+      dplyr::filter(cluster != "0")
+
+  }
+
+  base::return(dropped_df)
+
+}
+
+
 
 
 #' Title

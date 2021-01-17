@@ -771,7 +771,7 @@ check_object <- function(object){
 
   validation(object)
 
-  base::return(TRUE)
+  base::invisible(TRUE)
 
 }
 

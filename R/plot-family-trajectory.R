@@ -108,6 +108,7 @@ plotTrajectory <- function(object,
                            pt_clr = NULL,
                            pt_clrp = NULL,
                            pt_clrsp = NULL,
+                           sgmt_clr = NULL,
                            sgmt_size = NULL,
                            display_image = NULL,
                            display_title = NULL,
@@ -118,7 +119,7 @@ plotTrajectory <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_method(method_gs = method_gs)
   check_pt(pt_size, pt_alpha, pt_clrsp, pt_clr = pt_clr)
   check_display(display_title, display_image)
@@ -248,7 +249,7 @@ plotTrajectory <- function(object,
     ggplot_add_on +
     ggplot2::geom_segment(data = trajectory_sgmt_df,
                           mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
-                          color = "black", size = sgmt_size,
+                          color = sgmt_clr, size = sgmt_size,
                           arrow = ggplot2::arrow(length = ggplot2::unit(x = 0.125, "inches"))) +
     ggplot2::theme_void() +
     ggplot2::coord_equal() +
@@ -304,7 +305,7 @@ plotTrajectoryFeatures <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_trajectory_binwidth(binwidth)
 
@@ -417,7 +418,7 @@ plotTrajectoryGenes <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_trajectory_binwidth(binwidth)
 
@@ -594,7 +595,7 @@ plotTrajectoryGeneSets <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_smooth(smooth_span = smooth_span, smooth_method = smooth_method, smooth_se = smooth_se)
   check_method(method_gs = method_gs)
   check_trajectory_binwidth(binwidth)
@@ -715,7 +716,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_trajectory_binwidth(binwidth)
 
   of_sample <- check_sample(object, of_sample = of_sample, 1)
@@ -824,7 +825,7 @@ plotTrajectoryHeatmap <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # all checks
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_trajectory_binwidth(binwidth)
 
   confuns::are_values(c("method_gs", "arrange_rows"), mode = "character")
@@ -1015,7 +1016,7 @@ plotTrajectoryFit <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_smooth(smooth = smooth, smooth_span = smooth_span)
   check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
@@ -1135,7 +1136,7 @@ plotTrajectoryFitCustomized <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   check_trajectory(object, trajectory_name, of_sample)
   check_method(method_gs = method_gs)
   check_trajectory_binwidth(binwidth)

@@ -42,6 +42,51 @@ printAutoencoderSummary <- function(object, mtr_name, of_sample = ""){
 
 
 
+# Slot: dea ---------------------------------------------------------------
+
+#' Title
+#'
+#' @param object
+#' @param of_sample
+#'
+#' @return
+#' @export
+#'
+#' @examples
+printDeAnalysisOverview <- function(object, of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  dea_list <- object@dea[[of_sample]]
+
+  check_availability(
+    test = !base::is.null(base::names(dea_list)),
+    ref_x = "any de-analysis results",
+    ref_fns = "runDeaAnalysis()"
+  )
+
+  msg_dea <-
+    purrr::map(
+      .x = dea_list,
+      .f = ~ base::names(.x) %>%
+             glue::glue_collapse( sep = "', '", last = "' and '") %>%
+             base::as.character()
+      ) %>%
+    confuns::glue_list_report(prefix = "- '", separator = "' with methods: ")
+
+  msg <-
+    glue::glue(
+      "De-analysis has been performed on grouping {ref1}:\n{msg_dea}",
+      ref1 = confuns::adapt_reference(base::names(dea_list), sg = "variable", pl = "variables"))
+
+  base::print(msg)
+
+}
+
+
+
 # Slot: information -------------------------------------------------------
 
 #' @title Print current default settings

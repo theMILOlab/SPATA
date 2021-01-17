@@ -19,7 +19,7 @@ plotGeneDendrogram <- function(object,
                                of_sample = NA,
                                ...){
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_adjustment(object)
 
   check_method(method_hclust = method_hclust)
 
@@ -55,7 +55,7 @@ plotDimRed <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_adjustment(object)
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # adjusting check
@@ -148,7 +148,7 @@ plotUmap <- function(object,
                      verbose = NULL,
                      of_sample = NA){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   plotDimRed(object = object,
              method_dr = "umap",
@@ -179,7 +179,7 @@ plotTsne <- function(object,
                      verbose = NULL,
                      of_sampel = NA){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   plotDimRed(object = object,
              method_dr = "tsne",
@@ -219,7 +219,7 @@ plotPca <- function(object,
   confuns::make_available(..., verbose = verbose)
 
   # check input
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   of_sample <-
     check_sample(object = object, of_sample = of_sample, of.length = 1)
@@ -345,8 +345,7 @@ plotPcaVariation <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object) %>% hlpr_assign_arguments()
-
+  hlpr_assign_arguments(object)
   confuns::is_value(x = n_pcs, mode = "numeric")
 
   of_sample <- check_sample(object, of_sample = of_sample)
@@ -410,7 +409,7 @@ plotGeneMetaData <- function(object,
                              pt_size = NULL,
                              of_sample = NA){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -450,7 +449,7 @@ plotScatter <- function(object,
                         verbose = NULL,
                         of_sample = NA){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -527,7 +526,7 @@ plotFourStates <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
   check_assign(assign, assign_name)
@@ -857,7 +856,7 @@ plotDistribution <- function(object,
   }
 
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object = object, of_sample = of_sample, desired_length = 1)
 
@@ -1225,7 +1224,7 @@ plotDistributionAcross <- function(object,
 
   }
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
 
   confuns::is_value(clrp, "character", "clrp")
 
@@ -1595,7 +1594,8 @@ plotDistributionDiscrete <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
+
   confuns::check_one_of(input = position,
                         against = c("fill", "dodge", "stack"),
                         ref.input = "argument 'position'")
@@ -1733,7 +1733,7 @@ plotPseudotime <- function(object,
                            ...,
                            verbose = TRUE){
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
 
   if(!base::is.null(color_to)){confuns::is_value(color_to, "character", "color_to")}
 
@@ -1804,9 +1804,10 @@ plotPseudotime <- function(object,
 #' @return A heatmap of class 'pheatmap'.
 #' @export
 
-plotDeHeatmap <- function(object,
+plotDeaHeatmap <- function(object,
                           across,
                           across_subset = NULL,
+                          relevel = FALSE,
                           method_de = NULL,
                           max_adj_pval = NULL,
                           n_highest_lfc = NULL,
@@ -1825,11 +1826,11 @@ plotDeHeatmap <- function(object,
   # 1. Control --------------------------------------------------------------
 
   #lazy check
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
 
   confuns::are_values("clrp", mode = "character")
 
-  if(!base::is.null(across_subset)){ confuns::is_vec(x = across_subset, mode = "character")}
+  confuns::is_vec(x = across_subset, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   # adjusting check
   across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
@@ -1850,28 +1851,27 @@ plotDeHeatmap <- function(object,
 
   } else {
 
-    de_df <- getDeResultsDf(object = object,
-                           across = across,
-                           across_subset = across_subset,
-                           of_sample = of_sample,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval)
+    de_df <- getDeaResultsDf(object = object,
+                            across = across,
+                            across_subset = across_subset,
+                            relevel = relevel,
+                            of_sample = of_sample,
+                            max_adj_pval = max_adj_pval,
+                            n_highest_lfc = n_highest_lfc,
+                            n_lowest_pval = n_lowest_pval)
 
-    across_subset <- base::unique(de_df[[across]])
+    # save the remaining groups (if 'across' is a factor 'unique_groups' is a factor)
+    unique_groups <- base::unique(de_df[[across]])
 
     genes <- dplyr::pull(de_df, var = "gene")
 
   }
 
-  # make sure that across subset is of type factor
-  if(base::is.factor(across_subset)){ across_subset <- base::levels(across_subset)}
-
 
   # data.frame that provides barcode-spots and cluster belonging
   if(base::is.null(n_barcode_spots)){
 
-    n_barcode_spots <- base::length(genes) / base::length(across_subset)
+    n_barcode_spots <- base::round(base::length(genes) / base::length(unique_groups), digits = 0)
 
   } else {
 
@@ -1881,11 +1881,27 @@ plotDeHeatmap <- function(object,
 
   barcodes_df <-
     joinWithFeatures(object, spata_df = getSpataDf(object, of_sample), features = across, verbose = FALSE) %>%
-    confuns::check_across_subset(df = ., across = across, across.subset = across_subset) %>%
+    confuns::check_across_subset(
+      df = .,
+      across = across,
+      across.subset = base::as.character(unique_groups), # provide unique_groups as a character in case it is a factor
+      relevel = FALSE # no need to relevel (if 'relevel' == TRUE 'unique_groups' is already releveled)
+      ) %>%
     dplyr::group_by(!!rlang::sym(across)) %>%
     dplyr::slice_sample(n = n_barcode_spots)
 
-  # heatmap gaps
+  # make sure that each group is represented by it's specific color in case 'across' is a factor
+  if(base::is.factor(unique_groups)){
+
+    color_levels <- base::levels(unique_groups)
+
+  } else {
+
+    color_levels <- base::unique(unique_groups)
+
+  }
+
+  # calculate where the heatmap gaps need to appear
   if(base::is.null(de_df)){
 
     gaps_row <- NULL
@@ -1912,14 +1928,14 @@ plotDeHeatmap <- function(object,
 
   gaps_col <- gaps_col[1:(base::length(gaps_col)-1)]
 
-  # heatmap annotation
+  # assemble the heatmap annotation
   annotation_col <-
     dplyr::select(.data = barcodes_df, !!rlang::sym(across)) %>%
     base::as.data.frame()
 
   base::rownames(annotation_col) <- dplyr::pull(barcodes_df, barcodes)
 
-  # determine colors used
+  # determine discrete colors used to represent the groups
   if(clrp == "default"){
 
     color_vec <- NA
@@ -1932,11 +1948,14 @@ plotDeHeatmap <- function(object,
 
   if(!base::all(base::is.na(color_vec))){
 
-    colors <- color_vec[base::seq_along(across_subset)]
+    discrete_colors <- color_vec[base::seq_along(color_levels)]
 
     annotation_colors <-
-      purrr::set_names(x = list(colors), nm = across) %>%
-      purrr::map(.f = ~ purrr::set_names(x = .x, nm = across_subset))
+      purrr::set_names(x = list(discrete_colors), nm = across) %>%
+      purrr::map(.f = ~ purrr::set_names(x = .x, nm = color_levels))
+
+    annotation_colors[[across]] <-
+      annotation_colors[[across]][base::names(annotation_colors[[across]]) %in% unique_groups]
 
   } else {
 
@@ -1951,7 +1970,7 @@ plotDeHeatmap <- function(object,
   base::message("Plotting heatmap. This can take a few seconds.")
 
   expr_mtr <-
-    getExpressionMatrix(object, of_sample)[genes, barcodes_df$barcodes]
+    getExpressionMatrix(object, of_sample = of_sample)[genes, barcodes_df$barcodes]
 
   if(base::is.null(breaks)){
 
@@ -2012,7 +2031,8 @@ plotSegmentation <- function(object,
                              of_sample = NA){
 
   # control
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
+
   of_sample <- check_sample(object, of_sample, desired_length = 1)
   check_pt(pt_size = pt_size)
 
@@ -2072,7 +2092,7 @@ plotSegmentation <- function(object,
 
 plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = NULL, verbose = NULL){
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
 
   assessment_list <- getAutoencoderAssessment(object)
 
@@ -2142,7 +2162,7 @@ plotAutoencoderResults <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrp = pt_clrp)
 
   of_sample <- check_sample(object, of_sample = "")
@@ -2205,7 +2225,7 @@ plotPatternEnrichment <- function(object,
                                   of_sample = NA,
                                   ...){
 
-  check_object(object) %>% hlpr_assign_adjustment()
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 

@@ -195,6 +195,53 @@ getDeOverview <- function(object){
 getDeResultsDf <- function(object,
                            across,
                            across_subset = NULL,
+                           relevel = FALSE,
+                           method_de = "wilcox",
+                           max_adj_pval = NULL,
+                           n_highest_lfc = NULL,
+                           n_lowest_pval = NULL,
+                           of_sample = NA){
+
+  warning("getDeResultsDf is deprecated")
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_method(method_de = method_de)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  de_results <- filterDeDf(de_df = de_result_list[["data"]],
+                           across_subset = across_subset,
+                           relevel = relevel,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval,
+                           return = "data.frame")
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(de_results)
+
+}
+
+#' @rdname getDeResultsDf
+#' @export
+getDeaResultsDf <- function(object,
+                           across,
+                           across_subset = NULL,
+                           relevel = FALSE,
                            method_de = "wilcox",
                            max_adj_pval = NULL,
                            n_highest_lfc = NULL,
@@ -222,6 +269,7 @@ getDeResultsDf <- function(object,
 
   de_results <- filterDeDf(de_df = de_result_list[["data"]],
                            across_subset = across_subset,
+                           relevel = relevel,
                            max_adj_pval = max_adj_pval,
                            n_highest_lfc = n_highest_lfc,
                            n_lowest_pval = n_lowest_pval,
@@ -232,51 +280,6 @@ getDeResultsDf <- function(object,
   base::return(de_results)
 
 }
-
-
-#' @rdname getDeResultsDf
-#' @export
-getDeGenes <- function(object,
-                       across,
-                       across_subset = NULL,
-                       method_de = "wilcox",
-                       max_adj_pval = NULL,
-                       n_highest_lfc = 50,
-                       n_lowest_pval = 50,
-                       of_sample = NA){
-
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  check_method(method_de = method_de)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
-
-  # 2. Extract and filter ---------------------------------------------------
-
-  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
-
-  if(base::is.null(de_result_list)){
-
-    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
-
-  }
-
-  de_results <- filterDeDf(de_df = de_result_list[["data"]],
-                           across_subset = across_subset,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval,
-                           return = "vector")
-
-  # 3. Return ---------------------------------------------------------------
-
-  base::return(de_results)
-
-}
-
 # -----
 
 # Slot: data --------------------------------------------------------------
@@ -1577,10 +1580,12 @@ getGeneSetDf <- function(object){
 #' to be included.
 #' @param simplify Logical. If set to TRUE the list to be returned will be simplified
 #' into a character vector.
+#' @inherit getDeResultsDf params
+#'
 #'
 #' @return A list named according to the input of \code{of_gene_sets} in which each element is
 #' a character vector containing the names of genes the specific gene set is
-#' composed of. Is coalesced to a vector if \code{simplify} is set to TRUE.
+#' composed of. Is simplified to a vector if \code{simplify} is set to TRUE.
 #'
 #' @export
 
@@ -1687,6 +1692,93 @@ getGenes <- function(object,
   base::return(genes_list)
 
   # -----
+
+}
+
+#' @rdname getGenes
+#' @export
+getDeGenes <- function(object,
+                       across,
+                       across_subset = NULL,
+                       method_de = "wilcox",
+                       max_adj_pval = NULL,
+                       n_highest_lfc = 50,
+                       n_lowest_pval = 50,
+                       of_sample = NA){
+
+  warning("getDeGenes is deprecated")
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_method(method_de = method_de)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  de_results <- filterDeDf(de_df = de_result_list[["data"]],
+                           across_subset = across_subset,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval,
+                           return = "vector")
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(de_results)
+
+}
+
+#' @rdname getGenes
+#' @export
+getDeaGenes <- function(object,
+                       across,
+                       across_subset = NULL,
+                       method_de = "wilcox",
+                       max_adj_pval = NULL,
+                       n_highest_lfc = 50,
+                       n_lowest_pval = 50,
+                       of_sample = NA){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_method(method_de = method_de)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  de_results <- filterDeDf(de_df = de_result_list[["data"]],
+                           across_subset = across_subset,
+                           max_adj_pval = max_adj_pval,
+                           n_highest_lfc = n_highest_lfc,
+                           n_lowest_pval = n_lowest_pval,
+                           return = "vector")
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(de_results)
 
 }
 

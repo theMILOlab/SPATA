@@ -19,7 +19,6 @@ plotGeneCenter <- function(object,
                            pt_size = NULL,
                            of_sample = NA){
 
-  check_object(object)
   hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
@@ -72,7 +71,6 @@ plotGeneCenter <- function(object,
 
 plotIntraPatternDistance <- function(object, of_pattern = "", clrp = NULL, of_sample = NA){
 
-  check_object(object)
   hlpr_assign_arguments(object)
 
   of_pattern <-
@@ -113,7 +111,7 @@ plotIntraPatternDistance <- function(object, of_pattern = "", clrp = NULL, of_sa
 #'
 plotPrAssessment <- function(object, of_sample = NA){
 
-  check_object(object)
+  hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
@@ -155,7 +153,6 @@ plotPrSummary <- function(object,
                           clrp = NULL,
                           of_sample = NA){
 
-  check_object(object)
   hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)

@@ -78,6 +78,11 @@ loadSpataObject <- function(directory_spata, verbose = TRUE){
     ref = "directory_spata",
     type = "files")
 
+  confuns::give_feedback(
+    msg = "Loading seurat-object.",
+    verbose = verbose
+  )
+
   spata_obj <- base::readRDS(file = directory_spata)
 
   if(!methods::is(spata_obj, "spata")){
@@ -87,38 +92,36 @@ loadSpataObject <- function(directory_spata, verbose = TRUE){
   }
 
   confuns::give_feedback(
-    msg = "Loading seurat-object.",
+    msg = "Done.",
     verbose = verbose
   )
 
   base::return(spata_obj)
 
-  confuns::give_feedback(
-    msg = "Done.",
-    verbose = verbose
-  )
 
 }
 
 #' @rdname loadSpataObject
 #' @export
-loadCorrespondingCDS <- function(object){
+loadCorrespondingCDS <- function(object, verbose = NULL){
 
-  check_object(object)
+  hlpr_assign_arguments(object)
 
   directory_cds <- getDirectoryInstructions(object, to = "cell_data_set")
 
   confuns::give_feedback(
-    msg = "Loading cell-data-set object.",
+    msg = "Loading cell-data-set.",
     verbose = verbose
   )
 
-  base::readRDS(file = directory_cds)
+  cds <- base::readRDS(file = directory_cds)
 
   confuns::give_feedback(
     msg = "Done.",
     verbose = verbose
   )
+
+  base::return(cds)
 
 }
 
@@ -126,7 +129,7 @@ loadCorrespondingCDS <- function(object){
 #' @export
 loadCorrespondingSeuratObject <- function(object, verbose = NULL){
 
-  check_object(object)
+  hlpr_assign_arguments(object)
 
   directory_seurat <- getDirectoryInstructions(object, to = "seurat_object")
 
@@ -135,12 +138,14 @@ loadCorrespondingSeuratObject <- function(object, verbose = NULL){
     verbose = verbose
   )
 
-  base::readRDS(file = directory_seurat)
+  seurat_object <- base::readRDS(file = directory_seurat)
 
   confuns::give_feedback(
     msg = "Done.",
     verbose = verbose
   )
+
+  base::return(seurat_object)
 
 }
 
@@ -174,9 +179,8 @@ saveSpataObject <- function(object,
                             combine_with_wd = FALSE,
                             verbose = NULL){
 
-  # 1. Control --------------------------------------------------------------
+  hlpr_assign_arguments(object)
 
-  check_object(object) %>% hlpr_assign_arguments()
   confuns::is_value(directory_spata, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   if(base::is.character(directory_spata)){
@@ -190,8 +194,6 @@ saveSpataObject <- function(object,
       )
 
   }
-
-  # -----
 
   directory_spata <-
     base::tryCatch({
@@ -248,7 +250,8 @@ saveCorrespondingCDS <- function(cds,
                                  combine_with_wd = FALSE,
                                  verbose = NULL){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
+
   confuns::is_value(directory_cds, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   if(base::is.character(directory_cds)){
@@ -317,7 +320,7 @@ saveCorrespondingSeuratObject <- function(seurat_object,
                                           combine_with_wd = FALSE,
                                           verbose = NULL){
 
-  check_object(object) %>% hlpr_assign_arguments()
+  hlpr_assign_arguments(object)
   confuns::is_value(directory_seurat, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   if(base::is.character(directory_seurat)){

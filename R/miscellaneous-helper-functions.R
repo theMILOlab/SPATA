@@ -60,18 +60,22 @@ examineDeResults <- function(de_df, clrp = "milo", return = "both", binwidth = 1
   confuns::check_one_of(input = return,
                         against = c("both", "n_genes", "d_logFC"))
 
+  cluster <-
+    dplyr::select(de_df, -dplyr::all_of(de_df_columns)) %>%
+    base::colnames()
+
   if(return == "both"){
 
-    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = cluster)) +
-      ggplot2::geom_bar(mapping = ggplot2::aes(fill = cluster), color = "black") +
+    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = .data[[cluster]])) +
+      ggplot2::geom_bar(mapping = ggplot2::aes(fill = .data[[cluster]]), color = "black") +
       scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
       ggplot2::theme_classic() +
       ggplot2::theme(legend.position = "none") +
       ggplot2::labs(x = "Clusters", y = NULL, title = "Number of differentially expressed genes") +
     ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = avg_logFC)) +
-      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = cluster), binwidth = binwidth, color = "black") +
+      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = .data[[cluster]]), binwidth = binwidth, color = "black") +
       scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::facet_wrap(. ~ cluster, scales = "free", ...) +
+      ggplot2::facet_wrap(facets = stats::as.formula(stringr::str_c("~", cluster)), scales = "free") +
       ggplot2::theme_classic() +
       ggplot2::theme(
         legend.position = "none",
@@ -90,9 +94,9 @@ examineDeResults <- function(de_df, clrp = "milo", return = "both", binwidth = 1
   } else if(return == "d_logFC"){
 
     ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = avg_logFC)) +
-      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = cluster), color = "black") +
+      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = .data[[cluster]]), color = "black") +
       scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::facet_wrap(. ~ cluster, scales = "free", ...) +
+      ggplot2::facet_wrap(. ~ !!rlang::sym(cluster), scales = "free", ...) +
       ggplot2::theme_classic() +
       ggplot2::theme(
         legend.position = "none",

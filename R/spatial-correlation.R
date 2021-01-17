@@ -158,6 +158,10 @@ runSpatialCorrelationAnalysis <- function(object,
                                                sp_cor_list = spatial_correlation,
                                                of_sample = of_sample)
 
+        confuns::give_feedback(
+          msg = "Done.",
+          verbose = verbose
+        )
 
         base::return(object)
 

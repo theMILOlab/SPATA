@@ -88,6 +88,23 @@ validPadjMethods <- function(){
 
 }
 
+<<<<<<< HEAD
+#' @rdname validActivationFunctions
+#' @export
+validPlotTypes <- function(fn_name){
 
+  confuns::is_value(fn_name, mode = "character")
+
+  confuns::check_one_of(
+    input = fn_name,
+    against = base::names(plot_types_in_functions)
+  )
+
+  plot_types_in_functions[[fn_name]]
+
+}
+=======
+
+>>>>>>> 030908026e859bee9c234c1562bc79f07edf91ef
 
 

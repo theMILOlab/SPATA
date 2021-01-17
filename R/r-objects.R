@@ -31,6 +31,12 @@ coords_df_vars <- c(spata_df_vars, "x", "y")
 
 dim_red_methods <- c("pca", "umap", "tsne")
 
+
+
+# Feedback ----------------------------------------------------------------
+
+renaming_hint <- "Input needs to be named like this: 'new_group_name' = 'old_group_name'"
+
 # Gene sets ---------------------------------------------------------------
 
 gene_set_methods <- c("mean", "gsva", "ssgsea", "zscore", "plage")
@@ -52,7 +58,6 @@ pr_list_slots <-
 pr_methods <- c("hotspot")
 
 
-
 # Information -------------------------------------------------------------
 
 directory_options <- c("cell_data_set", "seurat_object", "spata_object")
@@ -61,7 +66,9 @@ default_colors <- viridis::viridis(15)
 
 default_instructions_object <-
   methods::new(Class = "default_instructions",
+               across = "seurat_clusters", # change to not defined
                average_genes = FALSE,
+               binwidth = 1,
                clrp = "milo",
                clrsp = "inferno",
                colors = default_colors,
@@ -72,7 +79,8 @@ default_instructions_object <-
                display_residuals = TRUE,
                display_title = TRUE,
                display_trajectory_parts = TRUE,
-               max_adj_pval = 0.5,
+               grouping_variable = "seurat_clusters",
+               max_adj_pval = 0.05,
                method_de = "wilcox",
                method_dr = "umap",
                method_gs = "mean",
@@ -89,12 +97,29 @@ default_instructions_object <-
                pt_clrp = "milo",
                pt_clrsp = "inferno",
                pt_size = 2,
+               relevel = FALSE,
+               scales = "free",
+               sgmt_clr = "black",
+               sgmt_size = 2.5,
                show_rownames = FALSE,
                show_colnames = FALSE,
                smooth = TRUE,
-               smooth_span = 0.02,
+               smooth_se = TRUE,
+               smooth_span = 0.2,
                uniform_genes = "discard",
                verbose = TRUE)
+
+
+
+
+# Plot types --------------------------------------------------------------
+
+plot_types_in_functions <-
+  list(
+    "plotDeaLogFC" = c("density", "histogram"),
+    "plotDeaPvalues" = c("density", "histogram"),
+    "plotDeaSummary" = c("density", "histogram")
+    )
 
 
 # Seurat analysis ---------------------------------------------------------

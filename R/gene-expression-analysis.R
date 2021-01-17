@@ -10,7 +10,7 @@
 #' @param ... Additional arguments given to \code{Seurat::FindAllMarkers()}
 #'
 #' @details If \code{across} and/or \code{method_de} are vectors instead of single
-#' values \code{findeDeGenes()} iterates over all combinations in a for-loop and
+#' values \code{runDeAnalysis()} iterates over all combinations in a for-loop and
 #' stores the results in the respective slots. (e.g.: If \code{across} = \emph{'seurat_clusters'}
 #' and \code{method_de} = \emph{c('wilcox', 'bimod')} the function computes the differently expressed genes
 #' across all groups found in the feature variable \emph{seurat_clusters} according to method \emph{wilcox} and
@@ -23,12 +23,12 @@
 
 runDeAnalysis <- function(object,
                           across,
-                          method_de = "wilcox",
-                          verbose = TRUE,
+                          method_de = NULL,
+                          verbose = NULL,
                           of_sample = NA,
                           ...){
 
-  check_object(object)
+  hlpr_assign_arguments(object)
 
   purrr::walk(.x = method_de, .f = ~ check_method(method_de = .x))
 
@@ -172,6 +172,7 @@ filterDeDf <- function(de_df,
                        n_highest_lfc = 25,
                        n_lowest_pval = 25,
                        across_subset = NULL,
+                       relevel = FALSE,
                        return = "data.frame"){
 
   # 1. Control --------------------------------------------------------------
@@ -195,7 +196,7 @@ filterDeDf <- function(de_df,
 
   de_df <-
     dplyr::ungroup(de_df) %>%
-    confuns::check_across_subset(df = ., across = across, across.subset = across_subset) %>%
+    confuns::check_across_subset(df = ., across = across, across.subset = across_subset, relevel = relevel) %>%
     dplyr::filter(!avg_logFC %in% c(Inf, -Inf) & !avg_logFC < 0) %>%
     dplyr::group_by(!!rlang::sym(across))
 

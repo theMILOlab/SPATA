@@ -53,7 +53,6 @@ plotSurface <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  check_object(object)
   hlpr_assign_arguments(object)
 
 
@@ -114,6 +113,7 @@ plotSurface <- function(object,
     plot_list$add_on +
     ggplot2::coord_equal() +
     ggplot2::theme_void()
+
 
   # -----
 
@@ -379,9 +379,7 @@ plotSurfaceComparison <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-
   # lazy check
-  check_object(object)
   hlpr_assign_arguments(object)
 
   # adjusting check
@@ -561,7 +559,6 @@ plotSurfaceHotspots <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
   hlpr_assign_arguments(object)
 
   confuns::check_one_of(
@@ -755,7 +752,6 @@ plotSurfaceQuantiles <- function(object,
                                  of_sample = NA,
                                  ...){
 
-  check_object(object)
   hlpr_assign_arguments(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)

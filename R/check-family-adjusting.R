@@ -160,11 +160,7 @@ check_features <- function(object,
 
   # 1. Control --------------------------------------------------------------
 
-  if(base::length(features) == 0 | !base::is.character(features)){
-
-    base::stop("Invalid input for argument 'features'. Needs to be character vector of length > 0.")
-
-  }
+  confuns::is_vec(x = features, mode = "character", ref = base::substitute(features))
 
   # -----
 
