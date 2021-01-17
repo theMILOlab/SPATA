@@ -4,7 +4,7 @@
 \alias{plotPrAssessment}
 \title{Title}
 \usage{
-plotPrAssessment(object, of_sample = "")
+plotPrAssessment(object, of_sample = NA)
 }
 \arguments{
 \item{of_sample}{}

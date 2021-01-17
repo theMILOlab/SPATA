@@ -9,14 +9,14 @@ runAutoencoderDenoising(
   activation,
   bottleneck,
   mtr_name_output = "denoised",
-  of_sample = "",
   layers = c(128, 64, 32),
   dropout = 0.1,
   epochs = 20,
   display_plot = FALSE,
   genes,
   set_as_active = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 }
 \arguments{

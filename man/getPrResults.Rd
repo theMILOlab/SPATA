@@ -6,11 +6,11 @@
 \alias{getPatternNames}
 \title{Title}
 \usage{
-getPrResults(object, of_sample = "", method_pr = "hotspot")
+getPrResults(object, method_pr = "hotspot", of_sample = NA)
 
-getPrSuggestion(object, of_sample = "", method_pr = "hotspot")
+getPrSuggestion(object, method_pr = "hotspot", of_sample = NA)
 
-getPatternNames(object, of_sample = "", method_pr = "hotspot")
+getPatternNames(object, method_pr = "hotspot", of_sample = NA)
 }
 \arguments{
 \item{of_sample}{}

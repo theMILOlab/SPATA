@@ -7,17 +7,17 @@
 plotTrajectoryHeatmap(
   object,
   trajectory_name,
-  of_sample = "",
   variables,
-  method_gs = "mean",
   binwidth = 5,
   arrange_rows = "none",
-  show_rownames = FALSE,
-  show_colnames = FALSE,
-  split_columns = TRUE,
-  smooth_span = 0.5,
-  verbose = TRUE,
   hm_colors = viridis::inferno(150),
+  method_gs = NULL,
+  show_rownames = NULL,
+  show_colnames = NULL,
+  split_columns = NULL,
+  smooth_span = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 }
@@ -26,9 +26,6 @@ plotTrajectoryHeatmap(
 
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{variables}{The variables of interest specified as a character vector:
 
@@ -48,6 +45,8 @@ chosen trajectory's direction.#'}
 are displayed in order to highlight patterns. Currently either \emph{'maxima'}
 or \emph{'minima'}.}
 
+\item{hm_colors}{A vector of colors to be used.}
+
 \item{show_rownames}{Logical. If set to TRUE the variable elements
 will be displayed at the rownames of the heatmap.}
 
@@ -61,7 +60,8 @@ the computational progress will be printed.
 
 (Warning messages will always be printed.)}
 
-\item{hm_colors}{A vector of colors to be used.}
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional parameters given to \code{pheatmap::pheatmap()}}
 }

@@ -8,29 +8,29 @@
 plotTrajectoryFit(
   object,
   trajectory_name,
-  of_sample = "",
   variable,
-  method_gs = "mean",
   binwidth = 5,
-  smooth = TRUE,
-  smooth_span = 0.2,
-  display_residuals = FALSE,
-  verbose = TRUE,
+  method_gs = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  display_residuals = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 
 plotTrajectoryFitCustomized(
   object,
   trajectory_name,
-  of_sample = "",
   variable,
   customized_trends,
-  method_gs = "mean",
   binwidth = 5,
-  smooth = TRUE,
-  smooth_span = 0.2,
-  display_residuals = TRUE,
-  verbose = TRUE,
+  method_gs = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  display_residuals = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 }
@@ -40,19 +40,16 @@ plotTrajectoryFitCustomized(
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{variable}{The gene or gene set of interest specified as a character value.}
+
+\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
+relevant barcode spots into groups that are then aligned with respect to the
+chosen trajectory's direction.#'}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
-
-\item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
-relevant barcode spots into groups that are then aligned with respect to the
-chosen trajectory's direction.#'}
 
 \item{display_residuals}{Logical. If set to TRUE the residuals are displayed
 via a red line.}
@@ -61,6 +58,9 @@ via a red line.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
 

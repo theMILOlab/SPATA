@@ -2,12 +2,15 @@
 % Please edit documentation in R/get-family.R
 \name{getDefaultInstructions}
 \alias{getDefaultInstructions}
-\alias{getDefaultDirectory}
+\alias{getDirectoryInstructions}
 \title{Title}
 \usage{
 getDefaultInstructions(object)
 
-getDefaultDirectory(object, to)
+getDirectoryInstructions(
+  object,
+  to = c("cell_data_set", "seurat_object", "spata_object")
+)
 }
 \arguments{
 \item{object}{}

@@ -6,14 +6,14 @@
 \alias{loadCorrespondingSeuratObject}
 \title{Load corresponding objects}
 \usage{
-loadSpataObject(directory)
+loadSpataObject(directory_spata, verbose = TRUE)
 
 loadCorrespondingCDS(object)
 
-loadCorrespondingSeuratObject(object)
+loadCorrespondingSeuratObject(object, verbose = NULL)
 }
 \arguments{
-\item{directory}{Character value. The directory from which to load the spata-object.}
+\item{directory_spata}{Character value. The directory from which to load the spata-object.}
 
 \item{object}{A valid spata-object.}
 }
@@ -27,6 +27,6 @@ platforms. See details and value for more information.
 \details{
 \code{loadSpataObject()} is a wrapper around \code{base::readRDS()} with which
 you could load your spata-object as well. The other two functions take the spata-object
-and use \code{getDefaultDirectory()} to extract the directories of the corresponding object to be loaded under which
+and use \code{getDirectoryInstructions()} to extract the directories of the corresponding object to be loaded under which
 they were saved the last time \code{saveCorresponding*()} was used.
 }

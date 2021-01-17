@@ -7,19 +7,17 @@
 \usage{
 plotDistributionAcross(
   object,
-  of_sample = "",
   variables,
   across,
   across_subset = NULL,
-  method_gs = "mean",
-  plot_type = "violin",
   binwidth = 0.05,
-  clrp = "milo",
-  ...,
-  normalize = TRUE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE
+  method_gs = NULL,
+  plot_type = NULL,
+  clrp = NULL,
+  normalize = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
 )
 
 plotDistributionAcross2(
@@ -40,9 +38,6 @@ plotDistributionAcross2(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{variables}{Character vector. The numeric variables of interest.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
@@ -58,6 +53,8 @@ specified in argument \code{across} contains. If set to NULL all of them are cho
 Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
 feature-variable.}
 
+\item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
+
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
@@ -65,25 +62,19 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{plot_type}{Character value. One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.}
 
-\item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
-
-\item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
-
 \item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
 
 Hint: Variables that are uniformly expressed can not be scaled and are discarded.}
-
-\item{assign}{Logical. If set to TRUE a named list will be assigned to the global
-environment. This list contains data and information to rebuild or additionally
-customize the output plot of this function.}
-
-\item{assign_name}{The name the assigned list is supposed to have specified as
-a single character value.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
 
 \item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
 }

@@ -6,11 +6,11 @@
 \usage{
 plotPrSummary(
   object,
-  of_sample = "",
   plot_type = "density_2d",
-  display_points = FALSE,
-  pt_size = 1,
-  clrp = "milo"
+  display_points = NULL,
+  pt_size = NULL,
+  clrp = NULL,
+  of_sample = NA
 )
 }
 \arguments{

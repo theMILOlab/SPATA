@@ -4,7 +4,7 @@
 \alias{getSegmentNames}
 \title{Obtain segment names}
 \usage{
-getSegmentNames(object, of_sample = "", simplify = TRUE)
+getSegmentNames(object, simplify = TRUE, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

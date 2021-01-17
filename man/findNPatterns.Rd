@@ -4,7 +4,7 @@
 \alias{findNPatterns}
 \title{Title}
 \usage{
-findNPatterns(object, of_sample = "", n_patterns, plotPrSummary = TRUE)
+findNPatterns(object, n_patterns, plotPrSummary = TRUE, of_sample = NA)
 }
 \arguments{
 \item{plotPrSummary}{}

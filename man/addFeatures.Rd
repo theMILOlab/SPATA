@@ -9,8 +9,8 @@ addFeatures(
   feature_names,
   feature_df,
   key_variable = "barcodes",
-  of_sample = "",
-  overwrite = FALSE
+  overwrite = FALSE,
+  of_sample = ""
 )
 }
 \arguments{

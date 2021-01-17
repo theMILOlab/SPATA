@@ -4,7 +4,7 @@
 \alias{check_to}
 \title{Gives feedback about input validity}
 \usage{
-check_to(to)
+check_to(object, to)
 }
 \arguments{
 \item{to}{Character value. Denotes the object to which

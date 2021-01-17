@@ -4,7 +4,7 @@
 \alias{getSpCorCluster}
 \title{Title}
 \usage{
-getSpCorCluster(object, method_hclust = "complete", of_sample = "")
+getSpCorCluster(object, method_hclust = "complete", of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

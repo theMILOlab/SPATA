@@ -8,23 +8,21 @@
 \usage{
 plotSurface(
   object,
-  of_sample = "",
   color_to = NULL,
-  method_gs = "mean",
-  normalize = TRUE,
-  smooth = TRUE,
-  smooth_span = 0.02,
-  pt_alpha = 1,
-  pt_clr = "lightgrey",
-  pt_clrp = "milo",
-  pt_clrsp = "inferno",
-  pt_size = 2,
-  display_image = FALSE,
-  display_title = FALSE,
-  assign = FALSE,
-  assign_name,
-  complete = FALSE,
-  verbose = TRUE,
+  method_gs = NULL,
+  normalize = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  pt_alpha = NULL,
+  pt_clr = NULL,
+  pt_clrp = NULL,
+  pt_clrsp = NULL,
+  pt_size = NULL,
+  display_image = NULL,
+  display_title = NULL,
+  complete = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 
@@ -43,9 +41,6 @@ plotSurfaceInteractive(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{color_to}{The variable to be displayed by color:
 
@@ -83,13 +78,6 @@ is displayed underneath the plot.}
 
 \item{display_title}{Logical. If set to TRUE an informative title is displayed.}
 
-\item{assign}{Logical. If set to TRUE a named list will be assigned to the global
-environment. This list contains data and information to rebuild or additionally
-customize the output plot of this function.}
-
-\item{assign_name}{The name the assigned list is supposed to have specified as
-a single character value.}
-
 \item{complete}{Logical. If the provided spata-object has been subsetted by
 \code{subsetBySegment()} the original sample is completed with grey barcode
 spots.}
@@ -98,6 +86,9 @@ spots.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
 \describe{

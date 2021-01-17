@@ -4,7 +4,7 @@
 \alias{getTrajectoryLength}
 \title{Obtain the length of a trajectory}
 \usage{
-getTrajectoryLength(object, trajectory_name, of_sample = "", binwidth = 5)
+getTrajectoryLength(object, trajectory_name, binwidth = 5, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -12,12 +12,12 @@ getTrajectoryLength(object, trajectory_name, of_sample = "", binwidth = 5)
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
 relevant barcode spots into groups that are then aligned with respect to the
 chosen trajectory's direction.#'}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 Numeric value.

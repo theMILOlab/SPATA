@@ -7,8 +7,8 @@
 plotAutoencoderAssessment(
   object,
   activation_subset = NULL,
-  clrp = "milo",
-  verbose = TRUE
+  clrp = NULL,
+  verbose = NULL
 )
 }
 \arguments{

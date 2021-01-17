@@ -10,20 +10,20 @@ getGenes(
   object,
   of_gene_sets = NULL,
   of_hotspots = NULL,
-  of_sample = "",
-  in_sample = "",
-  simplify = TRUE
+  simplify = TRUE,
+  of_sample = NA,
+  in_sample = NA
 )
 
 getSpCorGenes(
   object,
-  of_sample = "",
   similar_to = NULL,
   distinct_to = NULL,
   top_n = 25,
   method_hclust = NULL,
   cluster_names = NULL,
-  simplify = TRUE
+  simplify = TRUE,
+  of_sample = NA
 )
 
 getGenesInteractive(object)
@@ -34,11 +34,11 @@ getGenesInteractive(object)
 \item{of_gene_sets}{A character vector specifying the gene sets from which to
 return the gene names.}
 
-\item{in_sample}{The sample(s) in which the genes have to be expressed in order
-to be included.}
-
 \item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
 into a character vector.}
+
+\item{in_sample}{The sample(s) in which the genes have to be expressed in order
+to be included.}
 
 \item{of_pattern}{A character vector specifiying the patterns from which to return
 the gene names. If denoted as \emph{""} the genes of all patterns are returned.

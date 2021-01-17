@@ -6,18 +6,15 @@
 \usage{
 runDeAnalysis(
   object,
-  of_sample = "",
   across,
   method_de = "wilcox",
   verbose = TRUE,
+  of_sample = NA,
   ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
@@ -29,6 +26,9 @@ features variables your spata-object contains.}
 \item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{Seurat::FindAllMarkers()}}
 }

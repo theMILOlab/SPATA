@@ -6,21 +6,18 @@
 \usage{
 findNearestNeighbourClusters(
   object,
-  of_sample = "",
   n_pcs = 30,
   k = 50,
   searchtype = "priority",
   treetype = "bd",
   radius = 0,
   eps = 0,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{k}{The maximum number of nearest neighbours to compute. The default value
 is set to the smaller of the number of columnns in data.}
@@ -33,6 +30,9 @@ is set to the smaller of the number of columnns in data.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{searchtypes}{Character value. Either \emph{'priority', 'standard'} or \emph{'radius '}. See details for more.}
 }

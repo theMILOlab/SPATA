@@ -6,14 +6,14 @@
 \usage{
 findMonocleClusters(
   object,
-  of_sample = "",
   preprocess_method = c("PCA", "LSI"),
   reduction_method = c("UMAP", "tSNE", "PCA", "LSI"),
   cluster_method = c("leiden", "louvain"),
   k = 20,
   num_iter = 5,
   prefix = "Cluster ",
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 }
 \arguments{

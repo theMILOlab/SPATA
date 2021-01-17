@@ -7,13 +7,13 @@
 getTrajectoryDf(
   object,
   trajectory_name,
-  of_sample = "",
   variables,
   method_gs = "mean",
   binwidth = 5,
   normalize = TRUE,
   shift_wider = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 }
 \arguments{
@@ -21,9 +21,6 @@ getTrajectoryDf(
 
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{variables}{Character vector. The variables of interest:
 
@@ -53,6 +50,9 @@ shifted to it's wider format. Formats can be changed via \code{shiftTrajectoryDf
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 A summarized trajectory data.frame.

@@ -6,17 +6,14 @@
 \usage{
 plotSegmentation(
   object,
-  of_sample = "",
   encircle = TRUE,
-  pt_size = 2,
-  pt_clrp = "milo"
+  pt_size = NULL,
+  pt_clrp = NULL,
+  of_sample = NA
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{encircle}{Logical. If set to TRUE the segments are enclosed in a polygon.}
 
@@ -24,6 +21,9 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{pt_clrp}{The color panel to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

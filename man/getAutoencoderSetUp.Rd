@@ -4,7 +4,7 @@
 \alias{getAutoencoderSetUp}
 \title{Obtain information on neural network}
 \usage{
-getAutoencoderSetUp(object, mtr_name, of_sample = "")
+getAutoencoderSetUp(object, mtr_name, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

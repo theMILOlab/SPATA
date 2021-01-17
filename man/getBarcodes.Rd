@@ -4,7 +4,7 @@
 \alias{getBarcodes}
 \title{Obtain barcodes of a sample}
 \usage{
-getBarcodes(object, of_sample = "")
+getBarcodes(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

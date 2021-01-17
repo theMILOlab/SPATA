@@ -5,20 +5,20 @@
 \alias{runPca2}
 \title{Run Principal Component Analysis}
 \usage{
-runPca(object, of_sample = "", n_pcs = 30, mtr_name = NULL)
+runPca(object, n_pcs = 30, mtr_name = NULL, of_sample = NA)
 
-runPca2(object, of_sample = "", n_pcs = 30, mtr_name = NULL)
+runPca2(object, n_pcs = 30, mtr_name = NULL, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{n_pcs}{Numeric value. Denotes the number of principal components to be computed.}
 
 \item{mtr_name}{Character value. The name of the expression matrix of interest. If set to NULL
 the currently active matrix is chosen.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 \itemize{

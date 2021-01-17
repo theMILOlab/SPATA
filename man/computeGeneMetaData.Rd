@@ -7,9 +7,9 @@
 \usage{
 computeGeneMetaData(
   object,
-  of_sample = "",
   mtr_name = NULL,
   verbose = TRUE,
+  of_sample = NA,
   ...
 )
 
@@ -18,9 +18,6 @@ computeGeneMetaData2(expr_mtr, verbose = TRUE, ...)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{mtr_name}{A character value that denotes the name of the exprssion matrix with
 which one can refer to it in subsequent functions.}
 
@@ -28,6 +25,9 @@ which one can refer to it in subsequent functions.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{psych::describe()}}
 

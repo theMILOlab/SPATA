@@ -6,7 +6,6 @@
 \usage{
 runPatternRecognition(
   object,
-  of_sample = "",
   genes = 1500,
   genes_additional = NULL,
   with_ties = TRUE,
@@ -16,7 +15,8 @@ runPatternRecognition(
   threshold_stpv = 0.1,
   smooth = TRUE,
   smooth_span = 0.02,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 }
 \arguments{

@@ -7,31 +7,28 @@
 \usage{
 getDeResultsDf(
   object,
-  of_sample = "",
   across,
   across_subset = NULL,
   method_de = "wilcox",
   max_adj_pval = NULL,
   n_highest_lfc = NULL,
-  n_lowest_pval = NULL
+  n_lowest_pval = NULL,
+  of_sample = NA
 )
 
 getDeGenes(
   object,
-  of_sample = "",
   across,
   across_subset = NULL,
   method_de = "wilcox",
   max_adj_pval = NULL,
   n_highest_lfc = 50,
-  n_lowest_pval = 50
+  n_lowest_pval = 50,
+  of_sample = NA
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
@@ -56,6 +53,9 @@ with adjusted p-values above that threshold are ignored.}
 \item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
 
 \item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 A data.frame:

@@ -4,7 +4,7 @@
 \alias{getImage}
 \title{Title}
 \usage{
-getImage(object, of_sample = "")
+getImage(object, of_sample = NA)
 }
 \arguments{
 \item{of_sample}{}

@@ -7,20 +7,17 @@
 plotTrajectoryFeaturesDiscrete(
   object,
   trajectory_name,
-  of_sample = "",
   discrete_feature,
   binwidth = 10,
-  clrp = "milo",
-  display_trajectory_parts = FALSE,
-  verbose = TRUE,
+  clrp = NULL,
+  display_trajectory_parts = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{discrete_feature}{Character value. The discrete feature of interest.}
 
@@ -39,6 +36,9 @@ drawn.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 }

@@ -5,18 +5,18 @@
 \alias{runUmap2}
 \title{Run UMAP-Analysis}
 \usage{
-runUmap(object, of_sample = "", n_pcs = 20, ...)
+runUmap(object, n_pcs = 20, of_sample = NA, ...)
 
-runUmap2(object, of_sample = "", n_pcs = 20, ...)
+runUmap2(object, n_pcs = 20, of_sample = NA, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{n_pcs}{Numeric value. Denotes the number of principal components used. Must be
 smaller or equal to the number of principal components the pca data.frame contains.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{umap::umap()}.}
 }

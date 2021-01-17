@@ -4,7 +4,7 @@
 \alias{check_trajectory}
 \title{Check trajectory name input}
 \usage{
-check_trajectory(object, trajectory_name, of_sample)
+check_trajectory(object, trajectory_name, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

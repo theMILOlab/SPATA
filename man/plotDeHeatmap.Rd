@@ -6,27 +6,24 @@
 \usage{
 plotDeHeatmap(
   object,
-  of_sample = "",
   across,
   across_subset = NULL,
-  method_de = "wilcox",
-  max_adj_pval = 0.5,
-  n_highest_lfc = 50,
-  n_lowest_pval = 50,
+  method_de = NULL,
+  max_adj_pval = NULL,
+  n_highest_lfc = NULL,
+  n_lowest_pval = NULL,
   breaks = NULL,
   genes = NULL,
   n_barcode_spots = NULL,
-  hm_clrp = "milo",
-  hm_colors = viridis::viridis(15),
-  verbose = TRUE,
+  clrp = NULL,
+  colors = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{across}{Character value. The name of the discrete feature-variable of interest.
 
@@ -54,7 +51,7 @@ with adjusted p-values above that threshold are ignored.}
 
 \item{breaks}{Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
 numeric vector is specified it is taken as input. If a function is specified the expression matrix is
-passed to it as the first argument and the length of \code{hm_colors} as the second argument.}
+passed to it as the first argument and the length of \code{colors} as the second argument.}
 
 \item{genes}{Character vector or NULL. If you want to display specific genes irrespective of de-anaylsis results you
 can specifiy them in \code{genes}. If \code{genes} is specified that way arguments referring to de-anylsis results are
@@ -67,15 +64,18 @@ and can be deployed in order to keep the heatmap clear and aesthetically pleasin
 If set to NULL (the default) it is automatically computed according to the number of genes that
 are displayed in the heatmap.}
 
-\item{hm_clrp}{The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
+\item{clrp}{The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
 to obtain valid input options.}
 
-\item{hm_colors}{A vector of colors to be used for the continuous heatmap annotation..}
+\item{colors}{A vector of colors to be used for the continuous heatmap annotation..}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional parameters given to \code{pheatmap::pheatmap()}.}
 }

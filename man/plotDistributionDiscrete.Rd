@@ -6,19 +6,16 @@
 \usage{
 plotDistributionDiscrete(
   object,
-  of_sample = "",
   features,
   feature_compare = NULL,
-  clrp = "milo",
-  position = "fill",
+  clrp = NULL,
+  position = NULL,
+  of_sample = NA,
   ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{features}{The features of interest specified as a character vector.}
 
@@ -29,6 +26,9 @@ features of \code{features} to.}
 
 \item{position}{Character value. Given to \code{position} of \code{ggplot2::geom_bar()}. One of
 \emph{'stack', 'dodge'} or \emph{'fill'}.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}.}
 }

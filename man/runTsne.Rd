@@ -5,21 +5,21 @@
 \alias{runTsne2}
 \title{Run t-Stochastic Neighbour Embedding}
 \usage{
-runTsne(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30)
+runTsne(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA)
 
-runTsne2(object, of_sample = "", n_pcs = 20, tsne_perplexity = 30)
+runTsne2(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{n_pcs}{Numeric value. Denotes the number of principal components used. Must be
 smaller or equal to the number of principal components the pca data.frame contains.}
 
 \item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of
 \code{Rtsne::Rtsne()}.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 \itemize{

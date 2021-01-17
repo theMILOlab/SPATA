@@ -4,12 +4,7 @@
 \alias{plotIntraPatternDistance}
 \title{Title}
 \usage{
-plotIntraPatternDistance(
-  object,
-  of_sample = "",
-  of_pattern = "",
-  clrp = "milo"
-)
+plotIntraPatternDistance(object, of_pattern = "", clrp = NULL, of_sample = NA)
 }
 \arguments{
 \item{of_hotspots}{}

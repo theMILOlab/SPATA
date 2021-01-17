@@ -4,31 +4,41 @@
 \alias{saveSpataObject}
 \alias{saveCorrespondingCDS}
 \alias{saveCorrespondingSeuratObject}
-\title{Save objects}
+\title{Save corresponding objects}
 \usage{
-saveSpataObject(object, new_directory = NULL, combine_with_wd = "/")
+saveSpataObject(
+  object,
+  directory_spata = NULL,
+  combine_with_wd = FALSE,
+  verbose = NULL
+)
 
-saveCorrespondingCDS(cds, object, new_directory = NULL, combine_with_wd = "/")
+saveCorrespondingCDS(
+  cds,
+  object,
+  directory_cds = NULL,
+  combine_with_wd = FALSE,
+  verbose = NULL
+)
 
 saveCorrespondingSeuratObject(
   seurat_object,
   object,
-  new_directory = NULL,
-  combine_with_wd = "/"
+  directory_seurat = NULL,
+  combine_with_wd = FALSE,
+  verbose = NULL
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{new_directory}{Character value. The new directory under which
-to store the object of interest. Overwrites the stored default directory.
-Use \code{getDefaultDirectory()} to obtain the current set up.}
+\item{directory_spata, directory_cds_directory_seurat_object}{Character value or NULL. Set details for more.}
 
 \item{combine_with_wd}{Character value or FALSE. If specified with a
 character value (default: \emph{'/'}) the input of \code{new_directory}
 is considered to be a relative directory and is combined with the
-current working directory (\code{base::getwd()}) with the character string
-specified as the separator. If set to FALSE the input of \code{new_directory}
+current working directory (\code{base::getwd()}) separated with the character string
+specified. If set to FALSE the input of \code{new_directory}
 is taken as is.}
 
 \item{cds}{A valid cell-data-set. (from the monocle3 platform)}
@@ -36,25 +46,20 @@ is taken as is.}
 \item{seurat_object}{A valid seurat-object. (from the Seurat platform)}
 }
 \value{
-Apart from their side effect (saving the object of interest) the functions return:
- \itemize{
- \item{ \code{saveSpataObject()}: An invisible TRUE. }
- \item{ \code{saveCorrespondingCDS(), saveCorrespondingSeuratObject()}: An updated spata-object that now contains the
- newest directory under which the corresponding cell-data-set or seurat-object has
- been saved. }
- }
+Apart from their side effect (saving the object of interest) all three functions
+return the provided, updated spata-object.
 }
 \description{
 Family of functions to save corresponding objects of different analysis
 platforms. See details and value for more information.
 }
 \details{
-If \code{new_directory} is set to NULL (the default) all functions first check if the spata-object contains any
+If \code{directory_<platform>} is set to NULL (the default) all functions first check if the spata-object contains any
 deposited default directories. If so the specified object to be saved is saved under
-that direction. If argument \code{directory} is specified it's input is taken as the
+that direction. If \code{directory_<platform>} is specified as a character it's input is taken as the
 directory under which to store the object and the deposited directory is overwritten
 such that the next time you load the spata-object it contains the updated directory.
-In order for that to workthe \code{saveCorresponding*()}-functions return the
-updated spata-object apart from saving the object of interest while \code{saveSpataObject()} simply returns an invisible TRUE
-as the directory is stored inside the object before it is saved.
+In order for that to work the \code{saveCorresponding*()}-functions - apart from saving the object of interest -  return the
+updated spata-object while \code{saveSpataObject()} simply returns an invisible TRUE
+as the  new directory (if provided) is stored inside the object before it is saved.
 }

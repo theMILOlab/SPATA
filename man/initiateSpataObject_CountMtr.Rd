@@ -10,9 +10,10 @@ initiateSpataObject_CountMtr(
   feature_df = NULL,
   sample_name,
   image = NULL,
+  directory_spata = NULL,
+  directory_seurat = NULL,
+  combine_with_wd = FALSE,
   gene_set_path = NULL,
-  output_path = NULL,
-  file_name = NULL,
   SCTransform = FALSE,
   NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
   FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
@@ -49,13 +50,6 @@ correspond to the genes and column names must correspond to the barcodes.}
     }
 
 If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
-
-\item{output_path}{Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid. If set to NULL saving is skipped.}
-
-\item{file_name}{Character value. The name-suffix for the file name under which the
-spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
- \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
 
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 

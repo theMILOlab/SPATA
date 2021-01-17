@@ -6,12 +6,12 @@
 \usage{
 plotPatternEnrichment(
   object,
-  of_sample = "",
   of_hotspots = "",
   of_gene_sets = "",
-  clrp = "milo",
   top_n = 10,
+  clrp = NULL,
   with_ties = FALSE,
+  of_sample = NA,
   ...
 )
 }

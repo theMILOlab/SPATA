@@ -4,7 +4,7 @@
 \alias{addAutoencoderSetUp}
 \title{Title}
 \usage{
-addAutoencoderSetUp(object, mtr_name, set_up_list, of_sample = "")
+addAutoencoderSetUp(object, mtr_name, set_up_list, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

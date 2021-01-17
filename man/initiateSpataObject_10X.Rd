@@ -5,11 +5,12 @@
 \title{Initiate a spata-object from 10X Visium}
 \usage{
 initiateSpataObject_10X(
-  input_path,
+  directory_10X,
   sample_name,
+  directory_spata = NULL,
+  directory_seurat = NULL,
+  combine_with_wd = "/",
   gene_set_path = NULL,
-  output_path = NULL,
-  file_name = NULL,
   SCTransform = FALSE,
   NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
   FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
@@ -23,7 +24,7 @@ initiateSpataObject_10X(
 )
 }
 \arguments{
-\item{input_path}{Character value. Specifies the 10X visium-folders from
+\item{directory_10X}{Character value. Specifies the 10X visium-folder from
 which to load the information. This folder must contain the following sub directories:
 
 \itemize{
@@ -45,13 +46,6 @@ respective sample. Should start with a letter.}
     }
 
 If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
-
-\item{output_path}{Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid. If set to NULL saving is skipped.}
-
-\item{file_name}{Character value. The name-suffix for the file name under which the
-spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
- \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
 
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 

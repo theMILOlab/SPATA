@@ -6,18 +6,20 @@
 \usage{
 plotSurfaceHotspots(
   object,
-  of_sample = "",
   plot_type = "expression",
-  clrsp = "inferno",
-  pt_alpha = 0.9,
-  pt_clr = "lightgrey",
-  pt_clrp = "milo",
-  pt_size = 2,
-  smooth = TRUE,
-  smooth_span = 0.02,
-  display_points = TRUE,
-  display_image = FALSE,
-  display_labels = FALSE,
+  clrsp = NULL,
+  pt_alpha = NULL,
+  pt_clr = NULL,
+  pt_clrp = NULL,
+  pt_size = NULL,
+  pt_clrsp = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  display_points = NULL,
+  display_image = NULL,
+  display_labels = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 }

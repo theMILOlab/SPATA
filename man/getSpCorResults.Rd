@@ -4,7 +4,7 @@
 \alias{getSpCorResults}
 \title{Title}
 \usage{
-getSpCorResults(object, of_sample = "")
+getSpCorResults(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

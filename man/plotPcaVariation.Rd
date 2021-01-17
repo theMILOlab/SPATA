@@ -4,7 +4,7 @@
 \alias{plotPcaVariation}
 \title{Plot Pca Variation}
 \usage{
-plotPcaVariation(object, of_sample = "", n_pcs = 15)
+plotPcaVariation(object, n_pcs = NULL, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

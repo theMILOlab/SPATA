@@ -8,25 +8,25 @@
 \alias{getTsneDf}
 \title{Obtain dimensional reduction data}
 \usage{
-getDimRedDf(object, of_sample = "", method_dr = c("pca", "tsne", "umap"))
+getDimRedDf(object, method_dr = c("pca", "tsne", "umap"), of_sample = NA)
 
-getPcaDf(object, of_sample = "", n_pcs = 30)
+getPcaDf(object, n_pcs = 30, of_sample = NA)
 
-getPcaMtr(object, of_sample = "", n_pcs = 30)
+getPcaMtr(object, n_pcs = 30, of_sample = NA)
 
-getUmapDf(object, of_sample = "")
+getUmapDf(object, of_sample = NA)
 
-getTsneDf(object, of_sample = "")
+getTsneDf(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{method_dr}{Character value. The dimensional reduction method of
 interest specified as a single character value. (Currently
 either \emph{'pca'}, \emph{'umap'} or \emph{'tsne'}).}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 A data.frame that contains the unique identifiers

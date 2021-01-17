@@ -40,13 +40,6 @@ correspond to the genes and column names must correspond to the barcodes.}
 
 If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
 
-\item{output_path}{Character vector or NULL. Specifies the folder in which to store
-the object if the directory is valid. If set to NULL saving is skipped.}
-
-\item{file_name}{Character value. The name-suffix for the file name under which the
-spata-object is stored if \code{output_path} is a valid directory. Is prefixed with
- \emph{'spata-obj-'} and suffixed with \emph{'.RDS'}.}
-
 \item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
 the number of components to return.}
 

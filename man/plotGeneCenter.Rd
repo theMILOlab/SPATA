@@ -6,12 +6,11 @@
 \usage{
 plotGeneCenter(
   object,
-  of_sample = "",
   genes,
-  pt_clr = "black",
-  pt_shape = 19,
-  pt_size = 4,
-  plotSurfaceComparison = FALSE
+  plotSurfaceComparison = FALSE,
+  pt_clr = NULL,
+  pt_size = NULL,
+  of_sample = NA
 )
 }
 \arguments{

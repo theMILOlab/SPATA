@@ -4,7 +4,7 @@
 \alias{getActiveMatrixName}
 \title{Obtain name of currently active expression matrix}
 \usage{
-getActiveMatrixName(object, of_sample = "")
+getActiveMatrixName(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

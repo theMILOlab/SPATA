@@ -2,33 +2,36 @@
 % Please edit documentation in R/valid-input-options.R
 \name{validActivationFunctions}
 \alias{validActivationFunctions}
-\alias{validHierarchicalClusterMethods}
+\alias{validColorPanels}
+\alias{validColorSpectra}
 \alias{validDeAnalysisMethods}
-\alias{validDefaultDirectories}
 \alias{validDefaultInstructionSlots}
 \alias{validDimRedMethods}
-\alias{validColorPanels}
+\alias{validDirectoryInstructionSlots}
+\alias{validHierarchicalClusterMethods}
 \alias{validPatternRecognitionMethods}
-\alias{validColorSpectra}
+\alias{validPadjMethods}
 \title{Obtain valid argument inputs}
 \usage{
 validActivationFunctions()
 
-validHierarchicalClusterMethods()
+validColorPanels()
+
+validColorSpectra()
 
 validDeAnalysisMethods()
-
-validDefaultDirectories()
 
 validDefaultInstructionSlots()
 
 validDimRedMethods()
 
-validColorPanels()
+validDirectoryInstructionSlots()
+
+validHierarchicalClusterMethods()
 
 validPatternRecognitionMethods()
 
-validColorSpectra()
+validPadjMethods()
 }
 \value{
 Character vectors or named lists of such.

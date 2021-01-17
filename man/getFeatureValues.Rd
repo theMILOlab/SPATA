@@ -4,15 +4,15 @@
 \alias{getFeatureValues}
 \title{Obtain unique categorical feature values}
 \usage{
-getFeatureValues(object, of_sample = "", features)
+getFeatureValues(object, features, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
+\item{features}{The features of interest specified as a character vector.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
-
-\item{features}{The features of interest specified as a character vector.}
 }
 \value{
 A vector or a named list according to the length of \code{features}.

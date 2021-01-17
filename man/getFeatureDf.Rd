@@ -4,7 +4,7 @@
 \alias{getFeatureDf}
 \title{Obtain feature data}
 \usage{
-getFeatureDf(object, of_sample = "")
+getFeatureDf(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

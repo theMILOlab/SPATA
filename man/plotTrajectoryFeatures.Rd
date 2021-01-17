@@ -9,68 +9,65 @@
 plotTrajectoryFeatures(
   object,
   trajectory_name,
-  of_sample = "",
-  features = "percent.mt",
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
+  features = NULL,
+  smooth_method = NULL,
+  smooth_se = NULL,
+  smooth_span = NULL,
   binwidth = 5,
-  clrp = "milo",
-  display_trajectory_parts = FALSE,
-  split = FALSE,
-  ...,
-  verbose = TRUE
+  clrp = NULL,
+  display_trajectory_parts = NULL,
+  split = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
 )
 
 plotTrajectoryGenes(
   object,
   trajectory_name,
-  of_sample = "",
   genes,
-  clrp = "milo",
   average_genes = FALSE,
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
   binwidth = 5,
-  display_trajectory_parts = FALSE,
-  split = FALSE,
-  ...,
-  verbose = TRUE
+  clrp = NULL,
+  smooth_method = NULL,
+  smooth_se = NULL,
+  smooth_span = NULL,
+  display_trajectory_parts = NULL,
+  split = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
 )
 
 plotTrajectoryGeneSets(
   object,
   trajectory_name,
-  of_sample = "",
   gene_sets,
-  method_gs = "mean",
-  smooth_method = "loess",
-  smooth_span = 0.2,
-  smooth_se = TRUE,
   binwidth = 5,
-  clrp = "milo",
-  display_trajectory_parts = FALSE,
-  split = FALSE,
-  ...,
-  verbose = TRUE
+  method_gs = NULL,
+  smooth_method = NULL,
+  smooth_span = NULL,
+  smooth_se = NULL,
+  clrp = NULL,
+  display_trajectory_parts = NULL,
+  split = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{features}{The features of interest specified as a character vector.}
 
 \item{smooth_method}{The smoothing method that will be used specified as a
 single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
-
 \item{smooth_se}{Logical. If set to TRUE the confidence interval will be
 displayed.}
+
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
 \item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
 relevant barcode spots into groups that are then aligned with respect to the
@@ -86,13 +83,16 @@ drawn.}
 \item{split}{Logical. If set to TRUE sub plots for every specified gene, gene-set
 or feature are displayed via \code{ggplot2::facet_wrap()}}
 
-\item{...}{Additional arguments given to \code{ggplot2::facet_wrap()} if argument
-\code{split} is set to TRUE.}
-
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{ggplot2::facet_wrap()} if argument
+\code{split} is set to TRUE.}
 
 \item{genes}{The genes of interest specified as a character vector.}
 

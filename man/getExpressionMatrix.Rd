@@ -5,18 +5,18 @@
 \alias{getCountMatrix}
 \title{Obtain count and expression matrix}
 \usage{
-getExpressionMatrix(object, of_sample = "", mtr_name = NULL, verbose = FALSE)
+getExpressionMatrix(object, mtr_name = NULL, verbose = FALSE, of_sample = NA)
 
-getCountMatrix(object, of_sample = "")
+getCountMatrix(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{mtr_name}{Character value. The name of the expression matrix of interest. If set to NULL
 the currently active matrix is chosen.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 The active expression or count matrix of the specified object and sample(s).

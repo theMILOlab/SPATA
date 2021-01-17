@@ -9,10 +9,11 @@ plotAutoencoderResults(
   genes,
   mtr_name = "denoised",
   scales = "free",
-  pt_size = 1.5,
-  pt_alpha = 0.75,
-  pt_clrp = "milo",
-  verbose = TRUE,
+  pt_size = NULL,
+  pt_alpha = NULL,
+  pt_clrp = NULL,
+  verbose = NULL,
+  of_saple = NA,
   ...
 )
 }

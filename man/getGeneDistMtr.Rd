@@ -4,7 +4,7 @@
 \alias{getGeneDistMtr}
 \title{Obtain distance measurements of spatially correlated genes}
 \usage{
-getGeneDistMtr(object, of_sample = "")
+getGeneDistMtr(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

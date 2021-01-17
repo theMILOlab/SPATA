@@ -4,7 +4,7 @@
 \alias{check_segment}
 \title{Check segment name}
 \usage{
-check_segment(object, segment_name, of_sample = "")
+check_segment(object, segment_name, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

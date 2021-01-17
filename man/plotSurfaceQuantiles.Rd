@@ -6,15 +6,17 @@
 \usage{
 plotSurfaceQuantiles(
   object,
-  of_sample = "",
   color_to,
   n_qntls = 5,
   keep_qntls = 1:n_qntls,
-  pt_alpha = 0.9,
-  pt_clrp = "milo",
-  pt_size = 2,
-  smooth = TRUE,
-  smooth_span = 0.02
+  pt_alpha = NULL,
+  pt_clrp = NULL,
+  pt_size = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
 )
 }
 \arguments{

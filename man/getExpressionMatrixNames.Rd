@@ -4,7 +4,7 @@
 \alias{getExpressionMatrixNames}
 \title{Obtain names of stored expression matrices}
 \usage{
-getExpressionMatrixNames(object, of_sample = "")
+getExpressionMatrixNames(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

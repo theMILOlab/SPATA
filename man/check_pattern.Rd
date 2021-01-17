@@ -4,7 +4,7 @@
 \alias{check_pattern}
 \title{Title}
 \usage{
-check_pattern(object, of_sample = "", patterns = "", method_pr = "hotspot")
+check_pattern(object, patterns = "", method_pr = "hotspot", of_sample = NA)
 }
 \arguments{
 \item{of_pattern}{}

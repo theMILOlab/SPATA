@@ -7,11 +7,11 @@
 findSeuratClusters(
   object,
   mtr_name = "scaled",
-  of_sample = "",
   FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
   RunPCA = list(npcs = 60),
   FindNeighbors = list(dims = 1:30),
-  FindClusters = list(resolution = 0.8)
+  FindClusters = list(resolution = 0.8),
+  of_sample = NA
 )
 }
 \arguments{
@@ -20,9 +20,6 @@ findSeuratClusters(
 \item{mtr_name}{Character value. The name of the expression matrix of interest. If set to NULL
 the currently active matrix is chosen.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{FindVariableFeatures}{A named list of arguments given to \code{Seurat::FindVariableFeatures()}, TRUE or FALSE.}
 
 \item{RunPCA}{A named list of arguments given to \code{Seurat::RunPCA()}, TRUE or FALSE.}
@@ -30,6 +27,9 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{FindNeighbors}{A named list of arguments given to \code{Seurat::FindNeighbors()}, TRUE or FALSE.}
 
 \item{FindClusters}{A named list of arguments given to \code{Seurat::FindClusters()}, TRUE or FALSE.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 A tidy spata-data.frame containing the cluster variables.

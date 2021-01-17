@@ -7,21 +7,21 @@
 plotTrajectory(
   object,
   trajectory_name,
-  of_sample = "",
   color_to = NULL,
-  method_gs = "mean",
-  smooth = FALSE,
-  smooth_span = 0.02,
-  pt_size = 2.5,
-  pt_alpha = 0.4,
-  pt_clr = "steelblue",
-  pt_clrp = "milo",
-  pt_clrsp = "inferno",
-  sgmt_size = 1.5,
-  display_image = FALSE,
-  display_title = FALSE,
-  uniform_genes = "discard",
-  verbose = TRUE
+  method_gs = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  pt_size = NULL,
+  pt_alpha = NULL,
+  pt_clr = NULL,
+  pt_clrp = NULL,
+  pt_clrsp = NULL,
+  sgmt_size = NULL,
+  display_image = NULL,
+  display_title = NULL,
+  uniform_genes = NULL,
+  verbose = NULL,
+  of_sample = NA
 )
 }
 \arguments{
@@ -29,9 +29,6 @@ plotTrajectory(
 
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{color_to}{The variable to be displayed by color:
 
@@ -79,6 +76,9 @@ data.frame are discarded. If set to \emph{'keep'} they are kept.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

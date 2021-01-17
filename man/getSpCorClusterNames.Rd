@@ -4,7 +4,7 @@
 \alias{getSpCorClusterNames}
 \title{Title}
 \usage{
-getSpCorClusterNames(object, of_sample = "")
+getSpCorClusterNames(object, of_sample = NA)
 }
 \arguments{
 \item{of_sample}{}

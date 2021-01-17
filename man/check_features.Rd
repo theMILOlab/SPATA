@@ -9,7 +9,7 @@ check_features(
   features,
   valid_classes = NULL,
   max_length = NULL,
-  of_sample = ""
+  of_sample = NA
 )
 }
 \arguments{

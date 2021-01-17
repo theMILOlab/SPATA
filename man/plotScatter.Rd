@@ -6,12 +6,12 @@
 \usage{
 plotScatter(
   object,
-  of_sample = "",
   variables,
-  pt_size = 1.5,
-  pt_alpha = 0.8,
-  pt_clr = "black",
-  verbose = TRUE
+  pt_size = NULL,
+  pt_alpha = NULL,
+  pt_clr = NULL,
+  verbose = NULL,
+  of_sample = NA
 )
 }
 \arguments{

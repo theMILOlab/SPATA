@@ -7,19 +7,17 @@
 \usage{
 plotSurfaceComparison(
   object,
-  of_sample = "",
   variables,
-  method_gs = "mean",
-  normalize = TRUE,
-  smooth = FALSE,
-  smooth_span = 0.02,
-  pt_size = 2,
-  pt_alpha = 1,
-  pt_clrsp = "inferno",
-  display_image = FALSE,
-  assign = FALSE,
-  assign_name,
-  verbose = TRUE,
+  method_gs = NULL,
+  normalize = NULL,
+  smooth = NULL,
+  smooth_span = NULL,
+  pt_size = NULL,
+  pt_alpha = NULL,
+  pt_clrsp = NULL,
+  display_image = NULL,
+  verbose = NULL,
+  of_sample = NA,
   ...
 )
 
@@ -62,13 +60,6 @@ color is continuous. Run \code{all_colorspectra()} to see valid input..}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
-
-\item{assign}{Logical. If set to TRUE a named list will be assigned to the global
-environment. This list contains data and information to rebuild or additionally
-customize the output plot of this function.}
-
-\item{assign_name}{The name the assigned list is supposed to have specified as
-a single character value.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

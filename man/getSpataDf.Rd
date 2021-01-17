@@ -4,7 +4,7 @@
 \alias{getSpataDf}
 \title{Obtain a spata-data.frame}
 \usage{
-getSpataDf(object, of_sample = "")
+getSpataDf(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
