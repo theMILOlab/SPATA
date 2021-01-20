@@ -28,10 +28,6 @@ displayed.}
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 }
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
-}
 \description{
 Visualizes the trajectory trends you set up yourself.
 }

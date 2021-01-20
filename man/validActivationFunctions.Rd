@@ -2,7 +2,7 @@
 % Please edit documentation in R/valid-input-options.R
 \name{validActivationFunctions}
 \alias{validActivationFunctions}
-\alias{validColorPanels}
+\alias{validColorPalettes}
 \alias{validColorSpectra}
 \alias{validDeAnalysisMethods}
 \alias{validDefaultInstructionSlots}
@@ -11,11 +11,12 @@
 \alias{validHierarchicalClusterMethods}
 \alias{validPatternRecognitionMethods}
 \alias{validPadjMethods}
+\alias{validPlotTypes}
 \title{Obtain valid argument inputs}
 \usage{
 validActivationFunctions()
 
-validColorPanels()
+validColorPalettes()
 
 validColorSpectra()
 
@@ -32,6 +33,8 @@ validHierarchicalClusterMethods()
 validPatternRecognitionMethods()
 
 validPadjMethods()
+
+validPlotTypes(fn_name)
 }
 \value{
 Character vectors or named lists of such.

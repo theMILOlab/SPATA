@@ -80,6 +80,7 @@ Collate:
     'pattern-recognition-sub.R'
     'plot-family-miscellaneous.R'
     'plot-family-pattern-recognition.R'
+    'plot-family-statistics.R'
     'plot-family-summaries.R'
     'plot-family-surface.R'
     'plot-family-trajectory.R'

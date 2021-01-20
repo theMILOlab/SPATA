@@ -7,8 +7,10 @@
 average_genes(average_genes)
 }
 \arguments{
-\item{average_genes}{Logical value. If set to TRUE the mean expression
-of all specified genes will be calculated.}
+\item{average_genes}{Logical value. If set to TRUE the expression values
+of all specified genes are averaged instead of considered separately.
+If the output of the function is a data.frame the variable in which the results
+are stored is named \emph{mean_genes}.}
 }
 \description{
 average_genes

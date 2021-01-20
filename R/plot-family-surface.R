@@ -809,7 +809,7 @@ plotSurfaceQuantiles <- function(object,
                pt_alpha = pt_alpha,
                pt_clrp = pt_clrp,
                pt_size = pt_size,
-               adjust = adjust_clrs) +
+               clrp.adjust = adjust_clrs) +
     ggplot2::facet_wrap(facets = . ~ variables) +
     ggplot2::labs(color = "Quantiles")
 

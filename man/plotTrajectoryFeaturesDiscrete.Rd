@@ -42,10 +42,6 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 }
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
-}
 \description{
 Displays discrete variables along a trajectory.
 }

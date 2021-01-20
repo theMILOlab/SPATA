@@ -239,14 +239,14 @@ getDeResultsDf <- function(object,
 #' @rdname getDeResultsDf
 #' @export
 getDeaResultsDf <- function(object,
-                           across,
-                           across_subset = NULL,
-                           relevel = FALSE,
-                           method_de = "wilcox",
-                           max_adj_pval = NULL,
-                           n_highest_lfc = NULL,
-                           n_lowest_pval = NULL,
-                           of_sample = NA){
+                            across,
+                            across_subset = NULL,
+                            relevel = FALSE,
+                            method_de = "wilcox",
+                            max_adj_pval = NULL,
+                            n_highest_lfc = NULL,
+                            n_lowest_pval = NULL,
+                            of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
@@ -267,13 +267,13 @@ getDeaResultsDf <- function(object,
 
   }
 
-  de_results <- filterDeDf(de_df = de_result_list[["data"]],
-                           across_subset = across_subset,
-                           relevel = relevel,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval,
-                           return = "data.frame")
+  de_results <- filterDeaDf(dea_df = de_result_list[["data"]],
+                            across_subset = across_subset,
+                            relevel = relevel,
+                            max_adj_pval = max_adj_pval,
+                            n_highest_lfc = n_highest_lfc,
+                            n_lowest_pval = n_lowest_pval,
+                            return = "data.frame")
 
   # 3. Return ---------------------------------------------------------------
 
@@ -554,6 +554,99 @@ getTsneDf <- function(object, of_sample = NA){
 
 # Slot: fdata & samples ---------------------------------------------------
 
+#' @title Obtain specific barcodes
+#'
+#' @description Returns a character vector of barcode names. See details for more.
+#'
+#' @inherit check_sample params
+#' @inherit across params
+#'
+#' @details If argument \code{across} is specified the output is named according
+#' to the group membership the variable specified assigns the barcode spots to.
+#' If simplify is set to FALSE a list is returned.
+#'
+#' Not specifying \code{across} makes the function return an unnamed character
+#' vector containing all barcodes.
+#'
+#' @return Named character vector or list.
+#' @export
+#'
+#' @examples #Not run:
+#'
+#'   # get barcodes of those barcode spots that are assigned
+#'   # to groups 'cluster_1', 'cluster_3' and 'cluster_5' by
+#'   # the variable 'my_cluster'
+#'
+#'   getBarcodes(object = spata_obj,
+#'               across = "my_cluster",
+#'               across_subset = c("cluster_1", "cluster_3", "cluster_5"),
+#'               simplify = TRUE)
+#'
+
+getBarcodes <- function(object,
+                        across = NULL,
+                        across_subset = NULL,
+                        of_sample = NA,
+                        simplify = TRUE){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample, of.length = 1)
+
+
+  # if variable is specified
+  if(!base::is.null(across)){
+
+    res_df <-
+      getFeatureDf(object, of_sample) %>%
+      confuns::check_across_subset(
+        df = .,
+        across = across,
+        across.subset = across_subset,
+        relevel = TRUE
+      )
+
+    res_barcodes <-
+      purrr::map(
+        .x = base::unique(x = res_df[[across]]),
+        feature_df = res_df,
+        across = across,
+        .f = function(group, feature_df, across){
+
+          group_members <-
+            dplyr::filter(feature_df, !!rlang::sym(across) %in% {{group}}) %>%
+            dplyr::pull(var = "barcodes")
+
+          base::names(group_members) <-
+            base::rep(group, base::length(group_members))
+
+          base::return(group_members)
+
+        }
+      )
+
+    if(base::isTRUE(simplify)){
+
+      res_barcodes <- base::unlist(res_barcodes)
+
+    }
+
+  } else {
+
+    res_barcodes <-
+      getExpressionMatrix(object, of_sample = of_sample) %>%
+      base::colnames()
+
+  }
+
+  base::return(res_barcodes)
+
+}
+
+
+
+
+
 #' @title Obtain feature names
 #'
 #' @description An easy way to obtain all features of interest along with their
@@ -737,6 +830,72 @@ getFeatureValues <- function(object, features, of_sample = NA){
 }
 
 
+
+#' @title Obtain variable names that group the barcode spots
+#'
+#' @inherit check_sample params
+#' @inherit check_across params
+#'
+#' @return Character vector of variables that assign the
+#' barcode spots to groups.
+#' @export
+
+getGroupingOptions <- function(object, of_sample = NA){
+
+  check_object(object)
+
+  getFeatureNames(
+    object = object,
+    of_class = c("character", "factor"),
+    of_sample = of_sample
+  )
+
+}
+
+
+#' @title Obtain group names a grouping variable contains
+#'
+#' @inherit check_sample params
+#' @inherit across params
+#'
+#' @return Character vector
+#' @export
+#'
+#' @examples #Not run:
+#'
+#'  # obtain all group names the variable 'my_cluster'
+#'  # contains
+#'
+#'  getGroups(object = object, across = "my_cluster")
+#'
+
+getGroupNames <- function(object, across, of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample, of.length = 1)
+
+  res_groups <-
+    getFeatureValues(
+      object = object,
+      features = across,
+      of_sample = of_sample
+    )
+
+  if(base::is.factor(res_groups)){
+
+    base::levels(res_groups) %>%
+      base::return()
+
+  } else {
+
+    base::return(res_groups)
+
+  }
+
+}
+
+
 #' @title Obtain segment names
 #'
 #' @inherit check_sample params
@@ -907,28 +1066,13 @@ getImage <- function(object, of_sample = NA){
 # -----
 # Slot: information -------------------------------------------------------
 
-#' Obtain barcodes of a sample
+
+
+#' @title Obtain default argument inputs
 #'
-#' @inherit check_sample params
+#' @inherit check_object params
 #'
-#' @return All barcodes of the specified sample(s) as a character vector.
-#' @export
-
-getBarcodes <- function(object, of_sample = NA){
-
-  check_object(object)
-  of_sample <- check_sample(object = object, of_sample = of_sample)
-
-  object@information$barcodes[[of_sample]]
-
-}
-
-
-#' Title
-#'
-#' @param object
-#'
-#' @return
+#' @return S4 object containing all default argument inputs.
 #' @export
 
 getDefaultInstructions <- function(object){
@@ -1769,16 +1913,16 @@ getDeaGenes <- function(object,
 
   }
 
-  de_results <- filterDeDf(de_df = de_result_list[["data"]],
-                           across_subset = across_subset,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval,
-                           return = "vector")
+  dea_results <- filterDeaDf(dea_df = de_result_list[["data"]],
+                            across_subset = across_subset,
+                            max_adj_pval = max_adj_pval,
+                            n_highest_lfc = n_highest_lfc,
+                            n_lowest_pval = n_lowest_pval,
+                            return = "vector")
 
   # 3. Return ---------------------------------------------------------------
 
-  base::return(de_results)
+  base::return(dea_results)
 
 }
 

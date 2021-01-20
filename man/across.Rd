@@ -7,18 +7,23 @@
 across(across, across_subset)
 }
 \arguments{
-\item{across}{Character value. The name of the discrete feature-variable of interest.
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
 
-Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
-groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
-to compare against each other. Use \code{getFeatureNames()} to get an overview of the
-features variables your spata-object contains.}
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
 
-\item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
-specified in argument \code{across} contains. If set to NULL all of them are chosen.
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
 
-Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
-feature-variable.}
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{relevel}{Logical value. If set to TRUE the input order of \code{across_subset}
+determines the order in which the groups of interest are displayed. Groups that
+are not included are dropped which affects the colors with which they are displayed.}
 }
 \description{
 across

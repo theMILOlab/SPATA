@@ -613,6 +613,23 @@ hlpr_display_title <- function(display_title, title){
 
 }
 
+#' @rdname hlpr_display_titl
+hlpr_display_subtitle <- function(display_subtitle, subtitle){
+
+  if(base::isTRUE(display_subtitle)){
+
+    add_on <- ggplot2::labs(subtitle = subtitle)
+
+    base::return(add_on)
+
+  } else {
+
+    base::return(NULL)
+
+  }
+
+}
+
 
 #' @title Convert distance matrix to distance data.frame
 #'

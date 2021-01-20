@@ -44,15 +44,15 @@ of length 4.}
   \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
   }}
 
-\item{pt_alpha}{The transparency of the points specified as single numeric value.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
 
-\item{pt_clrp}{The color panel to be used if the specified variable displayed by
-color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
-color is continuous. Run \code{all_colorspectra()} to see valid input..}
+color is continuous. Run \code{validColorSpectra()} to see valid input.}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
+\item{pt_size}{Numeric value. Specifies the size of points.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
@@ -62,10 +62,6 @@ the computational progress will be printed.
 \item{data}{A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 Whereby the states-variables contain the respective expression values of the specified
 gene sets.}
-}
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
 }
 \description{
 Takes four gene sets and visualizes the relative

@@ -8,7 +8,7 @@
 \usage{
 loadSpataObject(directory_spata, verbose = TRUE)
 
-loadCorrespondingCDS(object)
+loadCorrespondingCDS(object, verbose = NULL)
 
 loadCorrespondingSeuratObject(object, verbose = NULL)
 }

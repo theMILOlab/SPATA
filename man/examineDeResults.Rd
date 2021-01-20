@@ -7,26 +7,10 @@
 examineDeResults(de_df, clrp = "milo", return = "both", binwidth = 10, ...)
 }
 \arguments{
-\item{de_df}{A data.frame containing information about differentially expressed genes. Must contain the variables:
-
- \describe{
-  \item{\emph{gene}}{Character. The differentially expressed genes.}
-  \item{\emph{cluster}}{Character. The clusters (or experimental groups) across which the analysis was performed.}
-  \item{\emph{avg_logFC}}{Numeric. The average log-fold change to which the belonging gene was differentially expressed..}
-  \item{\emph{p_val}}{Numeric. The p-values.}
-  \item{\emph{p_val_adj}}{Numeric. The adjusted p-values.}
- }
-
-Hint: Use the resulting data.frame of \code{SPATA::findDE()} or it's descendants as input.}
-
 \item{return}{Character value. Denotes what to plot. One of \emph{'both', 'n_genes'}
 and \emph{'d_logFC'}}
 
 \item{...}{Additional parameters given to \code{ggplot2::facet_wrap()}}
-}
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
 }
 \description{
 Visualizes the number of differentially expressed genes

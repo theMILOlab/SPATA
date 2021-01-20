@@ -12,10 +12,7 @@ plotPcaVariation(object, n_pcs = NULL, of_sample = NA)
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 }
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
-}
 \description{
-Displays a scree plot of the current pca data stored.
+Displays a scree plot of the current principal component
+analysis data stored in the object.
 }

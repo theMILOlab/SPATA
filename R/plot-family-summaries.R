@@ -200,7 +200,6 @@ plotDeaLogFC <- function(object,
                          of_sample = NA,
                          ...){
 
-  confuns::make_available(...)
 
   # 1. Control --------------------------------------------------------------
 
@@ -281,11 +280,12 @@ plotDeaGeneCount <- function(object,
                              method_de = NULL,
                              max_adj_pval = NULL,
                              clrp = NULL,
+                             clrp_adjust = NULL,
                              display_title = NULL,
+                             sort_by_count = TRUE,
                              of_sample = NA,
                              ...){
 
-  confuns::make_available(...)
 
   # 1. Control --------------------------------------------------------------
 
@@ -293,7 +293,7 @@ plotDeaGeneCount <- function(object,
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  de_df <- getDeaResultsDf(object = object,
+  dea_df <- getDeaResultsDf(object = object,
                            across = across,
                            across_subset = across_subset,
                            relevel = relevel,
@@ -301,16 +301,21 @@ plotDeaGeneCount <- function(object,
                            max_adj_pval = max_adj_pval,
                            of_sample = of_sample)
 
+  if(base::isTRUE(sort_by_count)){
+
+    dea_df <- dplyr::mutate(dea_df, {{across}} := forcats::fct_infreq(f = !!rlang::sym(across)))
+
+  }
+
   # 2. Plotting -------------------------------------------------------------
 
-  ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = .data[[across]])) +
+  ggplot2::ggplot(data = dea_df, mapping = ggplot2::aes(x = .data[[across]])) +
     ggplot2::geom_bar(mapping = ggplot2::aes(fill = .data[[across]]), color = "black") +
-    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp, clrp.adjust = clrp_adjust, ...) +
     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "none") +
     ggplot2::labs(y = "Number of differentially expressed genes") +
     hlpr_display_title(display_title, title = stringr::str_c("Adj. p-value cutoff:", max_adj_pval, sep = " "))
-
 
 
 }

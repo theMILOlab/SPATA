@@ -98,7 +98,7 @@ renameGroups <- function(object, discrete_feature, ..., of_sample = NA){
   renamed_feature_df <-
     dplyr::mutate(
       .data = feature_df,
-      {{discrete_feature}} := forcats::fct_recode(.f = !!rlang::sym(discrete_feature), !!! rename_input)
+      {{discrete_feature}} := forcats::fct_recode(.f = !!rlang::sym(discrete_feature), !!!rename_input)
     )
 
   object <- setFeatureDf(object, feature_df = renamed_feature_df, of_sample = of_sample)

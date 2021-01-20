@@ -3,6 +3,8 @@
 \name{evaluate_gene_cluster_tendency}
 \alias{evaluate_gene_cluster_tendency}
 \alias{evaluate_gene_cluster_tendency_dbscan}
+\alias{evaluate_gene_cluster_tendency_dbscan2}
+\alias{evaluate_gene_cluster_tendency_hdbscan}
 \title{Title}
 \usage{
 evaluate_gene_cluster_tendency(
@@ -14,6 +16,10 @@ evaluate_gene_cluster_tendency(
 )
 
 evaluate_gene_cluster_tendency_dbscan(marked_df, verbose = TRUE, pb = NULL)
+
+evaluate_gene_cluster_tendency_dbscan2(marked_df, verbose = TRUE, pb = NULL)
+
+evaluate_gene_cluster_tendency_hdbscan(marked_df, verbose = TRUE, pb = NULL)
 }
 \arguments{
 \item{pb}{}

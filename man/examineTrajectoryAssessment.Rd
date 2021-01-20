@@ -29,10 +29,6 @@ examineTrajectoryAssessment(
 
 \item{...}{additional arguments given to \code{ggplot2::facet_wrap()}.}
 }
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
-}
 \description{
 Visualizes the distribution of the assessment-scores
  (residuals-area-under-the-curve) of a trajectory.

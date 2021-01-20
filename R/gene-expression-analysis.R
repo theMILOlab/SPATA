@@ -69,7 +69,7 @@ runDeAnalysis <- function(object,
 
           } else if(n_groups < 2){
 
-            base::stop(glue::glue("There is only one unique group in the object's '{across}'-variable. findDeGenes() needs a minimum of two different groups."))
+            base::stop(glue::glue("There is only one unique group in the object's '{across}'-variable. runDeAnalysis() needs a minimum of two different groups."))
 
           } else {
 
@@ -132,7 +132,7 @@ runDeAnalysis <- function(object,
 #'
 #' @description Processes the results of \code{findDeGenes()}. See details.
 #'
-#' @inherit check_de_df params
+#' @inherit check_dea_df params
 #' @param max_adj_pval Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
 #' with adjusted p-values above that threshold are ignored.
 #' @param n_highest_lfc Numeric value. Affects the total number of genes that are kept. See details.
@@ -158,7 +158,7 @@ runDeAnalysis <- function(object,
 #' @return Depends on input of argument \code{return}:
 #'
 #'  \itemize{
-#'    \item{ \code{return} = \emph{'data.frame'}: The filtered data.frame of \code{de_df} with all it's variables.}
+#'    \item{ \code{return} = \emph{'data.frame'}: The filtered data.frame of \code{dea_df} with all it's variables.}
 #'    \item{ \code{return} = \emph{'vector'}: A named vector of all genes that remain. Named by the experimental
 #'    group in which they were differently expressed.}
 #'    \item{ \code{return} = \emph{'list}: A list named according to the experimental groups. Every slot of that list is
@@ -167,13 +167,13 @@ runDeAnalysis <- function(object,
 #'
 #' @export
 
-filterDeDf <- function(de_df,
-                       max_adj_pval = 0.05,
-                       n_highest_lfc = 25,
-                       n_lowest_pval = 25,
-                       across_subset = NULL,
-                       relevel = FALSE,
-                       return = "data.frame"){
+filterDeaDf <- function(dea_df,
+                        max_adj_pval = 0.05,
+                        n_highest_lfc = 25,
+                        n_lowest_pval = 25,
+                        across_subset = NULL,
+                        relevel = FALSE,
+                        return = "data.frame"){
 
   # 1. Control --------------------------------------------------------------
 
@@ -184,49 +184,49 @@ filterDeDf <- function(de_df,
                         against = c("data.frame", "vector", "list"),
                         ref.input = "argument 'return'")
 
-  check_de_df(de_df)
+  check_dea_df(dea_df)
 
   across <-
-    dplyr::select(de_df, -dplyr::all_of(x = de_df_columns)) %>%
+    dplyr::select(dea_df, -dplyr::all_of(x = dea_df_columns)) %>%
     base::colnames()
 
   # -----
 
   # 2. Pipeline -------------------------------------------------------------
 
-  de_df <-
-    dplyr::ungroup(de_df) %>%
+  dea_df <-
+    dplyr::ungroup(dea_df) %>%
     confuns::check_across_subset(df = ., across = across, across.subset = across_subset, relevel = relevel) %>%
     dplyr::filter(!avg_logFC %in% c(Inf, -Inf) & !avg_logFC < 0) %>%
     dplyr::group_by(!!rlang::sym(across))
 
   across_subset <-
-    dplyr::pull(de_df, var = {{across}}) %>%
+    dplyr::pull(dea_df, var = {{across}}) %>%
     base::unique()
 
   if(!base::is.null(max_adj_pval)){
 
-    de_df <-
-      dplyr::filter(.data = de_df, p_val_adj <= {{max_adj_pval}})
+    dea_df <-
+      dplyr::filter(.data = dea_df, p_val_adj <= {{max_adj_pval}})
 
   }
 
   if(!base::is.null(n_highest_lfc)){
 
-    de_df <-
-      dplyr::slice_max(.data = de_df, avg_logFC, n = n_highest_lfc, with_ties = FALSE)
+    dea_df <-
+      dplyr::slice_max(.data = dea_df, avg_logFC, n = n_highest_lfc, with_ties = FALSE)
 
   }
 
   if(!base::is.null(n_lowest_pval)){
 
-    de_df <-
-      dplyr::slice_min(.data = de_df, p_val_adj, n = n_lowest_pval, with_ties = FALSE)
+    dea_df <-
+      dplyr::slice_min(.data = dea_df, p_val_adj, n = n_lowest_pval, with_ties = FALSE)
 
   }
 
   res_df <-
-    dplyr::arrange(de_df, dplyr::desc(avg_logFC), .by_group = TRUE) %>%
+    dplyr::arrange(dea_df, dplyr::desc(avg_logFC), .by_group = TRUE) %>%
     dplyr::ungroup()
 
   # -----

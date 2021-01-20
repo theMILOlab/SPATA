@@ -215,7 +215,7 @@ check_stdf <- function(stdf, shift = NULL){
 
 
 #' @title Check de data.frame
-#' @param de_df A data.frame containing information about differentially expressed genes. Must contain the variables:
+#' @param dea_df A data.frame containing information about differentially expressed genes. Must contain the variables:
 #'
 #'  \describe{
 #'   \item{\emph{gene}}{Character. The differentially expressed genes.}
@@ -229,10 +229,10 @@ check_stdf <- function(stdf, shift = NULL){
 #'
 #' @inherit lazy_check_dummy description details return
 
-check_de_df <- function(de_df){
+check_dea_df <- function(dea_df){
 
   confuns::check_data_frame(
-    df = de_df,
+    df = dea_df,
     var.class = list(
       p_val = "numeric",
       avg_logFC = "numeric",
@@ -739,23 +739,30 @@ check_monocle_input <- function(preprocess_method,
   if(!base::is.null(preprocess_method) &&
      base::any(!preprocess_method %in% c("PCA", "LSI"))){
 
-    base::stop("Invalid input for argument 'preprocess_method'. Valid inputs are: 'PCA', 'LSI'")
+    msg <- "Invalid input for argument 'preprocess_method'. Valid input options are: 'PCA', 'LSI'."
 
   }
 
   if(!base::is.null(reduction_method) &&
      base::any(!reduction_method %in% c("UMAP", "tSNE", "PCA", "LSI"))){
 
-    base::stop("Invalid input for argument 'reduction_method'. Valid inputs are: 'UMAP', 'tSNE', 'PCA', 'LSI'")
+    msg <- "Invalid input for argument 'reduction_method'. Valid input options are: 'UMAP', 'tSNE', 'PCA', 'LSI'."
 
   }
 
   if(!base::is.null(cluster_method) &&
      base::any(!cluster_method %in% c("louvain", "leiden"))){
 
-    base::stop("Invalid input for argument 'cluster_method'. Valid inputs are: 'louvain', 'leiden'")
+    msg <- "Invalid input for argument 'cluster_method'. Valid inputs are: 'louvain', 'leiden'."
 
   }
+
+  confuns::give_feedback(
+    msg = msg,
+    fdb.fn = "stop"
+  )
+
+  base::return(TRUE)
 
 }
 
@@ -778,16 +785,14 @@ check_object <- function(object){
 
 
 #' @title Check pt input
-#'
-#' @param pt_size The size of the points specified as a single numeric value.
-#' @param pt_alpha The transparency of the points specified as single numeric value.
+
+#' @param pt_alpha Numeric value. Specifies the degree of transparency points.
+#' @param pt_size Numeric value. Specifies the size of points.
+#' @param pt_clr Character value. Specifies the color of points.
+#' @param pt_clrp The color palette to be used if the specified variable displayed by
+#' color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.
 #' @param pt_clrsp The color spectrum to be used if the specified variable displayed by
-#' color is continuous. Run \code{all_colorspectra()} to see valid input..
-#' @param pt_clrsp_dir The direction of the color spectrum specified as either \emph{1}
-#' or \emph{-1}.
-#' @param pt_clrp The color panel to be used if the specified variable displayed by
-#' color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.
-#' @param pt_clr The base color of every point displayed in the plot.
+#' color is continuous. Run \code{validColorSpectra()} to see valid input.
 #'
 #' @inherit lazy_check_dummy description details return
 #' @export
@@ -795,29 +800,30 @@ check_object <- function(object){
 check_pt <- function(pt_size = NULL,
                      pt_alpha = NULL,
                      pt_clrsp = NULL,
-                     pt_clrsp_dir = NULL,
                      pt_clrp = NULL,
                      pt_clr = NULL){
 
+  msg <- NULL
+
+  confuns::are_values(c("pt_clrp", "pt_clrsp"), mode = "character", skip.allow = TRUE, skip.val = NULL)
   confuns::are_values(c("pt_size", "pt_alpha"), mode = "numeric", skip.allow = TRUE, skip.val = NULL)
 
-  if(!base::is.null(pt_clrsp) && !pt_clrsp %in% base::unlist(confuns::all_colorspectra(), use.names = FALSE)){
+  if(!base::is.null(pt_clrsp) && !pt_clrsp %in% base::unlist(validColorSpectra(), use.names = FALSE)){
 
-    base::stop("Invalid input for argument 'pt_clrsp'.")
-
-  }
-
-  if(!base::is.null(pt_clrp) && !pt_clrp %in% base::unlist(confuns::all_colorpanels(), use.names = FALSE)){
-
-    base::stop("Invalid input for argument 'pt_clrp'.")
+    msg <- "Invalid input for argument 'pt_clrsp'. Run validColorSpectra() to see all valid input options."
 
   }
 
-  if(!base::is.null(pt_clrsp_dir) && !pt_clrsp_dir %in% c(1, -1)){
+  if(!base::is.null(pt_clrp) && !pt_clrp %in% base::unlist(validColorPalettes(), use.names = FALSE)){
 
-    base::stop("Argument 'pt_clrsp_dir' needs to be either 1 or -1")
+    msg <- "Invalid input for argument 'pt_clrp'. Run validColorPalettes() to see all valid input options."
 
   }
+
+  confuns::give_feedback(
+    msg = msg,
+    fdb.fn = "stop"
+  )
 
   base::return(TRUE)
 

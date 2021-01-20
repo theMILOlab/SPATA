@@ -17,17 +17,13 @@ plotSegmentation(
 
 \item{encircle}{Logical. If set to TRUE the segments are enclosed in a polygon.}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
+\item{pt_size}{Numeric value. Specifies the size of points.}
 
-\item{pt_clrp}{The color panel to be used if the specified variable displayed by
-color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
-}
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
 }
 \description{
 Displays the segmentation of a specified sample that was drawn with

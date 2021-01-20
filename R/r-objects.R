@@ -17,7 +17,7 @@ hclust_methods <- c("ward.D", "ward.D2", "single", "complete", "average", "mcqui
 
 de_methods <- c("wilcox", "bimod", "roc", "t", "negbinom", "poisson", "LR", "MAST", "DESeq2")
 
-de_df_columns <- c("p_val", "avg_logFC", "pct.1", "pct.2", "p_val_adj", "gene")
+dea_df_columns <- c("p_val", "avg_logFC", "pct.1", "pct.2", "p_val_adj", "gene")
 
 
 # Data structure ----------------------------------------------------------
@@ -66,13 +66,13 @@ default_colors <- viridis::viridis(15)
 
 default_instructions_object <-
   methods::new(Class = "default_instructions",
-               across = "seurat_clusters", # change to not defined
                average_genes = FALSE,
                binwidth = 1,
                clrp = "milo",
                clrsp = "inferno",
                colors = default_colors,
                complete = TRUE,
+               display_facets = TRUE,
                display_image = FALSE,
                display_labels = TRUE,
                display_points = FALSE,
@@ -96,6 +96,7 @@ default_instructions_object <-
                pt_clr = "lightgrey",
                pt_clrp = "milo",
                pt_clrsp = "inferno",
+               pt_shape = 21,
                pt_size = 2,
                relevel = FALSE,
                scales = "free",
@@ -105,7 +106,7 @@ default_instructions_object <-
                show_colnames = FALSE,
                smooth = TRUE,
                smooth_se = TRUE,
-               smooth_span = 0.2,
+               smooth_span = 0.025,
                uniform_genes = "discard",
                verbose = TRUE)
 

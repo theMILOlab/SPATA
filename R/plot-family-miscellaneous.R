@@ -330,7 +330,8 @@ plotPca <- function(object,
 
 #' @title Plot Pca Variation
 #'
-#' @description Displays a scree plot of the current pca data stored.
+#' @description Displays a scree plot of the current principal component
+#' analysis data stored in the object.
 #'
 #' @inherit check_sample params
 #' @inherit getPcaMtr params
@@ -441,13 +442,13 @@ plotGeneMetaData <- function(object,
 #' @export
 #'
 #' @examples
-plotScatter <- function(object,
-                        variables,
-                        pt_size = NULL,
-                        pt_alpha = NULL,
-                        pt_clr = NULL,
-                        verbose = NULL,
-                        of_sample = NA){
+plotScatterplot <- function(object,
+                            variables,
+                            pt_alpha = NULL,
+                            pt_clr = NULL,
+                            pt_size = NULL,
+                            verbose = NULL,
+                            of_sample = NA){
 
   hlpr_assign_arguments(object)
 
@@ -794,7 +795,7 @@ plotStatisticsInteractive <- function(spata_df){
 
   spata_df <- dplyr::select(spata_df, -dplyr::all_of(x = c("sample", "barcodes")))
 
-  confuns::plot_statistics(df = spata_df, 25)
+  confuns::plot_statistics_interactive(df = spata_df, 25)
 
 }
 
@@ -1783,7 +1784,7 @@ plotPseudotime <- function(object,
 #' @inherit check_sample params
 #' @inherit across params
 #' @inherit getDeResultsDf params details
-#' @param n_barcode_spots The number of barcode-spots belonging to each cluster you want to
+#' @param n_bcsp The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
 #'
@@ -1807,14 +1808,14 @@ plotPseudotime <- function(object,
 plotDeaHeatmap <- function(object,
                           across,
                           across_subset = NULL,
-                          relevel = FALSE,
+                          relevel = NULL,
                           method_de = NULL,
                           max_adj_pval = NULL,
                           n_highest_lfc = NULL,
                           n_lowest_pval = NULL,
                           breaks = NULL,
                           genes = NULL,
-                          n_barcode_spots = NULL,
+                          n_bcsp = NULL,
                           clrp = NULL,
                           colors = NULL,
                           verbose = NULL,
@@ -1852,13 +1853,13 @@ plotDeaHeatmap <- function(object,
   } else {
 
     de_df <- getDeaResultsDf(object = object,
-                            across = across,
-                            across_subset = across_subset,
-                            relevel = relevel,
-                            of_sample = of_sample,
-                            max_adj_pval = max_adj_pval,
-                            n_highest_lfc = n_highest_lfc,
-                            n_lowest_pval = n_lowest_pval)
+                             across = across,
+                             across_subset = across_subset,
+                             relevel = relevel,
+                             of_sample = of_sample,
+                             max_adj_pval = max_adj_pval,
+                             n_highest_lfc = n_highest_lfc,
+                             n_lowest_pval = n_lowest_pval)
 
     # save the remaining groups (if 'across' is a factor 'unique_groups' is a factor)
     unique_groups <- base::unique(de_df[[across]])
@@ -1869,13 +1870,13 @@ plotDeaHeatmap <- function(object,
 
 
   # data.frame that provides barcode-spots and cluster belonging
-  if(base::is.null(n_barcode_spots)){
+  if(base::is.null(n_bcsp)){
 
-    n_barcode_spots <- base::round(base::length(genes) / base::length(unique_groups), digits = 0)
+    n_bcsp <- base::round(base::length(genes) / base::length(unique_groups), digits = 0)
 
   } else {
 
-    confuns::is_value(x = n_barcode_spots, mode = "numeric")
+    confuns::is_value(x = n_bcsp, mode = "numeric")
 
   }
 
@@ -1888,7 +1889,7 @@ plotDeaHeatmap <- function(object,
       relevel = FALSE # no need to relevel (if 'relevel' == TRUE 'unique_groups' is already releveled)
       ) %>%
     dplyr::group_by(!!rlang::sym(across)) %>%
-    dplyr::slice_sample(n = n_barcode_spots)
+    dplyr::slice_sample(n = n_bcsp)
 
   # make sure that each group is represented by it's specific color in case 'across' is a factor
   if(base::is.factor(unique_groups)){
@@ -1967,7 +1968,12 @@ plotDeaHeatmap <- function(object,
 
   # 3. Plotting -------------------------------------------------------------
 
-  base::message("Plotting heatmap. This can take a few seconds.")
+  msg <- base::message("Plotting heatmap. This can take a few seconds.")
+
+  confuns::give_feedback(
+    msg = msg,
+    verbose = verbose
+  )
 
   expr_mtr <-
     getExpressionMatrix(object, of_sample = of_sample)[genes, barcodes_df$barcodes]
@@ -1988,21 +1994,22 @@ plotDeaHeatmap <- function(object,
 
   }
 
-  confuns::call_flexibly(
-    fn = "pheatmap", fn.ns = "pheatmap",
-    default = list(mat = expr_mtr,
-                   scale = "row",
-                   breaks = breaks_input,
-                   annotation_col = annotation_col,
-                   cluster_cols = FALSE,
-                   cluster_rows = FALSE,
-                   show_colnames = FALSE,
-                   color = colors,
-                   annotation_names_col = FALSE,
-                   annotation_colors = annotation_colors,
-                   gaps_row = gaps_row,
-                   gaps_col = gaps_col)
-  )
+
+    confuns::call_flexibly(
+      fn = "pheatmap", fn.ns = "pheatmap",
+      default = list(mat = expr_mtr,
+                     scale = "row",
+                     breaks = breaks_input,
+                     annotation_col = annotation_col,
+                     cluster_cols = FALSE,
+                     cluster_rows = FALSE,
+                     show_colnames = FALSE,
+                     color = colors,
+                     annotation_names_col = FALSE,
+                     annotation_colors = annotation_colors,
+                     gaps_row = gaps_row,
+                     gaps_col = gaps_col)
+    )
 
 }
 

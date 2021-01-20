@@ -13,7 +13,7 @@ variable(variable)
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
   expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
-  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeatureNames()}}
   }}
 }
 \description{

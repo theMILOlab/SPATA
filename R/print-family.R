@@ -53,7 +53,7 @@ printAutoencoderSummary <- function(object, mtr_name, of_sample = ""){
 #' @export
 #'
 #' @examples
-printDeAnalysisOverview <- function(object, of_sample = NA){
+printDeaOverview <- function(object, of_sample = NA){
 
   check_object(object)
 

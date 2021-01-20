@@ -68,10 +68,6 @@ If set to \emph{""} (the default) the first sample is chosen.}
 the trajectory of interest might adopt. The names of the respective variables will correspond to the name
 with which you want to refer to the trend later on.}
 }
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
-}
 \description{
 Displays the trend of a trajectory in comparison to a variety
 of models / mathematical curves.

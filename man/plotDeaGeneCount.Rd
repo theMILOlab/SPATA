@@ -12,7 +12,9 @@ plotDeaGeneCount(
   method_de = NULL,
   max_adj_pval = NULL,
   clrp = NULL,
+  clrp_adjust = NULL,
   display_title = NULL,
+  sort_by_count = TRUE,
   of_sample = NA,
   ...
 )

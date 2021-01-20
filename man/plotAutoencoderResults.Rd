@@ -22,16 +22,12 @@ plotAutoencoderResults(
 
 \item{genes}{Character vector of length two. Denotes the genes to be used for the validation plot.}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
+\item{pt_size}{Numeric value. Specifies the size of points.}
 
-\item{pt_alpha}{The transparency of the points specified as single numeric value.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
 
-\item{pt_clrp}{The color panel to be used if the specified variable displayed by
-color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
-}
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 }
 \description{
 Compares the distribution of the expression levels of \code{genes}

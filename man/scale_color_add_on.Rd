@@ -9,7 +9,7 @@ scale_color_add_on(
   variable = "numeric",
   clrsp = NULL,
   clrp = NULL,
-  adjust = NULL,
+  clrp.adjust = NULL,
   ...
 )
 }
@@ -20,22 +20,20 @@ used aesthetic.}
 \item{variable}{The variable that is mapped onto the denoted aesthetic or a character
 value - one of \emph{'numeric', 'discrete'}.}
 
-\item{clrsp}{Character value. The color spectrum of choice if \code{variable} is
-numeric. Run \code{confuns::all_colorspectra()}
+\item{clrsp}{Character value. The color spectrum of choice. Run \code{confuns::all_color_spectra()}
 to see all valid input choices.
 
 (Ignored if \code{variable} is discrete)}
 
-\item{clrp}{Character value. The color panel of choice if \code{variable} is discrete
-Run \code{confuns::all_colorpanels()} to see all valid input choices.
+\item{clrp}{Character value. The color palette of choice.
+Run \code{confuns::all_color_palettes()} to see all valid input choices.
 
 (Ignored if \code{variable} is numeric)}
 
-\item{adjust}{Character vector or NULL. Adjusts the resulting named color vector.
-Only named elements are kept. Elements of the color vector with the same names as in
-\code{adjust} are replaced such that the elements of \code{adjust} are displayed by
-the color their name indicates rather than the color the color panel would have assigned
-to them.}
+\item{clrp.adjust}{Named character vector or NULL. If character, it adjusts the
+colors that are used to represent the groups. Names of the input vector must refer
+to the group and the respective named element denotes the color with which to
+represent the group.}
 
 \item{...}{Additional arguments given to the respective function.
 
@@ -66,9 +64,6 @@ functions.
 If the specified \code{clrp} does not contain enough colors to cover the
 specified variable NULL is returned - which makes the call to \code{ggplot2::ggplot()}
 use the default ggplot2 color panel.
-
-Make sure to use correct capitalization and white spaces denoting the color panel or -spectrum
-of choice.
 }
 \examples{
 library(ggplot2)

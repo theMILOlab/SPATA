@@ -433,7 +433,8 @@ evaluate_gene_cluster_tendency_dbscan2 <- function(marked_df, #!!! changed cente
         cluster = forcats::as_factor(dplyr::row_number()),
         n_cluster = dplyr::n(),
         size_total = {{size_total}},
-        size_noisless = {{size_noisless}}
+        size_noisless = {{size_noisless}},
+        noise_total = size_total - size_noisless
         ) %>%
       dplyr::select(cluster, n_cluster, size_cluster, size_noisless, size_total, center_x, center_y,remaining_barcodes, -data )
 
@@ -457,7 +458,7 @@ evaluate_gene_cluster_tendency_hdbscan <- function(marked_df, #!!! every barcode
     # use density based clustering to filter out noisy points
     hdbscan_res <- dbscan::hdbscan(x = dropped_df[,c("x","y")], minPts = 17)
 
-    dropped_df <-
+    dropped_df_res <-
       dplyr::mutate(
         .data = dropped_df,
         cluster = base::as.character(hdbscan_res$cluster),
@@ -467,7 +468,7 @@ evaluate_gene_cluster_tendency_hdbscan <- function(marked_df, #!!! every barcode
 
   }
 
-  base::return(dropped_df)
+  base::return(dropped_df_res)
 
 }
 

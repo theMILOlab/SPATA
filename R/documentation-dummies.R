@@ -1,78 +1,41 @@
 
-#' @title verbose
-#' @param verbose Logical. If set to TRUE informative messages regarding
-#' the computational progress will be printed.
+#' @title across
+#' @param across Character value or NULL. Specifies the grouping variable of interest.
 #'
-#' (Warning messages will always be printed.)
-
-verbose <- function(verbose){
-
-}
-
-
-
-#' @title plot_family
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' Use \code{getGroupingOptions()} to obtain all variable names that group the
+#' barcode spots of your object in a certain manner.
 #'
-
-plot_family <- function(){}
-
-
-
-#' @title normalize
-#' @param normalize Logical. If set to TRUE values will be scaled to 0-1.
+#' @param across_subset Character vector or NULL. Specifies the particular groups
+#' of interest the grouping variable specified in argument \code{across} contains.
 #'
-#' Hint: Variables that are uniformly expressed can not be scaled and are discarded.
+#' If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+#' with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+#' than groups you are not interested in.)
 #'
+#' Use \code{getGroupNames()} to obtain all valid input options.
+#'
+#' @param relevel Logical value. If set to TRUE the input order of \code{across_subset}
+#' determines the order in which the groups of interest are displayed. Groups that
+#' are not included are dropped which affects the colors with which they are displayed.
 #'
 
-normalize <- function(normalize){}
-
-
-
-#' @title image_dummy
-#' @param image An image of class \emph{Image} to be displayed in the background.
-#' Easily accessible via \code{SPATA::image()}.
-
-image_dummy <- function(image){}
-
+across <- function(across, across_subset){}
 
 
 #' @title average_genes
-#' @param average_genes Logical value. If set to TRUE the mean expression
-#' of all specified genes will be calculated.
+#' @param average_genes Logical value. If set to TRUE the expression values
+#' of all specified genes are averaged instead of considered separately.
+#' If the output of the function is a data.frame the variable in which the results
+#' are stored is named \emph{mean_genes}.
 
 average_genes <- function(average_genes){}
 
 
-#' @title sample_name
-#' @param sample_name Character value. The future input for SPATA's \code{of_sample}-argument.
-
-sample_name <- function(sample_name){}
-
-
-#' @title variable
+#' Title
 #'
-#' @param variable The variable of interest.
+#' @param cds A valid cell-data-set. (from the monocle3 platform)
 #'
-#'  \itemize{
-#'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
-#'   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
-#'   expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
-#'   \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
-#'   }
-#'
-#'
-
-variable <- function(variable){}
-
-
-#' @title variables_num
-#'
-#' @param variables Character vector. The numeric variables of interest.
-
-variables_num <- function(variables){}
+cds_dummy <- function(cds){}
 
 
 #' @title clrp
@@ -80,41 +43,6 @@ variables_num <- function(variables){}
 #' all valid input options.
 
 clrp <- function(clrp){}
-
-
-#' @title getC_joinW_combo
-#' @seealso Combine \code{getCoordinates()} and \code{joinWithGeneSets()} to obtain
-#' a valid input data.frame for \code{data}.
-#'
-getC_joinW_combo <- function(){}
-
-
-#' @title across
-#' @param across Character value. The name of the discrete feature-variable of interest.
-#'
-#' Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
-#' groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
-#' to compare against each other. Use \code{getFeatureNames()} to get an overview of the
-#' features variables your spata-object contains.
-#'
-#' @param across_subset Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
-#' specified in argument \code{across} contains. If set to NULL all of them are chosen.
-#'
-#' Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
-#' feature-variable.
-#'
-
-across <- function(across, across_subset){}
-
-
-
-
-#' @title de_df
-#' @param de_df A data.frame containing information about differentially expressed genes.
-#' This includes the numeric variables \emph{p_val, avg_logFC, p_val_adj} and the character
-#' variables \emph{cluster, gene}.
-
-pheatmap <- function(de_df){}
 
 
 #' @title gene_set_path
@@ -134,6 +62,11 @@ pheatmap <- function(de_df){}
 gene_set_path <- function(gene_set_path){}
 
 
+#' @title image_dummy
+#' @param image An image of class \emph{Image} to be displayed in the background.
+#' Easily accessible via \code{SPATA::image()}.
+
+image_dummy <- function(image){}
 
 
 
@@ -146,14 +79,80 @@ gene_set_path <- function(gene_set_path){}
 method_hclust <- function(method_hclust){}
 
 
-
-
-
-#' Title
+#' @title normalize
+#' @param normalize Logical. If set to TRUE values will be scaled to 0-1.
 #'
-#' @param cds A valid cell-data-set. (from the monocle3 platform)
+#' Hint: Variables that are uniformly expressed can not be scaled and are discarded.
 #'
-cds_dummy <- function(cds){}
+#'
+
+normalize <- function(normalize){}
+
+
+#' @title de_df
+#' @param dea_df A data.frame containing information about differentially expressed genes.
+#' This includes the numeric variables \emph{p_val, avg_logFC, p_val_adj} and the character
+#' variables \emph{cluster, gene}.
+
+pheatmap <- function(de_df){}
+
+
+#' @title ggplot_family
+#' @return Returns a ggplot-object that can be additionally customized according
+#' to the rules of the ggplot2-framework.
+#'
+
+ggplot_family <- function(){}
+
+
+#' @title sample_name
+#' @param sample_name Character value. The future input for SPATA's \code{of_sample}-argument.
+
+sample_name <- function(sample_name){}
+
+
+#' @title variable
+#'
+#' @param variable The variable of interest.
+#'
+#'  \itemize{
+#'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
+#'   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+#'   expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+#'   \item{ \strong{Feature} as a single character value. Must be in \code{getFeatureNames()}}
+#'   }
+#'
+#'
+
+variable <- function(variable){}
+
+
+#' @title variables_num
+#'
+#' @param variables Character vector. The numeric variables of interest. Must be inside:
+#'
+#' \itemize{
+#'   \item{ \strong{Gene sets} Must be in \code{getGeneSets()}}
+#'   \item{ \strong{Genes} Must be in \code{getGenes()}}
+#'   \item{ \strong{Features} Must be in \code{getFeatureNames(..., of_class = "numeric")}}
+#'   }
+
+variables_num <- function(variables){}
+
+
+#' @title verbose
+#' @param verbose Logical. If set to TRUE informative messages regarding
+#' the computational progress will be printed.
+#'
+#' (Warning messages will always be printed.)
+
+verbose <- function(verbose){
+
+}
+
+
+
+
 
 
 #' Title
@@ -163,5 +162,30 @@ cds_dummy <- function(cds){}
 seurat_object_dummy <- function(seurat_object){}
 
 
+#' @param clrp Character value. Specifies the color palette to be used to represent
+#' groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+#' input options.
+#'
+#' @param clrp_adjust Named character vector or NULL. If character, it adjusts the
+#' color palette that is used to represent the groups. Names of the input vector must refer
+#' to the group and the respective named element denotes the color with which to
+#' represent the group.
+#'
+#' @param clrsp Chracter value. Specfies the color spectrum to be used to represent
+#' continuous values of numeric variables. Run \code{validColorSpectra()} to obtain
+#' valid input options.
+#'
+#' @param display_points Logical value. If set to TRUE points are used additionally
+#' to display the results.
+#' @param display_facets Logical value. If set to TRUE the plot is split via
+#' \code{ggplot2::facet_wrap()} such that each variable gets it's own subplot.
+#'
+#' @param n_bcsp Numeric value. Specifies the sample size of barcode spots and
+#' can be set to prevent overplotting.
+#'
+#' @param scales,ncol,nrow Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
+#' are displayed.
+
+argument_dummy <- function(clrp, clrsp, display_points, display_facets, scales, ncol, nrow){}
 
 

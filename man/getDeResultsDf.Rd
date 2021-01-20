@@ -2,13 +2,14 @@
 % Please edit documentation in R/get-family.R
 \name{getDeResultsDf}
 \alias{getDeResultsDf}
-\alias{getDeGenes}
+\alias{getDeaResultsDf}
 \title{Obtain de-analysis results}
 \usage{
 getDeResultsDf(
   object,
   across,
   across_subset = NULL,
+  relevel = FALSE,
   method_de = "wilcox",
   max_adj_pval = NULL,
   n_highest_lfc = NULL,
@@ -16,43 +17,42 @@ getDeResultsDf(
   of_sample = NA
 )
 
-getDeGenes(
+getDeaResultsDf(
   object,
   across,
   across_subset = NULL,
+  relevel = FALSE,
   method_de = "wilcox",
   max_adj_pval = NULL,
-  n_highest_lfc = 50,
-  n_lowest_pval = 50,
+  n_highest_lfc = NULL,
+  n_lowest_pval = NULL,
   of_sample = NA
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{across}{Character value. The name of the discrete feature-variable of interest.
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
 
-Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
-groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
-to compare against each other. Use \code{getFeatureNames()} to get an overview of the
-features variables your spata-object contains.}
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
 
-\item{across_subset}{Character vector or NULL. Specify the particular groups or clusters of interest the feature-variable
-specified in argument \code{across} contains. If set to NULL all of them are chosen.
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
 
-Hint: Use \code{getFeatureValues()} to obtain all available groups of a certain
-feature-variable.}
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{relevel}{Logical value. If set to TRUE the input order of \code{across_subset}
+determines the order in which the groups of interest are displayed. Groups that
+are not included are dropped which affects the colors with which they are displayed.}
 
 \item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
-
-\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
-with adjusted p-values above that threshold are ignored.}
-
-\item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
-
-\item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
@@ -72,19 +72,4 @@ If \code{getDeGenes()} is used the \emph{gene}-variable is returned as a named c
 }
 \description{
 Obtain de-analysis results
-}
-\details{
-The de-data.frame is processed such that the following steps are performed for every experimental
-group. (With "genes" we refer to the rows (observations) of \code{data}.)
-
-\enumerate{
- \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
- \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
- \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
- \enumerate{
-  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
-  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}
-  }
- \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
- }
 }

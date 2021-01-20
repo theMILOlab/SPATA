@@ -61,17 +61,17 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_alpha}{The transparency of the points specified as single numeric value.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
 
-\item{pt_clr}{The base color of every point displayed in the plot.}
+\item{pt_clr}{Character value. Specifies the color of points.}
 
-\item{pt_clrp}{The color panel to be used if the specified variable displayed by
-color is categorical/discrete. Run \code{all_colorpanels()} to see valid input.}
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
-color is continuous. Run \code{all_colorspectra()} to see valid input..}
+color is continuous. Run \code{validColorSpectra()} to see valid input.}
 
-\item{pt_size}{The size of the points specified as a single numeric value.}
+\item{pt_size}{Numeric value. Specifies the size of points.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}

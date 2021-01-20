@@ -17,9 +17,9 @@ validActivationFunctions <- function(){
 
 #' @rdname validActivationFunctions
 #' @export
-validColorPanels <- function(){
+validColorPalettes <- function(){
 
-  confuns::all_colorpanels()
+ confuns::all_color_palettes()
 
 }
 
@@ -27,7 +27,7 @@ validColorPanels <- function(){
 #' @export
 validColorSpectra <- function(){
 
-  confuns::all_colorspectra()
+  confuns::all_color_spectra()
 
 }
 
@@ -88,7 +88,6 @@ validPadjMethods <- function(){
 
 }
 
-<<<<<<< HEAD
 #' @rdname validActivationFunctions
 #' @export
 validPlotTypes <- function(fn_name){
@@ -103,8 +102,6 @@ validPlotTypes <- function(fn_name){
   plot_types_in_functions[[fn_name]]
 
 }
-=======
 
->>>>>>> 030908026e859bee9c234c1562bc79f07edf91ef
 
 

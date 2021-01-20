@@ -102,7 +102,7 @@ runPatternRecognition <- function(object,
   pattern_evaluation_list <-
     purrr::map(.x = nested_df$data,
                pb = pb, verbose = verbose,
-               .f = purrr::safely(.f = evaluate_gene_cluster_tendency_hdbscan, otherwise = NA))
+               .f = purrr::safely(.f = evaluate_gene_cluster_tendency_dbscan2, otherwise = NA))
 
   # lgl vector where evaluation failed
   failed_evaluation <-
@@ -131,8 +131,7 @@ runPatternRecognition <- function(object,
   cluster_eval_df <-
     tidyr::unnest(evaluated_df, cols = "pattern_evaluation") %>%
     dplyr::select(-data) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(n_bcsp = {{n_bcsp}}, new_cluster_exclusivity = size / n_bcsp)
+    dplyr::ungroup()
 
 
   # 7. Evaluate sample hotspots ---------------------------------------------

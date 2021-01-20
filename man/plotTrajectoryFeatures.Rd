@@ -96,8 +96,10 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{genes}{The genes of interest specified as a character vector.}
 
-\item{average_genes}{Logical value. If set to TRUE the mean expression
-of all specified genes will be calculated.}
+\item{average_genes}{Logical value. If set to TRUE the expression values
+of all specified genes are averaged instead of considered separately.
+If the output of the function is a data.frame the variable in which the results
+are stored is named \emph{mean_genes}.}
 
 \item{gene_sets}{The gene sets of interest specified as a character vector.}
 
@@ -107,10 +109,6 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \code{gsva::GSVA()}.}
 
 \item{discrete_feature}{Character value. The discrete feature of interest.}
-}
-\value{
-Returns a ggplot-object that can be additionally customized according
-to the rules of the ggplot2-framework.
 }
 \description{
 Displays values along a trajectory direction with

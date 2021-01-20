@@ -7,12 +7,12 @@
 #'
 #' @export
 
-all_colorpanels <- confuns::all_colorpanels
+all_color_palettes <- confuns::all_color_palettes
 
 #' @rdname all_colorpanels
 #' @export
 
-all_colorspectra <- confuns::all_colorspectra
+all_color_spectra <- confuns::all_color_spectra
 
 
 #'@inherit confuns::scale_color_add_on

@@ -2,6 +2,8 @@
 % Please edit documentation in R/get-family.R
 \name{getGenes}
 \alias{getGenes}
+\alias{getDeGenes}
+\alias{getDeaGenes}
 \alias{getSpCorGenes}
 \alias{getGenesInteractive}
 \title{Obtain gene names}
@@ -13,6 +15,28 @@ getGenes(
   simplify = TRUE,
   of_sample = NA,
   in_sample = NA
+)
+
+getDeGenes(
+  object,
+  across,
+  across_subset = NULL,
+  method_de = "wilcox",
+  max_adj_pval = NULL,
+  n_highest_lfc = 50,
+  n_lowest_pval = 50,
+  of_sample = NA
+)
+
+getDeaGenes(
+  object,
+  across,
+  across_subset = NULL,
+  method_de = "wilcox",
+  max_adj_pval = NULL,
+  n_highest_lfc = 50,
+  n_lowest_pval = 50,
+  of_sample = NA
 )
 
 getSpCorGenes(
@@ -37,8 +61,29 @@ return the gene names.}
 \item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
 into a character vector.}
 
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
 \item{in_sample}{The sample(s) in which the genes have to be expressed in order
 to be included.}
+
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
+
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
+
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
+
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
 
 \item{of_pattern}{A character vector specifiying the patterns from which to return
 the gene names. If denoted as \emph{""} the genes of all patterns are returned.
@@ -47,7 +92,7 @@ Set \code{simplify} to FALSE in order to return a named list.}
 \value{
 A list named according to the input of \code{of_gene_sets} in which each element is
 a character vector containing the names of genes the specific gene set is
-composed of. Is coalesced to a vector if \code{simplify} is set to TRUE.
+composed of. Is simplified to a vector if \code{simplify} is set to TRUE.
 }
 \description{
 Obtain gene names

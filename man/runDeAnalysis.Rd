@@ -7,8 +7,8 @@
 runDeAnalysis(
   object,
   across,
-  method_de = "wilcox",
-  verbose = TRUE,
+  method_de = NULL,
+  verbose = NULL,
   of_sample = NA,
   ...
 )
@@ -16,12 +16,10 @@ runDeAnalysis(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{across}{Character value. The name of the discrete feature-variable of interest.
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
 
-Hint: Character- or factor- variables are discrete variables. These functionally assign the barcode spots to distinct
-groups or clusters (e.g. \emph{segment} or \emph{seurat_clusters}) whoose properties you might want
-to compare against each other. Use \code{getFeatureNames()} to get an overview of the
-features variables your spata-object contains.}
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
 
 \item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
@@ -42,7 +40,7 @@ See details for more.
 }
 \details{
 If \code{across} and/or \code{method_de} are vectors instead of single
-values \code{findeDeGenes()} iterates over all combinations in a for-loop and
+values \code{runDeAnalysis()} iterates over all combinations in a for-loop and
 stores the results in the respective slots. (e.g.: If \code{across} = \emph{'seurat_clusters'}
 and \code{method_de} = \emph{c('wilcox', 'bimod')} the function computes the differently expressed genes
 across all groups found in the feature variable \emph{seurat_clusters} according to method \emph{wilcox} and

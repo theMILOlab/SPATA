@@ -3,7 +3,7 @@
 \name{getDefaultInstructions}
 \alias{getDefaultInstructions}
 \alias{getDirectoryInstructions}
-\title{Title}
+\title{Obtain default argument inputs}
 \usage{
 getDefaultInstructions(object)
 
@@ -13,11 +13,11 @@ getDirectoryInstructions(
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{A valid spata-object.}
 }
 \value{
-
+S4 object containing all default argument inputs.
 }
 \description{
-Title
+Obtain default argument inputs
 }
