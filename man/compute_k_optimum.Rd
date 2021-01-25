@@ -2,16 +2,16 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{compute_k_optimum}
 \alias{compute_k_optimum}
-\title{Title}
+\title{Find the optimal k value}
 \usage{
 compute_k_optimum(df)
 }
 \arguments{
-\item{df}{}
-}
-\value{
-
+\item{df}{A data.frame composed of
+a variable named \emph{tot_wss} containing the total within
+sum of squares value for a given k-value denoted in
+variable \emph{k}.}
 }
 \description{
-Title
+Find the optimal k value
 }

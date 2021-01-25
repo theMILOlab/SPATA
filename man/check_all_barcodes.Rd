@@ -6,9 +6,6 @@
 \usage{
 check_all_barcodes(object)
 }
-\value{
-
-}
 \description{
 Check barcodes of all matrices and data.frames
 }

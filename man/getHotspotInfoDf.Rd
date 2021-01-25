@@ -2,19 +2,22 @@
 % Please edit documentation in R/get-family.R
 \name{getHotspotInfoDf}
 \alias{getHotspotInfoDf}
-\alias{getHotspotGeneDf}
-\title{Title}
+\alias{getHotspotDf}
+\title{Obtain pattern recognition results of method 'hotspot'}
 \usage{
 getHotspotInfoDf(object, of_sample = NA)
 
-getHotspotGeneDf(object, of_sample = NA)
+getHotspotDf(object, of_sample = NA)
 }
 \arguments{
-\item{of_sample}{}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+The respective data.frame.
 }
 \description{
-Title
+Obtain pattern recognition results of method 'hotspot'
 }

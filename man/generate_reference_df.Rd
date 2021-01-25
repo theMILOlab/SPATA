@@ -2,17 +2,13 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{generate_reference_df}
 \alias{generate_reference_df}
-\title{Title}
+\alias{generate_sample}
+\title{Generates a reference data.frame}
 \usage{
 generate_reference_df(n, x_coords, y_coords)
-}
-\arguments{
-\item{dropped_df}{dropped df has variables c("x", "y", value)
-and is the result of tidyr::drop_na()}
-}
-\value{
 
+generate_sample(x, l = 250)
 }
 \description{
-Title
+Generates a reference data.frame
 }

@@ -85,6 +85,13 @@ Use \code{getGroupNames()} to obtain all valid input options.}
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
 
+\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
+with adjusted p-values above that threshold are ignored.}
+
+\item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
+
+\item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
+
 \item{of_pattern}{A character vector specifiying the patterns from which to return
 the gene names. If denoted as \emph{""} the genes of all patterns are returned.
 Set \code{simplify} to FALSE in order to return a named list.}

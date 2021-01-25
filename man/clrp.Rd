@@ -2,9 +2,12 @@
 % Please edit documentation in R/documentation-dummies.R
 \name{clrp}
 \alias{clrp}
+\alias{clrp_dummy}
 \title{clrp}
 \usage{
 clrp(clrp)
+
+clrp_dummy(clrp)
 }
 \arguments{
 \item{clpr}{Character value. The color panel to be used. Run \code{all_colorpanels()} to see

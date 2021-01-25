@@ -11,9 +11,6 @@ assess_intra_cluster_distance(clustered_df)
 cluster variable indicating the cluster belonging of
 every barcode spot.}
 }
-\value{
-
-}
 \description{
 Assesses the gene's tendency to cluster together.
 The lower the \emph{intra_cluster_dist} the higher the tendency

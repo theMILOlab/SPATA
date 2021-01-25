@@ -13,9 +13,9 @@ check_pt(
 )
 }
 \arguments{
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{validColorSpectra()} to see valid input.}
@@ -23,7 +23,7 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{pt_clrp}{The color palette to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 
-\item{pt_clr}{Character value. Specifies the color of points.}
+\item{pt_clr}{Character value. Specifies the color of all points.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

@@ -5,7 +5,7 @@
 \alias{evaluate_gene_cluster_tendency_dbscan}
 \alias{evaluate_gene_cluster_tendency_dbscan2}
 \alias{evaluate_gene_cluster_tendency_hdbscan}
-\title{Title}
+\title{Iterate over marked data.frame and evaluate cluster/pattern tendency}
 \usage{
 evaluate_gene_cluster_tendency(
   marked_df,
@@ -22,11 +22,18 @@ evaluate_gene_cluster_tendency_dbscan2(marked_df, verbose = TRUE, pb = NULL)
 evaluate_gene_cluster_tendency_hdbscan(marked_df, verbose = TRUE, pb = NULL)
 }
 \arguments{
-\item{pb}{}
-}
-\value{
+\item{marked_df}{A data.frame with x- and y-coordinates corresponding
+to the barcode-spots that represent the underlying expression pattern.}
 
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{pb}{A progress_bar-object.}
 }
 \description{
-Title
+Use within \code{purrr::map()} to iterate over
+nested data.frame containing marked/dropped data.frames in
+variable.
 }

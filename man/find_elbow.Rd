@@ -2,16 +2,13 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{find_elbow}
 \alias{find_elbow}
-\title{Title}
+\title{Cut scree plot at optimal k value}
 \usage{
 find_elbow(variance)
 }
 \arguments{
-\item{variance}{}
-}
-\value{
-
+\item{variance}{The sorted variances (totoal within sum of squares).}
 }
 \description{
-Title
+Cut scree plot at optimal k value
 }

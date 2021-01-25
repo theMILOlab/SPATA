@@ -8,11 +8,11 @@ check_coords_df(coords_df)
 }
 \arguments{
 \item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
-\describe{
- \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
- \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
- \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
- \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+\itemize{
+ \item{\emph{barcodes} Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample} Character. The sample belonging of every barcode-spot.}
+ \item{\emph{x} Numeric. The x-coordinates of every barcode.}
+ \item{\emph{y} Numeric. The y-coordinates of every barcode.}
 }}
 }
 \value{

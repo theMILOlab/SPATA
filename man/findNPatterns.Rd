@@ -2,16 +2,10 @@
 % Please edit documentation in R/pattern-recognition-additional.R
 \name{findNPatterns}
 \alias{findNPatterns}
-\title{Title}
+\title{Plot pattern related}
 \usage{
 findNPatterns(object, n_patterns, plotPrSummary = TRUE, of_sample = NA)
 }
-\arguments{
-\item{plotPrSummary}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not working.
 }
