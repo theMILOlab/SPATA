@@ -67,9 +67,9 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{validColorSpectra()} to see valid input.}
@@ -77,7 +77,7 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{pt_clrp}{The color palette to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
 
-\item{pt_clr}{Character value. Specifies the color of points.}
+\item{pt_clr}{Character value. Specifies the color of all points.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.

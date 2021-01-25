@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-surface.R
 \name{plotSurfaceHotspots}
 \alias{plotSurfaceHotspots}
-\title{Title}
+\title{Plot localization of enriched areas}
 \usage{
 plotSurfaceHotspots(
   object,
@@ -18,17 +18,63 @@ plotSurfaceHotspots(
   display_points = NULL,
   display_image = NULL,
   display_labels = NULL,
+  ncol = NULL,
+  nrow = NULL,
   verbose = NULL,
   of_sample = NA,
   ...
 )
 }
 \arguments{
-\item{...}{}
-}
-\value{
+\item{object}{A valid spata-object.}
 
+\item{clrsp}{Character value. Specifies the color spectrum to be used to represent
+continuous values of numeric variables. Run \code{validColorSpectra()} to obtain
+valid input options.}
+
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
+
+\item{pt_clr}{Character value. Specifies the color of all points.}
+
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
+
+\item{pt_size}{Numeric value. Specifies the size of all points.}
+
+\item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
+color is continuous. Run \code{validColorSpectra()} to see valid input.}
+
+\item{smooth}{Logical. If set to TRUE values will be smoothed according to the
+\code{smoooth_}-parameters.}
+
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+
+\item{display_points}{Logical value. If set to TRUE points are used additionally
+to display the results.}
+
+\item{display_image}{Logical. If set to TRUE the histology image of the specified sample
+is displayed underneath the plot.}
+
+\item{ncol}{Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
+are displayed.}
+
+\item{nrow}{Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
+are displayed.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{ggplot2::geom_density2d()} or
+\code{ggplot2::geom_density2d_filled()} depending on the input for
+argument \code{plot_type}.}
 }
 \description{
-Title
+Plots the surface of the sample and marks areas of interest
+identified by \code{runPatternRecognition()} depending on the input for
+argument \code{plot_type}.
 }

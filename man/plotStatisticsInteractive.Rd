@@ -2,19 +2,16 @@
 % Please edit documentation in R/plot-family-miscellaneous.R
 \name{plotStatisticsInteractive}
 \alias{plotStatisticsInteractive}
-\title{Title}
+\title{Plot distribution of variables interactively}
 \usage{
 plotStatisticsInteractive(spata_df)
 }
 \arguments{
-\item{spata_df}{}
-}
-\value{
-
+\item{spata_df}{A spata}
 }
 \description{
-Title
-}
-\examples{
-
+Opens an interactive application in wihch the variables of
+the data.frame given as input for argument \code{spata_df} can be plotted.
+Apart from variables named \emph{barcodes, sample, x} and \emph{y} all variables
+are considered.
 }

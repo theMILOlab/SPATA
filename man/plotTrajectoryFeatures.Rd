@@ -4,7 +4,7 @@
 \alias{plotTrajectoryFeatures}
 \alias{plotTrajectoryGenes}
 \alias{plotTrajectoryGeneSets}
-\title{Trajectory line plots}
+\title{Plot continuous trajectory dynamics in lineplots}
 \usage{
 plotTrajectoryFeatures(
   object,
@@ -109,6 +109,10 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \code{gsva::GSVA()}.}
 
 \item{discrete_feature}{Character value. The discrete feature of interest.}
+}
+\value{
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
 Displays values along a trajectory direction with

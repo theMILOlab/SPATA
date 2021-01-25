@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryHeatmap}
 \alias{plotTrajectoryHeatmap}
-\title{Expression dynamic in heatmap}
+\title{Plot trajectory expression dynamic in heatmap}
 \usage{
 plotTrajectoryHeatmap(
   object,
@@ -10,7 +10,7 @@ plotTrajectoryHeatmap(
   variables,
   binwidth = 5,
   arrange_rows = "none",
-  hm_colors = viridis::inferno(150),
+  colors = NULL,
   method_gs = NULL,
   show_rownames = NULL,
   show_colnames = NULL,
@@ -45,7 +45,7 @@ chosen trajectory's direction.#'}
 are displayed in order to highlight patterns. Currently either \emph{'maxima'}
 or \emph{'minima'}.}
 
-\item{hm_colors}{A vector of colors to be used.}
+\item{colors}{A vector of colors to be used.}
 
 \item{show_rownames}{Logical. If set to TRUE the variable elements
 will be displayed at the rownames of the heatmap.}

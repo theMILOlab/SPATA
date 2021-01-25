@@ -34,6 +34,7 @@ plotSurface2(
   pt_clrsp = "inferno",
   pt_clrp = "milo",
   image = NULL,
+  clrp_adjust = NULL,
   ...
 )
 
@@ -61,9 +62,9 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
-\item{pt_clr}{Character value. Specifies the color of points.}
+\item{pt_clr}{Character value. Specifies the color of all points.}
 
 \item{pt_clrp}{The color palette to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
@@ -71,7 +72,7 @@ color is categorical/discrete. Run \code{validColorPalettes()} to see valid inpu
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{validColorSpectra()} to see valid input.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
@@ -91,11 +92,11 @@ the computational progress will be printed.
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{coords_df}{A data.frame containing information about every barcode-spot. Must contain the variables:
-\describe{
- \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
- \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
- \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
- \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+\itemize{
+ \item{\emph{barcodes} Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+ \item{\emph{sample} Character. The sample belonging of every barcode-spot.}
+ \item{\emph{x} Numeric. The x-coordinates of every barcode.}
+ \item{\emph{y} Numeric. The y-coordinates of every barcode.}
 }}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.

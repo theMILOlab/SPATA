@@ -3,18 +3,20 @@
 \name{setDefaultInstructions}
 \alias{setDefaultInstructions}
 \alias{setDirectoryInstructions}
-\title{Title}
+\title{Set default instructions}
 \usage{
 setDefaultInstructions(object)
 
 setDirectoryInstructions(object)
 }
 \arguments{
-\item{...}{}
+\item{object}{A valid spata-object.}
 }
 \value{
-
+A spata-object again containing the default spata-instructions.
+Everything that previously has been adjusted with \code{adjustDefaultInstructions()}
+is overwritten.
 }
 \description{
-Title
+Set default instructions
 }

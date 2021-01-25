@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-trajectory.R
 \name{plotTrajectoryFeaturesDiscrete}
 \alias{plotTrajectoryFeaturesDiscrete}
-\title{Trajectory barplots}
+\title{Plot discrete trajectory dynamics}
 \usage{
 plotTrajectoryFeaturesDiscrete(
   object,
@@ -25,8 +25,9 @@ plotTrajectoryFeaturesDiscrete(
 relevant barcode spots into groups that are then aligned with respect to the
 chosen trajectory's direction.#'}
 
-\item{clrp}{Character value. The color panel to be used.
-Run \code{all_colorpanels()} to see valid input.}
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
 
 \item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
 visualizes the parts in which the trajectory has been partitioned while beeing
@@ -41,6 +42,10 @@ the computational progress will be printed.
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
+}
+\value{
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
 Displays discrete variables along a trajectory.

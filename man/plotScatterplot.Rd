@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-miscellaneous.R
 \name{plotScatterplot}
 \alias{plotScatterplot}
-\title{Title}
+\title{Plot numeric variables as a scatterplot}
 \usage{
 plotScatterplot(
   object,
@@ -15,11 +15,28 @@ plotScatterplot(
 )
 }
 \arguments{
-\item{verbose}{}
+\item{object}{A valid spata-object.}
+
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
+
+\item{pt_clr}{Character value. Specifies the color of all points.}
+
+\item{pt_size}{Numeric value. Specifies the size of all points.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
-Title
+Use argument \code{variables} to denote the numeric variables
+of interest. First value will be mapped on to the x-axis and the second
+value on to the y-axis.
 }

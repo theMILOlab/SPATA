@@ -2,16 +2,16 @@
 % Please edit documentation in R/print-family.R
 \name{printDeaOverview}
 \alias{printDeaOverview}
-\title{Title}
+\title{Print overview of all conducted de-analysis}
 \usage{
 printDeaOverview(object, of_sample = NA)
 }
 \arguments{
-\item{of_sample}{}
-}
-\value{
+\item{object}{A valid spata-object.}
 
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \description{
-Title
+Print overview of all conducted de-analysis
 }

@@ -10,8 +10,7 @@ printGeneSetOverview(object)
 \item{object}{A valid spata-object.}
 }
 \value{
-A data.frame with two variables \emph{Class} and \emph{Available Gene
-Sets} indicating the number of different gene sets the classes contain.
+A human readable report of the issue of interest.
 }
 \description{
 Overview about the current gene sets

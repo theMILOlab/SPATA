@@ -191,14 +191,14 @@ are displayed.}
 \item{display_points}{Logical value. If set to TRUE points are used additionally
 to display the results.}
 
-\item{n_bcsp}{Numeric value. Specifies the sample size of barcode spots and
+\item{n_bcsp}{Numeric value. Specifies the sample size of barcode-spots and
 can be set to prevent overplotting.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
-\item{pt_clr}{Character value. Specifies the color of points.}
+\item{pt_clr}{Character value. Specifies the color of all points.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one

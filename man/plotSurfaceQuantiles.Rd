@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-surface.R
 \name{plotSurfaceQuantiles}
 \alias{plotSurfaceQuantiles}
-\title{Title}
+\title{Plot expression values binned}
 \usage{
 plotSurfaceQuantiles(
   object,
@@ -20,11 +20,48 @@ plotSurfaceQuantiles(
 )
 }
 \arguments{
-\item{smooth_span}{}
+\item{object}{A valid spata-object.}
+
+\item{color_to}{The variable to be displayed by color:
+
+ \itemize{
+  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
+  \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  }}
+
+\item{n_qntls}{Numeric value. Specifies the number of bins in which
+to distribute the barcode spots.}
+
+\item{keep_qntls}{Numeric vector. Specifies the quantiles to highlight by
+color. The remaining ones are displayed in gray.}
+
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
+
+\item{pt_clrp}{The color palette to be used if the specified variable displayed by
+color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
+
+\item{pt_size}{Numeric value. Specifies the size of all points.}
+
+\item{smooth}{Logical. If set to TRUE values will be smoothed according to the
+\code{smoooth_}-parameters.}
+
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 
 }
 \description{
-Title
+This function calculates the quantiles specified in \code{n_qntl}
+of the numeric variable specified in \code{color_to} and divides the barcode
+spots accordingly.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-pattern-recognition.R
 \name{plotPrSummary}
 \alias{plotPrSummary}
-\title{Title}
+\title{Plot pattern summary}
 \usage{
 plotPrSummary(
   object,
@@ -13,12 +13,6 @@ plotPrSummary(
   of_sample = NA
 )
 }
-\arguments{
-\item{clrp}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not reliably working.
 }

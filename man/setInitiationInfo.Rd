@@ -2,16 +2,25 @@
 % Please edit documentation in R/set-family.R
 \name{setInitiationInfo}
 \alias{setInitiationInfo}
-\title{Title}
+\title{Set initation information}
 \usage{
 setInitiationInfo(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{A valid spata-object.}
 }
 \value{
-
+A logical value TRUE if nothing invalid has been detected or an informative
+error message.
 }
 \description{
-Title
+A member of the \code{lazy-check_*()}-family.
+}
+\details{
+Members of the \code{lazy-check_*()}-family take the arguments
+of their kind - that are used in the function they are called in - and
+checks whether these arguments input fit the requirements. They stop and return an
+error immediately once they stumble upon something invalid. They do not alter or adjust input
+and return TRUE if the whole function has been executed without anything
+invalid being found.
 }

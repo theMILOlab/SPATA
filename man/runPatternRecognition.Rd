@@ -2,29 +2,46 @@
 % Please edit documentation in R/pattern-recognition-main.R
 \name{runPatternRecognition}
 \alias{runPatternRecognition}
-\title{Title}
+\title{Find and reconstruct underlying spatial gene expression patterns}
 \usage{
 runPatternRecognition(
   object,
-  genes = 1500,
+  n_genes = 5000,
   genes_additional = NULL,
   with_ties = TRUE,
   method_pr = "hotspot",
   threshold_qntl = 0.8,
-  threshold_stw = 0.5,
   threshold_stpv = 0.1,
-  smooth = TRUE,
+  threshold_stw = 0.5,
+  smooth = FALSE,
   smooth_span = 0.02,
   verbose = TRUE,
   of_sample = NA
 )
 }
 \arguments{
-\item{n_start}{}
+\item{object}{A valid spata-object.}
+
+\item{with_ties}{Logical value. Indicates whether ties are kept. If set
+to TRUE this might result in more genes than specified in \code{n_genes}.}
+
+\item{threshold_stpv}{Numeric value. The maximal shapiro test p-value
+a gene must have in order to be included.}
+
+\item{threshold_stw}{Numeric value. The minimal shapiro test W-value
+a gene must have in order to be included.}
+
+\item{smooth}{Logical. If set to TRUE values will be smoothed according to the
+\code{smoooth_}-parameters.}
+
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+An updated spata-object containing the analysis results.
 }
 \description{
-Title
+Find and reconstruct underlying spatial gene expression patterns
 }

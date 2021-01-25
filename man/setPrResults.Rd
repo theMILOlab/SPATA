@@ -2,16 +2,30 @@
 % Please edit documentation in R/set-family.R
 \name{setPrResults}
 \alias{setPrResults}
-\title{Title}
+\title{Set results of pattern recognition methods}
 \usage{
-setPrResults(object, of_sample = "", pr_list, method_pr = "hotspot")
+setPrResults(object, of_sample = "", method_pr = "hotspot", pr_list)
 }
 \arguments{
-\item{pr_list}{}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{method_pr}{Character value. Denotes the pattern recognition method.}
+
+\item{pr_list}{The list of information and results the chosen method in
+\code{method_pr} returns}
 }
 \value{
-
+A spata object containing the set input.
 }
 \description{
-Title
+Set results of pattern recognition methods
+}
+\details{
+All \code{set*()}-functions offer a save way to set certain
+slots of your spata-object. They do check the input for validity but
+effectively overwrite everything that is occupying the slot to be set -
+use with caution.
 }

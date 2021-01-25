@@ -2,16 +2,10 @@
 % Please edit documentation in R/plot-family-pattern-recognition.R
 \name{plotPrAssessment}
 \alias{plotPrAssessment}
-\title{Title}
+\title{Plot pattern related}
 \usage{
 plotPrAssessment(object, of_sample = NA)
 }
-\arguments{
-\item{of_sample}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not reliably working.
 }

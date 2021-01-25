@@ -51,9 +51,9 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
 \item{pt_clrsp}{The color spectrum to be used if the specified variable displayed by
 color is continuous. Run \code{validColorSpectra()} to see valid input.}

@@ -50,11 +50,11 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 
 \item{smooth_span}{The amount of smoothing specified as a single numeric value.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
-\item{pt_clr}{Character value. Specifies the color of points.}
+\item{pt_clr}{Character value. Specifies the color of all points.}
 
 \item{pt_clrp}{The color palette to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}

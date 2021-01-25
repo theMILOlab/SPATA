@@ -10,7 +10,7 @@ printDefaultInstructions(object)
 \item{object}{A valid spata-object.}
 }
 \value{
-Object of class glue.
+A human readable report of the issue of interest.
 }
 \description{
 Print current default settings

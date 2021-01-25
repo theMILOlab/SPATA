@@ -2,7 +2,7 @@
 % Please edit documentation in R/set-family.R
 \name{setAutoencoderAssessment}
 \alias{setAutoencoderAssessment}
-\title{Title}
+\title{Set results of autoencoder assessment}
 \usage{
 setAutoencoderAssessment(object, assessment_list, of_sample = "")
 }
@@ -15,5 +15,5 @@ setAutoencoderAssessment(object, assessment_list, of_sample = "")
 A spata-object.
 }
 \description{
-Title
+Set results of autoencoder assessment
 }

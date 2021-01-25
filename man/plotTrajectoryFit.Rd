@@ -3,7 +3,7 @@
 \name{plotTrajectoryFit}
 \alias{plotTrajectoryFit}
 \alias{plotTrajectoryFitCustomized}
-\title{Display trajectory fit}
+\title{Plot trajectory fit}
 \usage{
 plotTrajectoryFit(
   object,
@@ -40,7 +40,13 @@ plotTrajectoryFitCustomized(
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{variable}{The gene or gene set of interest specified as a character value.}
+\item{variable}{Character value. The numeric variable of interest. Must be inside:
+
+\itemize{
+  \item{ \strong{Gene sets} Must be in \code{getGeneSets()}}
+  \item{ \strong{Genes} Must be in \code{getGenes()}}
+  \item{ \strong{Features} Must be in \code{getFeatureNames(..., of_class = "numeric")}}
+  }}
 
 \item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
 relevant barcode spots into groups that are then aligned with respect to the
@@ -67,6 +73,10 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{customized_trends}{A data.frame or a named list. All numeric variables are considered to correspond to customized trends
 the trajectory of interest might adopt. The names of the respective variables will correspond to the name
 with which you want to refer to the trend later on.}
+}
+\value{
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
 Displays the trend of a trajectory in comparison to a variety

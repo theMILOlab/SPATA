@@ -13,7 +13,7 @@ printAutoencoderSummary(object, mtr_name, of_sample = "")
 If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-Object of class glue.
+A human readable report of the issue of interest.
 }
 \description{
 Prints a human readable summary about the set up of the last neural network that
