@@ -11,10 +11,7 @@ hlpr_adjust_legend_size(variable, aes, pt_size)
 
 \item{aes}{The aesthetic used.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
-}
-\value{
-
+\item{pt_size}{Numeric value. Specifies the size of all points.}
 }
 \description{
 Adjusts the size of discrete legend points

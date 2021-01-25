@@ -2,7 +2,8 @@
 % Please edit documentation in R/pattern-recognition-sub.R
 \name{iterate_over_kmeans}
 \alias{iterate_over_kmeans}
-\title{Title}
+\alias{iterate_over_pam}
+\title{Iterate over cluster algorithms}
 \usage{
 iterate_over_kmeans(
   dropped_df,
@@ -11,13 +12,20 @@ iterate_over_kmeans(
   n_start = 10,
   ...
 )
+
+iterate_over_pam(df, vars = c("x", "y"), max_cluster = 9, n_start = 10, ...)
 }
 \arguments{
-\item{...}{}
-}
-\value{
+\item{dropped_df}{A data.frame with no NAs. (Result of \code{tidyr::drop_na()}).}
 
+\item{max_cluster}{Maximal number of clusters. Function iterates from 1 to this
+value.}
+
+\item{n_start}{Numeric value indicating how often the algorithm is supposed
+to start again in order to optimize the results.}
+
+\item{...}{Additional arguments given to the function.}
 }
 \description{
-Title
+Iterate over cluster algorithms
 }

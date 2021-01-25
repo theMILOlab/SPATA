@@ -2,16 +2,10 @@
 % Please edit documentation in R/plot-family-pattern-recognition.R
 \name{plotIntraPatternDistance}
 \alias{plotIntraPatternDistance}
-\title{Title}
+\title{Plot pattern related}
 \usage{
 plotIntraPatternDistance(object, of_pattern = "", clrp = NULL, of_sample = NA)
 }
-\arguments{
-\item{of_hotspots}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not reliably working.
 }

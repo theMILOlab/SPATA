@@ -15,7 +15,7 @@ plotAutoencoderAssessment(
 \item{object}{A valid spata-object.}
 }
 \value{
-plot_family return
+ggplot_family return
 }
 \description{
 Visualizes the results of \code{assessAutoencoderOptions()} by displaying the

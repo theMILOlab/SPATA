@@ -3,7 +3,10 @@
 \name{plotDistribution}
 \alias{plotDistribution}
 \alias{plotDistribution2}
-\title{Distribution of continuous values}
+\alias{plotDistributionAcross}
+\alias{plotDistributionAcross2}
+\alias{plotDistributionDiscrete}
+\title{Distribution of continuous values (Deprecated)}
 \usage{
 plotDistribution(
   object,
@@ -25,6 +28,46 @@ plotDistribution2(
   clrp = "milo",
   binwidth = 0.05,
   verbose = TRUE,
+  ...
+)
+
+plotDistributionAcross(
+  object,
+  variables,
+  across,
+  across_subset = NULL,
+  binwidth = 0.05,
+  method_gs = NULL,
+  plot_type = NULL,
+  clrp = NULL,
+  normalize = NULL,
+  verbose = NULL,
+  of_sample = NA,
+  ...
+)
+
+plotDistributionAcross2(
+  df,
+  variables = "all",
+  across,
+  across_subset = NULL,
+  plot_type = "violin",
+  binwidth = 0.05,
+  clrp = "milo",
+  ...,
+  normalize = TRUE,
+  assign = FALSE,
+  assign_name,
+  verbose = TRUE
+)
+
+plotDistributionDiscrete(
+  object,
+  features,
+  feature_compare = NULL,
+  clrp = NULL,
+  position = NULL,
+  of_sample = NA,
   ...
 )
 }
@@ -63,9 +106,33 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
 
 \item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
+
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
+
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
+
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
+
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{assign}{Logical. If set to TRUE a named list will be assigned to the global
+environment. This list contains data and information to rebuild or additionally
+customize the output plot of this function.}
+
+\item{assign_name}{The name the assigned list is supposed to have specified as
+a single character value.}
 }
 \description{
-Visualizes the distribution of values of a set of variables.
+These functions are deprecated in favor of \code{plotDensityplot(),
+plotHistogram(), plotRidgplot(), plotBoxplot(), plotViolinplot()} and \code{plotBarchart()}.
+
+Visualize the distribution of values of a set of variables.
 
 \itemize{
  \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the

@@ -19,7 +19,7 @@ If set to \emph{""} (the default) the first sample is chosen.}
 \item{...}{Additional arguments given to \code{ggdendro::ggdendrogram()}}
 }
 \value{
-plot_family return
+ggplot_family return
 }
 \description{
 Plots a dendrogram of the distance matrix calculated via \code{runSpatialCorrelation()}.

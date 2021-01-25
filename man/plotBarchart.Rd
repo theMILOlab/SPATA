@@ -24,7 +24,7 @@ plotBarchart(
 
 \item{variables}{Character vector. The discrete features whose group count or
 proportion you want to display. Must not contain the feature specified in
-\code{across}.}
+\code{across} - if \code{across} is not set to NULL.}
 
 \item{across}{Character value or NULL. Specifies the grouping variable of interest.
 

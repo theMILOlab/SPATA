@@ -2,7 +2,7 @@
 % Please edit documentation in R/get-family.R
 \name{getSpCorResults}
 \alias{getSpCorResults}
-\title{Title}
+\title{Obtain spatial correlation results}
 \usage{
 getSpCorResults(object, of_sample = NA)
 }
@@ -13,8 +13,8 @@ getSpCorResults(object, of_sample = NA)
 If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+The list containing all information about the clustering results.
 }
 \description{
-Title
+Obtain spatial correlation results
 }

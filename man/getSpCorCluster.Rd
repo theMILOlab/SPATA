@@ -2,9 +2,12 @@
 % Please edit documentation in R/get-family.R
 \name{getSpCorCluster}
 \alias{getSpCorCluster}
-\title{Title}
+\alias{getSpCorClusterNames}
+\title{Obtain cluster results based on spatial correlation analysis}
 \usage{
 getSpCorCluster(object, method_hclust = "complete", of_sample = NA)
+
+getSpCorClusterNames(object, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -16,8 +19,8 @@ clustering results you want to extract.}
 If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+The list containing all information about the clustering results.
 }
 \description{
-Title
+Obtain cluster results based on spatial correlation analysis
 }

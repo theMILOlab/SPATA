@@ -2,10 +2,13 @@
 % Please edit documentation in R/helper-functions.R
 \name{hlpr_display_title}
 \alias{hlpr_display_title}
-\title{Title}
+\alias{hlpr_display_subtitle}
+\title{No documentation needed}
 \usage{
 hlpr_display_title(display_title, title)
+
+hlpr_display_subtitle(display_subtitle, subtitle)
 }
 \description{
-Title
+No documentation needed
 }

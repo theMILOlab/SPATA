@@ -4,7 +4,7 @@
 \alias{getPrResults}
 \alias{getPrSuggestion}
 \alias{getPatternNames}
-\title{Title}
+\title{Obtain pattern recognition results}
 \usage{
 getPrResults(object, method_pr = "hotspot", of_sample = NA)
 
@@ -13,11 +13,21 @@ getPrSuggestion(object, method_pr = "hotspot", of_sample = NA)
 getPatternNames(object, method_pr = "hotspot", of_sample = NA)
 }
 \arguments{
-\item{of_sample}{}
+\item{object}{A valid spata-object.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
+The list containing all information the respective pattern
+recognition algorithm returns.
 
+\itemize{
+ \item{\code{getPrResults()}: List containing all information the respective
+ method returns}
+ \item{\code{getPrSuggestion()}: List containing the actual pattern suggestions.}
+ \item{\code{getPatternNames()}: Character vector of pattern names.}}
 }
 \description{
-Title
+Obtain pattern recognition results
 }

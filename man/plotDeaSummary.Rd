@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-summaries.R
 \name{plotDeaSummary}
 \alias{plotDeaSummary}
-\title{Title}
+\title{Plot a summary of differential expression analysis results}
 \usage{
 plotDeaSummary(
   object,
@@ -20,11 +20,41 @@ plotDeaSummary(
 )
 }
 \arguments{
-\item{...}{}
+\item{object}{A valid spata-object.}
+
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
+
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
+
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
+
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{relevel}{Logical value. If set to TRUE the input order of \code{across_subset}
+determines the order in which the groups of interest are displayed. Groups that
+are not included are dropped which affects the colors with which they are displayed.}
+
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
-Title
+This function is a wrapper around \code{plotDeaPvalues(),
+plotDeaLogFC()} and \code{plotDeaGeneCount()} and returns
+a combined ggplot. Set the respective argument to FALSE if
+you want to skip one of the functions or specify their arguments
+by providing a named list of arguments.
 }

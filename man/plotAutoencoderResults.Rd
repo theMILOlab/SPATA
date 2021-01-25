@@ -9,9 +9,9 @@ plotAutoencoderResults(
   genes,
   mtr_name = "denoised",
   scales = "free",
-  pt_size = NULL,
   pt_alpha = NULL,
   pt_clrp = NULL,
+  pt_size = NULL,
   verbose = NULL,
   of_saple = NA,
   ...
@@ -22,12 +22,16 @@ plotAutoencoderResults(
 
 \item{genes}{Character vector of length two. Denotes the genes to be used for the validation plot.}
 
-\item{pt_size}{Numeric value. Specifies the size of points.}
-
-\item{pt_alpha}{Numeric value. Specifies the degree of transparency points.}
+\item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
 \item{pt_clrp}{The color palette to be used if the specified variable displayed by
 color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.}
+
+\item{pt_size}{Numeric value. Specifies the size of all points.}
+}
+\value{
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
 Compares the distribution of the expression levels of \code{genes}

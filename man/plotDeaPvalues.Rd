@@ -3,7 +3,7 @@
 \name{plotDeaPvalues}
 \alias{plotDeaPvalues}
 \alias{plotDeaLogFC}
-\title{Title}
+\title{Plot the p-value and log fold change distribution of de-analysis results}
 \usage{
 plotDeaPvalues(
   object,
@@ -40,11 +40,50 @@ plotDeaLogFC(
 )
 }
 \arguments{
-\item{...}{}
+\item{object}{A valid spata-object.}
+
+\item{across}{Character value or NULL. Specifies the grouping variable of interest.
+
+Use \code{getGroupingOptions()} to obtain all variable names that group the
+barcode spots of your object in a certain manner.}
+
+\item{across_subset}{Character vector or NULL. Specifies the particular groups
+of interest the grouping variable specified in argument \code{across} contains.
+
+If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
+with a \emph{'-'}. (Saves writing if there are more groups you are interested in
+than groups you are not interested in.)
+
+Use \code{getGroupNames()} to obtain all valid input options.}
+
+\item{relevel}{Logical value. If set to TRUE the input order of \code{across_subset}
+determines the order in which the groups of interest are displayed. Groups that
+are not included are dropped which affects the colors with which they are displayed.}
+
+\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
+Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
+to obtain all valid input options.}
+
+\item{binwidth}{Numeric value. Denotes the binwidth to use for the histogram.}
+
+\item{plot_type}{Character value. Specifies the type of plot to use to
+visualize the results. If valid input options are not mentioned in the
+description use \code{validPlotTypess()} to obtain all valid input options.}
+
+\item{limits_x}{Numeric vector of length two. Specify the limits
+of the x-axis.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+Returns a ggplot-object that can be additionally customized according
+to the rules of the ggplot2-framework.
 }
 \description{
-Title
+Use argument \code{across} to specify the grouping
+variable of interest across which the de-analysis has been conducted.
+
+Valid input options for \code{plot_type} are \emph{'density'} and
+ \emph{'histogram'}.
 }

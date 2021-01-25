@@ -11,9 +11,6 @@ hlpr_add_barcode_suffix(input, sample_name)
 
 \item{sample_name}{Character value.}
 }
-\value{
-
-}
 \description{
 Make sure that barcodes are spata-like
 }

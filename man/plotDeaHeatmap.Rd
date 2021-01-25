@@ -48,6 +48,13 @@ are not included are dropped which affects the colors with which they are displa
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
 
+\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
+with adjusted p-values above that threshold are ignored.}
+
+\item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
+
+\item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
+
 \item{breaks}{Denotes the colorspectrum breaks. If set to NULL the breaks are set automatically. If a
 numeric vector is specified it is taken as input. If a function is specified the expression matrix is
 passed to it as the first argument and the length of \code{colors} as the second argument.}
@@ -85,4 +92,19 @@ A heatmap of class 'pheatmap'.
 Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
 from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
 differently expressed genes of every group of the feature denoted in the argument \code{across}.
+}
+\details{
+The de-data.frame is processed such that the following steps are performed for every experimental
+group. (With "genes" we refer to the rows (observations) of \code{data}.)
+
+\enumerate{
+ \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
+ \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
+ \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+ \enumerate{
+  \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
+  \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}
+  }
+ \item{Arranges the genes according to the highest \emph{avg_logFC}-values}
+ }
 }

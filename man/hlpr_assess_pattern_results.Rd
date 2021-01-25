@@ -3,7 +3,7 @@
 \name{hlpr_assess_pattern_results}
 \alias{hlpr_assess_pattern_results}
 \alias{hlpr_assess_hotspot_results}
-\title{Title}
+\title{Plot pattern related}
 \usage{
 hlpr_assess_pattern_results(
   object,
@@ -33,12 +33,6 @@ hlpr_assess_hotspot_results(
   ...
 )
 }
-\arguments{
-\item{...}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not reliably working.
 }

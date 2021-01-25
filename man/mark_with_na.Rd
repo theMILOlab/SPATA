@@ -3,18 +3,27 @@
 \name{mark_with_na}
 \alias{mark_with_na}
 \alias{mark_all_with_na}
-\title{Title}
+\alias{mark_with_na2}
+\alias{mark_all_with_na2}
+\title{Mark values of variables with NA}
 \usage{
 mark_with_na(variable, n_qntls = 5, keep_qntls = 5)
 
 mark_all_with_na(coords_df, n_qntls = 5, keep_qntls = 5)
+
+mark_with_na2(variable, percentile = 0.75)
+
+mark_all_with_na2(coords_df, percentile = 0.75)
 }
 \arguments{
-\item{mark_below}{}
-}
-\value{
+\item{variable}{The numeric variable.}
 
+\item{n_qntls}{Numeric value. Denotes the number of quantiles
+the variable's values are binned into.}
+
+\item{keep_qntls}{Numeric vector. Inicates the quantiles
+whose values are kept - not marked with NA.}
 }
 \description{
-Title
+Mark values of variables with NA
 }

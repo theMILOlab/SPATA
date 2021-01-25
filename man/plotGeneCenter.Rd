@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-family-pattern-recognition.R
 \name{plotGeneCenter}
 \alias{plotGeneCenter}
-\title{Title}
+\title{Plot pattern related}
 \usage{
 plotGeneCenter(
   object,
@@ -13,12 +13,6 @@ plotGeneCenter(
   of_sample = NA
 )
 }
-\arguments{
-\item{plotSurface}{}
-}
-\value{
-
-}
 \description{
-Title
+Blueprint - currently not #' @description Blueprint - currently not reliably working.
 }
