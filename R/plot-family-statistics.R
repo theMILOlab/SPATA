@@ -33,21 +33,6 @@
 #' function. E.g. \code{plotViolinplot()} relies on \code{ggplot2::geom_violin()}.
 #'
 #' @export
-#'
-#' @examples #Not run:
-#'
-#'   # visualize the distribution of three genes in a
-#'   # comparative manner across three groups and plot
-#'   # the significance via a t-test
-#'
-#'   plotViolinplot(object = spata_obj,
-#'                  variables = c("GFAP", "HOPX", "VEGFA"),
-#'                  across = "my_cluster",
-#'                  across_subset = c("cluster_1", "cluster_2", cluster_4"),
-#'                  test_pairwise = "t.test",
-#'                  ref_group = "cluster_1"
-#'                  )
-#'
 
 plotViolinplot <- function(object,
                            variables,
@@ -89,7 +74,6 @@ plotViolinplot <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = FALSE)
 
   spata_df <-
@@ -169,7 +153,6 @@ plotBoxplot <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = FALSE)
 
   spata_df <-
@@ -238,7 +221,6 @@ plotHistogram <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = FALSE)
 
   spata_df <-
@@ -296,7 +278,6 @@ plotDensityplot <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = FALSE)
 
   spata_df <-
@@ -356,7 +337,6 @@ plotRidgeplot <- function(object,
                     all_features = all_features,
                     all_gene_sets = all_gene_sets,
                     all_genes = all_genes,
-                    max_length = max_length,
                     simplify = FALSE)
 
   spata_df <-

@@ -1,17 +1,7 @@
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param of_gene
-#' @param pt_clr
-#' @param pt_shape
-#' @param pt_size
-#' @param plotSurface
-#'
-#' @return
-#' @export
-#'
+#' @title Plot pattern related
+#' @description Blueprint - currently not #' @description Blueprint - currently not reliably working.
+
 plotGeneCenter <- function(object,
                            genes,
                            plotSurfaceComparison = FALSE,
@@ -60,15 +50,8 @@ plotGeneCenter <- function(object,
 }
 
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param of_hotspots
-#'
-#' @return
-#' @export
-
+#' @title Plot pattern related
+#' @description Blueprint - currently not reliably working.
 plotIntraPatternDistance <- function(object, of_pattern = "", clrp = NULL, of_sample = NA){
 
   hlpr_assign_arguments(object)
@@ -101,14 +84,8 @@ plotIntraPatternDistance <- function(object, of_pattern = "", clrp = NULL, of_sa
 
 }
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#'
-#' @return
-#' @export
-#'
+#' @title Plot pattern related
+#' @description Blueprint - currently not reliably working.
 plotPrAssessment <- function(object, of_sample = NA){
 
   hlpr_assign_arguments(object)
@@ -134,18 +111,8 @@ plotPrAssessment <- function(object, of_sample = NA){
 }
 
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param plot_type
-#' @param display_points
-#' @param pt_size
-#' @param clrp
-#'
-#' @return
-#' @export
-#'
+#' @title Plot pattern summary
+#' @description Blueprint - currently not reliably working.
 plotPrSummary <- function(object,
                           plot_type = "density_2d",
                           display_points = NULL,
@@ -183,6 +150,54 @@ plotPrSummary <- function(object,
 
 }
 
+# Pattern plotting --------------------------------------------------------
 
+#' @title Plot gene set enrichment within found patterns
+#' @description Blueprint - currently not reliably working.
+plotPatternEnrichment <- function(object,
+                                  of_hotspots = "",
+                                  of_gene_sets = "",
+                                  top_n = 10,
+                                  clrp = NULL,
+                                  with_ties = FALSE,
+                                  of_sample = NA,
+                                  ...){
+
+  hlpr_assign_arguments(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  patterns <- check_pattern(object = object, of_sample = of_sample, patterns = of_hotspots)
+
+  gene_sets <- check_gene_sets(object = object, gene_sets = of_gene_sets)
+
+  enrichment_df <-
+    getPrSuggestion(object, of_sample = of_sample)$gse_df %>%
+    dplyr::filter(ont %in% {{gene_sets}} & patterns %in% {{patterns}}) %>%
+    dplyr::group_by(patterns) %>%
+    dplyr::mutate(enrichment_score = confuns::normalize(enrichment_score)) %>%
+    dplyr::slice_max(order_by = enrichment_score, with_ties = with_ties, n = top_n) %>%
+    dplyr::mutate(
+      ont = forcats::as_factor(x = ont),
+      ont = tidytext::reorder_within(x = ont, by = enrichment_score, within = patterns)
+    )
+
+  ggplot2::ggplot(enrichment_df, mapping = ggplot2::aes(x = enrichment_score, y = ont)) +
+    ggplot2::geom_col(mapping = ggplot2::aes(fill = patterns)) +
+    ggplot2::facet_wrap(facets = . ~ patterns, scales = "free_y", drop = TRUE, ...) +
+    tidytext::scale_y_reordered() +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.line = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      legend.position = "none",
+      panel.border = ggplot2::element_blank(),
+      strip.background = ggplot2::element_blank()
+    ) +
+    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
+    ggplot2::labs(x = "Enrichment Score", y = NULL)
+
+}
 
 

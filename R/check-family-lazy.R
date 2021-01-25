@@ -248,11 +248,11 @@ check_dea_df <- function(dea_df){
 #' @title Check coords data.frame
 #'
 #' @param coords_df A data.frame containing information about every barcode-spot. Must contain the variables:
-#'  \describe{
-#'   \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
-#'   \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
-#'   \item{\emph{x}}{Numeric. The x-coordinates of every barcode.}
-#'   \item{\emph{y}}{Numeric. The y-coordinates of every barcode.}
+#'  \itemize{
+#'   \item{\emph{barcodes} Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
+#'   \item{\emph{sample} Character. The sample belonging of every barcode-spot.}
+#'   \item{\emph{x} Numeric. The x-coordinates of every barcode.}
+#'   \item{\emph{y} Numeric. The y-coordinates of every barcode.}
 #'  }
 #'
 #' @inherit lazy_check_dummy description details return
@@ -263,7 +263,6 @@ check_coords_df <- function(coords_df){
     df = coords_df,
     var.class = list(
       barcodes = "character",
-      sample = "character",
       x = c("numeric", "integer", "double"),
       y = c("numeric", "integer", "double")
     ),
@@ -736,6 +735,8 @@ check_monocle_input <- function(preprocess_method,
   confuns::is_value(k, "numeric", "k")
   confuns::is_value(num_iter, "numeric", "num_iter")
 
+  msg <- NULL
+
   if(!base::is.null(preprocess_method) &&
      base::any(!preprocess_method %in% c("PCA", "LSI"))){
 
@@ -786,9 +787,9 @@ check_object <- function(object){
 
 #' @title Check pt input
 
-#' @param pt_alpha Numeric value. Specifies the degree of transparency points.
-#' @param pt_size Numeric value. Specifies the size of points.
-#' @param pt_clr Character value. Specifies the color of points.
+#' @param pt_alpha Numeric value. Specifies the degree of transparency of all points.
+#' @param pt_size Numeric value. Specifies the size of all points.
+#' @param pt_clr Character value. Specifies the color of all points.
 #' @param pt_clrp The color palette to be used if the specified variable displayed by
 #' color is categorical/discrete. Run \code{validColorPalettes()} to see valid input.
 #' @param pt_clrsp The color spectrum to be used if the specified variable displayed by

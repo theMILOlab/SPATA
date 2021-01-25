@@ -2,9 +2,12 @@
 % Please edit documentation in R/documentation-dummies.R
 \name{across}
 \alias{across}
+\alias{across_dummy}
 \title{across}
 \usage{
-across(across, across_subset)
+across(across, across_subset, relevel)
+
+across_dummy(across, across_subset, relevel)
 }
 \arguments{
 \item{across}{Character value or NULL. Specifies the grouping variable of interest.

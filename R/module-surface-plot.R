@@ -273,7 +273,7 @@ moduleSurfacePlotServer <- function(id,
 
         shinyWidgets::pickerInput(ns("pt_clrsp"),
                                   label = "Color spectrum:",
-                                  choices = all_colorspectra(),
+                                  choices = validColorSpectra(),
                                   options = list(
                                     `live-search` = TRUE
                                   ),
@@ -677,7 +677,7 @@ moduleSurfacePlotServer <- function(id,
 
         if(base::is.numeric(color_variable())){
 
-          if(current$pt_clrsp %in% all_colorspectra()[["Diverging"]]){
+          if(current$pt_clrsp %in% validColorSpectra()[["Diverging"]]){
 
             add_on <-
               confuns::scale_color_add_on(clrsp = current$pt_clrsp,

@@ -8,9 +8,8 @@
 #'
 #' @inherit check_sample params
 #'
-#' @return Object of class glue.
+#' @inherit print_family return
 #' @export
-#'
 
 printAutoencoderSummary <- function(object, mtr_name, of_sample = ""){
 
@@ -44,15 +43,13 @@ printAutoencoderSummary <- function(object, mtr_name, of_sample = ""){
 
 # Slot: dea ---------------------------------------------------------------
 
-#' Title
+#' @title Print overview of all conducted de-analysis
 #'
-#' @param object
-#' @param of_sample
+#' @inherit check_sample params
+#' @inherit pint_family return
 #'
-#' @return
 #' @export
-#'
-#' @examples
+
 printDeaOverview <- function(object, of_sample = NA){
 
   check_object(object)
@@ -92,8 +89,8 @@ printDeaOverview <- function(object, of_sample = NA){
 #' @title Print current default settings
 #'
 #' @inherit check_object params
+#' @inherit print_family return
 #'
-#' @return Object of class glue.
 #' @export
 
 printDefaultInstructions <- function(object){
@@ -139,8 +136,7 @@ printDefaultInstructions <- function(object){
 #'
 #' @param object A valid spata-object.
 #'
-#' @return A data.frame with two variables \emph{Class} and \emph{Available Gene
-#' Sets} indicating the number of different gene sets the classes contain.
+#' @inherit print_family return
 #'
 #' @export
 

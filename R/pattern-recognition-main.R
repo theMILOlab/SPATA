@@ -2,30 +2,29 @@
 
 # Main function -----------------------------------------------------------
 
-#' Title
+#' @title Find and reconstruct underlying spatial gene expression patterns
 #'
-#' @param object
-#' @param of_sample
-#' @param threshold_stw
-#' @param threshold_stpv
-#' @param smooth_span
-#' @param with_ties
-#' @param normalize
-#' @param max_pattern
-#' @param n_start
+#' @inherit check_sample params
+#' @inherit check_smooth params
+#' @param threshold_stw Numeric value. The minimal shapiro test W-value
+#' a gene must have in order to be included.
+#' @param threshold_stpv Numeric value. The maximal shapiro test p-value
+#' a gene must have in order to be included.
+#' @param with_ties Logical value. Indicates whether ties are kept. If set
+#' to TRUE this might result in more genes than specified in \code{n_genes}.
 #'
-#' @return
+#' @return An updated spata-object containing the analysis results.
 #' @export
 
 runPatternRecognition <- function(object,
-                                  genes = 1500,
+                                  n_genes = 5000,
                                   genes_additional = NULL,
                                   with_ties = TRUE,
                                   method_pr = "hotspot",
                                   threshold_qntl = 0.8,
-                                  threshold_stw = 0.5,
                                   threshold_stpv = 0.1,
-                                  smooth = TRUE,
+                                  threshold_stw = 0.5,
+                                  smooth = FALSE,
                                   smooth_span = 0.02,
                                   verbose = TRUE,
                                   of_sample = NA){
@@ -43,32 +42,36 @@ runPatternRecognition <- function(object,
   genes <-
     getGeneMetaDf(object = object, of_sample = of_sample) %>%
     dplyr::filter(stw >= threshold_stw & stpv <= threshold_stpv) %>%
-    dplyr::slice_max(order_by = var, n = genes, with_ties = with_ties) %>%
+    dplyr::slice_max(order_by = var, n = n_genes, with_ties = with_ties) %>%
     dplyr::pull(var = "genes") %>%
     base::unique()
 
   # 3. Join gene variables and smooth spatially  ----------------------------
 
+  coords_df <- getCoordsDf(object, of_sample = of_sample)
+
   gene_df <-
     joinWith(
       object = object,
-      spata_df = getCoordsDf(object, of_sample = of_sample),
+      spata_df = coords_df,
       genes = genes,
       smooth = smooth,
       smooth_span = smooth_span,
       normalize = TRUE
     )
 
+  genes <- genes[genes %in% base::colnames(gene_df)]
+
   # 4. Mark barcode spots with expression levels below threshold with NA ----
   #    for every joined gene
 
   confuns::give_feedback(
-    msg = "Preparing data for cluster evaluation.",
+    msg = "Preparing gene data for cluster evaluation.",
     verbose = verbose
   )
 
   marked_df <-
-    mark_all_with_na(gene_df, n_qntls = threshold_qntl*10, keep_qntls = threshold_qntl*10) # arbitrary threshold
+    mark_all_with_na2(gene_df, percentile = threshold_qntl) # arbitrary threshold
 
   # 5. Shift focus to the genes and nest the data.frame ---------------------
 
@@ -109,29 +112,33 @@ runPatternRecognition <- function(object,
     purrr::map(.x = pattern_evaluation_list, .f = ~ base::all(base::is.na(.x[["result"]]))) %>%
     purrr::flatten_lgl()
 
-  ignored_genes <-
+  failed_genes <-
     nested_df[failed_evaluation, ] %>%
     dplyr::pull(genes)
 
-  confuns::give_feedback(
-    msg = glue::glue("Evaluation failed for {f_genes} {ref_genes}.",
-                     f_genes = base::length(ignored_genes),
-                     ref_genes = confuns::adapt_reference(ignored_genes, sg = "gene", pl = "genes")),
-    verbose = verbose
-  )
+  if(base::length(failed_genes) >= 1){
+
+    confuns::give_feedback(
+      msg = glue::glue("Evaluation failed for {f_genes} {ref_genes}.",
+                       f_genes = base::length(failed_genes),
+                       ref_genes = confuns::adapt_reference(failed_genes, sg = "gene", pl = "genes")),
+      verbose = verbose
+    )
+
+  }
 
   # keep only successful evaluations
-  evaluated_df <-
-    tibble::as_tibble(x = nested_df[!failed_evaluation, ]) %>%
-    dplyr::mutate(
-      pattern_evaluation = purrr::map(.x = pattern_evaluation_list[!failed_evaluation],
-                                      .f = "result")
-      )
+
+  successful_evaluations <-
+    purrr::map(.x = pattern_evaluation_list[!failed_evaluation], .f = "result")
 
   cluster_eval_df <-
-    tidyr::unnest(evaluated_df, cols = "pattern_evaluation") %>%
+    tibble::as_tibble(x = nested_df[!failed_evaluation, ]) %>%
+    dplyr::mutate(pattern_evaluation = successful_evaluations) %>%
+    tidyr::unnest(cols = "pattern_evaluation") %>%
     dplyr::select(-data) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(noise_total = size_total - size_noisless)
 
 
   # 7. Evaluate sample hotspots ---------------------------------------------

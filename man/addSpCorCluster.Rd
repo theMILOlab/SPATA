@@ -2,16 +2,28 @@
 % Please edit documentation in R/set-family.R
 \name{addSpCorCluster}
 \alias{addSpCorCluster}
-\title{Title}
+\title{Add cluster results of spatial correlation results}
 \usage{
 addSpCorCluster(object, cluster_list, of_sample = "")
 }
 \arguments{
-\item{of_sample}{}
+\item{object}{A valid spata-object.}
+
+\item{cluster_list}{The list containing information and results
+the function \code{clusterSpCorResults()} returns.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-
+A spata object containing the set input.
 }
 \description{
-Title
+Add cluster results of spatial correlation results
+}
+\details{
+All \code{set*()}-functions offer a save way to set certain
+slots of your spata-object. They do check the input for validity but
+effectively overwrite everything that is occupying the slot to be set -
+use with caution.
 }

@@ -1,14 +1,12 @@
 
-#' Title
+#' @title Mark values of variables with NA
 #'
-#' @param variable
-#' @param n_quantiles
-#' @param mark_below
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param variable The numeric variable.
+#' @param n_qntls Numeric value. Denotes the number of quantiles
+#' the variable's values are binned into.
+#' @param keep_qntls Numeric vector. Inicates the quantiles
+#' whose values are kept - not marked with NA.
+
 mark_with_na <- function(variable, n_qntls = 5, keep_qntls = 5){
 
   var_quantiles <-
@@ -24,8 +22,6 @@ mark_with_na <- function(variable, n_qntls = 5, keep_qntls = 5){
 }
 
 #' @rdname mark_with_na
-#' @export
-
 mark_all_with_na <- function(coords_df, n_qntls = 5, keep_qntls = 5){
 
   check_coords_df(coords_df)
@@ -44,38 +40,46 @@ mark_all_with_na <- function(coords_df, n_qntls = 5, keep_qntls = 5){
 }
 
 
+#' @rdname mark_with_na
+mark_with_na2 <- function(variable, percentile = 0.75){
 
-# use for visualization
+  n_values <- base::length(variable)
 
+  threshold_n <- base::round(n_values * 0.75, digits = 0)
 
+  threshold_v <-
+    base::sort(variable, decreasing = FALSE)[threshold_n]
 
+  variable[variable <= threshold_v] <- NA
 
-#' Title
-#'
-#' @param x
-#' @param l
-#'
-#' @return
-#' @export
-#'
-#' @examples
-generate_sample <- function(x, l = 250){
-
-  base::seq(x[1], x[2], length.out = l) %>%
-    base::sample(size = l, replace = TRUE)
+  base::return(variable)
 
 }
 
-#
-#' Title
+#' @rdname mark_with_na
+mark_all_with_na2 <- function(coords_df, percentile = 0.75){
+
+  check_coords_df(coords_df)
+
+  numeric_vars <-
+    dplyr::select(coords_df, -dplyr::all_of(x = coords_df_vars)) %>%
+    dplyr::select_if(.predicate = base::is.numeric) %>%
+    base::colnames()
+
+  dplyr::mutate(
+    .data = coords_df,
+    dplyr::across(.cols = numeric_vars, .fns = mark_with_na2,
+                  percentile = percentile)
+  )
+
+}
+
+
+
+#' @title Generates a reference data.frame
 #'
-#' @param dropped_df dropped df has variables c("x", "y", value)
-#' and is the result of tidyr::drop_na()
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @inherit dropped_df_dummy params
+
 generate_reference_df <- function(n, x_coords, y_coords){
 
   n_barcode_spots <- n
@@ -108,17 +112,24 @@ generate_reference_df <- function(n, x_coords, y_coords){
 
 }
 
-#' Title
+#' @rdname generate_reference_df
+generate_sample <- function(x, l = 250){
+
+  base::seq(x[1], x[2], length.out = l) %>%
+    base::sample(size = l, replace = TRUE)
+
+}
+
+
+#' @title Iterate over cluster algorithms
 #'
-#' @param dropped_df
-#' @param max_cluster
-#' @param n_start
-#' @param ...
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @inherit dropped_df_dummy params
+#' @param max_cluster Maximal number of clusters. Function iterates from 1 to this
+#' value.
+#' @param n_start Numeric value indicating how often the algorithm is supposed
+#' to start again in order to optimize the results.
+#' @param ... Additional arguments given to the function.
+
 iterate_over_kmeans <- function(dropped_df,
                                 vars = c("x", "y"),
                                 max_cluster = 9,
@@ -142,7 +153,7 @@ iterate_over_kmeans <- function(dropped_df,
 
 }
 
-
+#' @rdname iterate_over_kmeans
 iterate_over_pam <- function(df,
                              vars = c("x", "y"),
                              max_cluster = 9,
@@ -165,14 +176,10 @@ iterate_over_pam <- function(df,
 }
 
 
-#' Title
+#' @title Cut scree plot at optimal k value
 #'
-#' @param variance
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param variance The sorted variances (totoal within sum of squares).
+
 find_elbow <- function(variance) {
   if (base::is.unsorted(-variance)) {
 
@@ -212,14 +219,13 @@ find_elbow <- function(variance) {
   }
 }
 
-#' Title
+#' @title Find the optimal k value
 #'
-#' @param df
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param df A data.frame composed of
+#' a variable named \emph{tot_wss} containing the total within
+#' sum of squares value for a given k-value denoted in
+#' variable \emph{k}.
+
 compute_k_optimum <- function(df){
 
   row_index <-
@@ -229,6 +235,13 @@ compute_k_optimum <- function(df){
 
 }
 
+
+
+#' @title pam-wrapper
+#'
+#' @param dropped_df A dropped data.frame.
+#' @param k Numeric value. Denotes the number of clusters.
+#' @param ... Additional arguments given to \code{cluster::pam()}.
 
 compute_pam_with_k_optimum <- function(dropped_df,
                                        k,
@@ -243,16 +256,16 @@ compute_pam_with_k_optimum <- function(dropped_df,
 }
 
 
-#' Title
+#' @title Iterate over marked data.frame and evaluate cluster/pattern tendency
+#' @description Use within \code{purrr::map()} to iterate over
+#' nested data.frame containing marked/dropped data.frames in
+#' variable.
 #'
-#' @param marked_df
-#' @param verbose
-#' @param pb
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param marked_df A data.frame with x- and y-coordinates corresponding
+#' to the barcode-spots that represent the underlying expression pattern.
+#' @inherit verbose params
+#' @inherit pb_dummy params
+
 evaluate_gene_cluster_tendency <- function(marked_df,
                                            verbose = TRUE,
                                            pb = NULL,
@@ -417,13 +430,77 @@ evaluate_gene_cluster_tendency_dbscan2 <- function(marked_df, #!!! changed cente
 
     dropped_df_second_cluster <- dropped_df
 
-    size_noisless <- base::nrow(dropped_df)
+    if(base::length(cluster_keep) <= 5){
+
+      overall_pattern <-
+        base::tryCatch({
+
+          purrr::map(
+            .x = cluster_keep,
+            .f = function(cluster){
+
+              # select coords
+              coords_only <-
+                dropped_df_second_cluster %>%
+                dplyr::filter(cluster == {{cluster}}) %>%
+                dplyr::select(x, y)
+
+              n_bcsp <- base::nrow(coords_only)
+
+              if(n_bcsp > 10){
+
+                k <- 10
+
+              } else {
+
+                k <- (n_bscp-1)
+
+              }
+
+              #kmeans
+              res_k <-
+                stats::kmeans(coords_only, centers = k)
+
+              res_k_df <-
+                base::as.data.frame(res_k$centers) %>%
+                dplyr::mutate(cluster = {{cluster}})
+
+              #pam
+              res_pam <-
+                cluster::pam(x = coords_only, k = k)
+
+              #return
+              res_list <-
+                list("k_res" = res_k, "pam_res" = res_pam)
+
+              base::return(res_list)
+
+            }
+          )
+
+        }, error = function(error){
+
+          list()
+
+        })
+
+
+    } else {
+
+      overall_pattern <-
+        base::vector(mode = "list", length = base::length(cluster_keep))
+
+    }
+
+    size_noisless <- base::nrow(dropped_df_second_cluster)
 
     center_df <-
-      dplyr::group_by(dropped_df, cluster) %>%
+      dplyr::group_by(dropped_df_second_cluster, cluster) %>%
       tidyr::nest() %>%
+      tidyr::as_tibble() %>%
       dplyr::mutate(
         remaining_barcodes = purrr::map(data, .f = ~ dplyr::select(.x, barcodes)),
+        overall_pattern = purrr::map(overall_pattern, .f = ~ .x),
         center_x = purrr::map_dbl(data, .f = ~ base::mean(.x[["x"]], na.rm = TRUE)),
         center_y = purrr::map_dbl(data, .f = ~ base::mean(.x[["y"]], na.rm = TRUE)),
         size_cluster = purrr::map_dbl(data, .f = ~ base::nrow(.x))
@@ -436,7 +513,7 @@ evaluate_gene_cluster_tendency_dbscan2 <- function(marked_df, #!!! changed cente
         size_noisless = {{size_noisless}},
         noise_total = size_total - size_noisless
         ) %>%
-      dplyr::select(cluster, n_cluster, size_cluster, size_noisless, size_total, center_x, center_y,remaining_barcodes, -data )
+      dplyr::select(cluster, n_cluster, size_cluster, size_noisless, size_total, center_x, center_y,remaining_barcodes, overall_pattern, -data )
 
   }
 
@@ -485,13 +562,9 @@ evaluate_gene_cluster_tendency_hdbscan <- function(marked_df, #!!! every barcode
 #' cluster variable indicating the cluster belonging of
 #' every barcode spot.
 #'
-#' @return
-#' @export
-#'
 #' @details The distances between all barcode spots of each cluster are
 #' computed and normalized for the size of the cluster.
-#'
-#' @examples
+
 assess_intra_cluster_distance <- function(clustered_df){
 
   assessment_res_df <-

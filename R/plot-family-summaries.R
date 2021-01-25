@@ -5,23 +5,23 @@
 # De-analysis -------------------------------------------------------------
 
 
-#' Title
+#' @title Plot a summary of differential expression analysis results
 #'
-#' @param object
-#' @param across
-#' @param across_subset
-#' @param method_de
-#' @param max_adj_pval
-#' @param clrp
-#' @param plot_type
-#' @param scales
-#' @param of_sample
-#' @param ...
+#' @description This function is a wrapper around \code{plotDeaPvalues(),
+#' plotDeaLogFC()} and \code{plotDeaGeneCount()} and returns
+#' a combined ggplot. Set the respective argument to FALSE if
+#' you want to skip one of the functions or specify their arguments
+#' by providing a named list of arguments.
 #'
-#' @return
+#' @inherit check_sample params
+#' @inherit across_dummy params
+#' @inherit check_method params
+#' @inherit getDeaResults params
+#' @inherit clrp_dummy params
+#'
+#' @inherit ggplot_family return
 #' @export
-#'
-#' @examples
+
 plotDeaSummary <- function(object,
                            across = NULL,
                            across_subset = NULL,
@@ -90,25 +90,26 @@ plotDeaSummary <- function(object,
 }
 
 
-#' Title
+#' @title Plot the p-value and log fold change distribution of de-analysis results
 #'
-#' @param object
-#' @param across
-#' @param across_subset
-#' @param relevel
-#' @param method_de
-#' @param binwidth
-#' @param clrp
-#' @param plot_type
-#' @param scales
-#' @param limits_x
-#' @param of_sample
-#' @param ...
+#' @description Use argument \code{across} to specify the grouping
+#' variable of interest across which the de-analysis has been conducted.
 #'
-#' @return
+#' Valid input options for \code{plot_type} are \emph{'density'} and
+#'  \emph{'histogram'}.
+#'
+#' @inherit argument_dummay params
+#' @inherit binwidth_dummy params
+#' @inherit check_method params
+#' @inherit ggplot_dummy return
+#' @inherit plotDeaSummary params return
+#' @inherit plot_type_dummy params
+#'
+#' @param limits_x Numeric vector of length two. Specify the limits
+#' of the x-axis.
+#'
 #' @export
-#'
-#' @examples
+
 plotDeaPvalues <- function(object,
                            across = NULL,
                            across_subset = NULL,
@@ -257,22 +258,18 @@ plotDeaLogFC <- function(object,
 
 }
 
-#' Title
+#' @title Plot the number of differently expressed genes of certain groups
 #'
-#' @param object
-#' @param across
-#' @param across_subset
-#' @param relevel
-#' @param method_de
-#' @param max_adj_pval
-#' @param clrp
-#' @param of_sample
-#' @param ...
+#' @description Use argument \code{across} to specify the grouping
+#' variable of interest across which the de-analysis has been conducted and
+#' argument \code{max_adj_pval} to set the quality requirements of genes
+#' to be included in the counting process.
 #'
-#' @return
+#' @inherit plotDeaPvalues params return
+#' @inherit getDeaResultsDf params
+#'
 #' @export
-#'
-#' @examples
+
 plotDeaGeneCount <- function(object,
                              across = NULL,
                              across_subset = NULL,

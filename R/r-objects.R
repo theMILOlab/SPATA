@@ -96,6 +96,7 @@ default_instructions_object <-
                pt_clr = "lightgrey",
                pt_clrp = "milo",
                pt_clrsp = "inferno",
+               pt_fill = "black",
                pt_shape = 21,
                pt_size = 2,
                relevel = FALSE,

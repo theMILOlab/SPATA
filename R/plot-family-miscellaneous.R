@@ -11,7 +11,7 @@
 #' @inherit check_method params
 #' @param ... Additional arguments given to \code{ggdendro::ggdendrogram()}
 #'
-#' @return plot_family return
+#' @return ggplot_family return
 #' @export
 
 plotGeneDendrogram <- function(object,
@@ -130,8 +130,7 @@ plotDimRed <- function(object,
 #' @inherit check_pt params
 #' @inherit verbose params
 #'
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' @inherit ggplot_family return
 #'
 #' @export
 #'
@@ -336,7 +335,7 @@ plotPca <- function(object,
 #' @inherit check_sample params
 #' @inherit getPcaMtr params
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #' @export
 
 plotPcaVariation <- function(object,
@@ -388,27 +387,38 @@ plotPcaVariation <- function(object,
 
 # General scatterplots ----------------------------------------------------
 
-#' Title
+#' @title Plot gene meta data
 #'
-#' @param object
-#' @param of_sample
-#' @param variables
-#' @param pt_size
-#' @param pt_alpha
-#' @param pt_clr
-#' @param mtr_name
+#' @description This function visualizes variables of the @@gdata slot that
+#' contains information about the expression profile of each gene in
+#' the expression matrix specified via the \code{mtr_name}-argument.
 #'
-#' @return
+#' If the input vector of argument \code{variables} is of length two and
+#' argument \code{plot_type} is set to \emph{'scatter'} a scatterplot is
+#' plotted. Else, depending on the input for \code{plot_type} it is
+#' either a histogram, a densityplot, a ridgeplot, a violinplot or a
+#' boxplot.
+#'
+#' @param variables Character vector. The variables among the gene meta data
+#' that you want to visualize.
+#'
+#' @inherit check_pt params
+#' @inherit check_sample params
+#' @inherit getExpressionMatrix params
+#'
+#' @inherit ggplot_family return
 #' @export
-#'
-#' @examples
+
 plotGeneMetaData <- function(object,
                              variables,
+                             plot_type = "scatter",
                              mtr_name = NULL,
                              pt_alpha = NULL,
                              pt_clr = NULL,
+                             pt_fill = NULL,
                              pt_size = NULL,
-                             of_sample = NA){
+                             of_sample = NA,
+                             ...){
 
   hlpr_assign_arguments(object)
 
@@ -417,31 +427,54 @@ plotGeneMetaData <- function(object,
   gmdf <-
     getGeneMetaDf(object, of_sample = of_sample, mtr_name = mtr_name)
 
-  ggplot2::ggplot(
-    data = gmdf,
-    mapping = ggplot2::aes(x = .data[[variables[1]]], y = .data[[variables[2]]])
-  ) +
-    ggplot2::geom_point(size = pt_size, alpha = pt_alpha, color = pt_clr) +
-    ggplot2::theme_bw()
+  confuns::check_one_of(
+    input = variables,
+    against = base::colnames(dplyr::select_if(gmdf, base::is.numeric))
+  )
+
+  if(base::length(variables) == 2 & plot_type == "scatter"){
+
+    ggplot2::ggplot(
+      data = gmdf,
+      mapping = ggplot2::aes(x = .data[[variables[1]]], y = .data[[variables[2]]])
+    ) +
+      ggplot2::geom_point(size = pt_size, alpha = pt_alpha, color = pt_clr, shape = 21, fill = pt_fill) +
+      ggplot2::theme_bw()
+
+  } else {
+
+    if(plot_type == "scatter"){ plot_type <- "density"}
+
+    confuns::plot_statistics(
+      df = gmdf,
+      plot_type = plot_type,
+      variables = variables,
+      across = NULL,
+      across.subset = NULL,
+      ...
+    )
+
+  }
+
+
 
 
 }
 
 
-#' Title
+#' @title Plot numeric variables as a scatterplot
 #'
-#' @param object
-#' @param of_sample
-#' @param variables
-#' @param pt_size
-#' @param pt_alpha
-#' @param pt_clr
-#' @param verbose
+#' @description Use argument \code{variables} to denote the numeric variables
+#' of interest. First value will be mapped on to the x-axis and the second
+#' value on to the y-axis.
 #'
-#' @return
+#' @inherit argument_dummy params
+#' @inherit check_pt params
+#' @inherit check_sample params
+#' @inherit ggplot_family return
+#'
 #' @export
-#'
-#' @examples
+
 plotScatterplot <- function(object,
                             variables,
                             pt_alpha = NULL,
@@ -506,7 +539,7 @@ plotScatterplot <- function(object,
 #' @inherit check_display params
 #' @inherit verbose params
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #'
 #' @export
 
@@ -626,7 +659,6 @@ plotFourStates <- function(object,
 
 #' @rdname plotFourStates
 #' @export
-#'
 plotFourStates2 <- function(data,
                             states,
                             color_to = NULL,
@@ -782,15 +814,17 @@ plotFourStates2 <- function(data,
 # Distribution -------------------------------------------------------
 
 
-#' Title
+#' @title Plot distribution of variables interactively
 #'
-#' @param spata_df
+#' @description Opens an interactive application in wihch the variables of
+#' the data.frame given as input for argument \code{spata_df} can be plotted.
+#' Apart from variables named \emph{barcodes, sample, x} and \emph{y} all variables
+#' are considered.
 #'
-#' @return
+#' @param spata_df A spata
+#'
 #' @export
-#'
-#' @examples
-#'
+
 plotStatisticsInteractive <- function(spata_df){
 
   spata_df <- dplyr::select(spata_df, -dplyr::all_of(x = c("sample", "barcodes")))
@@ -800,9 +834,12 @@ plotStatisticsInteractive <- function(spata_df){
 }
 
 
-#' @title Distribution of continuous values
+#' @title Distribution of continuous values (Deprecated)
 #'
-#' @description Visualizes the distribution of values of a set of variables.
+#' @description These functions are deprecated in favor of \code{plotDensityplot(),
+#' plotHistogram(), plotRidgplot(), plotBoxplot(), plotViolinplot()} and \code{plotBarchart()}.
+#'
+#' Visualize the distribution of values of a set of variables.
 #'
 #' \itemize{
 #'  \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
@@ -1185,25 +1222,8 @@ plotDistribution2 <- function(df,
 
 }
 
-
-#' @title Distribution of continuous values
-#'
-#' @description Visualizes the distribution of values of a set of variables for the
-#' whole sample across specific subgroups.
-#'
-#' \itemize{
-#'  \item{ \code{plotDistributionAcross()} Takes the spata-object as the starting point and creates the
-#'  necessary data.frame from scratch according to additional parameters.}
-#'  \item{ \code{plotDistributionAcross2()} Takes a data.frame as the starting point.}
-#'  }
-#'
-#' @inherit plotDistribution params return
-#' @inherit across params
-#'
-#' @return
+#' @rdname plotDistribution
 #' @export
-#'
-
 plotDistributionAcross <- function(object,
                                    variables,
                                    across,
@@ -1398,7 +1418,7 @@ plotDistributionAcross <- function(object,
 }
 
 
-#' @rdname plotDistributionAcross
+#' @rdname plotDistribution
 #' @export
 plotDistributionAcross2 <- function(df,
                                     variables = "all",
@@ -1569,22 +1589,8 @@ plotDistributionAcross2 <- function(df,
 }
 
 
-#' @title Distribution of discrete features
-#'
-#' @description Visualize the distribution of discrete features.
-#'
-#' @inherit check_sample params
-#' @inherit check_features params
-#' @param feature_compare Character vector or NULL. The discrete feature you want to compare the
-#' features of \code{features} to.
-#' @param clrp clrp params
-#' @param position Character value. Given to \code{position} of \code{ggplot2::geom_bar()}. One of
-#' \emph{'stack', 'dodge'} or \emph{'fill'}.
-#' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
-#' @inherit plotDistribution params return
-#'
+#' @rdname plotDistribution
 #' @export
-
 plotDistributionDiscrete <- function(object,
                                      features,
                                      feature_compare = NULL,
@@ -2027,7 +2033,7 @@ plotDeaHeatmap <- function(object,
 #' @inherit check_pt params
 #' @param encircle Logical. If set to TRUE the segments are enclosed in a polygon.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #'
 #' @export
 
@@ -2093,7 +2099,7 @@ plotSegmentation <- function(object,
 #'
 #' @inherit check_object params
 #'
-#' @return plot_family return
+#' @return ggplot_family return
 #' @export
 #'
 
@@ -2147,7 +2153,7 @@ plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = N
 #' @inherit check_sample params
 #' @inherit runAutoencoderDenoising params
 #' @inherit check_pt params
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #'
 #' @details This function requires a denoised matrix in slot @@data generated
 #' by \code{runAutoEncoderDenoising()} as well as a scaled matrix.
@@ -2158,9 +2164,9 @@ plotAutoencoderResults <- function(object,
                                    genes,
                                    mtr_name = "denoised",
                                    scales = "free",
-                                   pt_size = NULL,
                                    pt_alpha = NULL,
                                    pt_clrp = NULL,
+                                   pt_size = NULL,
                                    verbose = NULL,
                                    of_saple = NA,
                                    ...){
@@ -2199,7 +2205,7 @@ plotAutoencoderResults <- function(object,
       strip.background = ggplot2::element_blank(),
       legend.position = "none"
     ) +
-    scale_color_add_on(variable = "discrete", clrp = pt_clrp)
+    scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp)
 
 }
 
@@ -2207,67 +2213,7 @@ plotAutoencoderResults <- function(object,
 
 
 
-# Hotspot plotting --------------------------------------------------------
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param of_hotspots
-#' @param of_gene_sets
-#' @param clrp
-#' @param top_n
-#' @param with_ties
-#'
-#' @return
-#' @export
-#'
-#' @examples
-plotPatternEnrichment <- function(object,
-                                  of_hotspots = "",
-                                  of_gene_sets = "",
-                                  top_n = 10,
-                                  clrp = NULL,
-                                  with_ties = FALSE,
-                                  of_sample = NA,
-                                  ...){
-
-  hlpr_assign_arguments(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  patterns <- check_pattern(object = object, of_sample = of_sample, patterns = of_hotspots)
-
-  gene_sets <- check_gene_sets(object = object, gene_sets = of_gene_sets)
-
-  enrichment_df <-
-    getPrSuggestion(object, of_sample = of_sample)$gse_df %>%
-    dplyr::filter(ont %in% {{gene_sets}} & patterns %in% {{patterns}}) %>%
-    dplyr::group_by(patterns) %>%
-    dplyr::mutate(enrichment_score = confuns::normalize(enrichment_score)) %>%
-    dplyr::slice_max(order_by = enrichment_score, with_ties = with_ties, n = top_n) %>%
-    dplyr::mutate(
-      ont = forcats::as_factor(x = ont),
-      ont = tidytext::reorder_within(x = ont, by = enrichment_score, within = patterns)
-    )
-
-  ggplot2::ggplot(enrichment_df, mapping = ggplot2::aes(x = enrichment_score, y = ont)) +
-    ggplot2::geom_col(mapping = ggplot2::aes(fill = patterns)) +
-    ggplot2::facet_wrap(facets = . ~ patterns, scales = "free_y", drop = TRUE, ...) +
-    tidytext::scale_y_reordered() +
-    ggplot2::theme_bw() +
-    ggplot2::theme(
-      axis.line = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_blank(),
-      axis.ticks.x = ggplot2::element_blank(),
-      legend.position = "none",
-      panel.border = ggplot2::element_blank(),
-      strip.background = ggplot2::element_blank()
-    ) +
-    scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-    ggplot2::labs(x = "Enrichment Score", y = NULL)
-
-}
 
 
 

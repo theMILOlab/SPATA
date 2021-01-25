@@ -1,6 +1,30 @@
 
+#' @title set
+#'
+#' @details All \code{set*()}-functions offer a save way to set certain
+#' slots of your spata-object. They do check the input for validity but
+#' effectively overwrite everything that is occupying the slot to be set -
+#' use with caution.
+#'
+#' @return A spata object containing the set input.
+#' @export
+
+set_dummy <- function(){}
+
+
+
+################################################################################
+
 
 # Slot: coordinates -------------------------------------------------------
+
+#' @title Set the coordinates
+#'
+#' @inherit check_sample params
+#' @inherit check_coords_df params
+#'
+#' @inherit set_dummy params return details
+#' @export
 
 setCoordsDf <- function(object, coords_df, of_sample = ""){
 
@@ -26,6 +50,14 @@ setCoordsDf <- function(object, coords_df, of_sample = ""){
 
 
 # Slot: fdata -------------------------------------------------------------
+
+#' @title Set feature data.frame
+#'
+#' @inherit check_sample params
+#' @inherit check_feature_df params
+#'
+#' @return set_dummy return details
+#' @export
 
 setFeatureDf <- function(object, feature_df, of_sample = ""){
 
@@ -63,9 +95,8 @@ setFeatureDf <- function(object, feature_df, of_sample = ""){
 #' @param meta_data_list Output list of \code{computeGeneMetaData2()}. An additional
 #' slot named \emph{mtr_name} needs to be added manually.
 #'
-#' @return An updated spata-object.
+#' @inherit set_dummy params return details
 #' @export
-#'
 
 addGeneMetaData <- function(object, of_sample = "", meta_data_list){
 
@@ -84,7 +115,31 @@ addGeneMetaData <- function(object, of_sample = "", meta_data_list){
 
 # Slot: data --------------------------------------------------------------
 
-setCountMatrix <- function(object, count_mtr, of_sample = ""){
+#' @title Set data matrices
+#'
+#' @description \code{SPATA} in general distinguishes between two types of data matrices.
+#' There are \emph{count-matrices} containing the raw counts and
+#' \emph{expression-matrices} containing scaled, denoised or in any other
+#' way processed and normalized count data.
+#'
+#' The majority of \code{SPATA}-functions leans on data carried in expression matrices.
+#' They default to the one that is set as the \emph{active expression matrix} - use
+#' \code{getActiveMatrixName()} to see which one it currently is. After
+#' initiating a spata-object \emph{'scaled'} should be the default. After running
+#'  \code{runAutoencoderDenoising()} \emph{'denoised'} becomes the default
+#' expression matrix.
+#'
+#' To set one of those three matrices use these functions.
+#' To add additional matrices use \code{addExpressionMatrix()}.
+#'
+#' @inherit check_sample params
+#' @param count_mtr,scaled_mtr,denoised_mtr Matrices whose column names refer
+#' to the barcodes and whose rownames refer to the gene names.
+#'
+#' @inherit set_dummy details return
+#' @export
+
+setCountMatrix <- function(object, count_mtr, of_sample = NA){
 
   check_object(object)
 
@@ -96,7 +151,9 @@ setCountMatrix <- function(object, count_mtr, of_sample = ""){
 
 }
 
-setDenoisedMatrix <- function(object, denoised_mtr, of_sample = ""){
+#' @rdname setCountMatrix
+#' @export
+setDenoisedMatrix <- function(object, denoised_mtr, of_sample = NA){
 
   check_object(object)
 
@@ -108,7 +165,9 @@ setDenoisedMatrix <- function(object, denoised_mtr, of_sample = ""){
 
 }
 
-setScaledMatrix <- function(object, scaled_mtr, of_sample = ""){
+#' @rdname setCountMatrix
+#' @export
+setScaledMatrix <- function(object, scaled_mtr, of_sample = NA){
 
   check_object(object)
 
@@ -122,38 +181,31 @@ setScaledMatrix <- function(object, scaled_mtr, of_sample = ""){
 
 
 
-#' @title Add an expression matrix
-#'
-#' @description Adds an expression matrix to the object's data slot and
-#' makes it available for all SPATA-intern function. Use \code{setActiveExpressionMatrix()}
-#' to denote it as the default to use.
-#'
-#' @inherit check_sample params
-#' @param expr_mtr A matrix in which the rownames correspond to the gene names and the
-#' column names correspond to the barcode-spots.
-#' @param mtr_name A character value that denotes the name of the exprssion matrix with
-#' which one can refer to it in subsequent functions.
-#'
-#' @return An updated spata-object.
-#' @export
-
-addExpressionMatrix <- function(object, expr_mtr, mtr_name, of_sample = ""){
-
-  check_object(object)
-
-  confuns::is_value(x = mtr_name, mode = "character")
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  object@data[[of_sample]][[mtr_name]] <- expr_mtr
-
-  base::return(object)
-
-}
 
 
 
 # Slot: dim_red -----------------------------------------------------------
+
+#' @title Set dimensional reductions data.frames
+#'
+#' @description Safely adds data.frames containing the barcode-spot embedding
+#' of different dimensional reduction techniques. Cell embedding variables
+#' must be named as follows:
+#'
+#'  \itemize{
+#'   \item{ \code{pca_df}: \emph{PC1, PC2, PC3, ...}}
+#'   \item{ \code{tsne_df}: \emph{tsne1, tsne2, ...}}
+#'   \item{ \code{umap_df}: \emph{umap1, umap2, ...}}
+#'  }
+#'
+#' @inherit check_sample params
+#' @param pca_df,tsne_df,umap_df The data.frame composed of the variables
+#' \emph{barcodes}, \emph{sample} and the variables containing the barcode-
+#' spot embedding.
+#'
+#' @inherit set_dummy params return details
+#' @export
+#'
 
 setPcaDf <- function(object, pca_df, of_sample = ""){
 
@@ -165,7 +217,7 @@ setPcaDf <- function(object, pca_df, of_sample = ""){
 
     confuns::give_feedback(
       msg = "Input data.frame for PCA is empty.",
-      fdb.fn = "warning"
+      fdb.fn = "stop"
     )
 
   } else {
@@ -190,7 +242,8 @@ setPcaDf <- function(object, pca_df, of_sample = ""){
 
 }
 
-
+#' @rdname setPcaDf
+#' @export
 setTsneDf <- function(object, tsne_df, of_sample = ""){
 
   check_object(object)
@@ -226,7 +279,8 @@ setTsneDf <- function(object, tsne_df, of_sample = ""){
 
 }
 
-
+#' @rdname setPcaDf
+#' @export
 setUmapDf <- function(object, umap_df, of_sample = ""){
 
   check_object(object)
@@ -314,13 +368,12 @@ setActiveExpressionMatrix <- function(object, of_sample = "",  mtr_name){
 }
 
 
-#' Title
+#' @title Set results of autoencoder assessment
 #'
 #' @inherit check_object params
 #' @param assessment_list Named list with slots \code{$df} and \code{$set_up}.
 #'
 #' @return A spata-object.
-#' @export
 
 setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
 
@@ -336,19 +389,21 @@ setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
     ref = "assessment_list$df"
   )
 
-  object@information$autoencoder[[of_sample]][["assessment"]] <- assessment_list
+  object@autoencoder[[of_sample]][["assessment"]] <- assessment_list
 
   base::return(object)
 
 }
 
 
-#' Title
+#' @title Set default instructions
 #'
-#' @param object
-#' @param ...
+#' @inherit check_object params
 #'
-#' @return
+#' @return A spata-object again containing the default spata-instructions.
+#' Everything that previously has been adjusted with \code{adjustDefaultInstructions()}
+#' is overwritten.
+#'
 #' @export
 
 setDefaultInstructions <- function(object){
@@ -376,12 +431,11 @@ setDirectoryInstructions <- function(object){
 }
 
 
-#' Title
+#' @title Set initation information
 #'
-#' @param object
+#' @inherit check_object
 #'
-#' @return
-#' @export
+#' @inherit set_dummy return details
 
 setInitiationInfo <- function(object){
 
@@ -402,17 +456,16 @@ setInitiationInfo <- function(object){
 
 # Slot: spatial  ----------------------------------------------------------
 
-#' Title
+#' @title Set results of pattern recognition methods
 #'
-#' @param object
-#' @param of_sample
-#' @param pr_list
+#' @inherit check_sample params
+#' @param method_pr Character value. Denotes the pattern recognition method.
+#' @param pr_list The list of information and results the chosen method in
+#' \code{method_pr} returns
 #'
-#' @return
-#' @export
-#'
-#' @examples
-setPrResults <- function(object, of_sample = "", pr_list, method_pr = "hotspot"){
+#' @inherit set_dummy return details
+
+setPrResults <- function(object, of_sample = "",  method_pr = "hotspot", pr_list){
 
   check_object(object)
 
@@ -425,13 +478,13 @@ setPrResults <- function(object, of_sample = "", pr_list, method_pr = "hotspot")
 }
 
 
-#' Title
+#' @title Set results of spatial correlation analysis
 #'
 #' @inherit check_sample params
-#' @param assessment_list
+#' @param sp_cor_list The list of information and results the
+#' function \code{runSpatialCorrelationAnalysis()} returns.
 #'
-#' @return
-#' @export
+#' @inherit set_dummy return details
 
 setSpCorResults <- function(object,
                                          sp_cor_list,
@@ -448,16 +501,14 @@ setSpCorResults <- function(object,
 }
 
 
-#' Title
+#' @title Add cluster results of spatial correlation results
 #'
-#' @param object
-#' @param cluster_list
-#' @param of_sample
+#' @inherit check_sample params
+#' @param cluster_list The list containing information and results
+#' the function \code{clusterSpCorResults()} returns.
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @inherit set_dummy return details
+
 addSpCorCluster <- function(object,
                                          cluster_list,
                                          of_sample = ""){
@@ -491,6 +542,14 @@ addSpCorCluster <- function(object,
 
 
 # Slot: used_genesets -----------------------------------------------------
+
+#' @title Set the gene-set data.frame
+#'
+#' @inherit check_object params
+#' @param gene_set_df A data.frame containing the gene names in
+#' variable \emph{gene} and the gene set name in variable \emph{ont}.
+#'
+#' @inherit set_dummy return details
 
 setGeneSetDf <- function(object, gene_set_df){
 

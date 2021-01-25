@@ -1,15 +1,6 @@
 
-
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#' @param n_patterns
-#' @param plotPrSummary
-#'
-#' @return
-#' @export
-#'
+#' @title Plot pattern related
+#' @description Blueprint - currently not working.
 
 findNPatterns <- function(object, n_patterns, plotPrSummary = TRUE,  of_sample = NA){
 

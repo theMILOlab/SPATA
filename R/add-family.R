@@ -1,6 +1,6 @@
 
 
-# Autoencoder related -----------------------------------------------------
+# Slot: autoencoder -------------------------------------------------------
 
 #' Title
 #'
@@ -18,14 +18,108 @@ addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = NA){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  object@information$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]] <- set_up_list
+  object$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]] <- set_up_list
 
   base::return(object)
 
 }
 
 # -----
-# Feature related ---------------------------------------------------------
+
+
+
+# Slot: data --------------------------------------------------------------
+
+#' @title Add an expression matrix
+#'
+#' @description Adds an expression matrix to the object's data slot and
+#' makes it available for all SPATA-intern function. Use \code{setActiveExpressionMatrix()}
+#' to denote it as the default to use.
+#'
+#' @inherit check_sample params
+#' @param expr_mtr A matrix in which the rownames correspond to the gene names and the
+#' column names correspond to the barcode-spots.
+#' @param mtr_name A character value that denotes the name of the exprssion matrix with
+#' which one can refer to it in subsequent functions.
+#'
+#' @return An updated spata-object.
+#' @export
+
+addExpressionMatrix <- function(object, expr_mtr, mtr_name, of_sample = ""){
+
+  check_object(object)
+
+  confuns::is_value(x = mtr_name, mode = "character")
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  object@data[[of_sample]][[mtr_name]] <- expr_mtr
+
+  base::return(object)
+
+}
+
+
+#' @title Discard an expression matrix
+#'
+#' @description Discards the expression matrix of choice.
+#'
+#' @inherit getExpressionMatrix params
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+
+discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  all_mtr_names <- getExpressionMatrixNames(object, of_sample = of_sample)
+
+  confuns::check_one_of(
+    input = mtr_name,
+    against = all_mtr_names,
+    ref.input = "argument 'mtr_name'"
+  )
+
+  object <- addExpressionMatrix(object = object,
+                                expr_mtr = NULL,
+                                mtr_name = mtr_name,
+                                of_sample = of_sample)
+
+  base::message(glue::glue("Expression matrix '{mtr_name}' discarded."))
+
+  # feedback if discarded matrix was denoted as active matrix
+  if(mtr_name == getActiveMatrixName(object, of_sample = of_sample)){
+
+    base::warning(glue::glue("Expression matrix '{mtr_name}' was denoted as the active matrix. Make sure to denote a new one with 'setActiveExpressionMatrix()'"))
+
+  }
+
+  # feedback if no expression matrix left
+  remaining_mtr_names <- all_mtr_names[all_mtr_names != mtr_name]
+
+  if(base::is.null(remaining_mtr_names) | base::identical(remaining_mtr_names, base::character(0))){
+
+    base::warning("There are no expression matrices left in the provided spata-object. Make sure to add one with 'addExpressionMatrix()'.")
+
+  }
+
+  base::return(object)
+
+}
+
+
+
+
+# -----
+
+
+
+
+# Slot: fdata -------------------------------------------------------------
 
 
 #' @title Add a new feature
@@ -209,7 +303,9 @@ addFeatures <- function(object,
 
 # -----
 
-# Gene set related --------------------------------------------------------
+
+
+# Slot: used_genesets -----------------------------------------------------
 
 #' @title Add a new gene set
 #'
@@ -359,64 +455,7 @@ discardGeneSets <- function(object, gs_names){
 # -----
 
 
-
-
-# Data related ------------------------------------------------------------
-
-#' @title Discard an expression matrix
-#'
-#' @description Discards the expression matrix of choice.
-#'
-#' @inherit getExpressionMatrix params
-#'
-#' @return An updated spata-object.
-#' @export
-#'
-
-discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
-
-  check_object(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  all_mtr_names <- getExpressionMatrixNames(object, of_sample = of_sample)
-
-  confuns::check_one_of(
-    input = mtr_name,
-    against = all_mtr_names,
-    ref.input = "argument 'mtr_name'"
-  )
-
-  object <- addExpressionMatrix(object = object,
-                                expr_mtr = NULL,
-                                mtr_name = mtr_name,
-                                of_sample = of_sample)
-
-  base::message(glue::glue("Expression matrix '{mtr_name}' discarded."))
-
-  # feedback if discarded matrix was denoted as active matrix
-  if(mtr_name == getActiveMatrixName(object, of_sample = of_sample)){
-
-    base::warning(glue::glue("Expression matrix '{mtr_name}' was denoted as the active matrix. Make sure to denote a new one with 'setActiveExpressionMatrix()'"))
-
-  }
-
-  # feedback if no expression matrix left
-  remaining_mtr_names <- all_mtr_names[all_mtr_names != mtr_name]
-
-  if(base::is.null(remaining_mtr_names) | base::identical(remaining_mtr_names, base::character(0))){
-
-    base::warning("There are no expression matrices left in the provided spata-object. Make sure to add one with 'addExpressionMatrix()'.")
-
-  }
-
-  base::return(object)
-
-}
-
-
-# Trajectory related ------------------------------------------------------
-
+# Slot: trajectories ------------------------------------------------------
 
 addTrajectoryObject <- function(object,
                                 trajectory_name,

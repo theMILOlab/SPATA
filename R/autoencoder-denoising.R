@@ -206,7 +206,10 @@ runAutoencoderDenoising <- function(object,
 
 # 1. Control --------------------------------------------------------------
 
-  if(base::isTRUE(verbose)){ base::message("Checking input for validity.")}
+  confuns::give_feedback(
+    msg = base::message("Checking input for validity."),
+    verbose = verbose
+  )
 
   check_object(object)
 
@@ -248,7 +251,12 @@ runAutoencoderDenoising <- function(object,
     activation <- max_df$activation[1]
     bottleneck <- base::as.character(max_df$bottleneck[1]) %>% base::as.numeric()
 
-    base::message(glue::glue("Assessment done. Running autoencoder with: \nActivation function: '{activation}'\nBottleneck neurons: {bottleneck} "))
+    msg <- glue::glue("Assessment done. Running autoencoder with: \nActivation function: '{activation}'\nBottleneck neurons: {bottleneck} ")
+
+    confuns::give_feedback(
+      msg = msg,
+      verbose = verbose
+    )
 
   } else {
 
@@ -355,11 +363,20 @@ runAutoencoderDenoising <- function(object,
                                 expr_mtr = reconstructed_points,
                                 of_sample = of_sample)
 
-  if(base::isTRUE(set_as_active)){
+  object <- computeGeneMetaData(object,
+                                mtr_name = mtr_name_output,
+                                of_sample = of_sample)
 
-    object <- setActiveExpressionMatrix(object = object, mtr_name = mtr_name_output)
+  object <-
+    setActiveExpressionMatrix(object = object, mtr_name = mtr_name_output)
 
-  }
+
+  confuns::give_feedback(
+    msg = "Done.",
+    verbose = verbose
+  )
+
+
 
   return(object)
 

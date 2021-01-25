@@ -27,8 +27,6 @@ adjusting_check_dummy <- function(){}
 #' @title Check barcodes of all matrices and data.frames
 #'
 #' @inherit check_objcet params
-#'
-#' @return
 
 check_all_barcodes <- function(object){
 
@@ -78,7 +76,6 @@ check_all_barcodes <- function(object){
 #' @param all_gene_sets The valid gene sets specified as a character vector.
 #'
 #' @inherit adjusting_check_dummy details return
-#' @export
 
 check_color_to <- function(color_to,
                            all_features = character(),
@@ -150,7 +147,6 @@ check_color_to <- function(color_to,
 #' @param max_length The maximum number of features allowed.
 #'
 #' @inherit adjusting_check_dummy details return
-#' @export
 
 check_features <- function(object,
                            features,
@@ -262,7 +258,7 @@ check_features <- function(object,
 #' with \code{getExpressionMatrix()}.
 #'
 #' @inherit adjusting_check_dummy details return
-#' @export
+
 check_genes <- function(object,
                         genes,
                         valid_genes = NULL,
@@ -372,7 +368,6 @@ check_genes <- function(object,
 #' @param gene_sets The gene sets of interest specified as a character vector.
 #'
 #' @inherit adjusting_check_dummy return details
-#' @export
 
 check_gene_sets <- function(object,
                             gene_sets,
@@ -443,16 +438,18 @@ check_gene_sets <- function(object,
 }
 
 
-#' Title
+#' @title Check pattern input
 #'
-#' @param object
-#' @param of_sample
-#' @param of_pattern
+#' @description A member of the \code{adjusting-check_*()}-family. Takes a character
+#' vector of pattern names and checks which of these exist.
 #'
-#' @return
-#' @export
+#' Returns an adjusted gene-set-vector or raises an error.
 #'
-#' @examples
+#' @inherit check_sample params
+#' @param gene_sets The gene sets of interest specified as a character vector.
+#'
+#' @inherit adjusting_check_dummy return details
+
 check_pattern <- function(object, patterns = "", method_pr = "hotspot", of_sample = NA){
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)

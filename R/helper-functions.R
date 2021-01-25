@@ -9,11 +9,6 @@ NULL
 #'
 #' @param input A matrix with columns = barcodes, or a data.frame with a barcode-variable
 #' @param sample_name Character value.
-#'
-#' @return
-#' @export
-#'
-
 
 hlpr_add_barcode_suffix <- function(input, sample_name){
 
@@ -59,7 +54,6 @@ hlpr_add_barcode_suffix <- function(input, sample_name){
 #' @return
 #' @export
 
-
 hlpr_add_old_coords <- function(object, plot_df, complete){
 
   if(base::isTRUE(complete)){
@@ -89,9 +83,6 @@ hlpr_add_old_coords <- function(object, plot_df, complete){
 #' @param variable The variable mapped to the color/fill aesthetic.
 #' @param aes The aesthetic used.
 #' @inherit check_pt params
-#'
-#' @return
-#'
 
 hlpr_adjust_legend_size <- function(variable, aes, pt_size){
 
@@ -116,21 +107,8 @@ hlpr_adjust_legend_size <- function(variable, aes, pt_size){
 }
 
 
-#' Title
-#'
-#' @param object
-#' @param cluster_eval_df
-#' @param max_patterns
-#' @param n_start
-#' @param of_sample
-#' @param smooth_span
-#' @param threshold_stpv
-#' @param threshold_stw
-#' @param ...
-#'
-#' @return
-#' @export
-#'
+#' @title Plot pattern related
+#' @description Blueprint - currently not reliably working.
 
 hlpr_assess_pattern_results <- function(object,
                                     cluster_eval_df,
@@ -595,8 +573,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
 }
 
 
-#' Title
-#'
+#' @title No documentation needed
 hlpr_display_title <- function(display_title, title){
 
   if(base::isTRUE(display_title)){
@@ -613,7 +590,7 @@ hlpr_display_title <- function(display_title, title){
 
 }
 
-#' @rdname hlpr_display_titl
+#' @rdname hlpr_display_title
 hlpr_display_subtitle <- function(display_subtitle, subtitle){
 
   if(base::isTRUE(display_subtitle)){

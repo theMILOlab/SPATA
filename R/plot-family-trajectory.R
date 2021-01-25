@@ -8,7 +8,7 @@
 #' @inherit clrp params
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()}.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #' @export
 #'
 
@@ -90,10 +90,8 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 #' @inherit check_uniform_genes params
 #' @param sgmt_size The size of the segment arrrow specified as a numeric value.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #'
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
 #' @export
 #'
 
@@ -258,7 +256,7 @@ plotTrajectory <- function(object,
 }
 
 
-#' @title Trajectory line plots
+#' @title Plot continuous trajectory dynamics in lineplots
 #'
 #' @description Displays values along a trajectory direction with
 #' a smoothed lineplot.
@@ -283,7 +281,7 @@ plotTrajectory <- function(object,
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()} if argument
 #' \code{split} is set to TRUE.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #'
 #' @export
 
@@ -685,7 +683,7 @@ plotTrajectoryGeneSets <- function(object,
 }
 
 
-#' @title Trajectory barplots
+#' @title Plot discrete trajectory dynamics
 #'
 #' @description Displays discrete variables along a trajectory.
 #'
@@ -696,11 +694,10 @@ plotTrajectoryGeneSets <- function(object,
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
 #' drawn.
-#' @param clrp Character value. The color panel to be used.
-#'  Run \code{all_colorpanels()} to see valid input.
+#' @inherit argument_dummy params
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()}.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #' @export
 
 plotTrajectoryFeaturesDiscrete <- function(object,
@@ -773,7 +770,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 }
 
 
-#' @title Expression dynamic in heatmap
+#' @title Plot trajectory expression dynamic in heatmap
 #'
 #' @description Displays variable-expression values along a trajectory
 #' direction with a smoothed heatmap (from left to right).
@@ -800,7 +797,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 #' will be displayed at the rownames of the heatmap.
 #' @param split_columns Logial. If set to TRUE the heatmap is vertically
 #' splitted according to the trajectory parts.
-#' @param hm_colors A vector of colors to be used.
+#' @param colors A vector of colors to be used.
 #' @param ... Additional parameters given to \code{pheatmap::pheatmap()}
 #'
 #' @return A heatmap of class 'pheatmap'.
@@ -812,7 +809,7 @@ plotTrajectoryHeatmap <- function(object,
                                   variables,
                                   binwidth = 5,
                                   arrange_rows = "none",
-                                  hm_colors = viridis::inferno(150),
+                                  colors = NULL,
                                   method_gs = NULL,
                                   show_rownames = NULL,
                                   show_colnames = NULL,
@@ -968,7 +965,7 @@ plotTrajectoryHeatmap <- function(object,
     mat = mtr_smoothed,
     cluster_cols = FALSE,
     cluster_rows = FALSE,
-    color = hm_colors,
+    color = colors,
     gaps_col = gaps_col[1:(base::length(gaps_col)-1)],
     show_colnames = show_colnames,
     show_rownames = show_rownames,
@@ -983,7 +980,7 @@ plotTrajectoryHeatmap <- function(object,
 
 
 
-#' @title Display trajectory fit
+#' @title Plot trajectory fit
 #'
 #' @description Displays the trend of a trajectory in comparison to a variety
 #' of models / mathematical curves.
@@ -991,14 +988,14 @@ plotTrajectoryHeatmap <- function(object,
 #' @inherit check_sample params
 #' @inherit check_trajectory params
 #' @inherit check_customized_trends params
-#' @param variable The gene or gene set of interest specified as a character value.
+#' @inherit variable_num params
 #' @param display_residuals Logical. If set to TRUE the residuals are displayed
 #' via a red line.
 #' @inherit check_trajectory_binwidth params
 #' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
 #' @inherit hlpr_summarize_trajectory_df params
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #' @export
 
 plotTrajectoryFit <- function(object,

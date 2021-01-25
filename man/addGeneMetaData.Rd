@@ -16,9 +16,15 @@ If set to \emph{""} (the default) the first sample is chosen.}
 slot named \emph{mtr_name} needs to be added manually.}
 }
 \value{
-An updated spata-object.
+A spata object containing the set input.
 }
 \description{
 Safely adds the output of \code{computeGeneMetaData2()}
 to the spata-object.
+}
+\details{
+All \code{set*()}-functions offer a save way to set certain
+slots of your spata-object. They do check the input for validity but
+effectively overwrite everything that is occupying the slot to be set -
+use with caution.
 }

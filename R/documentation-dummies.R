@@ -19,7 +19,10 @@
 #' are not included are dropped which affects the colors with which they are displayed.
 #'
 
-across <- function(across, across_subset){}
+across <- function(across, across_subset, relevel){}
+
+#' @rdname across
+across_dummy <- function(across, across_subset, relevel){}
 
 
 #' @title average_genes
@@ -29,6 +32,12 @@ across <- function(across, across_subset){}
 #' are stored is named \emph{mean_genes}.
 
 average_genes <- function(average_genes){}
+
+
+#' @title binwidth
+#'
+#' @param binwidth Numeric value. Denotes the binwidth to use for the histogram.
+binwidth_dummy <- function(binwidth){}
 
 
 #' Title
@@ -44,6 +53,28 @@ cds_dummy <- function(cds){}
 
 clrp <- function(clrp){}
 
+#' @rdname clrp
+clrp_dummy <- function(clrp){}
+
+
+#' @title dropped_df
+#'
+#' @param dropped_df A data.frame with no NAs. (Result of \code{tidyr::drop_na()}).
+
+dropped_df_dummy <- function(dropped_df){}
+
+
+
+#' @title flexible_call_dummy
+#'
+#' @param ... Allows to manipulate functions that are called 'flexibly'. Denote
+#' the function name with the argument name and the way you want to manipulate
+#' the way it is called with a named list of arguments. E.g. \code{facet_wrap =
+#' list(drop = TRUE)}.
+#'
+#' Use \code{validFlexiblyCalls()} to see all functions you can manipulate this
+#' way.
+flexible_call_dummy <- function(...){}
 
 #' @title gene_set_path
 #' @param gene_set_path Character value (or NULL). Specifies the path to a
@@ -62,12 +93,19 @@ clrp <- function(clrp){}
 gene_set_path <- function(gene_set_path){}
 
 
+#' @title ggplot_family
+#' @return Returns a ggplot-object that can be additionally customized according
+#' to the rules of the ggplot2-framework.
+#'
+
+ggplot_family <- function(){}
+
+
 #' @title image_dummy
 #' @param image An image of class \emph{Image} to be displayed in the background.
 #' Easily accessible via \code{SPATA::image()}.
 
 image_dummy <- function(image){}
-
 
 
 #' @title method_hclust
@@ -89,6 +127,22 @@ method_hclust <- function(method_hclust){}
 normalize <- function(normalize){}
 
 
+#' @title pb
+#'
+#' @param pb A progress_bar-object.
+
+pb_dummy <- function(pb){}
+
+
+#' @title plot_type
+#'
+#' @param plot_type Character value. Specifies the type of plot to use to
+#' visualize the results. If valid input options are not mentioned in the
+#' description use \code{validPlotTypess()} to obtain all valid input options.
+
+plot_type_dummy <- function(plot_type){}
+
+
 #' @title de_df
 #' @param dea_df A data.frame containing information about differentially expressed genes.
 #' This includes the numeric variables \emph{p_val, avg_logFC, p_val_adj} and the character
@@ -97,18 +151,18 @@ normalize <- function(normalize){}
 pheatmap <- function(de_df){}
 
 
-#' @title ggplot_family
-#' @return Returns a ggplot-object that can be additionally customized according
-#' to the rules of the ggplot2-framework.
+#' @title print
 #'
+#' @return A human readable report of the issue of interest.
 
-ggplot_family <- function(){}
-
+print_family <- function(){}
 
 #' @title sample_name
 #' @param sample_name Character value. The future input for SPATA's \code{of_sample}-argument.
 
 sample_name <- function(sample_name){}
+
+
 
 
 #' @title variable
@@ -126,6 +180,18 @@ sample_name <- function(sample_name){}
 
 variable <- function(variable){}
 
+
+#' @title variable_num
+#'
+#' @param variable Character value. The numeric variable of interest. Must be inside:
+#'
+#' \itemize{
+#'   \item{ \strong{Gene sets} Must be in \code{getGeneSets()}}
+#'   \item{ \strong{Genes} Must be in \code{getGenes()}}
+#'   \item{ \strong{Features} Must be in \code{getFeatureNames(..., of_class = "numeric")}}
+#'   }
+
+variable_num <- function(variable){}
 
 #' @title variables_num
 #'
@@ -151,10 +217,6 @@ verbose <- function(verbose){
 }
 
 
-
-
-
-
 #' Title
 #'
 #' @param seurat_object A valid seurat-object. (from the Seurat platform)
@@ -162,6 +224,8 @@ verbose <- function(verbose){
 seurat_object_dummy <- function(seurat_object){}
 
 
+#' @title Argument dummy
+#'
 #' @param clrp Character value. Specifies the color palette to be used to represent
 #' groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
 #' input options.
@@ -171,21 +235,27 @@ seurat_object_dummy <- function(seurat_object){}
 #' to the group and the respective named element denotes the color with which to
 #' represent the group.
 #'
-#' @param clrsp Chracter value. Specfies the color spectrum to be used to represent
+#' @param clrsp Character value. Specifies the color spectrum to be used to represent
 #' continuous values of numeric variables. Run \code{validColorSpectra()} to obtain
 #' valid input options.
 #'
-#' @param display_points Logical value. If set to TRUE points are used additionally
-#' to display the results.
 #' @param display_facets Logical value. If set to TRUE the plot is split via
 #' \code{ggplot2::facet_wrap()} such that each variable gets it's own subplot.
+#' @param display_points Logical value. If set to TRUE points are used additionally
+#' to display the results.
+#' @param display_title Logical value. If set to TRUE an informative title is displayed.
 #'
-#' @param n_bcsp Numeric value. Specifies the sample size of barcode spots and
+#' @param n_bcsp Numeric value. Specifies the sample size of barcode-spots and
 #' can be set to prevent overplotting.
 #'
 #' @param scales,ncol,nrow Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
 #' are displayed.
+#'
+#' @param verbose Logical. If set to TRUE informative messages regarding
+#' the computational progress will be printed.
+#'
+#' (Warning messages will always be printed.)
 
-argument_dummy <- function(clrp, clrsp, display_points, display_facets, scales, ncol, nrow){}
+argument_dummy <- function(clrp, clrsp, display_points, display_facets, scales, ncol, nrow, verbose){}
 
 

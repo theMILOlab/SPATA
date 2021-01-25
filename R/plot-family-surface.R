@@ -28,7 +28,7 @@
 #'  \code{subsetBySegment()} the original sample is completed with grey barcode
 #'  spots.
 #'
-#' @inherit plot_family params
+#' @inherit ggplot_family params
 #'
 #' @export
 
@@ -129,6 +129,7 @@ plotSurface2 <- function(coords_df,
                          pt_clrsp = "inferno",
                          pt_clrp = "milo",
                          image = NULL,
+                         clrp_adjust = NULL,
                          ...){
 
    # 1. Control --------------------------------------------------------------
@@ -158,6 +159,7 @@ plotSurface2 <- function(coords_df,
       clrp = pt_clrp,
       clrsp = pt_clrsp,
       variable = dplyr::pull(coords_df, {{color_to}}),
+      clrp.adjust = clrp_adjust,
       ...) +
     ggplot2::theme_void() +
     ggplot2::theme(
@@ -523,22 +525,20 @@ plotSurfaceComparison2 <- function(coords_df,
 
 
 
-#' Title
+#' @title Plot localization of enriched areas
 #'
-#' @param object
-#' @param of_sample
-#' @param filled
-#' @param clrsp
-#' @param pt_alpha
-#' @param pt_color
-#' @param pt_size
-#' @param display_image
-#' @param display_labels
-#' @param ...
+#' @description Plots the surface of the sample and marks areas of interest
+#' identified by \code{runPatternRecognition()} depending on the input for
+#' argument \code{plot_type}.
 #'
-#' @return
+#' @inherit argument_dummy params
+#' @inherit plotSurface params
+#' @param ... Additional arguments given to \code{ggplot2::geom_density2d()} or
+#' \code{ggplot2::geom_density2d_filled()} depending on the input for
+#' argument \code{plot_type}.
+#'
 #' @export
-#'
+
 plotSurfaceHotspots <- function(object,
                                 plot_type = "expression",
                                 clrsp = NULL,
@@ -552,6 +552,8 @@ plotSurfaceHotspots <- function(object,
                                 display_points = NULL,
                                 display_image = NULL,
                                 display_labels = NULL,
+                                ncol = NULL,
+                                nrow = NULL,
                                 verbose = NULL,
                                 of_sample = NA,
                                 ...){
@@ -609,7 +611,7 @@ plotSurfaceHotspots <- function(object,
       list(
         ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y, color = mean_genes),
                             size = pt_size, alpha = pt_alpha),
-        ggplot2::facet_wrap(facets = . ~ hotspot, ...),
+        ggplot2::facet_wrap(facets = . ~ hotspot, nrow = nrow, ncol = ncol),
         scale_color_add_on(clrsp = pt_clrsp),
         ggplot2::theme_void(),
         ggplot2::theme(legend.position = "none")
@@ -723,18 +725,18 @@ plotSurfaceHotspots <- function(object,
 }
 
 
-#' Title
+#' @title Plot expression values binned
 #'
-#' @param object
-#' @param of_sample
-#' @param color_to
-#' @param n_qntls
-#' @param keep_qntls
-#' @param pt_alpha
-#' @param pt_clrp
-#' @param pt_size
-#' @param smooth
-#' @param smooth_span
+#' @description This function calculates the quantiles specified in \code{n_qntl}
+#' of the numeric variable specified in \code{color_to} and divides the barcode
+#' spots accordingly.
+#'
+#' @inherit plotSurface params return
+#'
+#' @param n_qntls Numeric value. Specifies the number of bins in which
+#' to distribute the barcode spots.
+#' @param keep_qntls Numeric vector. Specifies the quantiles to highlight by
+#' color. The remaining ones are displayed in gray.
 #'
 #' @return
 #' @export
@@ -800,16 +802,16 @@ plotSurfaceQuantiles <- function(object,
     base::unique() %>%
     base::as.character()
 
-  adjust_clrs <- base::rep("lightgrey", base::length(discard))
+  clrp_adjust <- base::rep("lightgrey", base::length(discard))
 
-  base::names(adjust_clrs) <- discard
+  base::names(clrp_adjust) <- discard
 
   plotSurface2(coords_df = plot_df,
                color_to = "values",
                pt_alpha = pt_alpha,
                pt_clrp = pt_clrp,
                pt_size = pt_size,
-               clrp.adjust = adjust_clrs) +
+               clrp_adjust = clrp_adjust) +
     ggplot2::facet_wrap(facets = . ~ variables) +
     ggplot2::labs(color = "Quantiles")
 

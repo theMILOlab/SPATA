@@ -19,7 +19,7 @@ getAutoencoderAssessment <- function(object, of_sample = NA){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  assessment <- object@information$autoencoder[[of_sample]]$assessment
+  assessment <- object@autoencoder[[of_sample]]$assessment
 
   if(base::identical(assessment, list()) | base::is.null(assessment)){
 
@@ -49,7 +49,7 @@ getAutoencoderSetUp <- function(object, mtr_name, of_sample = NA){
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
   nn_set_up <-
-    object@information$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]]
+    object@autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]]
 
   if(base::is.null(nn_set_up)){
 
@@ -176,7 +176,7 @@ getDeOverview <- function(object){
 #' @inherit check_sample params
 #' @inherit across params
 #' @inherit check_method params
-#' @inherit filterDeDf params details
+#' @inherit filterDeaDf params details
 #'
 #' @return A data.frame:
 #'
@@ -1034,7 +1034,8 @@ getGeneMetaData <- function(object, mtr_name = NULL, only_df = FALSE, of_sample 
 #' @export
 getGeneMetaDf <- function(object, mtr_name = NULL, of_sample = NA){
 
-  getGeneMetaData(object = object, of_sample = of_sample, mtr_name = mtr_name, only_df = TRUE)
+  getGeneMetaData(object = object, of_sample = of_sample, mtr_name = mtr_name, only_df = TRUE) %>%
+    tidyr::as_tibble()
 
 }
 
@@ -1044,15 +1045,13 @@ getGeneMetaDf <- function(object, mtr_name = NULL, of_sample = NA){
 
 # Slot: images ------------------------------------------------------------
 
-#' Title
+#' @title Obtain image
 #'
-#' @param object
-#' @param of_sample
+#' @inherit check_sample params
 #'
-#' @return
+#' @return An image of class \emph{EBImage}.
 #' @export
-#'
-#' @examples
+
 getImage <- function(object, of_sample = NA){
 
   check_object(object)
@@ -1140,12 +1139,20 @@ getGeneDistDf <- function(object, of_sample = NA){
 }
 
 
-#' Title
+#' @title Obtain pattern recognition results
 #'
-#' @param object
-#' @param of_sample
+#' @inherit check_sample params
+#' @inherit check_method params
 #'
-#' @return
+#' @return The list containing all information the respective pattern
+#' recognition algorithm returns.
+#'
+#' \itemize{
+#'  \item{\code{getPrResults()}: List containing all information the respective
+#'  method returns}
+#'  \item{\code{getPrSuggestion()}: List containing the actual pattern suggestions.}
+#'  \item{\code{getPatternNames()}: Character vector of pattern names.}}
+#'
 #' @export
 
 getPrResults <- function(object, method_pr = "hotspot", of_sample = NA){
@@ -1189,12 +1196,11 @@ getPatternNames <- function(object, method_pr = "hotspot", of_sample = NA){
 }
 
 
-#' Title
+#' @title Obtain pattern recognition results of method 'hotspot'
 #'
-#' @param object
-#' @param of_sample
+#' @inherit check_sample params
 #'
-#' @return
+#' @return The respective data.frame.
 #' @export
 
 getHotspotInfoDf <- function(object, of_sample = NA){
@@ -1209,7 +1215,7 @@ getHotspotInfoDf <- function(object, of_sample = NA){
 
 #' @rdname getHotspotInfoDf
 #' @export
-getHotspotGeneDf <- function(object, of_sample = NA){
+getHotspotDf <- function(object, of_sample = NA){
 
   check_object(object)
   of_sample <- check_sample(object, of_sample, of.length = 1)
@@ -1220,12 +1226,12 @@ getHotspotGeneDf <- function(object, of_sample = NA){
 }
 
 
-#' Title
+#' @title Obtain cluster results based on spatial correlation analysis
 #'
 #' @inherit check_sample params
 #' @inherit method_hclust params
 #'
-#' @return
+#' @return The list containing all information about the clustering results.
 #' @export
 
 getSpCorCluster <- function(object, method_hclust = "complete", of_sample = NA){
@@ -1257,14 +1263,8 @@ getSpCorCluster <- function(object, method_hclust = "complete", of_sample = NA){
 }
 
 
-#' Title
-#'
-#' @param object
-#' @param of_sample
-#'
-#' @return
+#' @rdname getSpCorCluster
 #' @export
-
 getSpCorClusterNames <- function(object, of_sample = NA){
 
   check_object(object)
@@ -1288,12 +1288,12 @@ getSpCorClusterNames <- function(object, of_sample = NA){
 }
 
 
-#' Title
+#' @title Obtain spatial correlation results
 #'
 #' @inherit check_sample params
+#' @inherit method_hclust params
 #'
-#' @return
-#' @export
+#' @return The list containing all information about the clustering results.
 
 getSpCorResults <- function(object, of_sample = NA){
 
