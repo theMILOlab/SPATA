@@ -62,11 +62,12 @@ subsetBySegment <- function(object,
                             FindNeighbors = list(dims = 1:30),
                             FindClusters = list(resolution = 0.8),
                             RunTSNE = TRUE,
-                            RunUMAP = list(dims = 1:30)){
+                            RunUMAP = list(dims = 1:30),
+                            verbose = NULL){
 
   # 1. Control --------------------------------------------------------------
 
-  check_object(object)
+  hlpr_assign_arguments(object)
 
   of_sample <-
     check_sample(object = object, of_sample = of_sample, of.length = 1)
@@ -123,8 +124,9 @@ subsetBySegment <- function(object,
   spata_object <-
     setCoordsDf(object = spata_object, coords_df = segment_coords_df, of_sample = of_sample) %>%
     setImage(object = ., image = image, of_sample = of_sample) %>%
-    setGeneSetDf(object = ., gene_set_df = gene_set_df)
-
+    setGeneSetDf(object = ., gene_set_df = gene_set_df) %>%
+    setDefaultInstructions() %>%
+    setPrResults(pr_results = hp_analysis_list)
 
   spata_object@information$old_coordinates <- old_coords_df
 

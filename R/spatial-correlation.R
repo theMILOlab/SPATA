@@ -2,14 +2,14 @@
 
 #' @title Initiate gene clustering analysis based on spatial patterns
 #'
-#' @description This function screens a freely chosen subset of genes  and evaluates their
+#' @description This function screens a subset of genes and evaluates their
 #' spatial overlap by correlation- and subsequent clustering analysis. Results can be
 #' conveniently obtained or processed with additional functions such as
 #' \code{clusterSpCorResults()}, \code{getGenes()} or \code{getSpCorResults()}.
 #'
+#' @inherit check_method params
 #' @inherit check_sample params
 #' @inherit check_smooth params
-#' @inherit check_method params
 #' @inherit getExpressionMatrix params
 #' @param genes A numeric value (integer) or a character vector. Determines which genes
 #' are included in the correlation assessment. If specified as a numeric value
@@ -175,7 +175,7 @@ runSpatialCorrelationAnalysis <- function(object,
 #' clustered together. See details for a more detailed description of what the result
 #' is composed of.
 #'
-#' (This function requires that \code{assessSpCor()} has been run.)
+#' (This function requires that \code{runSpatialCorrelationAnalysis()} has been run.)
 #'
 #' @inherit check_sample params
 #' @inherit check_method params

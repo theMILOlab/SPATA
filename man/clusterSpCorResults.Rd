@@ -37,7 +37,7 @@ genes sharing similar expression profiles / patterns throughout the sample are
 clustered together. See details for a more detailed description of what the result
 is composed of.
 
-(This function requires that \code{assessSpCor()} has been run.)
+(This function requires that \code{runSpatialCorrelationAnalysis()} has been run.)
 }
 \details{
 The resulting value, a named list, is stored in the spata object in

@@ -3,14 +3,13 @@
 #'
 #' @description Visualizes the trajectory trends you set up yourself.
 #'
+#' @inherit argument_dummy params
 #' @inherit check_customized_trends params
 #' @inherit check_smooth params
-#' @inherit clrp params
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()}.
 #'
 #' @inherit ggplot_family return
 #' @export
-#'
 
 plotCustomizedTrajectoryTrends <- function(customized_trends,
                                            smooth = TRUE,
@@ -79,15 +78,16 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 #' @description Displays the spatial course of spatial trajectory that was
 #' drawn with \code{SPATA::createTrajectories()}.
 #'
-#' @inherit check_sample params
-#' @inherit check_trajectory params
-#' @inherit check_method params
+#' @inherit argument_dummy params
 #' @inherit check_color_to params
-#' @inherit check_smooth params
-#' @inherit check_pt params
 #' @inherit check_display params
-#' @inherit verbose params
+#' @inherit check_method params
+#' @inherit check_pt params
+#' @inherit check_sample params
+#' @inherit check_smooth params
+#' @inherit check_trajectory params
 #' @inherit check_uniform_genes params
+#'
 #' @param sgmt_size The size of the segment arrrow specified as a numeric value.
 #'
 #' @inherit ggplot_family return
@@ -261,21 +261,20 @@ plotTrajectory <- function(object,
 #' @description Displays values along a trajectory direction with
 #' a smoothed lineplot.
 #'
-#' @inherit check_sample params
-#' @inherit check_features params
-#' @param discrete_feature Character value. The discrete feature of interest.
-#' @inherit check_gene_sets params
-#' @inherit check_method params
-#' @inherit check_genes params
+#' @inherit argument_dummy params
 #' @inherit average_genes params
+#' @inherit check_features params
+#' @inherit check_gene_sets params
+#' @inherit check_genes params
+#' @inherit check_method params
+#' @inherit check_sample params
 #' @inherit check_smooth params
 #' @inherit check_trajectory_binwidth params
-#' @inherit verbose params
+#'
+#' @param discrete_feature Character value. The discrete feature of interest.
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
 #' drawn.
-#' @param clrp Character value. The color panel to be used.
-#'  Run \code{all_colorpanels()} to see valid input.
 #' @param split Logical. If set to TRUE sub plots for every specified gene, gene-set
 #' or feature are displayed via \code{ggplot2::facet_wrap()}
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()} if argument
@@ -293,12 +292,12 @@ plotTrajectoryFeatures <- function(object,
                                    smooth_span = NULL,
                                    binwidth = 5,
                                    clrp = NULL,
+                                   clrp_adjust = NULL,
                                    display_trajectory_parts = NULL,
                                    split = NULL,
                                    verbose = NULL,
                                    of_sample = NA,
                                    ...){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -384,7 +383,7 @@ plotTrajectoryFeatures <- function(object,
     facet_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
-    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp, clrp.adjust = clrp_adjust) +
     ggplot2::theme(
       axis.text = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
@@ -403,6 +402,7 @@ plotTrajectoryGenes <- function(object,
                                 average_genes = FALSE,
                                 binwidth = 5,
                                 clrp = NULL,
+                                clrp_adjust = NULL,
                                 smooth_method = NULL,
                                 smooth_se = NULL,
                                 smooth_span = NULL,
@@ -557,7 +557,7 @@ plotTrajectoryGenes <- function(object,
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
-    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp, clrp.adjust = clrp_adjust) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text = ggplot2::element_blank(),
@@ -583,6 +583,7 @@ plotTrajectoryGeneSets <- function(object,
                                    smooth_span = NULL,
                                    smooth_se = NULL,
                                    clrp = NULL,
+                                   clrp_adjust = NULL,
                                    display_trajectory_parts = NULL,
                                    split = NULL,
                                    verbose = NULL,
@@ -667,7 +668,7 @@ plotTrajectoryGeneSets <- function(object,
     trajectory_part_add_on +
     ggplot2::geom_smooth(size = 1.5, span = smooth_span, method = smooth_method, formula = y ~ x,
                          se = smooth_se) +
-    confuns::scale_color_add_on(variable = "discrete", clrp = clrp) +
+    confuns::scale_color_add_on(variable = "discrete", clrp = clrp, clrp.adjust = clrp_adjust) +
     ggplot2::scale_y_continuous(breaks = base::seq(0 , 1, 0.2), labels = base::seq(0 , 1, 0.2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(
@@ -687,10 +688,10 @@ plotTrajectoryGeneSets <- function(object,
 #'
 #' @description Displays discrete variables along a trajectory.
 #'
+#' @inherit argument_dummy params
 #' @inherit check_sample params
 #' @param discrete_feature Character value. The discrete feature of interest.
 #' @inherit check_trajectory_binwidth params
-#' @inherit verbose params
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
 #' drawn.
@@ -705,11 +706,11 @@ plotTrajectoryFeaturesDiscrete <- function(object,
                                            discrete_feature,
                                            binwidth = 10,
                                            clrp = NULL,
+                                           clrp_adjust = NULL,
                                            display_trajectory_parts = NULL,
                                            verbose = NULL,
                                            of_sample = NA,
                                            ...){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -756,7 +757,7 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 
   ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_bar(mapping = ggplot2::aes(x = trajectory_order, fill = .data[[feature]]), position = "fill", width = 0.9) +
-    confuns::scale_color_add_on(aes = "fill", variable = plot_df[[feature]], clrp = clrp) +
+    confuns::scale_color_add_on(aes = "fill", variable = plot_df[[feature]], clrp = clrp, clrp.adjust = clrp_adjust) +
     facet_add_on +
     ggplot2::theme_minimal() +
     ggplot2::theme(
@@ -775,10 +776,11 @@ plotTrajectoryFeaturesDiscrete <- function(object,
 #' @description Displays variable-expression values along a trajectory
 #' direction with a smoothed heatmap (from left to right).
 #'
+#' @inherit argument_dummy params
 #' @inherit check_sample params
-#' @inherit check_trajectory params
-#' @inherit verbose params
 #' @inherit check_smooth params
+#' @inherit check_trajectory params
+#'
 #' @param variables The variables of interest specified as a character vector:
 #'
 #' \itemize{
@@ -952,7 +954,7 @@ plotTrajectoryHeatmap <- function(object,
 
     mtr_smoothed <-
       confuns::arrange_rows(df = base::as.data.frame(mtr_smoothed),
-                            across = arrange_rows,
+                            according_to = arrange_rows,
                             verbose = verbose) %>% base::as.matrix()
 
   }
@@ -985,15 +987,16 @@ plotTrajectoryHeatmap <- function(object,
 #' @description Displays the trend of a trajectory in comparison to a variety
 #' of models / mathematical curves.
 #'
+#' @inherit check_customized_trends params
 #' @inherit check_sample params
 #' @inherit check_trajectory params
-#' @inherit check_customized_trends params
+#' @inherit check_trajectory_binwidth params
+#' @inherit hlpr_summarize_trajectory_df params
 #' @inherit variable_num params
+#'
 #' @param display_residuals Logical. If set to TRUE the residuals are displayed
 #' via a red line.
-#' @inherit check_trajectory_binwidth params
 #' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}.
-#' @inherit hlpr_summarize_trajectory_df params
 #'
 #' @inherit ggplot_family return
 #' @export

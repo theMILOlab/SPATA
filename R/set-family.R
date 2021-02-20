@@ -20,8 +20,8 @@ set_dummy <- function(){}
 
 #' @title Set the coordinates
 #'
-#' @inherit check_sample params
 #' @inherit check_coords_df params
+#' @inherit check_sample params
 #'
 #' @inherit set_dummy params return details
 #' @export
@@ -53,8 +53,8 @@ setCoordsDf <- function(object, coords_df, of_sample = ""){
 
 #' @title Set feature data.frame
 #'
-#' @inherit check_sample params
 #' @inherit check_feature_df params
+#' @inherit check_sample params
 #'
 #' @return set_dummy return details
 #' @export
@@ -92,10 +92,11 @@ setFeatureDf <- function(object, feature_df, of_sample = ""){
 #' to the spata-object.
 #'
 #' @inherit check_sample params
+#' @inherit set_dummy params return details
+#'
 #' @param meta_data_list Output list of \code{computeGeneMetaData2()}. An additional
 #' slot named \emph{mtr_name} needs to be added manually.
 #'
-#' @inherit set_dummy params return details
 #' @export
 
 addGeneMetaData <- function(object, of_sample = "", meta_data_list){
@@ -368,34 +369,6 @@ setActiveExpressionMatrix <- function(object, of_sample = "",  mtr_name){
 }
 
 
-#' @title Set results of autoencoder assessment
-#'
-#' @inherit check_object params
-#' @param assessment_list Named list with slots \code{$df} and \code{$set_up}.
-#'
-#' @return A spata-object.
-
-setAutoencoderAssessment <- function(object, assessment_list, of_sample = ""){
-
-  check_object(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  confuns::check_data_frame(
-    df = assessment_list$df,
-    var.class = list("activation" = c("character", "factor"),
-                     "bottleneck" = c("character", "factor"),
-                     "total_var" = c("numeric", "integer", "double")),
-    ref = "assessment_list$df"
-  )
-
-  object@autoencoder[[of_sample]][["assessment"]] <- assessment_list
-
-  base::return(object)
-
-}
-
-
 #' @title Set default instructions
 #'
 #' @inherit check_object params
@@ -431,7 +404,7 @@ setDirectoryInstructions <- function(object){
 }
 
 
-#' @title Set initation information
+#' @title Set initiation information
 #'
 #' @inherit check_object
 #'
@@ -439,11 +412,28 @@ setDirectoryInstructions <- function(object){
 
 setInitiationInfo <- function(object){
 
+  ce <- rlang::caller_env()
+
   init_call <- rlang::caller_fn()
+
+  init_args <-
+    rlang::fn_fmls_names(fn = init_call)
+
+  init_args_input <-
+    purrr::map(
+      .x = init_args,
+      .f = function(arg){
+
+        base::parse(text = arg) %>%
+          base::eval(envir = ce)
+
+      }
+    ) %>%
+    purrr::set_names(nm = init_args)
 
   initiation_list <- list(
     init_call = init_call,
-    args = rlang::fn_fmls(fn = init_call),
+    args = init_args_input,
     time = base::Sys.time()
   )
 
@@ -465,13 +455,13 @@ setInitiationInfo <- function(object){
 #'
 #' @inherit set_dummy return details
 
-setPrResults <- function(object, of_sample = "",  method_pr = "hotspot", pr_list){
+setPrResults <- function(object, of_sample = "",  method_pr = "hpa", pr_results){
 
   check_object(object)
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  object@spatial[[of_sample]][[method_pr]] <- pr_list
+  object@spatial[[of_sample]][[method_pr]] <- pr_results
 
   base::return(object)
 
@@ -487,8 +477,8 @@ setPrResults <- function(object, of_sample = "",  method_pr = "hotspot", pr_list
 #' @inherit set_dummy return details
 
 setSpCorResults <- function(object,
-                                         sp_cor_list,
-                                         of_sample = ""){
+                            sp_cor_list,
+                            of_sample = ""){
 
   check_object(object)
 
@@ -510,8 +500,8 @@ setSpCorResults <- function(object,
 #' @inherit set_dummy return details
 
 addSpCorCluster <- function(object,
-                                         cluster_list,
-                                         of_sample = ""){
+                            cluster_list,
+                            of_sample = ""){
 
   check_object(object)
 

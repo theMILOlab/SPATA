@@ -2,10 +2,10 @@
 
 #' @title Wrapper around Seurat processing functions
 #'
+#' @inherit argument_dummy params
+#' @inherit transformSpataToSeurat params
 #' @param seurat_object A valid seurat-object.
-#' @inherit compileSeuratObject params
 #'
-#' @inherit verbose params
 #'
 #' @return A processed seurat-object.
 #'

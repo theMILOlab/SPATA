@@ -2,9 +2,12 @@
 % Please edit documentation in R/imported-functions.R
 \name{all_color_palettes}
 \alias{all_color_palettes}
+\alias{all_color_spectra}
 \title{Color palette names}
 \usage{
 all_color_palettes()
+
+all_color_spectra()
 }
 \value{
 A named list.

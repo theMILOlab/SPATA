@@ -26,11 +26,39 @@ renameFeatures <- function(object, ..., of_sample = NA){
 
   valid_rename_input <- rename_input[rename_input %in% valid_feature_names]
 
+  #assign("valid_rename_input", value = valid_rename_input, envir = .GlobalEnv)
+
+  # rename feature df
   feature_df <-
     getFeatureDf(object, of_sample = of_sample) %>%
     dplyr::rename(!!! valid_rename_input)
 
-  object <- setFeatureDf(object, feature_df = feature_fd, of_sample = of_sample)
+  # rename dea list
+  dea_list <- object@dea[[of_sample]]
+
+  dea_names <- base::names(dea_list)
+
+  if(!base::is.null(dea_names)){
+
+    dea_names <- valid_rename_input[valid_rename_input %in% dea_names]
+
+    if(base::length(dea_names) >= 1){
+
+      for(dea_name in dea_names){
+
+        base::names(dea_list)[base::names(dea_list) == dea_name] <-
+          base::names(dea_names)[dea_names == dea_name]
+
+      }
+
+      object@dea[[of_sample]] <- dea_list
+
+    }
+
+  }
+
+
+  object <- setFeatureDf(object, feature_df = feature_df, of_sample = of_sample)
 
   base::return(object)
 
@@ -95,11 +123,37 @@ renameGroups <- function(object, discrete_feature, ..., of_sample = NA){
 
   rename_input <- rename_input[rename_input %in% valid_rename_input]
 
+  # rename feature
   renamed_feature_df <-
     dplyr::mutate(
       .data = feature_df,
       {{discrete_feature}} := forcats::fct_recode(.f = !!rlang::sym(discrete_feature), !!!rename_input)
     )
+
+  # rename dea list
+  dea_list <- object@dea[[of_sample]][[discrete_feature]]
+
+  if(!base::is.null(dea_list)){
+
+    object@dea[[of_sample]][[discrete_feature]] <-
+      purrr::map(
+        .x = dea_list,
+        .f = function(method){
+
+          new_df <-
+            dplyr::mutate(
+              .data = method$data,
+              {{discrete_feature}} := forcats::fct_recode(.f = !!rlang::sym(discrete_feature), !!!rename_input)
+            )
+
+          list(data = new_df, adjustments = method$adjustments)
+
+        }
+      ) %>%
+      purrr::set_names(nm = base::names(dea_list))
+
+
+  }
 
   object <- setFeatureDf(object, feature_df = renamed_feature_df, of_sample = of_sample)
 

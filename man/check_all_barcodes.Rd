@@ -6,6 +6,9 @@
 \usage{
 check_all_barcodes(object)
 }
+\arguments{
+\item{object}{A valid spata-object.}
+}
 \description{
 Check barcodes of all matrices and data.frames
 }

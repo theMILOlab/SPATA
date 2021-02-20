@@ -5,6 +5,7 @@
 \title{Check method input}
 \usage{
 check_method(
+  method_csr = NULL,
   method_de = NULL,
   method_dr = NULL,
   method_gs = NULL,

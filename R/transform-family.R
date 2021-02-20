@@ -48,6 +48,9 @@ getFromSeurat <- function(return_value, error_handling, error_value, error_ref){
 
 #' @title Transform seurat-object to spata-object
 #'
+#' @inherit argument_dummy params
+#' @inherit loadGSDF params
+#'
 #' @param seurat_object A valid seurat object.
 #' @param method Character value. Determines the data slots from which to compile the spata-object.
 #'
@@ -62,8 +65,6 @@ getFromSeurat <- function(return_value, error_handling, error_value, error_ref){
 #'  take the surrogate coordinates.
 #'
 #' @param sample_name Character value. Future input for SPATA's \code{of_sample}-argument.
-#' @inherit loadGSDF params
-#' @inherit verbose params
 #'
 #' @return A spata object.
 #' @export
@@ -397,6 +398,8 @@ transformSeuratToSpata <- function(seurat_object,
 #' cell_data_set-object with it. See details for more information on how to use
 #' the arguments.
 #'
+#'
+#' @inherit argument_dummy params
 #' @inherit check_object params
 #' @inherit check_monocle_input params details
 #' @param estimate_size_factors_args A list of arguments given to \code{monocle3::estimate_size_factors()}.
@@ -407,7 +410,6 @@ transformSeuratToSpata <- function(seurat_object,
 #' @param order_cells_args A list of arguments given to \code{monocle3::order_cells()}.
 #' @param save_cds_file Character value or NULL. A file-directory (that does not already exists) under which created cell_data_set-object
 #' is saved. Should end with \emph{'.RDS'}.
-#' @inherit verbose params
 #'
 #' @details \code{compileCellDataSet()} is a convenient wrapper around all pre processing functions
 #' monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from \code{object}

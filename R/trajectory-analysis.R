@@ -402,12 +402,12 @@ shiftTrajectoryDf <- function(stdf, shift = "wider"){
 #'  the needed summarized trajectory data.frame from scratch.}
 #'  }
 #'
+#' @inherit argument_dummy params
+#' @inherit check_customized_trends params
 #' @inherit check_sample params
 #' @inherit check_trajectory params
 #' @inherit check_variables params
-#' @inherit verbose params
 #' @inherit hlpr_rank_trajectory_trends params
-#' @inherit check_customized_trends params
 #'
 #' @return A data.frame arranged by the residuals area-under-the-curve-values describing
 #' how well a model fitted the expression trend of a gene or gene set.

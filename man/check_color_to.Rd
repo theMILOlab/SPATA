@@ -6,6 +6,7 @@
 \usage{
 check_color_to(
   color_to,
+  color_by,
   all_features = character(),
   all_gene_sets = character(),
   all_genes = character(),
@@ -13,7 +14,7 @@ check_color_to(
 )
 }
 \arguments{
-\item{color_to}{The variable to be displayed by color:
+\item{color_by}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

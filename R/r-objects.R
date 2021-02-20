@@ -112,6 +112,28 @@ default_instructions_object <-
                verbose = TRUE)
 
 
+# Pattern analysis --------------------------------------------------------
+
+csr_methods <- c("MonteCarlo", "Chisq")
+
+# hierarchical pattern analysis list
+hp_analysis_list <-
+  base::list(
+    barcodes = base::character(),
+    csr_method = base::character(),
+    csr_test_res_genes = base::data.frame(),
+    csr_test_res_threshold = base::list(
+      "feature" = base::character(),
+      "percentile" = base::numeric(),
+      "results" = base::list()
+    ),
+    gene_patterns = base::data.frame(),
+    gene_pattern_similarities = base::data.frame(),
+    gene_pattern_hclust_tree = base::list(),
+    padj_method = base::character(),
+    selected_genes = base::character(),
+    similarity_threshold = base::numeric()
+  )
 
 
 # Plot types --------------------------------------------------------------
@@ -122,7 +144,6 @@ plot_types_in_functions <-
     "plotDeaPvalues" = c("density", "histogram"),
     "plotDeaSummary" = c("density", "histogram")
     )
-
 
 # Seurat analysis ---------------------------------------------------------
 
