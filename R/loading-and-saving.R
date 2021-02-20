@@ -427,7 +427,7 @@ initiateSpataObject_10X <- function(input_paths,
   count_matrix <- seurat_object@assays$RNA@counts
   count_mtr <- count_matrix[base::rowSums(base::as.matrix(count_matrix)) != 0, ]
 
-  norm_exp <- seurat_object@assays$RNA@scale.data
+  norm_exp <- seurat_object@assays[[seurat_object@active.assay]]@scale.data
   norm_exp <- norm_exp[base::rowSums(norm_exp) != 0, ]
 
   data_counts_n <- new(Class = "data_counts",
