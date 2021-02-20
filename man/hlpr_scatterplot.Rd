@@ -25,13 +25,6 @@ hlpr_scatterplot(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{spata_df}{A data.frame containing information of barcode-spots. Must contain the variables.
-
-\describe{
- \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
- \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
- }}
-
 \item{color_to}{Named list.}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled

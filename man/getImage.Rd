@@ -2,7 +2,7 @@
 % Please edit documentation in R/get-family.R
 \name{getImage}
 \alias{getImage}
-\title{Obtain image}
+\title{Obtain histology image}
 \usage{
 getImage(object, of_sample = NA)
 }
@@ -16,5 +16,5 @@ If set to \emph{""} (the default) the first sample is chosen.}
 An image of class \emph{EBImage}.
 }
 \description{
-Obtain image
+Obtain histology image
 }

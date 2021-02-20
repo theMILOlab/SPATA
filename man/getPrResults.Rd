@@ -2,13 +2,10 @@
 % Please edit documentation in R/get-family.R
 \name{getPrResults}
 \alias{getPrResults}
-\alias{getPrSuggestion}
 \alias{getPatternNames}
 \title{Obtain pattern recognition results}
 \usage{
-getPrResults(object, method_pr = "hotspot", of_sample = NA)
-
-getPrSuggestion(object, method_pr = "hotspot", of_sample = NA)
+getPrResults(object, method_pr = "hpa", of_sample = NA)
 
 getPatternNames(object, method_pr = "hotspot", of_sample = NA)
 }

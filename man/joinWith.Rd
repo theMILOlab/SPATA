@@ -71,13 +71,6 @@ joinWithVariables(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{spata_df}{A data.frame containing information of barcode-spots. Must contain the variables.
-
-\describe{
- \item{\emph{barcodes}}{Character. The barcode-sequences (+ the sample belonging) of every barcode spot.}
- \item{\emph{sample}}{Character. The sample belonging of every barcode-spot.}
- }}
-
 \item{features}{The features of interest specified as a character vector.}
 
 \item{gene_sets}{The gene sets of interest specified as a character vector.}

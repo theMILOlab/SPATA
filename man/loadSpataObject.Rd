@@ -15,6 +15,11 @@ loadCorrespondingSeuratObject(object, verbose = NULL)
 \arguments{
 \item{directory_spata}{Character value. The directory from which to load the spata-object.}
 
+\item{verbose}{Logical. If set to TRUE informative messages regarding
+the computational progress will be printed.
+
+(Warning messages will always be printed.)}
+
 \item{object}{A valid spata-object.}
 }
 \value{

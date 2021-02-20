@@ -98,14 +98,4 @@ Note that certain listed functions require previous functions! E.g. if \code{Run
 will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
 is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()} after
 initiating it in order to see which slots are valid and which are not.
-
-Handling more than one sample:
-
-Several samples can be stored in one object. If so, the count-matrices will be combined to one matrix which is given to the seurat-object that is temporarily
-initiated in order to perform the pre processing steps. Sample related unambiguity with respect to the barcode's belonging is maintained
-by suffixing the barcode-sequences with the respective sample name specified in \code{sample_names}. The meta.data data.frame of the
-seurat-object is joined with a variable called \emph{sample} denoting the sample-belonging of every barcode which can be used as input
-for pre processing functions.
-
-For now we recommend to stick to one sample per spata-object.
 }

@@ -14,14 +14,14 @@ getGeneSetsInteractive(object)
 
 \item{of_class}{A character vector indicating the classes from which to obtain
 the gene set names. (Which classes exist in the current gene set data.frame can
-be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
+be obtained e.g. with \code{printGeneSetOverview()}). If set to \emph{"all"} all
 gene sets are returned.}
 
 \item{index}{A regular expression according to which the gene set names to be returned
 are filtered again.}
 
-\item{simplify}{Logical. If set to TRUE the list to be returned is simplified
-into a character vector.}
+\item{simplify}{Logical. If set to TRUE the output list is simplified to a vector if possible. If set
+to FALSE a list is returned.}
 }
 \value{
 A list named according to the input of argument \code{of_class}. Each element of

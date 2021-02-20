@@ -20,7 +20,7 @@ and \emph{sample}.
 This function is the most basic start if you want
 to extract data for your individual analysis.
 
-(In order to extract the coordinates as well use \code{getCoordinates()}.)
+(In order to extract the coordinates as well use \code{getCoordsDf()}.)
 }
 \seealso{
 joinWith

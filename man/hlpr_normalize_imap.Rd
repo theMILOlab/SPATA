@@ -15,8 +15,6 @@ hlpr_normalize_imap(variable, var_name, aspect, subset)
 
 \item{subset}{A character vector of variable names that are to be normalized}
 
-\item{verbose}{Logical}
-
 \item{pb}{An R6 progress bar object.}
 }
 \value{

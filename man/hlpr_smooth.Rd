@@ -28,12 +28,10 @@ hlpr_smooth(
 \item{subset}{Vector of variable names to smooth}
 
 \item{pb}{A progress-bar or NULL.}
-
-\item{verbose}{Logical}
 }
 \value{
 Smoothed variable (data.frame within \code{purrr::imap()})
 }
 \description{
-Helper function to use within \code{purrr::imap()}
+Helper function to be used within \code{purrr::imap()}
 }

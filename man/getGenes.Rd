@@ -2,7 +2,6 @@
 % Please edit documentation in R/get-family.R
 \name{getGenes}
 \alias{getGenes}
-\alias{getDeGenes}
 \alias{getDeaGenes}
 \alias{getSpCorGenes}
 \alias{getGenesInteractive}
@@ -15,17 +14,6 @@ getGenes(
   simplify = TRUE,
   of_sample = NA,
   in_sample = NA
-)
-
-getDeGenes(
-  object,
-  across,
-  across_subset = NULL,
-  method_de = "wilcox",
-  max_adj_pval = NULL,
-  n_highest_lfc = 50,
-  n_lowest_pval = 50,
-  of_sample = NA
 )
 
 getDeaGenes(
@@ -58,14 +46,13 @@ getGenesInteractive(object)
 \item{of_gene_sets}{A character vector specifying the gene sets from which to
 return the gene names.}
 
-\item{simplify}{Logical. If set to TRUE the list to be returned will be simplified
-into a character vector.}
+\item{simplify}{Logical. If set to TRUE the output list is simplified to a vector if possible. If set
+to FALSE a list is returned.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{in_sample}{The sample(s) in which the genes have to be expressed in order
-to be included.}
+\item{in_sample}{Deprecated.}
 
 \item{across}{Character value or NULL. Specifies the grouping variable of interest.
 

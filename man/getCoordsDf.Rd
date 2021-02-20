@@ -2,15 +2,9 @@
 % Please edit documentation in R/get-family.R
 \name{getCoordsDf}
 \alias{getCoordsDf}
-\alias{getCoordinates}
-\alias{getCoordinatesSegment}
 \title{Obtain spatial coordinates}
 \usage{
 getCoordsDf(object, of_sample = NA)
-
-getCoordinates(object, of_sample = NA)
-
-getCoordinatesSegment(object, of_segment, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

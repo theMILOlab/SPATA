@@ -47,11 +47,6 @@ the number of components to return.}
 of nearest neighbours to compute.}
 
 \item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
 }
 \value{
 A spata-object.

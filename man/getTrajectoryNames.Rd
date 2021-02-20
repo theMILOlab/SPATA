@@ -9,6 +9,9 @@ getTrajectoryNames(object, simplify = TRUE, of_sample = NA)
 \arguments{
 \item{object}{A valid spata-object.}
 
+\item{simplify}{Logical. If set to TRUE the output list is simplified to a vector if possible. If set
+to FALSE a list is returned.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 }

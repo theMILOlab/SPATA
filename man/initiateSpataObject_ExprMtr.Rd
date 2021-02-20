@@ -47,16 +47,11 @@ If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to ge
 
 \item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
 
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
+\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
+of nearest neighbours to compute.}
 
 \item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
 the number of components to return.}
-
-\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
-of nearest neighbours to compute.}
 }
 \value{
 A spata-object.

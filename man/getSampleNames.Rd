@@ -2,12 +2,9 @@
 % Please edit documentation in R/get-family.R
 \name{getSampleNames}
 \alias{getSampleNames}
-\alias{getSamples}
 \title{Obtain sample names}
 \usage{
 getSampleNames(object)
-
-getSamples(object)
 }
 \arguments{
 \item{object}{A valid spata-object.}

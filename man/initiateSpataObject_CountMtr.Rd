@@ -71,11 +71,6 @@ for argument \code{features} is set to \code{base::rownames(seurat_object)}.}
 \item{RunTSNE}{A named list of arguments given to \code{Seurat::RunTSNE()}, TRUE or FALSE.}
 
 \item{RunUMAP}{A named list of arguments given to \code{Seurat::RunUMAP()}, TRUE or FALSE.}
-
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
 }
 \value{
 A spata-object.
@@ -99,6 +94,5 @@ manipulate the way the spata-object is processed. For all of these arguments app
 
 Note that certain listed functions require previous functions! E.g. if \code{RunPCA} is set to FALSE \code{RunTSNE()}
 will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
-is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()}
-to check your object for validity.
+is going to be empty.) Skipping functions might result in an incomplete spata-object.
 }

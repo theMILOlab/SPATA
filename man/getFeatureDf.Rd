@@ -13,7 +13,7 @@ getFeatureDf(object, of_sample = NA)
 If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
-The feature data data.frame of the specfied object and sample(s).
+The feature data data.frame of the specified object and sample(s).
 }
 \description{
 Obtain feature data

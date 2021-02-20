@@ -4,15 +4,10 @@
 \alias{getGroupNames}
 \title{Obtain group names a grouping variable contains}
 \usage{
-getGroupNames(object, across, of_sample = NA)
+getGroupNames(object, discrete_feature, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{across}{Character value or NULL. Specifies the grouping variable of interest.
-
-Use \code{getGroupingOptions()} to obtain all variable names that group the
-barcode spots of your object in a certain manner.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
@@ -29,6 +24,6 @@ Obtain group names a grouping variable contains
  # obtain all group names the variable 'my_cluster'
  # contains
 
- getGroups(object = object, across = "my_cluster")
+ getGroupNames(object = object, across = "my_cluster")
 
 }

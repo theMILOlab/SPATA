@@ -18,10 +18,8 @@ getFeatureVariables(
 \item{features}{The features of interest specified as a character vector.}
 
 \item{return}{Character value. One of \emph{'vector', 'data.frame'} or
-\emph{'list'}. In order to return a vector input of \code{features} must
+\emph{'list'}. In order to return a vector the input of \code{features} must
 be of length one.}
-
-\item{unique}{Deprecated.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}

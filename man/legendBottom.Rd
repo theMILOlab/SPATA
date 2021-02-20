@@ -2,9 +2,18 @@
 % Please edit documentation in R/plotting-add-ons.R
 \name{legendBottom}
 \alias{legendBottom}
+\alias{legendNone}
+\alias{legendRight}
+\alias{legendTop}
 \title{Ggplot add on wrapper}
 \usage{
 legendBottom(...)
+
+legendNone(...)
+
+legendRight(...)
+
+legendTop(...)
 }
 \description{
 Ggplot add on wrapper

@@ -33,9 +33,9 @@ A data.frame that contains the unique identifiers
 (keys): \emph{barcodes, sample} and:.
 
  \itemize{
+  \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
   \item{ \code{getTsneDf()}: \emph{tsne1, tsne2}}
   \item{ \code{getUmapDf()}: \emph{umap1, umap2}}
-  \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
   }
 }
 \description{
