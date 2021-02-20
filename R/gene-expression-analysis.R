@@ -4,8 +4,8 @@
 #' the differently expressed genes across the groups denoted in the argument \code{across}.
 #' See details for more.
 #'
+#' @inherit across_dummy params
 #' @inherit check_sample params
-#' @inherit across params
 #' @inherit check_method params
 #' @param ... Additional arguments given to \code{Seurat::FindAllMarkers()}
 #'
@@ -132,14 +132,13 @@ runDeAnalysis <- function(object,
 #'
 #' @description Processes the results of \code{findDeGenes()}. See details.
 #'
+#' @inherit across_dummy params
 #' @inherit check_dea_df params
 #' @param max_adj_pval Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
 #' with adjusted p-values above that threshold are ignored.
 #' @param n_highest_lfc Numeric value. Affects the total number of genes that are kept. See details.
 #' @param n_lowest_pval Numeric value. Affects the total number of genes that are kept. See details.
-#' @inherit across params
 #' @param return Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}
-#'
 #' @details The de-data.frame is processed such that the following steps are performed for every experimental
 #' group. (With "genes" we refer to the rows (observations) of \code{data}.)
 #'

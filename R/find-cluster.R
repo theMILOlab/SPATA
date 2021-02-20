@@ -179,6 +179,7 @@ findMonocleClusters <- function(object,
 
 #' @title Cluster sample via nearest neighbour analysis
 #'
+#' @inherit argument_dummy params
 #' @inherit check_sample params
 #' @param k The maximum number of nearest neighbours to compute. The default value
 #'  is set to the smaller of the number of columnns in data.
@@ -186,7 +187,6 @@ findMonocleClusters <- function(object,
 #'  \emph{'kd'} tree or a \emph{'bd'} (box-decomposition, AMNSW98) tree which
 #'   may perform better for larger point sets.
 #' @param searchtypes Character value. Either \emph{'priority', 'standard'} or \emph{'radius '}. See details for more.
-#' @inherit verbose params
 #'
 #' @details
 #'

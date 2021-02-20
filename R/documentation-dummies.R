@@ -206,17 +206,6 @@ variable_num <- function(variable){}
 variables_num <- function(variables){}
 
 
-#' @title verbose
-#' @param verbose Logical. If set to TRUE informative messages regarding
-#' the computational progress will be printed.
-#'
-#' (Warning messages will always be printed.)
-
-verbose <- function(verbose){
-
-}
-
-
 #' Title
 #'
 #' @param seurat_object A valid seurat-object. (from the Seurat platform)
@@ -250,6 +239,9 @@ seurat_object_dummy <- function(seurat_object){}
 #'
 #' @param scales,ncol,nrow Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
 #' are displayed.
+#'
+#' @param simplify Logical. If set to TRUE the output list is simplified to a vector if possible. If set
+#' to FALSE a list is returned.
 #'
 #' @param verbose Logical. If set to TRUE informative messages regarding
 #' the computational progress will be printed.

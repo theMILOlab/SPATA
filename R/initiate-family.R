@@ -49,7 +49,7 @@ initiateSpataObject_MALDI <- function(coords_df,
 #' @param count_mtr A numeric matrix to be used as the count matrix. Rownames must
 #' correspond to the genes and column names must correspond to the barcodes.
 #' @inherit initiateSpataObject_ExprMtr params return
-#' @inherit compileSeuratObject params
+#' @inherit transformSpataToSeurat params
 #'
 #' @details The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied
 #' mitochondrial and stress genes are discarded. For more advanced users the arguments above starting with a capital letter allow to
@@ -65,8 +65,7 @@ initiateSpataObject_MALDI <- function(coords_df,
 #'
 #' Note that certain listed functions require previous functions! E.g. if \code{RunPCA} is set to FALSE \code{RunTSNE()}
 #' will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
-#' is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()}
-#' to check your object for validity.
+#' is going to be empty.) Skipping functions might result in an incomplete spata-object.
 #'
 #' @export
 
@@ -242,6 +241,10 @@ initiateSpataObject_CountMtr <- function(coords_df,
 #' @description Default function for any spatial related experiment whoose output is
 #' an already processed expression/intensity matrix. See details for more information.
 #'
+#' @inherit check_saving params
+#' @inherit gene_set_path params
+#' @inherit sample_name params
+#'
 #' @param coords_df Data.frame containing information about the positions of all
 #' barcode-spots in form of a numeric \emph{x}- and \emph{y}-variable. The key-variable
 #' \emph{barcodes} needs to be of type character and must be identical to the column names
@@ -249,15 +252,11 @@ initiateSpataObject_CountMtr <- function(coords_df,
 #'
 #' @param expr_mtr A numeric matrix. The expression matrix to be used.
 #' @param image An Image of the sample that can be displayed as the surface plot's background.
-#' @inherit sample_name params
-#' @inherit gene_set_path params
-#' @inherit check_saving params
-#' @param pca_comp Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
-#' the number of components to return.
 #' @param nn Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
 #' of nearest neighbours to compute.
+#' @param pca_comp Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
+#' the number of components to return.
 #' @param tsne_perplexity Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.
-#' @inherit verbose params
 #'
 #' @details After initiating the spata-object PCA is performed via \code{irlba::prcomp_irlba()} and clustering
 #' is done via \code{RANN::nn2()}. (Use \code{addFeatures()} to add any clustering results of your own analysis.)
@@ -490,6 +489,11 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 #' from scratch. Several samples can be stored in one object, though we recommend to stick
 #' to one. (See details for more.)
 #'
+#' @inherit argument_dummy params
+#' @inherit check_saving params
+#' @inherit gene_set_path params
+#' @inherit process_seurat_object params
+#'
 #' @param directory_10X Character value. Specifies the 10X visium-folder from
 #' which to load the information. This folder must contain the following sub directories:
 #'
@@ -498,15 +502,8 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 #'  \item{\emph{'/outs/spatial/*.jpg}}
 #'  }
 #'
-#' @inherit gene_set_path params
-#'
 #' @param sample_name Character value. The sample name with which to refer to the
 #' respective sample. Should start with a letter.
-#'
-
-#' @inherit process_seurat_object params
-#' @inherit check_saving params
-#' @inherit verbose params
 #'
 #' @details The loading and preprocessing of the spata-object  currently relies on the Seurat-package. Before any pre processing function is applied
 #' mitochondrial and stress genes are discarded. For more advanced users the arguments above starting with a capital letter allow to
@@ -524,16 +521,6 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 #' will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
 #' is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()} after
 #' initiating it in order to see which slots are valid and which are not.
-#'
-#' Handling more than one sample:
-#'
-#' Several samples can be stored in one object. If so, the count-matrices will be combined to one matrix which is given to the seurat-object that is temporarily
-#' initiated in order to perform the pre processing steps. Sample related unambiguity with respect to the barcode's belonging is maintained
-#' by suffixing the barcode-sequences with the respective sample name specified in \code{sample_names}. The meta.data data.frame of the
-#' seurat-object is joined with a variable called \emph{sample} denoting the sample-belonging of every barcode which can be used as input
-#' for pre processing functions.
-#'
-#' For now we recommend to stick to one sample per spata-object.
 #'
 #' @return A spata-object.
 #'
@@ -666,6 +653,9 @@ initiateSpataObject_10X <- function(directory_10X,
     )
 
   spata_object <- setInitiationInfo(spata_object)
+
+  spata_object <-
+    setPrResults(spata_object, pr_results = hp_analysis_list)
 
   # -----
 

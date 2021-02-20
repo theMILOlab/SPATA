@@ -4,6 +4,7 @@
 #' cell_data_set-object with it. See details for more information on how to use
 #' the arguments.
 #'
+#' @inherit argument_dummy params
 #' @inherit check_object params
 #' @inherit check_monocle_input params details
 #' @param estimate_size_factors_args A list of arguments given to \code{monocle3::estimate_size_factors()}.
@@ -14,7 +15,6 @@
 #' @param order_cells_args A list of arguments given to \code{monocle3::order_cells()}.
 #' @param save_cds_file Character value or NULL. A file-directory (that does not already exists) under which created cell_data_set-object
 #' is saved. Should end with \emph{'.RDS'}.
-#' @inherit verbose params
 #'
 #' @details \code{compileCellDataSet()} is a convenient wrapper around all pre processing functions
 #' monocle3 provides to handle it's core object - the cell_data_set - after it's initiation. Apart from unique

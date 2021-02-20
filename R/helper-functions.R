@@ -80,9 +80,9 @@ hlpr_add_old_coords <- function(object, plot_df, complete){
 
 #' @title Adjusts the size of discrete legend points
 #'
+#' @inherit check_pt params
 #' @param variable The variable mapped to the color/fill aesthetic.
 #' @param aes The aesthetic used.
-#' @inherit check_pt params
 
 hlpr_adjust_legend_size <- function(variable, aes, pt_size){
 
@@ -101,258 +101,6 @@ hlpr_adjust_legend_size <- function(variable, aes, pt_size){
   } else {
 
     list()
-
-  }
-
-}
-
-
-#' @title Plot pattern related
-#' @description Blueprint - currently not reliably working.
-
-hlpr_assess_pattern_results <- function(object,
-                                    cluster_eval_df,
-                                    max_patterns = NULL,
-                                    n_start = NULL,
-                                    of_sample = NULL,
-                                    smooth_span = NULL,
-                                    threshold_stpv = NULL,
-                                    threshold_stw = NULL,
-                                    n_patterns = NULL,
-                                    verbose = TRUE,
-                                    ...){
-
-  # compile hotspot df
-  icld_quantiles <-
-    stats::quantile(cluster_eval_df$intra_cluster_dist)
-
-  threshold_icld <- icld_quantiles[2]
-
-  pattern_df <-
-    dplyr::filter(cluster_eval_df, intra_cluster_dist < threshold_icld)
-
-  pattern_k_totwss <-
-    iterate_over_kmeans(pattern_df,
-                        vars = c("center_x", "center_y"),
-                        max_cluster = max_patterns)
-
-  if(base::is.numeric(n_patterns)){
-
-    confuns::give_feedback(
-      msg = glue::glue("Number of desired patterns set to {n_patterns}."),
-      verbose = verbose
-    )
-
-    pattern_optimal_k <- n_patterns
-
-  } else {
-
-    confuns::give_feedback(
-      msg = "Assessing optimal number of patterns.",
-      verbose = verbose
-    )
-
-    pattern_optimal_k <-
-      compute_k_optimum(df = pattern_k_totwss)
-
-  }
-
-  pattern_pam <-
-    dplyr::select(pattern_df, center_x, center_y) %>%
-    cluster::pam(k = pattern_optimal_k)
-
-  pattern_df$patterns <-
-    base::as.factor(stringr::str_c("P", pattern_pam$clustering, sep = ""))
-
-  # compile pattern info df
-  info_df <-
-    dplyr::group_by(.data = pattern_df, patterns) %>%
-    dplyr::summarise(
-      n_genes = dplyr::n_distinct(genes),
-      n_barcode_spots = dplyr::n_distinct(center_barcodes),
-      mean_intra_pattern_dist = base::mean(intra_cluster_dist)
-    ) %>%
-    base::cbind(., pattern_pam$medoids) %>%
-    dplyr::mutate(
-      center_barcodes = pattern_df$center_barcodes[pattern_pam$id.med],
-      center_genes = pattern_df$genes[pattern_pam$id.med],
-      average_sil_widths = pattern_pam$silinfo$clus.avg.widths
-    ) %>%
-    base::cbind(., pattern_pam$clusinfo[, c("max_diss", "av_diss", "diameter", "separation")])
-
-  # compute gse df
-  summarised_df <-
-    dplyr::left_join(x = getGeneSetDf(object), y = pattern_df, by = c("gene" = "genes")) %>%
-    dplyr::group_by(ont) %>%
-    dplyr::mutate(exists = !base::is.na(patterns), n_genes = dplyr::n()) %>%
-    dplyr::group_by(ont, patterns) %>%
-    dplyr::summarise(
-      n_genes_found = base::sum(exists),
-      p_genes_found = n_genes_found/n_genes,
-      n_genes = base::mean(n_genes)
-    ) %>%
-    tidyr::drop_na() %>%
-    dplyr::ungroup()
-
-  gse_df <-
-    dplyr::group_by(summarised_df, patterns, ont) %>%
-    dplyr::summarise(enrichment_score = base::mean(p_genes_found * n_genes)) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by(patterns) %>%
-    dplyr::arrange(dplyr::desc(enrichment_score), .by_group = TRUE)
-
-
-  # last. Store results and return object -----------------------------------
-
-  mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
-
-  pr_list <-
-    list(
-      "df" = cluster_eval_df,
-      "max_patterns" = max_patterns,
-      "mtr_name" = mtr_name,
-      "n_start" = n_start,
-      "sample" = of_sample,
-      "smooth_span" = smooth_span,
-      "suggestion" = list("df" = dplyr::arrange(pattern_df, patterns),
-                          "gse_df" = gse_df,
-                          "info_df" = info_df,
-                          "pam" = pattern_pam),
-      "threshold_icld" = threshold_icld,
-      "threshold_stpv" = threshold_stpv,
-      "threshold_stw" = threshold_stw,
-      "totwss" = pattern_k_totwss
-    )
-
-  base::return(pr_list)
-
-}
-
-#' @rdname hlpr_assess_pattern_results
-#' @export
-hlpr_assess_hotspot_results <- function(object,
-                                        cluster_eval_df,
-                                        ignored_genes = NULL,
-                                        of_sample = NULL,
-                                        smooth_span = NULL,
-                                        threshold_certainty = 0.2,
-                                        threshold_qntl = NULL,
-                                        threshold_stpv = NULL,
-                                        threshold_stw = NULL,
-                                        verbose = TRUE,
-                                        ...){
-
-  library(mclust)
-
-  # filter the size-related 90th percentile of gene-cluster -> gene cluster data.frame
-  gcl_df <-
-    dplyr::mutate(cluster_eval_df, size = mark_with_na(size, n_qntls = 10, keep_qntls = 10)) %>%
-    tidyr::drop_na()
-
-  dbc_res <-
-    dbscan::dbscan(
-      x = base::as.matrix(gcl_df[,center_coords]),
-      eps = dbscan::kNNdist(x = base::as.matrix(gcl_df[,center_coords]), k = 6) %>% base::mean(),
-      minPts = 6
-    )
-
-  # add density based cluster results and filter out noisy points
-  denoised_gcl_df <-
-    dplyr::mutate(gcl_df, db_cluster = base::as.factor(dbc_res$cluster)) %>%
-    dplyr::filter(db_cluster != "0")
-
-  # use knn to again filter out remaining noisy points
-  knn_res <- RANN::nn2(data = denoised_gcl_df[, center_coords], k = 7) #! overlap threshold
-
-  knn_gcl_df <-
-    dplyr::mutate(denoised_gcl_df,  avg_dist =  base::rowMeans(x = knn_res$nn.dists[,-1], na.rm = TRUE)) %>%
-    confuns::bin_numeric_variable(num_variable = "avg_dist", discr_variable = "qntl_dist", n_bins = 4)
-
-  qntls <- base::levels(knn_gcl_df$qntl_dist)
-
-  denoised_gcl_df2 <-
-    dplyr::filter(knn_gcl_df, qntl_dist %in% c(qntls[1:2]))
-
-  # use dbscan for final cluster identification
-  dbc_res2 <-
-    dbscan::dbscan(
-      x = base::as.matrix(denoised_gcl_df2[,center_coords]),
-      eps = dbscan::kNNdist(x = base::as.matrix(gcl_df[,center_coords]), k = 7) %>% base::mean(),
-      minPts = 7
-    )
-
-  final_gcl_df <-
-    dplyr::mutate(denoised_gcl_df2, final_clusters = stringr::str_c("HSP", base::as.character(dbc_res2$cluster))) %>%
-    dplyr::filter(final_clusters != "HSP0")
-
-  n_clusters <- dplyr::n_distinct(final_gcl_df$final_clusters)
-
-  # use model based clustering to assess cluster belonging uncertainties
-
-  mbc_res <- mclust::Mclust(data = final_gcl_df[,center_coords], G = n_clusters)
-
-  suggestion_df <-
-    dplyr::mutate(.data = final_gcl_df, uncertainty = mbc_res$uncertainty) %>%
-    dplyr::group_by(genes) %>%
-    dplyr::mutate(n_cluster = dplyr::n(), cluster = dplyr::row_number(), exclusivity = size/n_bcsp, certainty = exclusivity - uncertainty) %>%
-    dplyr::select(genes, hotspot = final_clusters, n_hotspots = n_cluster, certainty, exclusivity, size, uncertainty, dplyr::all_of(center_coords)) %>%
-    dplyr::group_by(hotspot) %>%
-    dplyr::arrange(dplyr::desc(x = certainty), .by_group = TRUE) %>%
-    dplyr::filter(certainty >= threshold_certainty)
-
-  info_df <-
-    dplyr::group_by(suggestion_df, hotspot) %>%
-    dplyr::summarise(
-      center_x = base::mean(center_x),
-      center_y = base::mean(center_y),
-      mean_exclusivity = base::mean(exclusivity),
-      mean_certainty = base::mean(certainty),
-      n_genes = dplyr::n()
-    ) %>%
-    dplyr::arrange(dplyr::desc(mean_exclusivity)) %>%
-    dplyr::mutate(hotspot = forcats::as_factor(hotspot))
-
-  suggestion_df$hotspot <-
-    base::factor(suggestion_df$hotspot, levels = base::levels(info_df$hotspot))
-
-  # last. Store results and return object -----------------------------------
-
-  mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
-
-  hotspot_list <-
-    list(
-      "df" = cluster_eval_df,
-      "ignored_genes" = ignored_genes,
-      "mtr_name" = mtr_name,
-      "sample" = of_sample,
-      "smooth_span" = smooth_span,
-      "suggestion" = list("df" = suggestion_df,
-                          "info_df" = info_df),
-      "threshold_qntl" = threshold_qntl,
-      "threshold_stpv" = threshold_stpv,
-      "threshold_stw" = threshold_stw
-    )
-
-  base::return(hotspot_list)
-
-}
-
-#' Assign objects into the global environment
-#'
-#' @param assign Logical.
-#' @param object The object to be assigned.
-#' @param name The name of the assigned object.
-#'
-
-hlpr_assign <- function(assign, object, name){
-
-  if(base::isTRUE(assign)){
-
-    base::assign(
-      x = name,
-      value = object,
-      envir = .GlobalEnv
-    )
 
   }
 
@@ -462,8 +210,6 @@ hlpr_compare_samples <- function(object, df, messages){
 }
 
 
-
-
 #' @title Compiles a trajectory data.frame
 #'
 #' @param segment_trajectory_df A data.frame specifying each segment of the whole
@@ -532,7 +278,7 @@ hlpr_compile_trajectory <- function(segment_trajectory_df,
     # coordinate system 'lcs' to sort the points according to the trajectories direction
 
     sample_coords <-
-      getCoordinates(object = object, of_sample = sample)
+      getCoordsDf(object = object, of_sample = sample)
 
     lcs <- data.frame(
       x = c(tfp1.1[1], tfp1.1[1]),
@@ -640,7 +386,6 @@ hlpr_gene_set_name <- function(string){
   stringr::str_remove(string = string, pattern = "^.+?_")
 
 }
-
 
 
 #' Easy switch between geom line and and geom smooth
@@ -803,7 +548,6 @@ hlpr_image_add_on2 <- function(image){
 
 
 
-
 #' @title Return customized ggplot:labs()
 #'
 #' @description Helper function
@@ -850,7 +594,6 @@ hlpr_labs_add_on <- function(input,
 #'
 #' @param variable The variable to normalize (if matches requirements).
 #' @param var_name The name of the variable to smooth.
-#' @param verbose Logical
 #' @param aspect Gene or Gene set
 #' @param subset A character vector of variable names that are to be normalized
 #' @param pb An R6 progress bar object.
@@ -1053,10 +796,10 @@ hlpr_process_spatial_correlation_cluster <- function(cutree_df, dist_df, input){
 
 #' @title Save spata object inside functions
 #'
+#' @inherit argument_dummy params
 #' @inherit check_object params
 #' @param object_file The directory under which to store the object.
 #' @param ref_step Character value.
-#' @inherit verbose params
 #'
 
 hlpr_save_spata_object <- function(object, object_file, ref_step, verbose){
@@ -1237,12 +980,11 @@ hlpr_scatterplot <- function(object,
 
 #' @title Smooth variables spatially
 #'
-#' @description Helper function to use within \code{purrr::imap()}
+#' @description Helper function to be used within \code{purrr::imap()}
 #'
 #' @param variable The variable to smooth
 #' @param var_name Name of the variable to smooth
 #' @param coords_df Data.frame that contains x and y coordinates
-#' @param verbose Logical
 #' @param smooth_span Span to smooth with
 #' @param aspect Gene or Gene set
 #' @param subset Vector of variable names to smooth
@@ -1298,16 +1040,6 @@ hlpr_smooth <- function(variable,
     base::return(variable)
 
   } else {
-
-    if(base::isTRUE(verbose)){
-
-      if(var_name == "mean_genes"){
-
-        var_name <- "average"
-
-      }
-
-    }
 
     model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span)
 
@@ -1438,13 +1170,13 @@ hlpr_subset_across <- function(data, across, across_subset){
 #' @description Joins a compiled trajectory data.frame with
 #' the desired information and summarizes those.
 #'
-#' @inherit check_object params
+#' @inherit argument_dummy params
 #' @inherit check_compiled_trajectory_df params
-#' @inherit check_variables params
 #' @inherit check_method params
-#' @inherit verbose params
-#' @inherit normalize params
+#' @inherit check_object params
 #' @inherit check_trajectory_binwidth params
+#' @inherit check_variables params
+#' @inherit normalize params
 #'
 #' @details Initially the compiled trajectory data.frame of the specified trajectory
 #' is joined with the respective input of variables via \code{joinWithVariables()}.
@@ -1633,7 +1365,6 @@ hlpr_widen_trajectory_df <- function(stdf,
 
 
 }
-
 
 
 #' @title Helper functions for trajectory ranking

@@ -7,6 +7,8 @@ NULL
 #'
 #' @description Not exported due to naming issues. Kept as it is used in several
 #' loading functions.
+#' @inherit argument_dummy params
+#' @inherit gene_set_path params
 
 loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
 
@@ -41,10 +43,10 @@ loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
 
 #' @title Load gene set data.frame
 #'
+#' @inherit argument_dummy params
 #' @param gene_set_path If set to NULL the default \code{SPATA::gsdf} is used.
 #' If a directory is specified the object is loaded via \code{base::readRDS()}, checked
 #' and used if valid. If it is invalid the default \code{SPATA::gsdf} is used .
-#' @inherit verbose params
 #'
 #' @return A data.frame.
 #'
@@ -59,6 +61,7 @@ loadGeneSetDf <- loadGSDF
 #' @description Family of functions to load corresponding objects of different analysis
 #' platforms. See details and value for more information.
 #'
+#' @inherit argument_dummy params
 #' @inherit check_object params
 #' @param directory_spata Character value. The directory from which to load the spata-object.
 #'
@@ -79,7 +82,7 @@ loadSpataObject <- function(directory_spata, verbose = TRUE){
     type = "files")
 
   confuns::give_feedback(
-    msg = "Loading seurat-object.",
+    msg = "Loading spata-object.",
     verbose = verbose
   )
 
@@ -155,10 +158,10 @@ loadCorrespondingSeuratObject <- function(object, verbose = NULL){
 #' @description Family of functions to save corresponding objects of different analysis
 #' platforms. See details and value for more information.
 #'
+#' @inherit adjustDirectoryInstructions params
 #' @inherit check_object params
 #' @inherit cds_dummy params
 #' @inherit seurat_object_dummy params
-#' @inherit adjustDirectoryInstructions params
 #' @param directory_spata,directory_cds_directory_seurat_object Character value or NULL. Set details for more.
 #'
 #' @details If \code{directory_<platform>} is set to NULL (the default) all functions first check if the spata-object contains any

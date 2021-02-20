@@ -1,9 +1,6 @@
 
 
-
-
 # De-analysis -------------------------------------------------------------
-
 
 #' @title Plot a summary of differential expression analysis results
 #'
@@ -13,11 +10,11 @@
 #' you want to skip one of the functions or specify their arguments
 #' by providing a named list of arguments.
 #'
-#' @inherit check_sample params
+#' @inherit argument_dummy params
 #' @inherit across_dummy params
 #' @inherit check_method params
-#' @inherit getDeaResults params
-#' @inherit clrp_dummy params
+#' @inherit check_sample params
+#' @inherit getDeaResultsDf params
 #'
 #' @inherit ggplot_family return
 #' @export
@@ -98,15 +95,16 @@ plotDeaSummary <- function(object,
 #' Valid input options for \code{plot_type} are \emph{'density'} and
 #'  \emph{'histogram'}.
 #'
-#' @inherit argument_dummay params
+#' @inherit argument_dummy params
 #' @inherit binwidth_dummy params
 #' @inherit check_method params
-#' @inherit ggplot_dummy return
 #' @inherit plotDeaSummary params return
 #' @inherit plot_type_dummy params
 #'
 #' @param limits_x Numeric vector of length two. Specify the limits
 #' of the x-axis.
+#'
+#' @inherit ggplot_dummy return
 #'
 #' @export
 

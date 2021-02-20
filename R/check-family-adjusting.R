@@ -26,7 +26,7 @@ adjusting_check_dummy <- function(){}
 
 #' @title Check barcodes of all matrices and data.frames
 #'
-#' @inherit check_objcet params
+#' @inherit check_object params
 
 check_all_barcodes <- function(object){
 
@@ -62,7 +62,7 @@ check_all_barcodes <- function(object){
 #' Returns a list with one slot named \emph{features}, \emph{genes} or \emph{gene_sets}
 #' containing the respective found/valid input of \code{color_to}.
 #'
-#' @param color_to The variable to be displayed by color:
+#' @param color_by The variable to be displayed by color:
 #'
 #'  \itemize{
 #'   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
@@ -78,6 +78,7 @@ check_all_barcodes <- function(object){
 #' @inherit adjusting_check_dummy details return
 
 check_color_to <- function(color_to,
+                           color_by,
                            all_features = character(),
                            all_gene_sets = character(),
                            all_genes = character(),

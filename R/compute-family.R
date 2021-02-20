@@ -12,9 +12,9 @@
 #'  ... .}
 #'  }
 #'
-#' @inherit check_sample params
+#' @inherit argument_dummy params
 #' @inherit addExpressionMatrix params
-#' @inherit verbose params
+#' @inherit check_sample params
 #' @param ... Additional arguments given to \code{psych::describe()}
 #'
 #' @return Depends on the function used:

@@ -37,7 +37,7 @@ check_availability <- function(test, ref_x, ref_fns){
 
     base::stop(
       glue::glue(
-        "Could not find {ref_x}. Consider using {ref_fns}."
+        "Could not find {ref_x}. Use {ref_fns}."
       )
     )
 
@@ -559,13 +559,34 @@ check_feature_df <- function(feature_name,
 #' @inherit lazy_check_dummy description details return
 #' @export
 
-check_method <- function(method_de = NULL,
+check_method <- function(method_csr = NULL,
+                         method_de = NULL,
                          method_dr = NULL,
                          method_gs = NULL,
                          method_hclust = NULL,
                          method_ovl = NULL,
                          method_padj = NULL
                          ){
+
+
+  # complete spatial randomness ---------------------------------------------
+
+  if(!base::is.null(method_csr)){
+
+    if(confuns::is_value(x = method_csr, mode = "character")){
+
+      confuns::check_one_of(
+        input = method_csr,
+        against = csr_methods,
+        ref.input = "for argument 'method_csr'"
+      )
+
+    }
+
+
+  }
+
+
 
   # differential expression methods -----------------------------------------
 

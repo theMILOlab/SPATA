@@ -123,7 +123,7 @@ moduleAddGeneSetsServer <- function(id, object){
 
       output$current_gs_overview <- shiny::renderTable({
 
-        getGeneSetOverview(return_obj())
+        printGeneSetOverview(return_obj())
 
       })
 

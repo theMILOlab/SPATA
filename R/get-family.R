@@ -1,69 +1,6 @@
 
 
 
-# Slot: autoencoder -------------------------------------------------------
-
-#' @title Obtain information about the optimal neural network set up
-#'
-#' @description Extracts the results from \code{assessAutoencoderOptions()}.
-#'
-#' @inherit check_object params
-#'
-#' @return A data.frame containing the total variance measured by \code{irlba::prcomp_irlba()} after each
-#' combination of activations/bottlenecks.
-#' @export
-
-getAutoencoderAssessment <- function(object, of_sample = NA){
-
-  check_object(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  assessment <- object@autoencoder[[of_sample]]$assessment
-
-  if(base::identical(assessment, list()) | base::is.null(assessment)){
-
-    base::stop("Could not find any information. It seems as if function 'assessAutoencoderOptions()' as not been called yet.")
-
-  }
-
-  base::return(assessment)
-
-}
-
-
-#' @title Obtain information on neural network
-#'
-#' @description Returns the argument input that was chosen to construct the
-#' neural network that generated the matrix denoted in \code{mtr_name}.
-#'
-#' @inherit getExpressionMatrix params
-#'
-#' @return A named list.
-#' @export
-
-getAutoencoderSetUp <- function(object, mtr_name, of_sample = NA){
-
-  check_object(object)
-
-  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
-
-  nn_set_up <-
-    object@autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]]
-
-  if(base::is.null(nn_set_up)){
-
-    base::stop(glue::glue("Could not find any autoencoder information for matrix '{mtr_name}' of sample '{of_sample}'"))
-
-  }
-
-  base::return(nn_set_up)
-
-}
-
-# -----
-
-
 # Slot: coordinates -------------------------------------------------------
 
 #' @title Obtain spatial coordinates
@@ -98,41 +35,6 @@ getCoordsDf <- function(object, of_sample = NA){
 
 
 }
-
-#' @rdname getCoordsDf
-#' @export
-getCoordinates <- getCoordsDf
-
-#' @rdname getCoordsDf
-#' @export
-getCoordinatesSegment <- function(object,
-                                  of_segment,
-                                  of_sample = NA){
-
-  # 1. Control --------------------------------------------------------------
-
-  # lazy check
-  check_object(object)
-
-  # adjusting check
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-  bc_segm <- check_segment(object, segment_name = of_segment, of_sample = of_sample)
-
-  # -----
-
-  # 2. Data wrangling -------------------------------------------------------
-
-  coords_df <-
-    getCoordsDf(object = object, of_sample = of_sample) %>%
-    dplyr::filter(barcodes %in% bc_segm) %>%
-    dplyr::mutate(segment = {{of_segment}})
-
-  # -----
-
-  base::return(coords_df)
-
-}
-
 
 
 # -----
@@ -173,9 +75,9 @@ getDeOverview <- function(object){
 
 #' @title Obtain de-analysis results
 #'
-#' @inherit check_sample params
-#' @inherit across params
+#' @inherit across_dummy params
 #' @inherit check_method params
+#' @inherit check_sample params
 #' @inherit filterDeaDf params details
 #'
 #' @return A data.frame:
@@ -188,56 +90,8 @@ getDeOverview <- function(object){
 #'   \item{\emph{p_val_adj}} Numeric. The adjusted p-values.
 #'  }
 #'
-#' If \code{getDeGenes()} is used the \emph{gene}-variable is returned as a named character vector.
-#'
 #' @export
 
-getDeResultsDf <- function(object,
-                           across,
-                           across_subset = NULL,
-                           relevel = FALSE,
-                           method_de = "wilcox",
-                           max_adj_pval = NULL,
-                           n_highest_lfc = NULL,
-                           n_lowest_pval = NULL,
-                           of_sample = NA){
-
-  warning("getDeResultsDf is deprecated")
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  check_method(method_de = method_de)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
-
-  # 2. Extract and filter ---------------------------------------------------
-
-  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
-
-  if(base::is.null(de_result_list)){
-
-    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
-
-  }
-
-  de_results <- filterDeDf(de_df = de_result_list[["data"]],
-                           across_subset = across_subset,
-                           relevel = relevel,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval,
-                           return = "data.frame")
-
-  # 3. Return ---------------------------------------------------------------
-
-  base::return(de_results)
-
-}
-
-#' @rdname getDeResultsDf
-#' @export
 getDeaResultsDf <- function(object,
                             across,
                             across_subset = NULL,
@@ -286,7 +140,7 @@ getDeaResultsDf <- function(object,
 
 #' @title Obtain name of currently active expression matrix
 #'
-#' @inherit check_object params
+#' @inherit check_sample params
 #'
 #' @return Character value.
 #' @export
@@ -381,7 +235,7 @@ getCountMatrix <- function(object, of_sample = NA){
 
 #' @title Obtain names of stored expression matrices
 #'
-#' @inherit check_object params
+#' @inherit check_sample params
 #'
 #' @return Character vector.
 #' @export
@@ -417,7 +271,7 @@ getExpressionMatrixNames <- function(object, of_sample = NA){
 #' @description This function is the most basic start if you want
 #' to extract data for your individual analysis.
 #'
-#' (In order to extract the coordinates as well use \code{getCoordinates()}.)
+#' (In order to extract the coordinates as well use \code{getCoordsDf()}.)
 #'
 #' @inherit check_sample params
 #'
@@ -443,16 +297,16 @@ getSpataDf <- function(object, of_sample = NA){
 
 #' @title Obtain dimensional reduction data
 #'
-#' @inherit check_sample params
 #' @inherit check_method params
+#' @inherit check_sample params
 #'
 #' @return A data.frame that contains the unique identifiers
 #' (keys): \emph{barcodes, sample} and:.
 #'
 #'  \itemize{
+#'   \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
 #'   \item{ \code{getTsneDf()}: \emph{tsne1, tsne2}}
 #'   \item{ \code{getUmapDf()}: \emph{umap1, umap2}}
-#'   \item{ \code{getPcaDf()}: \emph{PC1, PC2, PC3, ...PCn}}
 #'   }
 #'
 
@@ -558,8 +412,8 @@ getTsneDf <- function(object, of_sample = NA){
 #'
 #' @description Returns a character vector of barcode names. See details for more.
 #'
+#' @inherit across_dummy params
 #' @inherit check_sample params
-#' @inherit across params
 #'
 #' @details If argument \code{across} is specified the output is named according
 #' to the group membership the variable specified assigns the barcode spots to.
@@ -645,8 +499,6 @@ getBarcodes <- function(object,
 
 
 
-
-
 #' @title Obtain feature names
 #'
 #' @description An easy way to obtain all features of interest along with their
@@ -683,11 +535,11 @@ getFeatureNames <- function(object, of_class = NULL, of_sample = NA){
 }
 
 
-#' Obtain feature data
+#' @title Obtain feature data
 #'
 #' @inherit check_sample params
 #'
-#' @return The feature data data.frame of the specfied object and sample(s).
+#' @return The feature data data.frame of the specified object and sample(s).
 #' @export
 
 getFeatureDf <- function(object, of_sample = NA){
@@ -713,12 +565,11 @@ getFeatureDf <- function(object, of_sample = NA){
 #' @description Extracts the specified feature variables from the
 #' feature data.
 #'
-#' @inherit check_sample params
 #' @inherit check_features params
+#' @inherit check_sample params
 #' @param return Character value. One of \emph{'vector', 'data.frame'} or
-#' \emph{'list'}. In order to return a vector input of \code{features} must
+#' \emph{'list'}. In order to return a vector the input of \code{features} must
 #' be of length one.
-#' @param unique Deprecated.
 #'
 #' @return A data.frame or a vector.
 #' @export
@@ -728,10 +579,6 @@ getFeatureVariables <- function(object,
                                 return = "data.frame",
                                 unique = "deprecated",
                                 of_sample = NA){
-
-  if(unique != "deprecated"){
-    base::warning("Argument 'unique' is deprecated.")
-  }
 
   # 1. Control --------------------------------------------------------------
 
@@ -833,8 +680,8 @@ getFeatureValues <- function(object, features, of_sample = NA){
 
 #' @title Obtain variable names that group the barcode spots
 #'
+#' @inherit across_dummy params
 #' @inherit check_sample params
-#' @inherit check_across params
 #'
 #' @return Character vector of variables that assign the
 #' barcode spots to groups.
@@ -855,8 +702,8 @@ getGroupingOptions <- function(object, of_sample = NA){
 
 #' @title Obtain group names a grouping variable contains
 #'
+#' @inherit across_dummy params
 #' @inherit check_sample params
-#' @inherit across params
 #'
 #' @return Character vector
 #' @export
@@ -866,19 +713,21 @@ getGroupingOptions <- function(object, of_sample = NA){
 #'  # obtain all group names the variable 'my_cluster'
 #'  # contains
 #'
-#'  getGroups(object = object, across = "my_cluster")
+#'  getGroupNames(object = object, across = "my_cluster")
 #'
 
-getGroupNames <- function(object, across, of_sample = NA){
+getGroupNames <- function(object, discrete_feature, of_sample = NA){
 
   check_object(object)
 
   of_sample <- check_sample(object, of_sample, of.length = 1)
 
+  confuns::is_value(discrete_feature, mode = "character")
+
   res_groups <-
     getFeatureValues(
       object = object,
-      features = across,
+      features = discrete_feature,
       of_sample = of_sample
     )
 
@@ -974,27 +823,59 @@ getSampleNames <- function(object){
 
 }
 
-#' @rdname getSampleNames
-getSamples <- function(object){
-
-  warning("getSamples is deprecated. Use getSampleNames")
-
-  object@samples
-
-}
-
 # -----
 
 
 # Slot: gdata -------------------------------------------------------------
 
 
+
+#' @title Obtain total number of gene counts
+#'
+#' @inherit check_sample params
+#' @param return Character value. One of \emph{'data.frame', 'tibble' or 'vector'}.
+#' Specifies the output class.
+#'
+#' @return Depends on input for argument \code{return}.
+#' @export
+#'
+
+getGeneCounts <- function(object, of_sample = NA, return = "tibble"){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  gene_counts <-
+    getCountMatrix(object, of_sample = of_sample) %>%
+    base::as.matrix() %>%
+    base::rowSums(na.rm = TRUE)
+
+  if(return %in% c("data.frame", "tibble")){
+
+    gene_counts <-
+      base::as.data.frame(gene_counts) %>%
+      tibble::rownames_to_column(var = "genes") %>%
+      magrittr::set_colnames(value = c("genes", "counts"))
+
+    if(return == "tibble"){
+
+      gene_counts <- tibble::as_tibble(x = gene_counts)
+
+    }
+
+  }
+
+  base::return(gene_counts)
+
+}
+
 #' @title Obtain gene meta data
 #'
 #' @inherit check_sample params
+#' @inherit getExpressionMatrix params
 #' @param only_df Logical. If set to TRUE only the data.frame is returned.
 #' If set to FALSE (the default) the whole list is returned.
-#' @inherit getExpressionMatrix params
 #'
 #' @return A data.frame from \code{getMetaDataDf()} or a list from \code{getGeneMetaData()}.
 #' @export
@@ -1039,13 +920,14 @@ getGeneMetaDf <- function(object, mtr_name = NULL, of_sample = NA){
 
 }
 
+
 # -----
 
 
 
 # Slot: images ------------------------------------------------------------
 
-#' @title Obtain image
+#' @title Obtain histology image
 #'
 #' @inherit check_sample params
 #'
@@ -1112,6 +994,60 @@ getDirectoryInstructions <- function(object, to = c("cell_data_set", "seurat_obj
 
 # Slot: spatial -----------------------------------------------------------
 
+# pattern in general -----
+
+#' @title Obtain pattern recognition results
+#'
+#' @inherit check_method params
+#' @inherit check_sample params
+#'
+#' @return The list containing all information the respective pattern
+#' recognition algorithm returns.
+#'
+#' \itemize{
+#'  \item{\code{getPrResults()}: List containing all information the respective
+#'  method returns}
+#'  \item{\code{getPrSuggestion()}: List containing the actual pattern suggestions.}
+#'  \item{\code{getPatternNames()}: Character vector of pattern names.}}
+
+getPrResults <- function(object, method_pr = "hpa", of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  pr_list <-
+    object@spatial[[of_sample]][[method_pr]]
+
+  check_availability(
+    test = base::is.list(pr_list) & confuns::is_named(pr_list),
+    ref_x = "requested pattern recognition results",
+    ref_fns = glue::glue("function runPatternRecognition(..., method_pr = '{method_pr}')")
+  )
+
+  base::return(pr_list)
+
+}
+
+
+#' @rdname getPrResults
+getPatternNames <- function(object, method_pr = "hotspot", of_sample = NA){
+
+  getPrSuggestion(object, of_sample = of_sample, method_pr = method_pr)$info %>%
+    dplyr::pull(var = {{method_pr}}) %>%
+    base::levels()
+
+}
+
+
+
+
+
+
+
+
+# spatial correlation analysis -----
+
 #' @title Obtain distance measurements of spatially correlated genes
 #'
 #' @inherit check_sample params
@@ -1139,93 +1075,6 @@ getGeneDistDf <- function(object, of_sample = NA){
 }
 
 
-#' @title Obtain pattern recognition results
-#'
-#' @inherit check_sample params
-#' @inherit check_method params
-#'
-#' @return The list containing all information the respective pattern
-#' recognition algorithm returns.
-#'
-#' \itemize{
-#'  \item{\code{getPrResults()}: List containing all information the respective
-#'  method returns}
-#'  \item{\code{getPrSuggestion()}: List containing the actual pattern suggestions.}
-#'  \item{\code{getPatternNames()}: Character vector of pattern names.}}
-#'
-#' @export
-
-getPrResults <- function(object, method_pr = "hotspot", of_sample = NA){
-
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
-
-  pr_list <-
-    object@spatial[[of_sample]][[method_pr]]
-
-  check_availability(
-    test = base::is.list(pr_list) & confuns::is_named(pr_list),
-    ref_x = "pattern recognition results",
-    ref_fns = glue::glue("/ running runPatternRecognition(..., method_pr = {'method_pr'})")
-  )
-
-  base::return(pr_list)
-
-}
-
-#' @rdname getPrResults
-#' @export
-getPrSuggestion <- function(object, method_pr = "hotspot", of_sample = NA){
-
-  pr_list <-
-    getPrResults(object = object, of_sample = of_sample, method_pr = method_pr)
-
-  base::return(pr_list$suggestion)
-
-}
-
-#' @rdname getPrResults
-#' @export
-getPatternNames <- function(object, method_pr = "hotspot", of_sample = NA){
-
-  getPrSuggestion(object, of_sample = of_sample, method_pr = method_pr)$info %>%
-    dplyr::pull(var = {{method_pr}}) %>%
-    base::levels()
-
-}
-
-
-#' @title Obtain pattern recognition results of method 'hotspot'
-#'
-#' @inherit check_sample params
-#'
-#' @return The respective data.frame.
-#' @export
-
-getHotspotInfoDf <- function(object, of_sample = NA){
-
-  check_object(object)
-  of_sample <- check_sample(object, of_sample, of.length = 1)
-
-  getPrSuggestion(object, method_pr = "hotspot", of_sample = of_sample)$info_df
-
-}
-
-
-#' @rdname getHotspotInfoDf
-#' @export
-getHotspotDf <- function(object, of_sample = NA){
-
-  check_object(object)
-  of_sample <- check_sample(object, of_sample, of.length = 1)
-
-  getPrSuggestion(object, method_pr = "hotspot", of_sample = of_sample)$df
-
-
-}
-
-
 #' @title Obtain cluster results based on spatial correlation analysis
 #'
 #' @inherit check_sample params
@@ -1246,22 +1095,15 @@ getSpCorCluster <- function(object, method_hclust = "complete", of_sample = NA){
   cor_clusters <-
     sp_cor$clusters
 
-  if(base::is.null(cor_clusters) | base::identical(list(), cor_clusters)){
+  check_availability(
+    test = !(base::is.null(cor_clusters) | base::identical(list(), cor_clusters)),
+    ref_x = "spatial correlation results",
+    ref_fns = "function runSpatialCorrelationAnaylsis() first"
+  )
 
-    base::stop("Could not find any correlation clusters. It seems as if function 'clusterSpCorResults()' has not been run yet.")
-
-  } else if(!method_hclust %in% base::names(cor_clusters)) {
-
-    base::stop("Could not find correlation clusters for to method '{method_hclust}'.")
-
-  } else {
-
-    base::return(cor_clusters[[method_hclust]])
-
-  }
+  base::return(cor_clusters[[method_hclust]])
 
 }
-
 
 #' @rdname getSpCorCluster
 #' @export
@@ -1275,15 +1117,13 @@ getSpCorClusterNames <- function(object, of_sample = NA){
 
   cluster_names <- base::names(sp_cor$clusters)
 
-  if(base::is.null(cluster_names) | base::length(cluster_names) == 0){
+  check_availability(
+    test = !(base::is.null(cluster_names) | base::length(cluster_names) == 0),
+    ref_x = "spatial correlation clusters",
+    ref_fns = "function clusterSpCorResults() first"
+  )
 
-    base::stop(glue::glue("Could not find any spatial correlation clusters for sample '{of_sample}'. It seems as if 'clusterSpCorResults()' has not been run yet."))
-
-  } else {
-
-    base::return(cluster_names)
-
-  }
+  base::return(cluster_names)
 
 }
 
@@ -1304,15 +1144,13 @@ getSpCorResults <- function(object, of_sample = NA){
   corr_assessment <-
     object@spatial[[of_sample]]$correlation
 
-  if(base::is.null(corr_assessment)){
+  check_availability(
+    test = !(base::is.null(corr_assessment)),
+    ref_x = "spatial correlation clusters",
+    ref_fns = "function runSpatialCorrelationAnalysis() first"
+  )
 
-    base::stop(glue::glue("Could not find any correlation assessment for sample '{of_sample}'. It seems as if function 'assessSpCor()' has not been run yet."))
-
-  } else {
-
-    base::return(corr_assessment)
-
-  }
+  base::return(corr_assessment)
 
 }
 
@@ -1330,6 +1168,7 @@ getSpCorResults <- function(object, of_sample = NA){
 #' @description This function returns the length (the number of bins) of a trajectory
 #' depending on the chosen \code{binwidth}.
 #'
+#' @inherit check_sample params
 #' @inherit check_trajectory params
 #' @inherit check_trajectory_binwidth params
 #'
@@ -1371,6 +1210,7 @@ getTrajectoryLength <- function(object,
 
 #' @title Obtain trajectory names
 #'
+#' @inherit argument_dummy params
 #' @inherit check_sample params
 #'
 #' @return A list named according to the \code{of_sample} in which each element is
@@ -1517,16 +1357,14 @@ getTrajectoryObject <- function(object, trajectory_name, of_sample = NA){
 
 #' @title Obtain gene set names
 #'
+#' @inherit argument_dummy params
 #' @inherit check_object params
 #' @param of_class A character vector indicating the classes from which to obtain
 #' the gene set names. (Which classes exist in the current gene set data.frame can
-#' be obtained e.g. with \code{geneSetOverview()}). If set to \emph{"all"} all
+#' be obtained e.g. with \code{printGeneSetOverview()}). If set to \emph{"all"} all
 #' gene sets are returned.
 #' @param index A regular expression according to which the gene set names to be returned
 #' are filtered again.
-#' @param simplify Logical. If set to TRUE the list to be returned is simplified
-#' into a character vector.
-#'
 #'
 #' @return A list named according to the input of argument \code{of_class}. Each element of
 #' the returned list is a character vector containing the names of gene sets of the specified classes.
@@ -1714,18 +1552,15 @@ getGeneSetDf <- function(object){
 
 #' @title Obtain gene names
 #'
+#' @inherit argument_dummy params
 #' @inherit check_object params
+#' @inherit getDeaResultsDf params
 #' @param of_gene_sets A character vector specifying the gene sets from which to
 #' return the gene names.
 #' @param of_pattern A character vector specifiying the patterns from which to return
 #' the gene names. If denoted as \emph{""} the genes of all patterns are returned.
 #' Set \code{simplify} to FALSE in order to return a named list.
-#' @param in_sample The sample(s) in which the genes have to be expressed in order
-#' to be included.
-#' @param simplify Logical. If set to TRUE the list to be returned will be simplified
-#' into a character vector.
-#' @inherit getDeResultsDf params
-#'
+#' @param in_sample Deprecated.
 #'
 #' @return A list named according to the input of \code{of_gene_sets} in which each element is
 #' a character vector containing the names of genes the specific gene set is
@@ -1839,49 +1674,6 @@ getGenes <- function(object,
 
 }
 
-#' @rdname getGenes
-#' @export
-getDeGenes <- function(object,
-                       across,
-                       across_subset = NULL,
-                       method_de = "wilcox",
-                       max_adj_pval = NULL,
-                       n_highest_lfc = 50,
-                       n_lowest_pval = 50,
-                       of_sample = NA){
-
-  warning("getDeGenes is deprecated")
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  check_method(method_de = method_de)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
-
-  # 2. Extract and filter ---------------------------------------------------
-
-  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
-
-  if(base::is.null(de_result_list)){
-
-    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
-
-  }
-
-  de_results <- filterDeDf(de_df = de_result_list[["data"]],
-                           across_subset = across_subset,
-                           max_adj_pval = max_adj_pval,
-                           n_highest_lfc = n_highest_lfc,
-                           n_lowest_pval = n_lowest_pval,
-                           return = "vector")
-
-  # 3. Return ---------------------------------------------------------------
-
-  base::return(de_results)
-
-}
 
 #' @rdname getGenes
 #' @export
@@ -2092,8 +1884,6 @@ getGenesInteractive <- function(object){
   base::return(genes)
 
 }
-
-
 
 # -----
 

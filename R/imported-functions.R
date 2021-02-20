@@ -9,7 +9,7 @@
 
 all_color_palettes <- confuns::all_color_palettes
 
-#' @rdname all_colorpanels
+#' @rdname all_color_palettes
 #' @export
 
 all_color_spectra <- confuns::all_color_spectra

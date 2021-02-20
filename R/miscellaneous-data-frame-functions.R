@@ -34,80 +34,6 @@ examineClusterResults <- function(cluster_df){
 }
 
 
-
-#' @title Examine differentially expression results
-#'
-#' @description Visualizes the number of differentially expressed genes
-#' and/or the distribution of logFC-values per cluster.
-#'
-#' @inherit check_de_df params
-#' @inherit clrp params
-#' @param return Character value. Denotes what to plot. One of \emph{'both', 'n_genes'}
-#' and \emph{'d_logFC'}
-#' @param ... Additional parameters given to \code{ggplot2::facet_wrap()}
-#'
-#' @inherit plot_family return
-#'
-#' @export
-
-
-examineDeResults <- function(de_df, clrp = "milo", return = "both", binwidth = 10, ...){
-
-  check_de_df(de_df)
-  check_pt(pt_clrp = clrp)
-
-  confuns::is_value(return, mode = "character", "return")
-  confuns::check_one_of(input = return,
-                        against = c("both", "n_genes", "d_logFC"))
-
-  cluster <-
-    dplyr::select(de_df, -dplyr::all_of(de_df_columns)) %>%
-    base::colnames()
-
-  if(return == "both"){
-
-    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = .data[[cluster]])) +
-      ggplot2::geom_bar(mapping = ggplot2::aes(fill = .data[[cluster]]), color = "black") +
-      scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::theme_classic() +
-      ggplot2::theme(legend.position = "none") +
-      ggplot2::labs(x = "Clusters", y = NULL, title = "Number of differentially expressed genes") +
-    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = avg_logFC)) +
-      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = .data[[cluster]]), binwidth = binwidth, color = "black") +
-      scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::facet_wrap(facets = stats::as.formula(stringr::str_c("~", cluster)), scales = "free") +
-      ggplot2::theme_classic() +
-      ggplot2::theme(
-        legend.position = "none",
-        strip.background = ggplot2::element_blank()) +
-      ggplot2::labs(x = "Average logFC-values", y = NULL, title = "Distribution of logFC-values")
-
-  } else if(return == "n_genes"){
-
-    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = cluster)) +
-      ggplot2::geom_bar(mapping = ggplot2::aes(fill = cluster), color = "black") +
-      scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::theme_classic() +
-      ggplot2::theme(legend.position = "none") +
-      ggplot2::labs(x = "Clusters", y = NULL, title = "Number of differentially expressed genes")
-
-  } else if(return == "d_logFC"){
-
-    ggplot2::ggplot(data = de_df, mapping = ggplot2::aes(x = avg_logFC)) +
-      ggplot2::geom_histogram(mapping = ggplot2::aes(fill = .data[[cluster]]), color = "black") +
-      scale_color_add_on(aes = "fill", variable = "discrete", clrp = clrp) +
-      ggplot2::facet_wrap(. ~ !!rlang::sym(cluster), scales = "free", ...) +
-      ggplot2::theme_classic() +
-      ggplot2::theme(
-        legend.position = "none",
-        strip.background = ggplot2::element_blank()) +
-      ggplot2::labs(x = "Average logFC-values", y = NULL, title = "Distribution of logFC-values")
-
-  }
-
-}
-
-
 #' @title Examine trajectory-moddeling results
 #'
 #' @description Visualizes the distribution of the assessment-scores
@@ -119,7 +45,7 @@ examineDeResults <- function(de_df, clrp = "milo", return = "both", binwidth = 1
 #' @param plot_type One of \emph{'histogram', 'density', and 'ridgeplot'}.
 #' @param ... additional arguments given to \code{ggplot2::facet_wrap()}.
 #'
-#' @inherit plot_family return
+#' @inherit ggplot_family return
 #' @export
 #'
 
@@ -196,4 +122,74 @@ examineTrajectoryAssessment <- function(atdf,
 
 
 
+
+
+
+
+
+# Spatial computations ----------------------------------------------------
+
+#' @title Smooth numeric variables spatially
+#'
+#' @description Uses a loess-fit model to smooth numeric variables spatially.
+#' The variable names denoted in argument \code{variables} are overwritten.
+#' @inherit argument_dummy params
+#' @inherit check_coords_df params
+#' @inherit check_smooth params
+#' @param variables Character vector. Specifies the numeric variables of the
+#' input data.frame that are to be smoothed.
+#'
+#' @return The input data.frame containing the smoothed variables.
+#' @export
+
+smoothSpatially <- function(coords_df,
+                            variables,
+                            smooth_span = 0.025,
+                            normalize = TRUE,
+                            verbose = TRUE){
+
+  var_class <-
+    purrr::map(c("x", "y", variables), .f = function(c){ base::return("numeric")}) %>%
+    purrr::set_names(nm = c("x", "y", variables))
+
+  confuns::check_data_frame(
+    df = coords_df,
+    var.class = var_class,
+    fdb.fn = "stop"
+  )
+
+  pb <- confuns::create_progress_bar(total = base::ncol(coords_df))
+
+  smoothed_df <-
+    purrr::imap_dfr(.x = coords_df,
+                    .f = hlpr_smooth,
+                    coords_df = coords_df,
+                    smooth_span = smooth_span,
+                    aspect = "variable",
+                    subset = variables,
+                    pb = pb)
+
+  if(base::isTRUE(normalize)){
+
+    confuns::give_feedback(
+      msg = "Normalizing values.",
+      verbose = verbose,
+      with.time = FALSE
+    )
+
+    smoothed_df <-
+      purrr::imap_dfr(.x = smoothed_df,
+                      .f = hlpr_normalize_imap,
+                      aspect = "variable",
+                      subset = variables
+      )
+
+  }
+
+
+
+  base::return(smoothed_df)
+
+
+}
 

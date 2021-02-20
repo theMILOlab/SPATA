@@ -41,7 +41,7 @@ plotGeneDendrogram <- function(object,
 # Dimensional reduction related -------------------------------------------
 plotDimRed <- function(object,
                        method_dr,
-                       color_to = NULL,
+                       color_by = NULL,
                        method_gs = "mean",
                        pt_size = 2,
                        pt_alpha = 1,
@@ -55,22 +55,22 @@ plotDimRed <- function(object,
   # 1. Control --------------------------------------------------------------
 
   # lazy check
-  hlpr_assign_adjustment(object)
+  hlpr_assign_arguments(object)
   check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrsp = pt_clrsp)
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample)
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    color_to <- check_color_to(color_to = color_to,
+    color_by <- check_color_to(color_to = color_by,
                                all_genes = getGenes(object, in_sample = of_sample),
                                all_gene_sets = getGeneSets(object),
                                all_features = getFeatureNames(object))
 
   } else {
 
-    color_to <- list("color" = pt_clr)
+    color_by <- list("color" = pt_clr)
 
   }
 
@@ -83,9 +83,9 @@ plotDimRed <- function(object,
     getDimRedDf(object, method_dr = method_dr, of_sample = of_sample)
 
   plot_list <-
-    hlpr_scatterplot(objcet = object,
+    hlpr_scatterplot(object = object,
                      spata_df = dim_red_df,
-                     color_to = color_to,
+                     color_to = color_by,
                      pt_size = pt_size,
                      pt_alpha = pt_alpha,
                      pt_clrp = pt_clrp,
@@ -122,13 +122,13 @@ plotDimRed <- function(object,
 #' @description Displays the dimensional reduction and maps gene, gene-set
 #' or feature information onto the color-aesthetic.
 #'
-#' @inherit check_sample params
+#' @inherit argument_dummy
 #' @inherit check_color_to params
 #' @inherit check_method params
+#' @inherit check_sample params
 #' @param n_pcs Numeric value. Determines the number of principal components to be plotted.
 #' Must be an even number.
 #' @inherit check_pt params
-#' @inherit verbose params
 #'
 #' @inherit ggplot_family return
 #'
@@ -136,7 +136,7 @@ plotDimRed <- function(object,
 #'
 
 plotUmap <- function(object,
-                     color_to = NULL,
+                     color_by = NULL,
                      method_gs = NULL,
                      pt_size = NULL,
                      pt_alpha = NULL,
@@ -152,7 +152,7 @@ plotUmap <- function(object,
   plotDimRed(object = object,
              method_dr = "umap",
              of_sample = of_sample,
-             color_to = color_to,
+             color_by = color_by,
              method_gs = method_gs,
              pt_size = pt_size,
              pt_alpha = pt_alpha,
@@ -167,7 +167,7 @@ plotUmap <- function(object,
 #' @rdname plotUmap
 #' @export
 plotTsne <- function(object,
-                     color_to = NULL,
+                     color_by = NULL,
                      method_gs = NULL,
                      pt_size = NULL,
                      pt_alpha = NULL,
@@ -176,14 +176,14 @@ plotTsne <- function(object,
                      pt_clr = NULL,
                      normalize = NULL,
                      verbose = NULL,
-                     of_sampel = NA){
+                     of_sample = NA){
 
   hlpr_assign_arguments(object)
 
   plotDimRed(object = object,
              method_dr = "tsne",
              of_sample = of_sample,
-             color_to = color_to,
+             color_by = color_by,
              method_gs = method_gs,
              pt_size = pt_size,
              pt_alpha = pt_alpha,
@@ -200,7 +200,7 @@ plotTsne <- function(object,
 #' @rdname plotUmap
 #' @export
 plotPca <- function(object,
-                    color_to = NULL,
+                    color_by = NULL,
                     n_pcs = NULL,
                     method_gs = NULL,
                     pt_size = NULL,
@@ -223,17 +223,17 @@ plotPca <- function(object,
   of_sample <-
     check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    color_to <-
-      check_color_to(color_to = color_to,
+    color_by <-
+      check_color_to(color_to = color_by,
                      all_features = getFeatureNames(object),
                      all_genes = getGenes(object),
                      all_gene_sets = getGeneSets(object))
 
   } else {
 
-    color_to <- list("color" = pt_clr)
+    color_by <- list("color" = pt_clr)
   }
 
   # get data
@@ -305,7 +305,7 @@ plotPca <- function(object,
   plot_list <-
     hlpr_scatterplot(object = object,
                      spata_df = dim_red_df,
-                     color_to = color_to,
+                     color_to = color_by,
                      pt_size = pt_size,
                      pt_alpha = pt_alpha,
                      pt_clrp = pt_clrp,
@@ -465,8 +465,8 @@ plotGeneMetaData <- function(object,
 #' @title Plot numeric variables as a scatterplot
 #'
 #' @description Use argument \code{variables} to denote the numeric variables
-#' of interest. First value will be mapped on to the x-axis and the second
-#' value on to the y-axis.
+#' of interest. First one will be mapped on to the x-axis and the second
+#' one on to the y-axis.
 #'
 #' @inherit argument_dummy params
 #' @inherit check_pt params
@@ -529,15 +529,16 @@ plotScatterplot <- function(object,
 #'  \item{ \code{plotFourStates2()} Takes a data.frame as input.}
 #'  }
 #'
+#' @inherit argument_dummy params
+#' @inherit check_color_to params
+#' @inherit check_display params
+#' @inherit check_pt params
+#'
 #' @param data A data.frame containing at least the variables \emph{barcodes, \code{states.}}.
 #' Whereby the states-variables contain the respective expression values of the specified
 #' gene sets.
 #' @param states The gene sets defining the four states specified as a character vector
 #' of length 4.
-#' @inherit check_color_to params
-#' @inherit check_pt params
-#' @inherit check_display params
-#' @inherit verbose params
 #'
 #' @inherit ggplot_family return
 #'
@@ -545,7 +546,7 @@ plotScatterplot <- function(object,
 
 plotFourStates <- function(object,
                            states,
-                           color_to = NULL,
+                           color_by = NULL,
                            method_gs = NULL,
                            average_genes = NULL,
                            pt_alpha = NULL,
@@ -555,7 +556,6 @@ plotFourStates <- function(object,
                            display_labels = NULL,
                            verbose = NULL,
                            of_sample = NA){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -581,8 +581,8 @@ plotFourStates <- function(object,
   all_gene_sets <- getGeneSets(object)
   all_features <- getFeatureNames(object)
 
-  if(!base::is.null(color_to)){
-    color_to <- check_color_to(color_to = color_to,
+  if(!base::is.null(color_by)){
+    color_by <- check_color_to(color_to = color_by,
                                all_features = all_features,
                                all_gene_sets = all_gene_sets,
                                all_genes = all_genes)
@@ -602,34 +602,34 @@ plotFourStates <- function(object,
                      method_gs = method_gs,
                      verbose = verbose)
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    if("genes" %in% base::names(color_to)){
+    if("genes" %in% base::names(color_by)){
 
       data <-
         joinWithGenes(object,
                       spata_df = data,
-                      genes = color_to$genes,
+                      genes = color_by$genes,
                       average_genes = FALSE,
                       normalize = TRUE,
                       verbose = verbose)
 
-    } else if("gene_sets" %in% base::names(color_to)){
+    } else if("gene_sets" %in% base::names(color_by)){
 
       data <-
         joinWithGeneSets(object,
                          spata_df = data,
-                         gene_sets = color_to$gene_sets,
+                         gene_sets = color_by$gene_sets,
                          method_gs = method_gs,
                          normalize = TRUE,
                          verbose = verbose)
 
-    } else if("features" %in% base::names(color_to)){
+    } else if("features" %in% base::names(color_by)){
 
       data <-
         joinWithFeatures(object,
                          spata_df = data,
-                         features = color_to$features,
+                         features = color_by$features,
                          verbose = verbose)
 
     }
@@ -646,7 +646,7 @@ plotFourStates <- function(object,
 
   plotFourStates2(data = data,
                  states = states,
-                 color_to = base::unlist(color_to, use.names = FALSE),
+                 color_by = base::unlist(color_by, use.names = FALSE),
                  pt_size = pt_size,
                  pt_alpha = pt_alpha,
                  pt_clrsp = pt_clrsp,
@@ -661,13 +661,12 @@ plotFourStates <- function(object,
 #' @export
 plotFourStates2 <- function(data,
                             states,
-                            color_to = NULL,
+                            color_by = NULL,
                             pt_size = 1.5,
                             pt_alpha = 0.9,
                             pt_clrsp = "inferno",
                             pt_clrp = "milo",
                             display_labels = TRUE){
-
 
   # 1. Control --------------------------------------------------------------
 
@@ -682,16 +681,16 @@ plotFourStates2 <- function(data,
 
   }
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    confuns::is_value(color_to, "character", "color_to")
+    confuns::is_value(color_by, "character", "color_by")
 
-    ref.input <- base::as.character(glue::glue("'color_to'-input: '{color_to}'"))
+    ref.input <- base::as.character(glue::glue("'color_by'-input: '{color_by}'"))
 
     ref.against <- base::as.character(glue::glue("'data'-variables"))
 
-    color_to <- confuns::check_vector(
-      input = color_to,
+    color_by <- confuns::check_vector(
+      input = color_by,
       against = base::colnames(data),
       verbose = TRUE,
       ref.input = ref.input,
@@ -770,15 +769,15 @@ plotFourStates2 <- function(data,
   # 3. Additional add ons ---------------------------------------------------
 
   states <- hlpr_gene_set_name(states)
-  color_to_lab <- hlpr_gene_set_name(color_to)
+  color_by_lab <- hlpr_gene_set_name(color_by)
 
   xlab <- base::bquote(paste("log2(GSV-Score "[.(states[3])]*" - GSV-Score "[.(states[4])]*")"))
   ylab <- base::bquote(paste("log2(GSV-Score "[.(states[2])]*" - GSV-Score "[.(states[1])]*")"))
 
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    variable <- dplyr::pull(plot_df, var = {{color_to}})
+    variable <- dplyr::pull(plot_df, var = {{color_by}})
 
   } else {
 
@@ -793,7 +792,7 @@ plotFourStates2 <- function(data,
   ggplot2::ggplot(data = plot_df) +
     ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "lightgrey") +
     ggplot2::geom_hline(yintercept = 0,  linetype = "dashed", color = "lightgrey") +
-    ggplot2::geom_point(mapping = ggplot2::aes_string(x = "pos_x", y = "pos_y", color = color_to),
+    ggplot2::geom_point(mapping = ggplot2::aes_string(x = "pos_x", y = "pos_y", color = color_by),
                         size = pt_size, alpha = pt_alpha, data = plot_df) +
     ggplot2::scale_x_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
     ggplot2::scale_y_continuous(limits = c(-max*1.1, max*1.1), expand = c(0,0)) +
@@ -803,7 +802,7 @@ plotFourStates2 <- function(data,
       panel.grid.major = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank()
     ) +
-    ggplot2::labs(x = xlab, y = ylab, color = color_to_lab)
+    ggplot2::labs(x = xlab, y = ylab, color = color_by_lab)
 
 }
 
@@ -812,7 +811,6 @@ plotFourStates2 <- function(data,
 
 
 # Distribution -------------------------------------------------------
-
 
 #' @title Plot distribution of variables interactively
 #'
@@ -839,25 +837,15 @@ plotStatisticsInteractive <- function(spata_df){
 #' @description These functions are deprecated in favor of \code{plotDensityplot(),
 #' plotHistogram(), plotRidgplot(), plotBoxplot(), plotViolinplot()} and \code{plotBarchart()}.
 #'
-#' Visualize the distribution of values of a set of variables.
-#'
-#' \itemize{
-#'  \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
-#'  necessary data.frame from scratch according to additional parameters.}
-#'  \item{ \code{plotDistribution2()} Takes a data.frame as the starting point.}
-#'  }
-#'
-#'
-#' @param df A data.frame that contains the numeric variables specified in \code{variables}.
+#' @inherit across_dummy params
+#' @inherit argument_dummy params
 #' @inherit variables_num params
-#' @inherit across params
 #' @param plot_type Character value. One of \emph{'histogram', 'density', 'violin', 'boxplot' and 'ridgeplot'}.
 #' @param binwidth The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.
 #' @param ... additional arguments to \code{ggplot2::facet_wrap()}
 #'
 #' @inherit check_sample params
 #' @inherit check_method params
-#' @inherit verbose params
 #' @inherit normalize params
 #' @inherit check_assign params
 #' @inherit clrp params
@@ -1056,7 +1044,6 @@ plotDistribution <- function(object,
     ggplot2::labs(x = NULL)
 
 }
-
 
 #' @rdname plotDistribution
 #' @export
@@ -1588,7 +1575,6 @@ plotDistributionAcross2 <- function(df,
 
 }
 
-
 #' @rdname plotDistribution
 #' @export
 plotDistributionDiscrete <- function(object,
@@ -1717,10 +1703,6 @@ plotDistributionDiscrete <- function(object,
 #' @param preprocess_method Given to \code{monocle3::preprocess_cds()} if \code{use_cds_file} isn't a character string.
 #' @param cluster_method Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.
 #' @param ... Additional arguments given to \code{monocle3::plot_cells()}.
-#' @param verbose Logical value. If set to TRUE informative messages with respect
-#' to the computational progress made will be printed.
-#'
-#' (Warning messages will always be printed.)
 #'
 #' @return Returns a list of one or two ggplot-objects that can be additionally customized according
 #' to the rules of the ggplot2-framework.
@@ -1784,12 +1766,12 @@ plotPseudotime <- function(object,
 #' @title Plot differentially expressed genes
 #'
 #' @description Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
-#' from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
-#' differently expressed genes of every group of the feature denoted in the argument \code{across}.
+#' from previously conducted de-analysis or uses the expression information of specific genes to plot a heatmap.
 #'
+#' @inherit across_dummy params
+#' @inherit argument_dummy params
 #' @inherit check_sample params
-#' @inherit across params
-#' @inherit getDeResultsDf params details
+#' @inherit getDeaResultsDf params details
 #' @param n_bcsp The number of barcode-spots belonging to each cluster you want to
 #' include in the matrix. Should be lower than the total number of barcode-spots of every cluster
 #' and can be deployed in order to keep the heatmap clear and aesthetically pleasing.
@@ -1802,31 +1784,28 @@ plotPseudotime <- function(object,
 #' @param genes Character vector or NULL. If you want to display specific genes irrespective of de-anaylsis results you
 #' can specifiy them in \code{genes}. If \code{genes} is specified that way arguments referring to de-anylsis results are
 #' ignored and only the genes specified are taken and displayed.
-#' @inherit verbose params
-#' @param colors A vector of colors to be used for the continuous heatmap annotation..
-#' @param clrp The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
-#' to obtain valid input options.
-#' @param ... Additional parameters given to \code{pheatmap::pheatmap()}.
+
+#' @param ... Additional arguments given to \code{pheatmap::pheatmap()}.
 #'
 #' @return A heatmap of class 'pheatmap'.
 #' @export
 
 plotDeaHeatmap <- function(object,
-                          across,
-                          across_subset = NULL,
-                          relevel = NULL,
-                          method_de = NULL,
-                          max_adj_pval = NULL,
-                          n_highest_lfc = NULL,
-                          n_lowest_pval = NULL,
-                          breaks = NULL,
-                          genes = NULL,
-                          n_bcsp = NULL,
-                          clrp = NULL,
-                          colors = NULL,
-                          verbose = NULL,
-                          of_sample = NA,
-                          ...){
+                           across,
+                           across_subset = NULL,
+                           relevel = NULL,
+                           method_de = NULL,
+                           max_adj_pval = NULL,
+                           n_highest_lfc = NULL,
+                           n_lowest_pval = NULL,
+                           breaks = NULL,
+                           genes = NULL,
+                           n_bcsp = NULL,
+                           clrp = NULL,
+                           colors = NULL,
+                           verbose = NULL,
+                           of_sample = NA,
+                           ...){
 
   confuns::make_available(...)
 
@@ -2051,7 +2030,7 @@ plotSegmentation <- function(object,
 
   # data extraction
   plot_df <-
-    getCoordinates(object, of_sample = of_sample) %>%
+    getCoordsDf(object, of_sample = of_sample) %>%
     joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
 
   segment_df <-
@@ -2088,126 +2067,6 @@ plotSegmentation <- function(object,
 
 # Autoencoder -------------------------------------------------------------
 
-
-#' @title Plot total variance of different neural networks
-#'
-#' @description Visualizes the results of \code{assessAutoencoderOptions()} by displaying the
-#' total variance of each combination of an activation function (such as \emph{relu, sigmoid})
-#' and the number of bottleneck neurons.
-#'
-#' The results depend on further adjustments like number of layers, dropout and number of epochs.
-#'
-#' @inherit check_object params
-#'
-#' @return ggplot_family return
-#' @export
-#'
-
-plotAutoencoderAssessment <- function(object, activation_subset = NULL, clrp = NULL, verbose = NULL){
-
-  hlpr_assign_arguments(object)
-
-  assessment_list <- getAutoencoderAssessment(object)
-
-  plot_df <- assessment_list$df
-
-  if(base::is.character(activation_subset)){
-
-    confuns::check_vector(input = activation_subset,
-                          against = activation_fns,
-                          ref.input = "input for argumetn 'activation_subset'",
-                          ref.against = "valid activation functions.")
-
-    plot_df <- dplyr::filter(plot_df, activation %in% activation_subset)
-
-  }
-
-  if(base::isTRUE(verbose)){
-
-    msg <- glue::glue("Additional set up of neural network: \n\nEpochs: {epochs}\nDropout: {dropout}\nLayers: {layers}",
-                      epochs = assessment_list$set_up$epochs,
-                      dropout = assessment_list$set_up$dropout,
-                      layers = glue::glue_collapse(x = assessment_list$set_up$layers, sep = ", ", last = " and "))
-
-    base::writeLines(text = msg)
-
-  }
-
-
-  ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = bottleneck, y = total_var)) +
-    ggplot2::geom_point(mapping = ggplot2::aes(color = activation), size = 3) +
-    ggplot2::geom_line(mapping = ggplot2::aes(group = activation, color = activation), size = 1.5) +
-    ggplot2::facet_wrap(facets = . ~ activation) +
-    scale_color_add_on(aes = "color", clrp = clrp, variable = plot_df$activation) +
-    ggplot2::theme_bw()  +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::labs(x = "Number of Bottleneck Neurons", y = "Total Variance")
-
-}
-
-#' @title Plot scaled vs. denoised expression
-#'
-#' @description Compares the distribution of the expression levels of \code{genes}
-#' between the scaled matrix and the denoised matrix.
-#'
-#' @inherit check_sample params
-#' @inherit runAutoencoderDenoising params
-#' @inherit check_pt params
-#' @inherit ggplot_family return
-#'
-#' @details This function requires a denoised matrix in slot @@data generated
-#' by \code{runAutoEncoderDenoising()} as well as a scaled matrix.
-#'
-#' @export
-
-plotAutoencoderResults <- function(object,
-                                   genes,
-                                   mtr_name = "denoised",
-                                   scales = "free",
-                                   pt_alpha = NULL,
-                                   pt_clrp = NULL,
-                                   pt_size = NULL,
-                                   verbose = NULL,
-                                   of_saple = NA,
-                                   ...){
-
-  confuns::make_available(..., verbose = verbose)
-
-  # 1. Control --------------------------------------------------------------
-
-  hlpr_assign_arguments(object)
-  check_pt(pt_size = pt_size, pt_alpha = pt_alpha, pt_clrp = pt_clrp)
-
-  of_sample <- check_sample(object, of_sample = "")
-  genes <- check_genes(object, genes = genes, of.length = 2, fdb_fn = "stop")
-
-  denoised <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = mtr_name)
-  scaled <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = "scaled")
-
-  # 2. Join data ------------------------------------------------------------
-
-  plot_df <-
-    base::rbind(
-      data.frame(base::t(denoised[genes, ]), type = "Denoised"),
-      data.frame(base::t(scaled[genes, ]), type = "Scaled")
-    ) %>%
-    dplyr::mutate(type = base::factor(x = type, levels = c("Scaled", "Denoised")))
-
-
-  # 3. Plot -----------------------------------------------------------------
-
-  ggplot2::ggplot(data = plot_df, ggplot2::aes(x = .data[[genes[1]]], y = .data[[genes[2]]], color = type)) +
-    ggplot2::geom_point(alpha = pt_alpha, size = pt_size) +
-    ggplot2::geom_smooth(method = "lm", formula = y ~ x) +
-    confuns::call_flexibly(fn = "facet_wrap", fn.ns = "ggplot2", default = list(facets = stats::as.formula(. ~ type), scales = scales)) +
-    ggplot2::theme_classic() +
-    ggplot2::theme(
-      strip.background = ggplot2::element_blank(),
-      legend.position = "none"
-    ) +
-    scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp)
-
-}
 
 # -----
 

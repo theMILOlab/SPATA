@@ -5,17 +5,16 @@
 #' (Easily obtained with the \code{get*()}-family.) It extracts the specified
 #' variables and joins them over the barcode variable with the provided data.frame.
 #'
-#' @param object A valid spata-object.
-#' @inherit check_spata_df params
+#' @inherit argument_dummy params
 #' @inherit check_features params
 #' @inherit check_gene_sets params
 #' @inherit check_genes params
 #' @inherit check_smooth params
 #' @inherit check_method params
-#' @inherit verbose params
-#' @inherit check_variables params
-#' @inherit normalize params
 #' @inherit check_uniform_genes params
+#' @inherit check_variables params
+#' @inherit gene_set_path params
+#' @inherit normalize params
 #' @param average_genes Logical. If set to TRUE the average expression of the
 #' specified genes is calculated and saved under one variable named 'mean_genes'.
 #'
