@@ -37,6 +37,6 @@ to the rules of the ggplot2-framework.
 }
 \description{
 Use argument \code{variables} to denote the numeric variables
-of interest. First value will be mapped on to the x-axis and the second
-value on to the y-axis.
+of interest. First one will be mapped on to the x-axis and the second
+one on to the y-axis.
 }

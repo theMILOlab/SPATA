@@ -24,6 +24,8 @@ process_seurat_object(
 \arguments{
 \item{seurat_object}{A valid seurat-object.}
 
+\item{assay}{Character value. The name under which the count- and expression matrix is to be saved.}
+
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 
 \item{NormalizeData}{A named list of arguments given to \code{Seurat::NormalizeData()}, TRUE or FALSE.}

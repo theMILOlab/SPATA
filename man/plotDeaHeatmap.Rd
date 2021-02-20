@@ -70,10 +70,9 @@ and can be deployed in order to keep the heatmap clear and aesthetically pleasin
 If set to NULL (the default) it is automatically computed according to the number of genes that
 are displayed in the heatmap.}
 
-\item{clrp}{The colorpanels used for the discrete heatmap annotation. Run \code{all_colorpanels()}
-to obtain valid input options.}
-
-\item{colors}{A vector of colors to be used for the continuous heatmap annotation..}
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
@@ -83,15 +82,14 @@ the computational progress will be printed.
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{...}{Additional parameters given to \code{pheatmap::pheatmap()}.}
+\item{...}{Additional arguments given to \code{pheatmap::pheatmap()}.}
 }
 \value{
 A heatmap of class 'pheatmap'.
 }
 \description{
 Visualizes the expression of genes across subgroups in a heatmap. It either takes the results
-from previously conducted de-analysis and uses the expression information of the spata-object to plot a heatmap displaying the
-differently expressed genes of every group of the feature denoted in the argument \code{across}.
+from previously conducted de-analysis or uses the expression information of specific genes to plot a heatmap.
 }
 \details{
 The de-data.frame is processed such that the following steps are performed for every experimental

@@ -2,11 +2,11 @@
 % Please edit documentation in R/plot-family-surface.R
 \name{plotSurfaceQuantiles}
 \alias{plotSurfaceQuantiles}
-\title{Plot expression values binned}
+\title{Plot a surface plot colored by binned numeric variables}
 \usage{
 plotSurfaceQuantiles(
   object,
-  color_to,
+  color_by,
   n_qntls = 5,
   keep_qntls = 1:n_qntls,
   pt_alpha = NULL,
@@ -22,20 +22,20 @@ plotSurfaceQuantiles(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{color_to}{The variable to be displayed by color:
+\item{color_by}{Character value. Specifies the numeric variable of interest:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
   \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
   expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
-  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames(..., of_class = "numeric")}}
   }}
 
 \item{n_qntls}{Numeric value. Specifies the number of bins in which
 to distribute the barcode spots.}
 
 \item{keep_qntls}{Numeric vector. Specifies the quantiles to highlight by
-color. The remaining ones are displayed in gray.}
+color. The remaining ones are displayed in grey.}
 
 \item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
@@ -62,6 +62,6 @@ If set to \emph{""} (the default) the first sample is chosen.}
 }
 \description{
 This function calculates the quantiles specified in \code{n_qntl}
-of the numeric variable specified in \code{color_to} and divides the barcode
-spots accordingly.
+of the numeric variable specified in \code{color_by} and divides the barcode
+spots accordingly. If you want to grey-out certain quantiles use argument \code{keep_qntls}.
 }

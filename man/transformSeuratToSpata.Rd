@@ -32,6 +32,18 @@ transformSeuratToSpata(
  Only relevant if \code{method} was set to \emph{'single_cell'}. Denotes the slot from which to
  take the surrogate coordinates.}
 
+\item{gene_set_path}{Character value (or NULL). Specifies the path to a
+.RDS-file containing a data.frame that is to be used as input for slot @used_genesets.
+
+ Must have the character-variables
+
+   \itemize{
+    \item{\emph{'ont'}: The gene set names.}
+    \item{\emph{'gene'}: The belonging gene names.}
+    }
+
+If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
+
 \item{verbose}{Logical. If set to TRUE informative messages regarding
 the computational progress will be printed.
 

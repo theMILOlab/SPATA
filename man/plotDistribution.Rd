@@ -89,6 +89,10 @@ specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
 \code{gsva::GSVA()}.}
 
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
+
 \item{binwidth}{The binwidth to use if \code{plot_type} is specified as \emph{'histogram'}.}
 
 \item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
@@ -104,8 +108,6 @@ the computational progress will be printed.
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{additional arguments to \code{ggplot2::facet_wrap()}}
-
-\item{df}{A data.frame that contains the numeric variables specified in \code{variables}.}
 
 \item{across}{Character value or NULL. Specifies the grouping variable of interest.
 
@@ -131,12 +133,4 @@ a single character value.}
 \description{
 These functions are deprecated in favor of \code{plotDensityplot(),
 plotHistogram(), plotRidgplot(), plotBoxplot(), plotViolinplot()} and \code{plotBarchart()}.
-
-Visualize the distribution of values of a set of variables.
-
-\itemize{
- \item{ \code{plotDistribution()} Takes the spata-object as the starting point and creates the
- necessary data.frame from scratch according to additional parameters.}
- \item{ \code{plotDistribution2()} Takes a data.frame as the starting point.}
- }
 }

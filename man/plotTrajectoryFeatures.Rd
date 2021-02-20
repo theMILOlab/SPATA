@@ -15,6 +15,7 @@ plotTrajectoryFeatures(
   smooth_span = NULL,
   binwidth = 5,
   clrp = NULL,
+  clrp_adjust = NULL,
   display_trajectory_parts = NULL,
   split = NULL,
   verbose = NULL,
@@ -29,6 +30,7 @@ plotTrajectoryGenes(
   average_genes = FALSE,
   binwidth = 5,
   clrp = NULL,
+  clrp_adjust = NULL,
   smooth_method = NULL,
   smooth_se = NULL,
   smooth_span = NULL,
@@ -49,6 +51,7 @@ plotTrajectoryGeneSets(
   smooth_span = NULL,
   smooth_se = NULL,
   clrp = NULL,
+  clrp_adjust = NULL,
   display_trajectory_parts = NULL,
   split = NULL,
   verbose = NULL,
@@ -73,8 +76,14 @@ displayed.}
 relevant barcode spots into groups that are then aligned with respect to the
 chosen trajectory's direction.#'}
 
-\item{clrp}{Character value. The color panel to be used.
-Run \code{all_colorpanels()} to see valid input.}
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
+
+\item{clrp_adjust}{Named character vector or NULL. If character, it adjusts the
+color palette that is used to represent the groups. Names of the input vector must refer
+to the group and the respective named element denotes the color with which to
+represent the group.}
 
 \item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
 visualizes the parts in which the trajectory has been partitioned while beeing

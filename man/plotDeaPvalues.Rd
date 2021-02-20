@@ -64,14 +64,26 @@ are not included are dropped which affects the colors with which they are displa
 Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
 to obtain all valid input options.}
 
+\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
+with adjusted p-values above that threshold are ignored.}
+
 \item{binwidth}{Numeric value. Denotes the binwidth to use for the histogram.}
+
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
 
 \item{plot_type}{Character value. Specifies the type of plot to use to
 visualize the results. If valid input options are not mentioned in the
 description use \code{validPlotTypess()} to obtain all valid input options.}
 
+\item{scales}{Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
+are displayed.}
+
 \item{limits_x}{Numeric vector of length two. Specify the limits
 of the x-axis.}
+
+\item{display_title}{Logical value. If set to TRUE an informative title is displayed.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}

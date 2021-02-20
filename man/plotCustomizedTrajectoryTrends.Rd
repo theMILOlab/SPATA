@@ -26,6 +26,10 @@ with which you want to refer to the trend later on.}
 \item{smooth_se}{Logical. If set to TRUE the confidence interval will be
 displayed.}
 
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
+
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 }
 \value{

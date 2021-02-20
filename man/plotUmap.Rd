@@ -8,7 +8,7 @@
 \usage{
 plotUmap(
   object,
-  color_to = NULL,
+  color_by = NULL,
   method_gs = NULL,
   pt_size = NULL,
   pt_alpha = NULL,
@@ -22,7 +22,7 @@ plotUmap(
 
 plotTsne(
   object,
-  color_to = NULL,
+  color_by = NULL,
   method_gs = NULL,
   pt_size = NULL,
   pt_alpha = NULL,
@@ -31,12 +31,12 @@ plotTsne(
   pt_clr = NULL,
   normalize = NULL,
   verbose = NULL,
-  of_sampel = NA
+  of_sample = NA
 )
 
 plotPca(
   object,
-  color_to = NULL,
+  color_by = NULL,
   n_pcs = NULL,
   method_gs = NULL,
   pt_size = NULL,
@@ -53,7 +53,7 @@ plotPca(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{color_to}{The variable to be displayed by color:
+\item{color_by}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

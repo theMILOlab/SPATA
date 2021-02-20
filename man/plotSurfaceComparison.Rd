@@ -3,11 +3,11 @@
 \name{plotSurfaceComparison}
 \alias{plotSurfaceComparison}
 \alias{plotSurfaceComparison2}
-\title{Plot several surface plots at the same time}
+\title{Plot several surface plots colored by numeric variables}
 \usage{
 plotSurfaceComparison(
   object,
-  variables,
+  color_by,
   method_gs = NULL,
   normalize = NULL,
   smooth = NULL,
@@ -23,24 +23,16 @@ plotSurfaceComparison(
 
 plotSurfaceComparison2(
   coords_df,
-  variables = "all",
-  pt_size = 2,
+  color_by = NULL,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
+  pt_size = 2,
   image = NULL,
   verbose = TRUE,
   ...
 )
 }
 \arguments{
-\item{variables}{Character vector. The variables of interest:
-
-\itemize{
- \item{ \strong{Gene sets}: Must be in \code{getGeneSets()}}
- \item{ \strong{Genes}: Must be in \code{getGenes()}}
- \item{ \strong{Features}: Must be numeric ones of \code{getFeatureNames()}}
- }}
-
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
@@ -61,21 +53,14 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
 
-\item{verbose}{Logical. If set to TRUE informative messages regarding
-the computational progress will be printed.
-
-(Warning messages will always be printed.)}
-
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()}.}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
-
-\item{data}{A data.frame containing the numeric variables of interest.}
 }
 \description{
-Plots a surface plot for every valid element in argument
-\code{variables} and colors it according to each element.
+Displays a surface plot for every variable specified
+in argument \code{color_by}.
 
 \itemize{
  \item{ \code{plotSurfaceComparison()} Takes the spata-object as the starting point and creates the

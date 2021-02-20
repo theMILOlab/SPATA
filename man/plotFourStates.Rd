@@ -8,7 +8,7 @@
 plotFourStates(
   object,
   states,
-  color_to = NULL,
+  color_by = NULL,
   method_gs = NULL,
   average_genes = NULL,
   pt_alpha = NULL,
@@ -23,7 +23,7 @@ plotFourStates(
 plotFourStates2(
   data,
   states,
-  color_to = NULL,
+  color_by = NULL,
   pt_size = 1.5,
   pt_alpha = 0.9,
   pt_clrsp = "inferno",
@@ -35,7 +35,7 @@ plotFourStates2(
 \item{states}{The gene sets defining the four states specified as a character vector
 of length 4.}
 
-\item{color_to}{The variable to be displayed by color:
+\item{color_by}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}

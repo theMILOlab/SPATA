@@ -31,11 +31,6 @@ is going to be stored specified as a character value. Should end with .rds.}
 \item{cluster_method}{Given to \code{monocle3::cluster_cells()} if \code{use_cds_file} isn't a character string.}
 
 \item{...}{Additional arguments given to \code{monocle3::plot_cells()}.}
-
-\item{verbose}{Logical value. If set to TRUE informative messages with respect
-to the computational progress made will be printed.
-
-(Warning messages will always be printed.)}
 }
 \value{
 Returns a list of one or two ggplot-objects that can be additionally customized according

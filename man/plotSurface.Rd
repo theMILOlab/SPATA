@@ -4,11 +4,11 @@
 \alias{plotSurface}
 \alias{plotSurface2}
 \alias{plotSurfaceInteractive}
-\title{Plot the sample}
+\title{Plot the surface of the sample}
 \usage{
 plotSurface(
   object,
-  color_to = NULL,
+  color_by = NULL,
   method_gs = NULL,
   normalize = NULL,
   smooth = NULL,
@@ -28,11 +28,11 @@ plotSurface(
 
 plotSurface2(
   coords_df,
-  color_to,
-  pt_size = 2,
+  color_by,
   pt_alpha = 0.9,
-  pt_clrsp = "inferno",
   pt_clrp = "milo",
+  pt_clrsp = "inferno",
+  pt_size = 2,
   image = NULL,
   clrp_adjust = NULL,
   ...
@@ -43,7 +43,7 @@ plotSurfaceInteractive(object)
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{color_to}{The variable to be displayed by color:
+\item{color_by}{The variable to be displayed by color:
 
  \itemize{
   \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
@@ -77,7 +77,7 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
 
-\item{display_title}{Logical. If set to TRUE an informative title is displayed.}
+\item{display_title}{Logical value. If set to TRUE an informative title is displayed.}
 
 \item{complete}{Logical. If the provided spata-object has been subsetted by
 \code{subsetBySegment()} the original sample is completed with grey barcode
@@ -101,6 +101,11 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
+
+\item{clrp_adjust}{Named character vector or NULL. If character, it adjusts the
+color palette that is used to represent the groups. Names of the input vector must refer
+to the group and the respective named element denotes the color with which to
+represent the group.}
 }
 \description{
 Displays the spatial dimension of the sample and colors the

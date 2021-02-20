@@ -54,7 +54,7 @@ the currently active matrix is chosen.}
 An updated spata-object.
 }
 \description{
-This function screens a freely chosen subset of genes  and evaluates their
+This function screens a subset of genes and evaluates their
 spatial overlap by correlation- and subsequent clustering analysis. Results can be
 conveniently obtained or processed with additional functions such as
 \code{clusterSpCorResults()}, \code{getGenes()} or \code{getSpCorResults()}.

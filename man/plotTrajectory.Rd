@@ -31,15 +31,6 @@ plotTrajectory(
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
 
-\item{color_to}{The variable to be displayed by color:
-
- \itemize{
-  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
-  \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
-  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
-  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
-  }}
-
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one
 of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given to
@@ -67,7 +58,7 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
 
-\item{display_title}{Logical. If set to TRUE an informative title is displayed.}
+\item{display_title}{Logical value. If set to TRUE an informative title is displayed.}
 
 \item{uniform_genes}{Character value. If set to \emph{'discard'} genes that are
 uniformly expressed across all barcode-spots of the specified coordinates

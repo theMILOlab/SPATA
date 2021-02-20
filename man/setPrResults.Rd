@@ -4,7 +4,7 @@
 \alias{setPrResults}
 \title{Set results of pattern recognition methods}
 \usage{
-setPrResults(object, of_sample = "", method_pr = "hotspot", pr_list)
+setPrResults(object, of_sample = "", method_pr = "hpa", pr_results)
 }
 \arguments{
 \item{object}{A valid spata-object.}

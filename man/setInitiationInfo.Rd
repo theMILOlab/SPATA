@@ -2,7 +2,7 @@
 % Please edit documentation in R/set-family.R
 \name{setInitiationInfo}
 \alias{setInitiationInfo}
-\title{Set initation information}
+\title{Set initiation information}
 \usage{
 setInitiationInfo(object)
 }

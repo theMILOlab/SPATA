@@ -10,6 +10,7 @@ plotTrajectoryFeaturesDiscrete(
   discrete_feature,
   binwidth = 10,
   clrp = NULL,
+  clrp_adjust = NULL,
   display_trajectory_parts = NULL,
   verbose = NULL,
   of_sample = NA,
@@ -28,6 +29,11 @@ chosen trajectory's direction.#'}
 \item{clrp}{Character value. Specifies the color palette to be used to represent
 groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
 input options.}
+
+\item{clrp_adjust}{Named character vector or NULL. If character, it adjusts the
+color palette that is used to represent the groups. Names of the input vector must refer
+to the group and the respective named element denotes the color with which to
+represent the group.}
 
 \item{display_trajectory_parts}{Logical. If set to TRUE the returned plot
 visualizes the parts in which the trajectory has been partitioned while beeing

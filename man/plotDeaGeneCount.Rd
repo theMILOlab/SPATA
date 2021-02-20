@@ -47,6 +47,12 @@ to obtain all valid input options.}
 \item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
 with adjusted p-values above that threshold are ignored.}
 
+\item{clrp}{Character value. Specifies the color palette to be used to represent
+groups of discrete variables. Run \code{validColorPalettes()} to obtain valid
+input options.}
+
+\item{display_title}{Logical value. If set to TRUE an informative title is displayed.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 }

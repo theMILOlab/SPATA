@@ -16,7 +16,8 @@ subsetBySegment(
   FindNeighbors = list(dims = 1:30),
   FindClusters = list(resolution = 0.8),
   RunTSNE = TRUE,
-  RunUMAP = list(dims = 1:30)
+  RunUMAP = list(dims = 1:30),
+  verbose = NULL
 )
 }
 \arguments{
@@ -71,6 +72,5 @@ manipulate the way the spata-object is processed. For all of these arguments app
 
 Note that certain listed functions require previous functions! E.g. if \code{RunPCA} is set to FALSE \code{RunTSNE()}
 will result in an error. (\code{base::tryCatch()} will prevent the function from crashing but the respective slot
-is going to be empty.) Skipping functions might result in an incomplete spata-object. Use \code{validateSpataObject()}
-to check your object for validity.
+is going to be empty.) Skipping functions might result in an incomplete spata-object.
 }
