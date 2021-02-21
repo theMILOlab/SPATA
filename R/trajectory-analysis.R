@@ -494,11 +494,10 @@ assessTrajectoryTrendsCustomized <- function(object,
   check_trajectory(object, trajectory_name, of_sample)
 
   length_trajectory <-
-    getTrajectoryDf(object = object,
-                    trajectory_name = trajectory_name,
-                    variables = getGenes(object)[1],
-                    verbose = FALSE) %>%
-    base::nrow()
+    getTrajectoryLength(object = object,
+                        trajectory_name = trajectory_name,
+                        binwidth = binwidth,
+                        of_sample = of_sample)
 
   customized_trends_df <-
     check_customized_trends(length_trajectory = length_trajectory, customized_trends = customized_trends) %>%
@@ -524,7 +523,6 @@ assessTrajectoryTrendsCustomized <- function(object,
       verbose = verbose,
       customized_trends_df = customized_trends_df
     )
-
 
   atdf <- hlpr_assess_trajectory_trends_customized(rtdf = rtdf, verbose = verbose)
 

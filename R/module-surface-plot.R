@@ -840,7 +840,7 @@ moduleSurfacePlotServer <- function(id,
       segmentation_df <- reactive({
 
         segm_df <- joinWith(object = reactive_object(),
-                            spata_df = getCoordinates(reactive_object(), current$sample),
+                            spata_df = getCoordsDf(reactive_object(), current$sample),
                             features = "segment",
                             verbose = FALSE) %>%
           dplyr::filter(segment != "")

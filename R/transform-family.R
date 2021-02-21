@@ -242,7 +242,7 @@ transformSeuratToSpata <- function(seurat_object,
 
   fdata <-
     tibble::rownames_to_column(.data = seurat_object@meta.data, var = "barcodes") %>%
-    dplyr::mutate(segment = "none") %>%
+    dplyr::mutate(segmentation = "none") %>%
     dplyr::select(barcodes, dplyr::everything())
 
   # savely discard colum 'orig.ident'

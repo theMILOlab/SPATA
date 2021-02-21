@@ -1041,7 +1041,7 @@ hlpr_smooth <- function(variable,
 
   } else {
 
-    model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span)
+    model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span / 10)
 
     return(stats::predict(object = model))
 

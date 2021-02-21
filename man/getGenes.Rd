@@ -2,40 +2,17 @@
 % Please edit documentation in R/get-family.R
 \name{getGenes}
 \alias{getGenes}
-\alias{getDeaGenes}
-\alias{getSpCorGenes}
 \alias{getGenesInteractive}
 \title{Obtain gene names}
 \usage{
 getGenes(
   object,
   of_gene_sets = NULL,
-  of_hotspots = NULL,
+  similar_to = NULL,
+  top_n = 25,
   simplify = TRUE,
   of_sample = NA,
   in_sample = NA
-)
-
-getDeaGenes(
-  object,
-  across,
-  across_subset = NULL,
-  method_de = "wilcox",
-  max_adj_pval = NULL,
-  n_highest_lfc = 50,
-  n_lowest_pval = 50,
-  of_sample = NA
-)
-
-getSpCorGenes(
-  object,
-  similar_to = NULL,
-  distinct_to = NULL,
-  top_n = 25,
-  method_hclust = NULL,
-  cluster_names = NULL,
-  simplify = TRUE,
-  of_sample = NA
 )
 
 getGenesInteractive(object)
@@ -46,48 +23,35 @@ getGenesInteractive(object)
 \item{of_gene_sets}{A character vector specifying the gene sets from which to
 return the gene names.}
 
+\item{similar_to}{Character value. If specified, n genes with the highest
+spatial correlation similarity to the specified gene are returned where n
+is equal to the input for argument \code{top_n}.}
+
+\item{top_n}{Numeric value. Denotes the number of genes to be returned if argument
+\code{similar_to} is specified.}
+
 \item{simplify}{Logical. If set to TRUE the output list is simplified to a vector if possible. If set
 to FALSE a list is returned.}
 
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
-
 \item{in_sample}{Deprecated.}
-
-\item{across}{Character value or NULL. Specifies the grouping variable of interest.
-
-Use \code{getGroupingOptions()} to obtain all variable names that group the
-barcode spots of your object in a certain manner.}
-
-\item{across_subset}{Character vector or NULL. Specifies the particular groups
-of interest the grouping variable specified in argument \code{across} contains.
-
-If set to NULL all of them are chosen. You can prefix groups you are NOT interested in
-with a \emph{'-'}. (Saves writing if there are more groups you are interested in
-than groups you are not interested in.)
-
-Use \code{getGroupNames()} to obtain all valid input options.}
-
-\item{method_de}{Character value. Denotes the method to according to which the de-analysis is performed.
-Given to argument \code{test.use} of the \code{Seurat::FindAllMarkers()}-function. Run \code{SPATA::dea_methods}
-to obtain all valid input options.}
-
-\item{max_adj_pval}{Numeric value. Sets the maximal threshold for adjusted p-values allowed. All genes
-with adjusted p-values above that threshold are ignored.}
-
-\item{n_highest_lfc}{Numeric value. Affects the total number of genes that are kept. See details.}
-
-\item{n_lowest_pval}{Numeric value. Affects the total number of genes that are kept. See details.}
-
-\item{of_pattern}{A character vector specifiying the patterns from which to return
-the gene names. If denoted as \emph{""} the genes of all patterns are returned.
-Set \code{simplify} to FALSE in order to return a named list.}
 }
 \value{
-A list named according to the input of \code{of_gene_sets} in which each element is
-a character vector containing the names of genes the specific gene set is
-composed of. Is simplified to a vector if \code{simplify} is set to TRUE.
+A list of character vectors or a single character vector.
 }
 \description{
-Obtain gene names
+A convenient way to extract gene names.
+}
+\details{
+If neither \code{of_gene_sets} nor \code{similar_to} is specified all
+genes found in the active expression matrix are returned in a character vector.
+
+If \code{of_gene_sets} is specified a list named according to the input of
+\code{of_gene_sets} is returned in which each element is a character vector
+containing the names of genes the specific gene set is composed of. Is simplified
+to a vector if \code{simplify} is set to TRUE.
+
+If \code{of_gene_sets} is not specified but argument \code{similar_to} is
+a gene name a character vector of genes featuring the highest
+similarity to the specified gene is returned. The number of genes depends on
+the input of argument \code{top_n}.
 }

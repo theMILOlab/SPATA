@@ -93,12 +93,12 @@ from previously conducted de-analysis or uses the expression information of spec
 }
 \details{
 The de-data.frame is processed such that the following steps are performed for every experimental
-group. (With "genes" we refer to the rows (observations) of \code{data}.)
+group.
 
 \enumerate{
  \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
  \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
- \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+ \item{Slices the data.frame in order that for every experimental group:}
  \enumerate{
   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}

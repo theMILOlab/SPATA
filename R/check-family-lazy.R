@@ -78,7 +78,8 @@ check_to <- function(object, to){
 
     confuns::give_feedback(
       msg = msg,
-      fdb.fn = fdb.fn
+      fdb.fn = fdb.fn,
+      with.time = FALSE
     )
 
   }

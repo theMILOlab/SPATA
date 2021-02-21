@@ -2,6 +2,7 @@
 % Please edit documentation in R/add-family.R
 \name{addFeatures}
 \alias{addFeatures}
+\alias{discardFeatures}
 \title{Add a new feature}
 \usage{
 addFeatures(
@@ -12,6 +13,8 @@ addFeatures(
   overwrite = FALSE,
   of_sample = ""
 )
+
+discardFeatures(object, feature_names)
 }
 \arguments{
 \item{object}{A valid spata-object.}

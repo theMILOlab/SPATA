@@ -128,9 +128,9 @@ runDeAnalysis <- function(object,
 
 
 
-#' @title Postprocess de-results
+#' @title Postprocess de-analysis results
 #'
-#' @description Processes the results of \code{findDeGenes()}. See details.
+#' @description Processes the results of \code{getDeaResultsDf()}. See details.
 #'
 #' @inherit across_dummy params
 #' @inherit check_dea_df params
@@ -140,12 +140,12 @@ runDeAnalysis <- function(object,
 #' @param n_lowest_pval Numeric value. Affects the total number of genes that are kept. See details.
 #' @param return Character value. Denotes the output type. One of \emph{'data.frame', 'vector'} or \emph{'list}
 #' @details The de-data.frame is processed such that the following steps are performed for every experimental
-#' group. (With "genes" we refer to the rows (observations) of \code{data}.)
+#' group.
 #'
 #' \enumerate{
 #'  \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
 #'  \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
-#'  \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+#'  \item{Slices the data.frame in order that for every experimental group:}
 #'  \enumerate{
 #'   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
 #'   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}

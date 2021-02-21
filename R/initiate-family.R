@@ -153,7 +153,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
       )
 
 
-    # Passing features and images ---------------------------------------------
+    # 3. Passing features and images ------------------------------------------
 
     spata_object <-
       transformSeuratToSpata(
@@ -171,7 +171,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
     spata_object <- setInitiationInfo(spata_object)
 
-    # Save and return object -----------------------------------------------
+    # 4. Save and return object -----------------------------------------------
 
     # save seurat
     if(base::is.character(directory_seurat)){
@@ -374,8 +374,8 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   # transfer data.frames and image
   feature_df <-
-    dplyr::mutate(.data = coords_df, segment = "none") %>%
-    dplyr::select(barcodes, sample, segment)
+    dplyr::mutate(.data = coords_df, segmentation = "none") %>%
+    dplyr::select(barcodes, sample, segmentation)
 
   gene_set_df <-
     loadGSDF(gene_set_path = gene_set_path, verbose = verbose)

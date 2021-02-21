@@ -301,6 +301,41 @@ addFeatures <- function(object,
 
 }
 
+#' @rdname addFeatures
+#' @export
+discardFeatures <- function(object, feature_names){
+
+  # 1. Control --------------------------------------------------------------
+  check_object(object)
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
+
+  confuns::check_one_of(
+    input = feature_names,
+    against = getFeatureNames(object, of_sample = of_sample)
+  )
+
+  # -----
+
+  # 2. Discard --------------------------------------------------------------
+
+  feature_df <- getFeatureDf(object = object, of_sample = of_sample)
+
+  for(feature in feature_names){
+
+    feature_df[[feature]] <- NULL
+
+  }
+
+  object <- setFeatureDf(object, feature_df = feature_df, of_sample = of_sample)
+
+  # -----
+
+  base::return(object)
+
+}
+
+
+
 # -----
 
 

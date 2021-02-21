@@ -13,7 +13,7 @@
 
 createSegmentation <- function(object){
 
-  validation(x = object)
+  check_object(object)
 
   ##----- launch application
   new_object <-
@@ -69,8 +69,8 @@ createSegmentation <- function(object){
 
             segm_df <-
               getFeatureDf(object = spata_obj(), of_sample = current()$sample) %>%
-              dplyr::filter(!segment %in% c("", "none")) %>%
-              dplyr::select(barcodes, segment)
+              dplyr::filter(!segmentation %in% c("", "none")) %>%
+              dplyr::select(barcodes, segmentation)
 
             base::return(segm_df)
 
@@ -131,7 +131,7 @@ createSegmentation <- function(object){
 
           })
 
-          ##--- 2.1 convert vertices layer to geom_polygon to highlight the segment
+          ##--- 2.1 convert vertices layer to geom_polygon to highlight the segmentation
           oe <- shiny::observeEvent(input$highlight_segment, {
 
             checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
@@ -152,16 +152,16 @@ createSegmentation <- function(object){
 
           })
 
-          ##--- 3. save the highlighted segment
+          ##--- 3. save the highlighted segmentation
           oe <- shiny::observeEvent(input$save_segment, {
 
             checkpoint(evaluate = input$name_segment != "", case_false = "invalid_segment_name")
-            checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segment, case_false = "occupied_segment_name")
+            checkpoint(evaluate = !input$name_segment %in% segmentation_df()$segmentation, case_false = "occupied_segment_name")
             checkpoint(evaluate = base::nrow(vertices_df()) > 2, case_false = "insufficient_n_vertices")
 
             sample_coords <- getCoordsDf(objec = spata_obj(), of_sample = current()$sample)
 
-            ## 1. determine positions of each point with respect to the defined segment
+            ## 1. determine positions of each point with respect to the defined segmentation
             positions <-  sp::point.in.polygon(point.x = sample_coords$x, # x coordinates of all spatial positions
                                                point.y = sample_coords$y, # y coordaintes of all spatial positions
                                                pol.x = vertices_df()$x, # x coordinates of the segments vertices
@@ -181,7 +181,7 @@ createSegmentation <- function(object){
               getFeatureDf(spata_obj, of_sample = current()$sample) %>%
               dplyr::mutate(
                 positions = positions,
-                segment = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segment)
+                segmentation = dplyr::if_else(condition = positions %in% c(1,2,3), true = input$name_segment, false = segmentation)
               ) %>%
               dplyr::select(-positions)
 
@@ -191,7 +191,7 @@ createSegmentation <- function(object){
             # 2.4 update and check
             spata_obj(spata_obj)
 
-            if(input$name_segment %in% base::unique(getFeatureDf(spata_obj(), of_sample = current()$sample)$segment)){
+            if(input$name_segment %in% base::unique(getFeatureDf(spata_obj(), of_sample = current()$sample)$segmentation)){
 
               shiny::showNotification(ui = stringr::str_c(input$name_segment, "has been saved.", sep = " "), type = "message")
 
@@ -209,16 +209,16 @@ createSegmentation <- function(object){
             spata_obj <- spata_obj()
             fdata <- getFeatureDf(spata_obj, of_sample = current()$sample)
 
-            checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segment), case_false = "segment_name_not_found")
+            checkpoint(evaluate = input$name_segment_rmv %in% base::unique(fdata$segmentation), case_false = "segment_name_not_found")
 
             fdata_new <-
-              dplyr::mutate(.data = fdata, segment = dplyr::if_else(segment == input$name_segment_rmv, true = "none", false = segment))
+              dplyr::mutate(.data = fdata, segmentation = dplyr::if_else(segmentation == input$name_segment_rmv, true = "none", false = segmentation))
 
             spata_obj <- setFeatureDf(spata_obj, feature_df = fdata_new, of_sample = current()$sample)
 
             spata_obj(spata_obj)
 
-            if(!input$name_segment_rmv %in% getFeatureDf(spata_obj(), of_sample = current()$sample)$segment){
+            if(!input$name_segment_rmv %in% getFeatureDf(spata_obj(), of_sample = current()$sample)$segmentation){
 
               shiny::showNotification(ui = stringr::str_c("Segment '", input$name_segment_rmv, "' has been successfully removed.", sep = ""), type = "message")
 
@@ -233,15 +233,14 @@ createSegmentation <- function(object){
 
           })
 
-
-
           # Outputs -----------------------------------------------------------------
 
           output$current_segmentation <- shiny::renderPlot({
 
             sample <- module_return()$current_setting()$sample
             segmentation_done <- (base::length(getSegmentNames(object = spata_obj(),
-                                                               of_sample = sample)) != 0)
+                                                               of_sample = sample,
+                                                               verbose = FALSE)) != 0)
 
             shiny::validate(shiny::need(segmentation_done, message = glue::glue("Sample '{sample}' has not been segmented yet.")))
 

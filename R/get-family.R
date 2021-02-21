@@ -75,6 +75,11 @@ getDeOverview <- function(object){
 
 #' @title Obtain de-analysis results
 #'
+#' @description A convenient way to extract the differential gene expression
+#' analysis results. Function \code{getDeaGenes()} is a wrapper around
+#' \code{getDeaResultsDf()} and returns only gene names in a character vector.
+#' See details for more.
+#'
 #' @inherit across_dummy params
 #' @inherit check_method params
 #' @inherit check_sample params
@@ -84,7 +89,8 @@ getDeOverview <- function(object){
 #'
 #' \itemize{
 #'   \item{\emph{gene}} Character. The differentially expressed genes.
-#'   \item{\emph{cluster}} Character. The clusters (or experimental groups) across which the analysis was performed.
+#'   \item{\emph{'across'}} Character. The grouping across which the analysis was performed. The variable/column name is
+#'   equal to the input for argument \code{across}.
 #'   \item{\emph{avg_logFC}} Numeric. The average log-fold change to which the belonging gene was differentially expressed..
 #'   \item{\emph{p_val}} Numeric. The p-values.
 #'   \item{\emph{p_val_adj}} Numeric. The adjusted p-values.
@@ -134,6 +140,50 @@ getDeaResultsDf <- function(object,
   base::return(de_results)
 
 }
+
+#' @rdname getDeaResultsDf
+#' @export
+getDeaGenes <- function(object,
+                        across,
+                        across_subset = NULL,
+                        method_de = "wilcox",
+                        max_adj_pval = NULL,
+                        n_highest_lfc = 50,
+                        n_lowest_pval = 50,
+                        of_sample = NA){
+
+  # 1. Control --------------------------------------------------------------
+
+  check_object(object)
+  check_method(method_de = method_de)
+
+  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
+
+  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
+
+  # 2. Extract and filter ---------------------------------------------------
+
+  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
+
+  if(base::is.null(de_result_list)){
+
+    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
+
+  }
+
+  dea_results <- filterDeaDf(dea_df = de_result_list[["data"]],
+                             across_subset = across_subset,
+                             max_adj_pval = max_adj_pval,
+                             n_highest_lfc = n_highest_lfc,
+                             n_lowest_pval = n_lowest_pval,
+                             return = "vector")
+
+  # 3. Return ---------------------------------------------------------------
+
+  base::return(dea_results)
+
+}
+
 # -----
 
 # Slot: data --------------------------------------------------------------
@@ -757,7 +807,8 @@ getGroupNames <- function(object, discrete_feature, of_sample = NA){
 
 getSegmentNames <- function(object,
                             simplify = TRUE,
-                            of_sample = NA){
+                            of_sample = NA,
+                            ...){
 
   # lazy check
   check_object(object)
@@ -772,14 +823,26 @@ getSegmentNames <- function(object,
 
                  segment_names <-
                    getFeatureDf(object, of_sample = of_sample) %>%
-                   dplyr::pull(segment) %>%
+                   dplyr::pull(segmentation) %>%
                    base::unique()
 
-                 if(base::length(segment_names) == 1 && segment_names %in% c("none", "")){
+                 if(base::length(segment_names) == 1 && base::all(segment_names %in% c("none", ""))){
 
-                   base::warning(stringr::str_c("There seems to be no segmentation for '", i, "'."))
+                   verbose <- base::ifelse(test = base::any(FALSE %in% confuns::keep_named(c(...))), yes = FALSE, no = TRUE)
 
-                   base::return(NULL)
+                   if(base::isTRUE(verbose)){
+
+                     msg <- stringr::str_c("There seems to be no segmentation for sample '", i, "'.")
+
+                     confuns::give_feedback(
+                       msg = msg,
+                       fdb.fn = "stop",
+                       with.time = FALSE
+                     )
+
+                   }
+
+                   base::invisible(NULL)
 
                  } else {
 
@@ -1552,25 +1615,40 @@ getGeneSetDf <- function(object){
 
 #' @title Obtain gene names
 #'
+#' @description A convenient way to extract gene names.
+#'
 #' @inherit argument_dummy params
 #' @inherit check_object params
-#' @inherit getDeaResultsDf params
 #' @param of_gene_sets A character vector specifying the gene sets from which to
 #' return the gene names.
-#' @param of_pattern A character vector specifiying the patterns from which to return
-#' the gene names. If denoted as \emph{""} the genes of all patterns are returned.
-#' Set \code{simplify} to FALSE in order to return a named list.
+#' @param similar_to Character value. If specified, n genes with the highest
+#' spatial correlation similarity to the specified gene are returned where n
+#' is equal to the input for argument \code{top_n}.
+#' @param top_n Numeric value. Denotes the number of genes to be returned if argument
+#' \code{similar_to} is specified.
 #' @param in_sample Deprecated.
 #'
-#' @return A list named according to the input of \code{of_gene_sets} in which each element is
-#' a character vector containing the names of genes the specific gene set is
-#' composed of. Is simplified to a vector if \code{simplify} is set to TRUE.
+#' @details If neither \code{of_gene_sets} nor \code{similar_to} is specified all
+#' genes found in the active expression matrix are returned in a character vector.
+#'
+#' If \code{of_gene_sets} is specified a list named according to the input of
+#' \code{of_gene_sets} is returned in which each element is a character vector
+#' containing the names of genes the specific gene set is composed of. Is simplified
+#' to a vector if \code{simplify} is set to TRUE.
+#'
+#' If \code{of_gene_sets} is not specified but argument \code{similar_to} is
+#' a gene name a character vector of genes featuring the highest
+#' similarity to the specified gene is returned. The number of genes depends on
+#' the input of argument \code{top_n}.
+#'
+#' @return A list of character vectors or a single character vector.
 #'
 #' @export
 
 getGenes <- function(object,
                      of_gene_sets = NULL,
-                     of_hotspots = NULL,
+                     similar_to = NULL,
+                     top_n = 25,
                      simplify = TRUE,
                      of_sample = NA,
                      in_sample = NA){
@@ -1580,9 +1658,8 @@ getGenes <- function(object,
   # lazy check
   check_object(object)
 
-  confuns::are_vectors(c("of_gene_sets", "of_hotspots"), mode = "character",
+  confuns::are_vectors(c("of_gene_sets", "similar_to"), mode = "character",
                        skip.allow = TRUE, skip.val = NULL)
-
 
   # adjusting check
   of_sample <- check_sample(object = object, of_sample = of_sample)
@@ -1598,7 +1675,7 @@ getGenes <- function(object,
 
   if(!base::is.null(of_gene_sets) && base::all(of_gene_sets == "all")){warning("change of_gene_sets to NULL")}
 
-  if(base::all(base::is.null(of_gene_sets), base::is.null(of_hotspots))){
+  if(base::all(base::is.null(of_gene_sets), base::is.null(similar_to))){
 
     expr_mtr <- getExpressionMatrix(object = object, of_sample = of_sample)
 
@@ -1632,108 +1709,22 @@ getGenes <- function(object,
                    }) %>%
       purrr::set_names(nm = of_gene_sets)
 
-  } else if(!base::is.null(of_hotspots)){
+    # simplify output if specifed
+    if(base::isTRUE(simplify)){
 
-    hotspots <-
-      check_pattern(object = object,
-                    of_sample = of_sample,
-                    patterns = of_hotspots,
-                    method_pr = "hotspot")
+      res_genes <-
+        genes_list %>%
+        base::unname() %>%
+        base::unlist() %>%
+        base::unique()
 
-    hotspot_df <- getPrSuggestion(object,
-                                  of_sample = of_sample,
-                                  method_pr = "hotspot")$df
+    } else {
 
-    genes_list <-
-      purrr::map(.x = hotspots,
-                 .f = function(hotspot){
+      res_genes <- genes_list
 
-                   dplyr::filter(hotspot_df, hotspot %in% {{hotspots}}) %>%
-                     dplyr::pull(var = "genes")
+    }
 
-
-                 }) %>%
-      purrr::set_names(nm = hotspots)
-
-  }
-
-  # simplify output if specifed
-  if(base::isTRUE(simplify)){
-
-    genes_list <-
-      genes_list %>%
-      base::unname() %>%
-      base::unlist() %>%
-      base::unique()
-
-  }
-
-  base::return(genes_list)
-
-  # -----
-
-}
-
-
-#' @rdname getGenes
-#' @export
-getDeaGenes <- function(object,
-                       across,
-                       across_subset = NULL,
-                       method_de = "wilcox",
-                       max_adj_pval = NULL,
-                       n_highest_lfc = 50,
-                       n_lowest_pval = 50,
-                       of_sample = NA){
-
-  # 1. Control --------------------------------------------------------------
-
-  check_object(object)
-  check_method(method_de = method_de)
-
-  of_sample <- check_sample(object, of_sample = of_sample, desired_length = 1)
-
-  across <- check_features(object, features = across, valid_classes = c("character", "factor"), max_length = 1)
-
-  # 2. Extract and filter ---------------------------------------------------
-
-  de_result_list <- object@dea[[of_sample]][[across]][[method_de]]
-
-  if(base::is.null(de_result_list)){
-
-    base::stop(glue::glue("No de-analysis results found across '{across}' computed via method '{method_de}'."))
-
-  }
-
-  dea_results <- filterDeaDf(dea_df = de_result_list[["data"]],
-                            across_subset = across_subset,
-                            max_adj_pval = max_adj_pval,
-                            n_highest_lfc = n_highest_lfc,
-                            n_lowest_pval = n_lowest_pval,
-                            return = "vector")
-
-  # 3. Return ---------------------------------------------------------------
-
-  base::return(dea_results)
-
-}
-
-#' @rdname getGenes
-#' @export
-getSpCorGenes <- function(object,
-                          similar_to = NULL,
-                          distinct_to = NULL,
-                          top_n = 25,
-                          method_hclust = NULL,
-                          cluster_names = NULL,
-                          simplify = TRUE,
-                          of_sample = NA){
-
-  check_object(object)
-
-  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
-
-  if(base::is.character(similar_to)){
+  } else if(base::is.character(similar_to)){
 
     dist_df <- getGeneDistDf(object, of_sample = of_sample)
 
@@ -1751,75 +1742,12 @@ getSpCorGenes <- function(object,
       dplyr::pull(var = "gene1") %>%
       base::as.character()
 
-  } else if(base::is.character(distinct_to)){
-
-    dist_df <- getGeneDistDf(object, of_sample = of_sample)
-
-    confuns::is_value(x = top_n, mode = "numeric")
-
-    confuns::check_one_of(
-      input = distinct_to,
-      against = base::unique(dist_df$gene2),
-      ref.input = "input for argument 'distinct_to'"
-    )
-
-    res_genes <-
-      dplyr::filter(.data = dist_df, gene2 == {{distinct_to}}) %>%
-      dplyr::slice_max(order_by = distance, n = top_n) %>%
-      dplyr::pull(var = "gene1") %>%
-      base::as.character()
-
-  } else if(base::is.character(method_hclust)){
-
-    sp_cor_cluster <-
-      getSpCorCluster(object = object, method_hclust = method_hclust)
-
-    if(base::is.numeric(cluster_names)){
-
-      cluster_names <- stringr::str_c("cluster", cluster_names, sep = "_")
-
-    } else if(!base::is.character(cluster_names)){
-
-      base::stop("Input for argument 'cluster_names' must be a character or a numeric vector.")
-
-    }
-
-    gene_names_list <- sp_cor_cluster$gene_names_list
-
-    cluster_names <-
-      confuns::check_vector(
-        input = cluster_names,
-        against = base::names(sp_cor_cluster$gene_names_list),
-        ref.input = "cluster names",
-        ref.against = "valid valid cluster names."
-      )
-
-    res_genes <-
-      purrr::map(.x = cluster_names, .f = ~ gene_names_list[[.x]]) %>%
-      purrr::set_names(nm = cluster_names)
-
-    if(base::isTRUE(simplify) && base::length(res_genes) >= 2){
-
-      res_genes <-
-        purrr::imap(.x = res_genes, .f = function(x, cluster_name){
-
-          base::names(x) <-
-            base::rep(x = cluster_name, base::length(x))
-
-          base::return(x)
-
-        }) %>%
-        purrr::flatten_chr()
-
-    }
-
-  } else {
-
-    base::stop("Either argument 'similar_to' or 'method_hclust' must be specified.")
-
   }
 
+
   base::return(res_genes)
+
+  # -----
 
 }
 

@@ -21,10 +21,25 @@ renameFeatures <- function(object, ..., of_sample = NA){
 
   rename_input <- confuns::keep_named(c(...))
 
-  valid_feature_names <-
-    check_features(object = object, features = rename_input, of_sample = of_sample)
+  if("segmentation" %in% rename_input){
 
-  valid_rename_input <- rename_input[rename_input %in% valid_feature_names]
+    msg <- "Feature 'segmentation' must not be renamed."
+
+    confuns::give_feedback(
+      fdb.fn = "stop",
+      msg = msg,
+      with.time = FALSE
+    )
+
+  }
+
+  confuns::check_one_of(
+    input = rename_input,
+    against = getFeatureNames(object, of_sample = of_sample),
+    ref.input = "features to be renamed"
+  )
+
+  valid_rename_input <- rename_input
 
   #assign("valid_rename_input", value = valid_rename_input, envir = .GlobalEnv)
 
@@ -69,7 +84,9 @@ renameFeatures <- function(object, ..., of_sample = NA){
 #' @title Rename cluster/group names
 #'
 #' @description Allows to rename groups within a discrete grouping variable (such as
-#' cluster variables) of the feature data in slot @@fdata.
+#' cluster variables) of the feature data in slot @@fdata as well as in slot @@dea
+#' where differential gene expression analysis results are stored. Use \code{renameSegments()}
+#' to rename already drawn segments.
 #'
 #' @inherit check_sample params
 #' @param discrete_feature Character value. The grouping variable of interest.
@@ -160,6 +177,79 @@ renameGroups <- function(object, discrete_feature, ..., of_sample = NA){
   base::return(object)
 
 }
+
+#' @rdname renameGroups
+#' @export
+renameSegments <- function(object, ..., of_sample = NA){
+
+  check_object(object)
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  rename_input <- confuns::keep_named(c(...))
+
+  if(base::length(rename_input) == 0){
+
+    msg <- renaming_hint
+
+    confuns::give_feedback(
+      msg = msg,
+      fdb.fn = "stop"
+    )
+
+  }
+
+  feature_df <- getFeatureDf(object, of_sample = of_sample)
+
+  valid_rename_input <-
+    confuns::check_vector(
+      input = base::unname(rename_input),
+      against = base::unique(feature_df[["segmentation"]]),
+      fdb.fn = "stop",
+      ref.input = "segments to rename",
+      ref.against = glue::glue("all segments. ({renaming_hint})")
+    )
+
+  rename_input <- rename_input[rename_input %in% valid_rename_input]
+
+  # rename feature df
+  renamed_feature_df <-
+    dplyr::mutate(
+      .data = feature_df,
+      segmentation = base::factor(x = segmentation),
+      segmentation = forcats::fct_recode(.f = segmentation, !!!rename_input),
+      segmentation = base::as.character(x = segmentation)
+    )
+
+  # rename dea list
+  dea_list <- object@dea[[of_sample]][["segmentation"]]
+
+  if(!base::is.null(dea_list)){
+
+    object@dea[[of_sample]][["segmentation"]] <-
+      purrr::map(
+        .x = dea_list,
+        .f = function(method){
+
+          new_df <-
+            dplyr::mutate(
+              .data = method$data,
+              segmentation = forcats::fct_recode(.f = segmentation, !!!rename_input)
+            )
+
+          list(data = new_df, adjustments = method$adjustments)
+
+        }
+      ) %>%
+      purrr::set_names(nm = base::names(dea_list))
+
+  }
+
+  object <- setFeatureDf(object, feature_df = renamed_feature_df, of_sample = of_sample)
+
+  base::return(object)
+
+}
+
 
 
 

@@ -2,6 +2,7 @@
 % Please edit documentation in R/get-family.R
 \name{getDeaResultsDf}
 \alias{getDeaResultsDf}
+\alias{getDeaGenes}
 \title{Obtain de-analysis results}
 \usage{
 getDeaResultsDf(
@@ -13,6 +14,17 @@ getDeaResultsDf(
   max_adj_pval = NULL,
   n_highest_lfc = NULL,
   n_lowest_pval = NULL,
+  of_sample = NA
+)
+
+getDeaGenes(
+  object,
+  across,
+  across_subset = NULL,
+  method_de = "wilcox",
+  max_adj_pval = NULL,
+  n_highest_lfc = 50,
+  n_lowest_pval = 50,
   of_sample = NA
 )
 }
@@ -56,23 +68,27 @@ A data.frame:
 
 \itemize{
   \item{\emph{gene}} Character. The differentially expressed genes.
-  \item{\emph{cluster}} Character. The clusters (or experimental groups) across which the analysis was performed.
+  \item{\emph{'across'}} Character. The grouping across which the analysis was performed. The variable/column name is
+  equal to the input for argument \code{across}.
   \item{\emph{avg_logFC}} Numeric. The average log-fold change to which the belonging gene was differentially expressed..
   \item{\emph{p_val}} Numeric. The p-values.
   \item{\emph{p_val_adj}} Numeric. The adjusted p-values.
  }
 }
 \description{
-Obtain de-analysis results
+A convenient way to extract the differential gene expression
+analysis results. Function \code{getDeaGenes()} is a wrapper around
+\code{getDeaResultsDf()} and returns only gene names in a character vector.
+See details for more.
 }
 \details{
 The de-data.frame is processed such that the following steps are performed for every experimental
-group. (With "genes" we refer to the rows (observations) of \code{data}.)
+group.
 
 \enumerate{
  \item{Discards genes with \emph{avg_logFC}-values that are either infinite or negative}
  \item{Discards genes with adjusted p-values above the threshold set with \code{max_adj_pval}}
- \item{Slices the data.frame in order that for every unique cluster of the \emph{cluster}-variable}:
+ \item{Slices the data.frame in order that for every experimental group:}
  \enumerate{
   \item{the n genes with the highest \emph{avg_logFC}-values are kept where n = \code{n_highest_lfc}}
   \item{the n genes with the lowest \emph{p_val_adj}-values are kept where n = \code{n_lowest_pval}}

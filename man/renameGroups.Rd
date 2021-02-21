@@ -2,9 +2,12 @@
 % Please edit documentation in R/rename-family.R
 \name{renameGroups}
 \alias{renameGroups}
+\alias{renameSegments}
 \title{Rename cluster/group names}
 \usage{
 renameGroups(object, discrete_feature, ..., of_sample = NA)
+
+renameSegments(object, ..., of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -22,7 +25,9 @@ An updated spata-object.
 }
 \description{
 Allows to rename groups within a discrete grouping variable (such as
-cluster variables) of the feature data in slot @fdata.
+cluster variables) of the feature data in slot @fdata as well as in slot @dea
+where differential gene expression analysis results are stored. Use \code{renameSegments()}
+to rename already drawn segments.
 }
 \examples{
 #Not run:

@@ -97,7 +97,7 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 
 plotTrajectory <- function(object,
                            trajectory_name,
-                           color_to = NULL,
+                           color_by = NULL,
                            method_gs = NULL,
                            smooth = NULL,
                            smooth_span = NULL,
@@ -128,9 +128,9 @@ plotTrajectory <- function(object,
 
   check_trajectory(object, trajectory_name, of_sample)
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
-    color_to <- check_color_to(color_to = color_to,
+    color_by <- check_color_to(color_to = color_by,
                                all_gene_sets = getGeneSets(object),
                                all_genes = getGenes(object),
                                all_features = getFeatureNames(object))
@@ -152,47 +152,47 @@ plotTrajectory <- function(object,
   bc_traj <- dplyr::pull(.data = trajectory_ctdf, var = "barcodes")
 
   background_df <-
-    getCoordinates(object, of_sample = of_sample) %>%
+    getCoordsDf(object, of_sample = of_sample) %>%
     dplyr::mutate(trajectory = dplyr::if_else(barcodes %in% bc_traj, "yes", "no"))
 
 
   # 3. Determine additional layers ------------------------------------------
 
   # if of length one and feature
-  if("features" %in% base::names(color_to)){
+  if("features" %in% base::names(color_by)){
 
-    labs_add_on <- hlpr_labs_add_on(input = color_to, input_str = "Feature:",
-                                    color_str = color_to,
+    labs_add_on <- hlpr_labs_add_on(input = color_by, input_str = "Feature:",
+                                    color_str = color_by,
                                     display_title = display_title)
 
-    color_to_value <- base::unlist(color_to, use.names = FALSE)
+    color_by_value <- base::unlist(color_by, use.names = FALSE)
 
     # if of length one and gene set
-  } else if("gene_sets" %in% base::names(color_to)){
+  } else if("gene_sets" %in% base::names(color_by)){
 
     # labs-add-on
-    labs_add_on <- hlpr_labs_add_on(input = color_to$gene_sets,
+    labs_add_on <- hlpr_labs_add_on(input = color_by$gene_sets,
                                     input_str = "Gene set:",
-                                    color_str = hlpr_gene_set_name(color_to$gene_sets),
+                                    color_str = hlpr_gene_set_name(color_by$gene_sets),
                                     display_title = display_title)
 
-    color_to_value <- base::unlist(color_to, use.names = FALSE)
+    color_by_value <- base::unlist(color_by, use.names = FALSE)
 
-  } else if("genes" %in% base::names(color_to)){
+  } else if("genes" %in% base::names(color_by)){
 
-    color_str <- base::ifelse(test = base::length(color_to$genes) == 1,
-                              yes = color_to$genes,
+    color_str <- base::ifelse(test = base::length(color_by$genes) == 1,
+                              yes = color_by$genes,
                               no = "Mean expr.\nscore")
 
-    color_to_value <- "mean_genes"
+    color_by_value <- "mean_genes"
 
     # labs-add-on
-    labs_add_on <- hlpr_labs_add_on(input = color_to,
+    labs_add_on <- hlpr_labs_add_on(input = color_by,
                                     input_str = "Genes:",
                                     color_str = color_str,
                                     display_title = display_title)
 
-  } else if(base::is.null(color_to)){
+  } else if(base::is.null(color_by)){
 
     coords_df <- dplyr::filter(background_df, barcodes %in% bc_traj)
 
@@ -214,12 +214,12 @@ plotTrajectory <- function(object,
 
   }
 
-  if(!base::is.null(color_to)){
+  if(!base::is.null(color_by)){
 
     background_df <-
       joinWithVariables(object = object,
                         spata_df = background_df,
-                        variables = color_to,
+                        variables = color_by,
                         method_gs = method_gs,
                         average_genes = TRUE,
                         uniform_genes = uniform_genes,
@@ -230,12 +230,12 @@ plotTrajectory <- function(object,
     ggplot_add_on <- list(
       ggplot2::geom_point(data = background_df, size = pt_size,
                           mapping = ggplot2::aes(x = x,  y = y, alpha = trajectory,
-                                                 color = .data[[color_to_value]])),
+                                                 color = .data[[color_by_value]])),
       ggplot2::scale_alpha_manual(values = c("yes" = 1, "no" = pt_alpha), guide = FALSE),
       confuns::scale_color_add_on(aes = "color",
                                   clrsp = pt_clrsp,
                                   clrp = pt_clrp,
-                                  variable = dplyr::pull(background_df, color_to_value))
+                                  variable = dplyr::pull(background_df, color_by_value))
     )
 
   }
@@ -335,9 +335,6 @@ plotTrajectoryFeatures <- function(object,
 
 
   if(base::isTRUE(display_trajectory_parts)){
-
-    print(result_df)
-
 
     vline_df <-
       result_df %>%

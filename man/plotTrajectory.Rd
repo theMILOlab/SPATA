@@ -7,7 +7,7 @@
 plotTrajectory(
   object,
   trajectory_name,
-  color_to = NULL,
+  color_by = NULL,
   method_gs = NULL,
   smooth = NULL,
   smooth_span = NULL,
@@ -30,6 +30,15 @@ plotTrajectory(
 
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
+
+\item{color_by}{The variable to be displayed by color:
+
+ \itemize{
+  \item{ \strong{Gene set} as a single character value. Must be in \code{getGeneSets()}}
+  \item{ \strong{Genes} as a character vector. If more than one gene is specified the average
+  expression of those genes will be calculated and displayed. Must be in \code{getGenes()}}
+  \item{ \strong{Feature} as a single character value. Must be in \code{getFeaturenNames()}}
+  }}
 
 \item{method_gs}{Character value. The method according to which gene sets will be handled
 specified as a character of length one. This can be either \emph{'mean'} or one

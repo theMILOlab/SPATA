@@ -2031,10 +2031,10 @@ plotSegmentation <- function(object,
   # data extraction
   plot_df <-
     getCoordsDf(object, of_sample = of_sample) %>%
-    joinWithFeatures(object, spata_df = ., features = "segment", verbose = FALSE)
+    joinWithFeatures(object, spata_df = ., features = "segmentation", verbose = FALSE)
 
   segment_df <-
-    dplyr::filter(plot_df, !segment %in% c("", "none")) %>%
+    dplyr::filter(plot_df, !segmentation %in% c("", "none")) %>%
     tidyr::drop_na()
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
@@ -2042,7 +2042,7 @@ plotSegmentation <- function(object,
   if(base::isTRUE(encircle)){
 
     encircle_add_on <-
-      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segment, fill = segment))
+      ggforce::geom_mark_hull(data = segment_df, mapping = ggplot2::aes(x = x, y = y, color = segmentation, fill = segmentation))
 
 
   } else {
@@ -2054,7 +2054,7 @@ plotSegmentation <- function(object,
   # plotting
   ggplot2::ggplot() +
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
-    ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segment)) +
+    ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segmentation)) +
     encircle_add_on +
     confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
     confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp) +
