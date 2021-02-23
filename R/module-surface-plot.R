@@ -622,21 +622,6 @@ moduleSurfacePlotServer <- function(id,
 
           base::return(smoothed_df)
 
-        } else {
-
-          if(current$color_code %in% c("genes", "gene_sets")){
-
-            purrr::imap_dfr(.x = joined_df(),
-                            .f = hlpr_normalize_imap,
-                            aspect = "",
-                            subset = variable() %>%
-                              base::return()
-            )
-
-          } else {
-
-            joined_df() %>% base::return()
-
           }
 
         }
