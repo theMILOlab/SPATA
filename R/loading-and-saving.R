@@ -314,7 +314,7 @@ initiateSpataObject_10X <- function(input_paths,
                rownames(seurat_object@assays$RNA)[base::grepl("^MT-", rownames(seurat_object@assays$RNA))],
                c('JUN','FOS','ZFP36','ATF3','HSPA1A","HSPA1B','DUSP1','EGR1','MALAT1'))
 
-  feat_keep <- base::rownames(seurat_object@assays$RNA[!(base::rownames(seurat_object@assays$RNA) %in% exclude), ])
+  feat_keep <- base::rownames(seurat_object@assays$Spatial[!(base::rownames(seurat_object@assays$Spatial) %in% exclude), ])
 
   seurat_object <- base::subset(x = seurat_object, features = feat_keep)
 
