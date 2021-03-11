@@ -76,7 +76,8 @@ plotCustomizedTrajectoryTrends <- function(customized_trends,
 #' @title Plot trajectory
 #'
 #' @description Displays the spatial course of spatial trajectory that was
-#' drawn with \code{SPATA::createTrajectories()}.
+#' drawn with \code{SPATA::createTrajectories()}. Increase the transparency
+#' via argument \code{pt_alpha} to highlight the trajectory's course.
 #'
 #' @inherit argument_dummy params
 #' @inherit check_color_to params
@@ -235,7 +236,8 @@ plotTrajectory <- function(object,
       confuns::scale_color_add_on(aes = "color",
                                   clrsp = pt_clrsp,
                                   clrp = pt_clrp,
-                                  variable = dplyr::pull(background_df, color_by_value))
+                                  variable = dplyr::pull(background_df, color_by_value)),
+      hlpr_adjust_legend_size(variable = background_df[[color_by_value]], aes = "color", pt_size = pt_size)
     )
 
   }
@@ -275,10 +277,10 @@ plotTrajectory <- function(object,
 #' @param display_trajectory_parts Logical. If set to TRUE the returned plot
 #' visualizes the parts in which the trajectory has been partitioned while beeing
 #' drawn.
-#' @param split Logical. If set to TRUE sub plots for every specified gene, gene-set
+#' @param display_facets Logical. If set to TRUE sub plots for every specified gene, gene-set
 #' or feature are displayed via \code{ggplot2::facet_wrap()}
 #' @param ... Additional arguments given to \code{ggplot2::facet_wrap()} if argument
-#' \code{split} is set to TRUE.
+#' \code{display_facets} is set to TRUE.
 #'
 #' @inherit ggplot_family return
 #'
@@ -294,7 +296,7 @@ plotTrajectoryFeatures <- function(object,
                                    clrp = NULL,
                                    clrp_adjust = NULL,
                                    display_trajectory_parts = NULL,
-                                   split = NULL,
+                                   display_facets = NULL,
                                    verbose = NULL,
                                    of_sample = NA,
                                    ...){
@@ -356,7 +358,7 @@ plotTrajectoryFeatures <- function(object,
   }
 
 
-  if(base::isTRUE(split)){
+  if(base::isTRUE(display_facets)){
 
     facet_add_on <-
       list(
@@ -404,7 +406,7 @@ plotTrajectoryGenes <- function(object,
                                 smooth_se = NULL,
                                 smooth_span = NULL,
                                 display_trajectory_parts = NULL,
-                                split = NULL,
+                                display_facets = NULL,
                                 verbose = NULL,
                                 of_sample = NA,
                                 ...){
@@ -531,7 +533,7 @@ plotTrajectoryGenes <- function(object,
     trajectory_part_add_on <- NULL
   }
 
-  if(base::isTRUE(split)){
+  if(base::isTRUE(display_facets)){
 
     facet_add_on <-
       list(
@@ -582,7 +584,7 @@ plotTrajectoryGeneSets <- function(object,
                                    clrp = NULL,
                                    clrp_adjust = NULL,
                                    display_trajectory_parts = NULL,
-                                   split = NULL,
+                                   display_facets = NULL,
                                    verbose = NULL,
                                    of_sample = NA,
                                    ...){
@@ -643,7 +645,7 @@ plotTrajectoryGeneSets <- function(object,
     trajectory_part_add_on <- NULL
   }
 
-  if(base::isTRUE(split)){
+  if(base::isTRUE(display_facets)){
 
     facet_add_on <-
       list(
@@ -737,7 +739,12 @@ plotTrajectoryFeaturesDiscrete <- function(object,
   plot_df <-
     dplyr::mutate(.data = joined_df,
                   order_binned = plyr::round_any(x = projection_length, accuracy = binwidth, f = base::floor),
-                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_"))
+                  trajectory_order = stringr::str_c(trajectory_part, order_binned, sep = "_")
+                  )
+
+  plot_df$trajectory_order <-
+    plot_df$trajectory_order %>%
+    base::factor(levels = base::unique(plot_df$trajectory_order))
 
   if(base::isTRUE(display_trajectory_parts)){
 
@@ -924,11 +931,10 @@ plotTrajectoryHeatmap <- function(object,
 
   if(base::isTRUE(smooth)){
 
-    if(verbose){
-
-      base::message(glue::glue("Smoothing values with smoothing span: {smooth_span}."))
-
-    }
+    confuns::give_feedback(
+      msg = glue::glue("Smoothing values with smoothing span: {smooth_span}."),
+      verbose = verbose
+    )
 
     for(i in 1:base::nrow(mtr)){
 
@@ -951,7 +957,7 @@ plotTrajectoryHeatmap <- function(object,
 
     mtr_smoothed <-
       confuns::arrange_rows(df = base::as.data.frame(mtr_smoothed),
-                            according_to = arrange_rows,
+                            according.to = arrange_rows,
                             verbose = verbose) %>% base::as.matrix()
 
   }

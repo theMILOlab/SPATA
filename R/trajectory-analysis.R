@@ -62,7 +62,7 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
   # add residuals to data.frame
   if(base::isTRUE(verbose)){
 
-    base::message("Fitting models.")
+    confuns::give_feedback(msg = "Fitting models.")
 
     pb_add <- progress::progress_bar$new(
       format = "Progress: [:bar] :percent eta: :eta",
@@ -84,7 +84,7 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
   # rank data.frame
   if(base::isTRUE(verbose)){
 
-    base::message("Calculating residuals.")
+    confuns::give_feedback(msg = "Calculating residuals.")
 
     pb_calc <- progress::progress_bar$new(
       format = "Progress: [:bar] :percent eta: :eta",
@@ -105,7 +105,7 @@ hlpr_rank_trajectory_trends <- function(stdf, verbose = TRUE){
 
   # -----
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done", verbose = verbose)
 
   return(ranked_df)
 
@@ -136,7 +136,7 @@ hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customi
   # add residuals to data.frame
   if(base::isTRUE(verbose)){
 
-    base::message("Fitting models.")
+    confuns::give_feedback(msg = "Fitting models.")
 
     pb_add <- progress::progress_bar$new(
       format = "Progress: [:bar] :percent eta: :eta",
@@ -162,7 +162,7 @@ hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customi
   # rank data.frame
   if(base::isTRUE(verbose)){
 
-    base::message("Calculating residuals.")
+    confuns::give_feedback(msg = "Calculating residuals.")
 
     pb_calc <- progress::progress_bar$new(
       format = "Progress: [:bar] :percent eta: :eta",
@@ -183,7 +183,7 @@ hlpr_rank_trajectory_trends_customized <- function(stdf, verbose = TRUE, customi
 
   # -----
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done", verbose = verbose)
 
   return(ranked_df)
 
@@ -217,7 +217,10 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
   # 2. Data wrangling -------------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Assessing trajectory trends.")}
+  confuns::give_feedback(
+    msg = "Assessing trajectory trends." ,
+    verbose = verbose
+  )
 
   arranged_df <-
     dplyr::select(.data = rtdf, -data, -residuals) %>%
@@ -233,7 +236,7 @@ hlpr_assess_trajectory_trends <- function(rtdf, verbose = TRUE){
 
   # -----
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done", verbose = verbose)
 
   base::return(arranged_df)
 
@@ -251,7 +254,7 @@ hlpr_assess_trajectory_trends_customized <- function(rtdf, verbose = TRUE){
 
   # 2. Data wrangling -------------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Assessing trajectory trends.")}
+  confuns::give_feedback(msg = "Assessing trajectory trends.", verbose = verbose)
 
   arranged_df <-
     dplyr::select(.data = rtdf, -data, -residuals) %>%
@@ -267,7 +270,7 @@ hlpr_assess_trajectory_trends_customized <- function(rtdf, verbose = TRUE){
 
   # -----
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   base::return(arranged_df)
 
@@ -292,6 +295,8 @@ hlpr_assess_trajectory_trends_customized <- function(rtdf, verbose = TRUE){
 
 filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE){
 
+  warning("filterTrends() is deprecated. Please use filterTrajectoryTrends()")
+
   check_atdf(atdf)
 
   all_patterns <-
@@ -313,6 +318,56 @@ filterTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE)
                         verbose = TRUE,
                         ref.input = "argument 'trends'",
                         ref.against = "known trajectory trends")
+
+  if(base::isTRUE(variables_only)){
+
+    res <-
+      hlpr_filter_trend(atdf = atdf,
+                        limit = limit,
+                        poi = trends) # poi = patterns of interest
+
+  } else {
+    res <-
+      dplyr::filter(.data = atdf, pattern %in% trends) %>%
+      dplyr::filter(auc <= limit) %>%
+      dplyr::group_by(variables) %>%
+      dplyr::slice_head(n = 1) %>%
+      dplyr::ungroup() %>%
+      dplyr::group_by(pattern) %>%
+      dplyr::arrange(auc, .by_group = TRUE)
+
+  }
+
+  base::return(res)
+
+}
+
+
+#' @rdname filterTrends
+#' @export
+filterTrajectoryTrends <- function(atdf, limit = 5, trends = "all", variables_only = TRUE){
+
+  check_atdf(atdf)
+
+  all_patterns <-
+    dplyr::pull(atdf, var = "pattern") %>%
+    base::unique()
+
+  trajectory_patterns <- c(all_patterns, trajectory_patterns)
+
+  if(base::all(trends == "all")){
+
+    trends <- trajectory_patterns
+
+  }
+
+
+  confuns::is_vec(x = trends, mode = "character", "trends")
+  trends <- confuns::check_vector(input = trends,
+                                  against = trajectory_patterns,
+                                  verbose = TRUE,
+                                  ref.input = "argument 'trends'",
+                                  ref.against = "known trajectory trends")
 
   if(base::isTRUE(variables_only)){
 
@@ -393,13 +448,16 @@ shiftTrajectoryDf <- function(stdf, shift = "wider"){
 #' by assessing the quality of each fit.
 #'
 #' \itemize{
-#'  \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
+#'  \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and assembles
 #'  the needed summarized trajectory data.frame from scratch.}
 #'  \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
 #'  returned by \code{getTrajectoryDf()}.}
 #'  \item{\code{assessTrajectoryTrendsCustomized()}: Takes a valid spata-object as well as
-#'  a data.frame or list of customized models against which to fit the variables and constructs
+#'  a data.frame or list of customized models against which to fit the variables. It assembles
 #'  the needed summarized trajectory data.frame from scratch.}
+#'  \item{\code{assessTrajectoryTrendsCustomized2()}: Takes a summarized trajectory data.frame
+#'  returned by \code{getTrajectoryDf()} as well as a data.frame or list of customized
+#'  models against which to fit the variables.}
 #'  }
 #'
 #' @inherit argument_dummy params
@@ -416,10 +474,10 @@ shiftTrajectoryDf <- function(stdf, shift = "wider"){
 
 assessTrajectoryTrends <- function(object,
                                    trajectory_name,
-                                   of_sample = "",
                                    variables,
                                    binwidth = 5,
-                                   verbose = TRUE){
+                                   verbose = TRUE,
+                                   of_sample = NA){
 
 
   # 1. Control --------------------------------------------------------------
@@ -477,15 +535,15 @@ assessTrajectoryTrends2 <- function(stdf, verbose = TRUE){
 #' @export
 assessTrajectoryTrendsCustomized <- function(object,
                                              trajectory_name,
-                                             of_sample = "",
                                              customized_trends,
                                              variables,
                                              binwidth = 5,
-                                             verbose = TRUE){
+                                             verbose = TRUE,
+                                             of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
 
-  if(base::isTRUE(verbose)){ base::message("Checking input validity.")}
+  confuns::give_feedback(msg = "Checking input validity.", verbose = verbose)
 
   check_object(object)
 

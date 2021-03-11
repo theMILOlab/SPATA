@@ -11,7 +11,7 @@
 #'
 
 process_seurat_object <- function(seurat_object,
-                                  assay = "RNA",
+                                  assay_name = NULL,
                                   calculate_rb_and_mt = TRUE,
                                   remove_stress_and_mt = TRUE,
                                   SCTransform = FALSE,
@@ -29,6 +29,23 @@ process_seurat_object <- function(seurat_object,
 
   base::stopifnot(methods::is(object = seurat_object, class2 = "Seurat"))
 
+  confuns::is_value(x = assay_name, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  if(base::is.null(assay_name)){
+
+    assay_name <- base::names(seurat_object@assays)
+
+    if(base::length(assay_name) != 1){
+
+      msg <- glue::glue("Found more than one assay in provided seurat-object. Please specify one of the options '{ref_assays}' using argument 'assay_name'.",
+                        ref_assays = glue::glue_collapse(x = assay_name, sep = "', '", last = "' or '"))
+
+      confuns::give_feedback(msg = msg, fdb.fn = "stop")
+
+    }
+
+  }
+
   for(fn in seurat_process_fns){
 
     input <- base::parse(text = fn) %>% base::eval()
@@ -44,11 +61,9 @@ process_seurat_object <- function(seurat_object,
   # calculate ribosomal and mitochondrial percentage
   if(base::isTRUE(calculate_rb_and_mt)){
 
-    if(base::isTRUE(verbose)){
+    msg <- "Calculating percentage of ribosomal and mitochondrial genes."
 
-      base::message("Calculating percentage of ribosomal and mitochondrial genes.")
-
-    }
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     seurat_object[["percent.mt"]] <- Seurat::PercentageFeatureSet(seurat_object, pattern = "^MT.")
     seurat_object[["percent.RB"]] <- Seurat::PercentageFeatureSet(seurat_object, pattern = "^RPS")
@@ -58,18 +73,16 @@ process_seurat_object <- function(seurat_object,
   # remove stress and mitochondrial genes
   if(base::isTRUE(remove_stress_and_mt)){
 
-    if(base::isTRUE(verbose)){
+    msg <- "Removing stress genes and mitochondrial genes."
 
-      base::message("Removing stress genes and mitochondrial genes.")
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
-    }
-
-    exclude <- c(rownames(seurat_object@assays[[assay]])[base::grepl("^RPL", rownames(seurat_object@assays[[assay]]))],
-                 rownames(seurat_object@assays[[assay]])[base::grepl("^RPS", rownames(seurat_object@assays[[assay]]))],
-                 rownames(seurat_object@assays[[assay]])[base::grepl("^MT-", rownames(seurat_object@assays[[assay]]))],
+    exclude <- c(base::rownames(seurat_object@assays[[assay_name]])[base::grepl("^RPL", base::rownames(seurat_object@assays[[assay_name]]))],
+                 base::rownames(seurat_object@assays[[assay_name]])[base::grepl("^RPS", base::rownames(seurat_object@assays[[assay_name]]))],
+                 base::rownames(seurat_object@assays[[assay_name]])[base::grepl("^MT-", base::rownames(seurat_object@assays[[assay_name]]))],
                  c('JUN','FOS','ZFP36','ATF3','HSPA1A","HSPA1B','DUSP1','EGR1','MALAT1'))
 
-    feat_keep <- base::rownames(seurat_object@assays[[assay]][!(base::rownames(seurat_object@assays[[assay]]) %in% exclude), ])
+    feat_keep <- base::rownames(seurat_object@assays[[assay_name]][!(base::rownames(seurat_object@assays[[assay_name]]) %in% exclude), ])
 
     seurat_object <- base::subset(x = seurat_object, features = feat_keep)
 
@@ -89,7 +102,9 @@ process_seurat_object <- function(seurat_object,
 
     if(base::isTRUE(input)){
 
-      if(base::isTRUE(verbose)){base::message(glue::glue("Running 'Seurat::{fn}()' with default parameters."))}
+      msg <- glue::glue("Running 'Seurat::{fn}()' with default parameters.")
+
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
       args <- base::list("object" = seurat_object)
 
@@ -109,7 +124,9 @@ process_seurat_object <- function(seurat_object,
 
         error = function(error){
 
-          base::message(glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function."))
+          msg <- glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function.")
+
+          confuns::give_feedback(msg = msg, verbose = TRUE)
 
           base::return(seurat_object)
 
@@ -118,7 +135,9 @@ process_seurat_object <- function(seurat_object,
     } else if(base::is.list(input) &
               !base::is.data.frame(input)){
 
-      if(base::isTRUE(verbose)){base::message(glue::glue("Running 'Seurat::{fn}()' with specified parameters."))}
+      msg <- glue::glue("Running 'Seurat::{fn}()' with specified parameters.")
+
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
       args <- purrr::prepend(x = input, values = seurat_object)
 
@@ -138,7 +157,9 @@ process_seurat_object <- function(seurat_object,
 
         error = function(error){
 
-          base::message(glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function."))
+          msg <- glue::glue("Running'Seurat::{fn}()' resulted in the following error: {error$message}. Abort and continue with next function.")
+
+          confuns::give_feedback(msg = msg, verbose = TRUE)
 
           base::return(seurat_object)
 
@@ -148,7 +169,9 @@ process_seurat_object <- function(seurat_object,
 
     } else {
 
-      if(base::isTRUE(verbose)){base::message(glue::glue("Skip running '{fn}()' as it's argument input is neither TRUE nor a list."))}
+      msg <- glue::glue("Skip running '{fn}()' as it's argument input is neither TRUE nor a list.")
+
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
     }
 

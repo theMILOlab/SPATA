@@ -61,8 +61,28 @@ renameFeatures <- function(object, ..., of_sample = NA){
 
       for(dea_name in dea_names){
 
+        # rename list slots
+        new_name <- base::names(dea_names)[dea_names == dea_name]
+
         base::names(dea_list)[base::names(dea_list) == dea_name] <-
-          base::names(dea_names)[dea_names == dea_name]
+          new_name
+
+        # rename dea data.frames
+        dea_list[[new_name]] <-
+          purrr::map(
+            .x = dea_list[[new_name]],
+            .f = function(method){
+
+              df <- method$data
+
+              base::names(df)[base::names(df) == dea_name] <- new_name
+
+              res_list <- list( data = df, adjustments = method$adjustments)
+
+              base::return(res_list)
+
+            }
+            )
 
       }
 

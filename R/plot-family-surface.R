@@ -43,6 +43,7 @@ plotSurface <- function(object,
                         pt_clrp = NULL,
                         pt_clrsp = NULL,
                         pt_size = NULL,
+                        clrp_adjust = NULL,
                         display_image = NULL,
                         display_title = NULL,
                         complete = NULL,
@@ -101,6 +102,8 @@ plotSurface <- function(object,
                      smooth_span = smooth_span,
                      verbose = verbose,
                      complete = complete,
+                     clrp.adjust = c("subs.by.segm" = "lightgrey", clrp_adjust),
+                     display_title = display_title,
                      ...)
 
   # -----
@@ -342,7 +345,8 @@ plotSurfaceInteractive <- function(object){
 #'
 #' @inherit plotSurface params return
 #'
-#' @param color_by A named list in which each element is a vector of gene names.
+#' @param color_by A character vector of gene names or a
+#' named list in which each element is a vector of gene names.
 #'
 #' @export
 #'
@@ -368,11 +372,19 @@ plotSurfaceAverage <- function(object,
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
-  confuns::is_list(input = color_by)
+  if(confuns::is_list(input = color_by)){
+
+    color_by <- confuns::keep_named(input = color_by)
+
+  } else if(base::is.vector(x = color_by, mode = "character")) {
+
+    color_by <- list("Averaged Expression" = color_by)
+
+  }
 
   plot_df <-
     purrr::imap_dfr(
-      .x = confuns::keep_named(input = color_by),
+      .x = color_by,
       .f = function(genes, gene_set_name){
 
         joinWith(
@@ -394,7 +406,8 @@ plotSurfaceAverage <- function(object,
     ggplot2::geom_point(alpha = pt_alpha, size = pt_size) +
     ggplot2::theme_void() +
     ggplot2::facet_wrap(. ~ name) +
-    scale_color_add_on(clrsp = pt_clrsp)
+    scale_color_add_on(clrsp = pt_clrsp) +
+    ggplot2::labs(color = "Expr.")
 
 
 }
@@ -456,7 +469,6 @@ plotSurfaceComparison <- function(object,
                                all_genes = all_genes,
                                all_features = all_features,
                                simplify = FALSE)
-
   # -----
 
   # 2. Extract and join data ------------------------------------------------
@@ -487,7 +499,10 @@ plotSurfaceComparison <- function(object,
 
   # plotting
 
-  if(base::isTRUE(verbose)){base::message(glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"))}
+  confuns::give_feedback(
+    msg = glue::glue("Plotting {n_variables} different variables. (This can take a few seconds.)"),
+    verbose = verbose
+    )
 
   ggplot2::ggplot(data = plot_df, mapping = ggplot2::aes(x = x, y = y)) +
     hlpr_image_add_on(object, display_image, of_sample) +

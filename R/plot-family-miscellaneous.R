@@ -471,17 +471,26 @@ plotGeneMetaData <- function(object,
 #' @inherit argument_dummy params
 #' @inherit check_pt params
 #' @inherit check_sample params
+#' @inherit check_smooth params
 #' @inherit ggplot_family return
+#'
+#' @param ... Additional arguments given to \code{ggplot2::geom_smooth()}.
 #'
 #' @export
 
 plotScatterplot <- function(object,
                             variables,
+                            smooth = NULL,
+                            smooth_clr = NULL,
+                            smooth_method = NULL,
+                            smooth_se = NULL,
+                            smooth_span = NULL,
                             pt_alpha = NULL,
                             pt_clr = NULL,
                             pt_size = NULL,
                             verbose = NULL,
-                            of_sample = NA){
+                            of_sample = NA,
+                            ...){
 
   hlpr_assign_arguments(object)
 
@@ -499,21 +508,35 @@ plotScatterplot <- function(object,
   plot_df <-
     joinWithVariables(
       object = object,
-      spata_df = getCoordinates(object, of_sample),
+      spata_df = getCoordsDf(object, of_sample),
       verbose = verbose,
       variables = variables
     )
 
   variables <- purrr::flatten_chr(variables) %>% base::unname()
 
+  if(base::isTRUE(smooth)){
+
+    smooth_add_on <-
+      ggplot2::geom_smooth(se = smooth_se, span = smooth_span,
+                           method = smooth_method, color = smooth_clr,
+                           formula = y ~ x, ...)
+
+  } else {
+
+    smooth_add_on <- NULL
+
+  }
+
   ggplot2::ggplot(data = plot_df,
                   mapping = ggplot2::aes(x = .data[[variables[1]]], y = .data[[variables[2]]])) +
     ggplot2::geom_point(size = pt_size, alpha = pt_alpha, color = pt_clr) +
+    smooth_add_on +
     ggplot2::theme_bw()
 
 }
 
-
+# -----
 # State plots -------------------------------------------------------------
 
 
@@ -563,7 +586,6 @@ plotFourStates <- function(object,
   hlpr_assign_arguments(object)
 
   check_pt(pt_size, pt_alpha, pt_clrsp)
-  check_assign(assign, assign_name)
   check_method(method_gs = method_gs)
 
   # adjusting check
@@ -582,6 +604,7 @@ plotFourStates <- function(object,
   all_features <- getFeatureNames(object)
 
   if(!base::is.null(color_by)){
+
     color_by <- check_color_to(color_to = color_by,
                                all_features = all_features,
                                all_gene_sets = all_gene_sets,
@@ -639,10 +662,6 @@ plotFourStates <- function(object,
   # -----
 
   # 3. Plotting -------------------------------------------------------------
-
-  hlpr_assign(assign = assign,
-              object = list("point" = data),
-              name = assign_name)
 
   plotFourStates2(data = data,
                  states = states,
@@ -1953,10 +1972,8 @@ plotDeaHeatmap <- function(object,
 
   # 3. Plotting -------------------------------------------------------------
 
-  msg <- base::message("Plotting heatmap. This can take a few seconds.")
-
   confuns::give_feedback(
-    msg = msg,
+    msg = "Plotting heatmap. This can take a few seconds.",
     verbose = verbose
   )
 
@@ -1979,10 +1996,7 @@ plotDeaHeatmap <- function(object,
 
   }
 
-
-    confuns::call_flexibly(
-      fn = "pheatmap", fn.ns = "pheatmap",
-      default = list(mat = expr_mtr,
+  pheatmap::pheatmap(mat = expr_mtr,
                      scale = "row",
                      breaks = breaks_input,
                      annotation_col = annotation_col,
@@ -1993,8 +2007,9 @@ plotDeaHeatmap <- function(object,
                      annotation_names_col = FALSE,
                      annotation_colors = annotation_colors,
                      gaps_row = gaps_row,
-                     gaps_col = gaps_col)
-    )
+                     gaps_col = gaps_col,
+                     ...
+                     )
 
 }
 
@@ -2011,6 +2026,9 @@ plotDeaHeatmap <- function(object,
 #' @inherit check_sample params
 #' @inherit check_pt params
 #' @param encircle Logical. If set to TRUE the segments are enclosed in a polygon.
+#' @param segment_subset Character vector or NULL. If character vector, denotes
+#' the segments that are supposed to be highlighted.
+#' @param ... Additional arguments given to \code{confuns::scale_color_add_on()}.
 #'
 #' @inherit ggplot_family return
 #'
@@ -2018,9 +2036,12 @@ plotDeaHeatmap <- function(object,
 
 plotSegmentation <- function(object,
                              encircle = TRUE,
+                             segment_subset = NULL,
                              pt_size = NULL,
                              pt_clrp = NULL,
-                             of_sample = NA){
+                             clrp_adjust = NULL,
+                             of_sample = NA,
+                             ...){
 
   # control
   hlpr_assign_arguments(object)
@@ -2035,9 +2056,22 @@ plotSegmentation <- function(object,
 
   segment_df <-
     dplyr::filter(plot_df, !segmentation %in% c("", "none")) %>%
-    tidyr::drop_na()
+    tidyr::drop_na() %>%
+    dplyr::mutate(segmentation = base::factor(segmentation))
 
   if(base::nrow(segment_df) == 0){base::stop(glue::glue("Sample {of_sample} has not been segmented yet."))}
+
+  if(base::is.character(segment_subset)){
+
+    confuns::check_one_of(
+      input = segment_subset,
+      against = getSegmentNames(object, of_sample = of_sample)
+    )
+
+    segment_df <-
+      dplyr::filter(segment_df, segmentation %in% {{segment_subset}})
+
+  }
 
   if(base::isTRUE(encircle)){
 
@@ -2056,8 +2090,8 @@ plotSegmentation <- function(object,
     ggplot2::geom_point(data = plot_df, mapping = ggplot2::aes(x = x, y = y), size = pt_size, color = "lightgrey") +
     ggplot2::geom_point(data = segment_df, size = pt_size, mapping = ggplot2::aes(x = x, y = y, color = segmentation)) +
     encircle_add_on +
-    confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = pt_clrp) +
-    confuns::scale_color_add_on(aes = "color", variable = "discrete", clrp = pt_clrp) +
+    confuns::scale_color_add_on(aes = "fill", variable = segment_df$segmentation, clrp = pt_clrp, clrp.adjust = clrp_adjust, ...) +
+    confuns::scale_color_add_on(aes = "color", variable = segment_df$segmentation, clrp = pt_clrp, clrp.adjust = clrp_adjust, ...) +
     ggplot2::theme_void() +
     ggplot2::labs(fill = "Segments", color = "Segments")
 

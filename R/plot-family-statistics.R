@@ -2,7 +2,7 @@
 #'
 #' @description These functions display the distribution of numeric
 #' variables for the whole sample or in a comparative manner if argument
-#' \code{across} is specified. \code{plotViolinplots()} and \code{plotBoxplot}
+#' \code{across} is specified. \code{plotViolinplot()} and \code{plotBoxplot()}
 #' allow for statistical tests such as t-test or ANOVA.
 #'
 #' @inherit across_dummy params
@@ -47,6 +47,7 @@ plotBoxplot <- function(object,
                         ref_group = NULL,
                         step_increase = 0.01,
                         vjust = 0,
+                        display_facets = NULL,
                         scales = "free",
                         nrow = NULL,
                         ncol = NULL,
@@ -98,6 +99,7 @@ plotBoxplot <- function(object,
                         scales = scales,
                         nrow = nrow,
                         ncol = ncol,
+                        display.facets = display_facets,
                         display.points = display_points,
                         pt.alpha = pt_alpha,
                         pt.color = pt_clr,
@@ -120,6 +122,7 @@ plotDensityplot <- function(object,
                             relevel = NULL,
                             clrp = NULL,
                             clrp_adjust = NULL,
+                            display_facets = NULL,
                             scales = "free",
                             nrow = NULL,
                             ncol = NULL,
@@ -158,6 +161,7 @@ plotDensityplot <- function(object,
                         across.subset = across_subset,
                         relevel = relevel,
                         scales = scales,
+                        display.facets = display_facets,
                         nrow = nrow,
                         ncol = ncol,
                         clrp = clrp,
@@ -296,6 +300,7 @@ plotViolinplot <- function(object,
                            test_pairwise = NULL,
                            ref_group = NULL,
                            step_increase = 0.01,
+                           display_facets = NULL,
                            vjust = 0,
                            scales = "free",
                            nrow = NULL,
@@ -346,6 +351,7 @@ plotViolinplot <- function(object,
                        step.increase = step_increase,
                        vjust = vjust,
                        scales = scales,
+                       display.facets = display_facets,
                        nrow = nrow,
                        ncol = ncol,
                        display.points = display_points,
@@ -412,7 +418,9 @@ plotBarchart <- function(object,
                         nrow = nrow,
                         ncol = ncol,
                         clrp = clrp,
-                        clrp.adjust = clrp_adjust)
+                        clrp.adjust = clrp_adjust,
+                        position = position,
+                        ...)
 
 }
 

@@ -345,7 +345,7 @@ setImage <- function(object, image, of_sample = ""){
 #' @return An updated spta-object.
 #' @export
 
-setActiveExpressionMatrix <- function(object, of_sample = "",  mtr_name){
+setActiveExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 
   check_object(object)
   confuns::is_value(x = mtr_name, mode = "character")
@@ -359,7 +359,9 @@ setActiveExpressionMatrix <- function(object, of_sample = "",  mtr_name){
                         against = mtr_names[mtr_names != "counts"],
                         ref.input = "input for argument 'mtr_name'")
 
-  base::message(glue::glue("Active expression matrix set to '{mtr_name}'."))
+  msg <- glue::glue("Active expression matrix set to '{mtr_name}'.")
+
+  confuns::give_feedback(msg = msg)
 
   # set name
   object@information$active_mtr[[of_sample]] <- mtr_name
@@ -408,16 +410,28 @@ setDirectoryInstructions <- function(object){
 #'
 #' @inherit check_object
 #'
+#' @param additional_input A list of named arguments provided by
+#' ... of the calling function.
+#'
 #' @inherit set_dummy return details
 
-setInitiationInfo <- function(object){
+setInitiationInfo <- function(object,
+                              additional_input = list()){
 
   ce <- rlang::caller_env()
 
-  init_call <- rlang::caller_fn()
+  init_fn <- rlang::caller_fn()
+
+  init_frame <- base::sys.parent()
+
+  init_call <- base::sys.call(which = init_frame)
+
+  init_fn_name <- base::as.character(init_call)[1]
 
   init_args <-
-    rlang::fn_fmls_names(fn = init_call)
+    rlang::fn_fmls_names(fn = init_fn)
+
+  init_args <- init_args[init_args != "..."]
 
   init_args_input <-
     purrr::map(
@@ -431,9 +445,15 @@ setInitiationInfo <- function(object){
     ) %>%
     purrr::set_names(nm = init_args)
 
+  init_args_input <-
+    init_args_input[!base::names(init_args_input) %in% c("cds",  "coords_df", "count_mtr", "expr_mtr","seurat_object")]
+
+  init_args_input <-
+    c(init_args_input, additional_input)
+
   initiation_list <- list(
-    init_call = init_call,
-    args = init_args_input,
+    init_fn = init_fn_name,
+    input = init_args_input,
     time = base::Sys.time()
   )
 

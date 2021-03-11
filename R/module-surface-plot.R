@@ -189,7 +189,7 @@ moduleSurfacePlotServer <- function(id,
         ns <- session$ns
 
         shinyWidgets::pickerInput(ns("aes_clr_opts"),
-                                  label = "Color to:",
+                                  label = "Color by:",
                                   choices = c("Gene set" = "gene_sets",
                                               "Genes" = "genes",
                                               "Feature" = "feature"),
@@ -202,7 +202,7 @@ moduleSurfacePlotServer <- function(id,
         ns <- session$ns
 
         shinyWidgets::pickerInput(inputId = ns("aes_clr_opts_detailed"),
-                                  label = "Choose gene set:",
+                                  label = "Choose gene-set:",
                                   choices = all_gene_sets,
                                   selected = all_gene_sets[1],
                                   options = list(`live-search` = TRUE),
@@ -249,15 +249,15 @@ moduleSurfacePlotServer <- function(id,
 
         if(input$aes_clr_opts == "gene_sets"){
 
-          return(select_gene_sets())
+          base::return(select_gene_sets())
 
         } else if(input$aes_clr_opts == "genes"){
 
-          return(select_genes())
+          base::return(select_genes())
 
         } else if(input$aes_clr_opts == "feature"){
 
-          return(select_features())
+          base::return(select_features())
 
         }
 
@@ -286,20 +286,22 @@ moduleSurfacePlotServer <- function(id,
 
         ns <- session$ns
 
+        choices = c(
+          "MILO Research Group" = "milo",
+          "Journal of Oncology" = "jco",
+          "Nature Publishing Group" = "npg",
+          "American Association for the Advancement" = "aaas",
+          "New England Journal of Medicine" = "nejm",
+          "Lancet Oncology" = "lo",
+          "The Journal of the American Medical Association" = "jama",
+          "University of Chicago" = "uc")
+
         shinyWidgets::pickerInput(ns("pt_clrp"),###!
-                           choices = c(
-                             "MILO Research Group" = "milo",
-                             "Journal of Oncology" = "jco",
-                             "Nature Publishing Group" = "npg",
-                             "American Association for the Advancement" = "aaas",
-                             "New England Journal of Medicine" = "nejm",
-                             "Lancet Oncology" = "lo",
-                             "The Journal of the American Medical Association" = "jama",
-                             "University of Chicago" = "uc"),
-                           label = "Color panel:",
+                           choices = validColorPalettes(),
+                           label = "Color palette:",
                            multiple = FALSE,
                            choicesOpt = list(
-                             subtext = stringr::str_c("colors: ", c(20, base::rep(10,7))),
+                             #subtext = stringr::str_c("colors: ", c(20, base::rep(10,7))),
                              `dropdown-align-center` = TRUE
                            ),
                            selected = "milo")
@@ -438,7 +440,7 @@ moduleSurfacePlotServer <- function(id,
         sample_coords <-
           getCoordsDf(object = object, of_sample = current$sample)
 
-        return(sample_coords)
+        base::return(sample_coords)
 
       })
 
@@ -448,7 +450,7 @@ moduleSurfacePlotServer <- function(id,
         rna_assay <-
           getExpressionMatrix(object = object, of_sample = current$sample)
 
-        return(rna_assay)
+        base::return(rna_assay)
 
       })
 
@@ -476,7 +478,7 @@ moduleSurfacePlotServer <- function(id,
           magrittr::set_colnames(value = "expr_score") %>%
           tibble::rownames_to_column(var = "barcodes")
 
-        return(gene_vls)
+        base::return(gene_vls)
 
       })
 
@@ -516,7 +518,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(geneset_vls)
+        base::return(geneset_vls)
 
 
       })
@@ -527,7 +529,7 @@ moduleSurfacePlotServer <- function(id,
         fdata <-
           getFeatureDf(object = object, of_sample = current$sample)[, c("barcodes", current$feature)]
 
-        return(fdata)
+        base::return(fdata)
 
       })
 
@@ -551,7 +553,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(joined_df)
+        base::return(joined_df)
 
       })
 
@@ -568,7 +570,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(variable)
+        base::return(variable)
 
       })
 
@@ -636,13 +638,13 @@ moduleSurfacePlotServer <- function(id,
                               aspect = "",
                               subset = variable())
 
-            return(smoothed_df)
+            base::return(smoothed_df)
 
           } else {
 
             smoothed_df <- joined_df()
 
-            return(smoothed_df)
+            base::return(smoothed_df)
 
           }
 
@@ -663,7 +665,7 @@ moduleSurfacePlotServer <- function(id,
                                 alpha = (1-input$pt_alpha))
           )
 
-        return(add_on)
+        base::return(add_on)
 
       })
 
@@ -704,7 +706,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(add_on)
+        base::return(add_on)
 
       })
 
@@ -728,7 +730,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(add_on)
+        base::return(add_on)
 
       })
 
@@ -756,7 +758,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(add_on)
+        base::return(add_on)
 
 
       })
@@ -801,7 +803,7 @@ moduleSurfacePlotServer <- function(id,
 
         }
 
-        return(add_on)
+        base::return(add_on)
 
 
       })
@@ -812,15 +814,15 @@ moduleSurfacePlotServer <- function(id,
 
           if(nrow(segmentation_df()) == 0){
 
-            showNotification(ui = stringr::str_c("Sample", current$sample, "has not been segmented so far.", sep = " "))
-            return(list())
+            shiny::showNotification(ui = stringr::str_c("Sample", current$sample, "has not been segmented so far.", sep = " "))
+            base::return(list())
 
           } else {
 
             segm_layer <-
               list(
                 ggalt::geom_encircle(data = segmentation_df(), alpha = 0.75, expand = 0.025,
-                                     mapping = ggplot2::aes(x = x, y = y, group = segment, fill = segment)),
+                                     mapping = ggplot2::aes(x = x, y = y, group = segmentation, fill = segmentation)),
                 confuns::scale_color_add_on(aes = "fill", variable = "discrete", clrp = "milo", guide = FALSE)
 
               )
@@ -841,11 +843,11 @@ moduleSurfacePlotServer <- function(id,
 
         segm_df <- joinWith(object = reactive_object(),
                             spata_df = getCoordsDf(reactive_object(), current$sample),
-                            features = "segment",
+                            features = "segmentation",
                             verbose = FALSE) %>%
-          dplyr::filter(segment != "")
+          dplyr::filter(!segmentation %in% c("none", ""))
 
-        return(segm_df)
+        base::return(segm_df)
 
       })
 

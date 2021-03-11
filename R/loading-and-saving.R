@@ -17,7 +17,7 @@ loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
     confuns::is_value(x = gene_set_path, mode = "character", ref = "gene_set_path")
     confuns::check_directories(directories = gene_set_path, ref = "gene_set_path", type = "files")
 
-    if(base::isTRUE(verbose)){base::message(glue::glue("Reading in specified gene-set data.frame from directory '{gene_set_path}'."))}
+    confuns::give_feedback(msg = glue::glue("Reading in specified gene-set data.frame from directory '{gene_set_path}'."), verbose = verbose)
 
     gene_set_df <- base::readRDS(file = gene_set_path)
 
@@ -25,13 +25,13 @@ loadGSDF <- function(gene_set_path = NULL, verbose = TRUE){
 
       gene_set_df <- gsdf
 
-      base::warning(glue::glue("Input from directory '{gene_set_path}' is not a data.frame. Using SPATA's default gene set data.frame."))
+      confuns::give_feedback(msg = glue::glue("Input from directory '{gene_set_path}' is not a data.frame. Using SPATA's default gene set data.frame."))
 
     }
 
   } else {
 
-    if(base::isTRUE(verbose)){base::message("Using SPATA's default gene set data.frame.")}
+    confuns::give_feedback(msg = "Using SPATA's default gene set data.frame.", verbose = verbose)
 
     gene_set_df <- gsdf
 
@@ -267,31 +267,23 @@ saveCorrespondingCDS <- function(cds,
         combine_with_wd = combine_with_wd
       )
 
+  } else {
+
+    directory_cds <- getDirectoryInstructions(object = object,
+                                              to = "cell_data_set")
+
   }
-
-  directory_spata <-
-    base::tryCatch({
-
-      getDirectoryInstructions(object, to = "spata_object")
-
-    }, error = function(error){
-
-      base::warning(glue::glue("Attempting to extract a valid directory from the spata-object resulted in the following error: {error}"))
-
-      NULL
-
-    })
 
   if(base::is.character(directory_cds)){
 
     confuns::give_feedback(
-      msg = glue::glue("Saving cell-data-set under '{directory_cds}'."),
+      msg = glue::glue("Saving cell_data_set under '{directory_cds}'."),
       verbose = verbose
     )
 
     base::tryCatch({
 
-      base::saveRDS(object = object, file = directory_cds)
+      base::saveRDS(object = cds, file = directory_cds)
 
 
     }, error = function(error){
@@ -336,6 +328,11 @@ saveCorrespondingSeuratObject <- function(seurat_object,
         combine_with_wd = combine_with_wd
       )
 
+  } else {
+
+    directory_seurat <- getDirectoryInstructions(object = object,
+                                                 to = "seurat_object")
+
   }
 
   if(base::is.character(directory_seurat)){
@@ -347,7 +344,7 @@ saveCorrespondingSeuratObject <- function(seurat_object,
 
     base::tryCatch({
 
-      base::saveRDS(object = object, file = directory_seurat)
+      base::saveRDS(object = seurat_object, file = directory_seurat)
 
 
     }, error = function(error){

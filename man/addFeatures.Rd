@@ -2,24 +2,24 @@
 % Please edit documentation in R/add-family.R
 \name{addFeatures}
 \alias{addFeatures}
-\alias{discardFeatures}
 \title{Add a new feature}
 \usage{
 addFeatures(
   object,
-  feature_names,
   feature_df,
+  feature_names = NULL,
   key_variable = "barcodes",
   overwrite = FALSE,
-  of_sample = ""
+  of_sample = NA
 )
-
-discardFeatures(object, feature_names)
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{feature_df}{A data.frame that contains the feature and the key-variables.}
+\item{feature_df}{A data.frame that contains the key variables as well
+as the informative variables that are to be joined.}
+
+\item{feature_names}{Character vector or NULL. See details for more.}
 
 \item{key_variable}{Character value. Either \emph{'barcodes'} or \emph{'coordinates'}.
 If set to \emph{'coordinates'} the \code{feature_df}-input must contain numeric x- and
@@ -31,14 +31,36 @@ x- and y-coordinates work as key-variables if they are used combined.}
 
 \item{overwrite}{Logical. If the specified feature name already exists in the
 current spata-object this argument must be set to TRUE in order to overwrite it.}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 An updated spata-object.
 }
 \description{
-Adds a new variable to the objects feature data.
+Adds new externally generated variables to the spata-object's feature data
+to make them available for all SPATA-intern functions.
 }
 \details{
-Eventually the new feature will be joined via \code{dplyr::left_join()} over the
-key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure the joining process.
+If you are only interested in adding specific features to the spata-object
+you can specify those with the \code{feature_names}-argument. If no variables
+are specified this way all variables found in the input data.frame for argument
+\code{feature_df} are taken. (Apart from variables called \emph{barcodes, sample, x} and \emph{y}).
+
+Eventually the new features are joined via \code{dplyr::left_join()} over the
+key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure
+the joining process.
+}
+\examples{
+#Not run:
+
+mncl_clusters <- findMonocleClusters(object = spata_obj)
+
+spata_obj <- addFeatures(object = spata_obj,
+                         feature_names = NULL, # add all variables...
+                         feature_df = mncl_clusters # ... from the data.frame 'mncl_clusters'
+                         )
+
+getGroupingOptions(object = spata_obj)
 }

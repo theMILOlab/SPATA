@@ -1,7 +1,7 @@
 
 # Autoencoder -------------------------------------------------------------
 
-activation_fns <- c("relu", "sigmoid", "softmax", "softplus", "softsign", "tanh", "selu", "elu", "exponential")
+activation_fns <- c("relu", "sigmoid", "softmax", "softplus", "softsign", "tanh", "selu", "elu")
 
 
 # Classes -----------------------------------------------------------------
@@ -77,9 +77,8 @@ default_instructions_object <-
                display_labels = TRUE,
                display_points = FALSE,
                display_residuals = TRUE,
-               display_title = TRUE,
-               display_trajectory_parts = TRUE,
-               grouping_variable = "seurat_clusters",
+               display_title = FALSE,
+               display_trajectory_parts = FALSE,
                max_adj_pval = 0.05,
                method_de = "wilcox",
                method_dr = "umap",
@@ -106,8 +105,10 @@ default_instructions_object <-
                show_rownames = FALSE,
                show_colnames = FALSE,
                smooth = TRUE,
+               smooth_clr = "red",
+               smooth_method = "loess",
                smooth_se = TRUE,
-               smooth_span = 0.025,
+               smooth_span = 0.25,
                uniform_genes = "discard",
                verbose = TRUE)
 
@@ -147,12 +148,16 @@ plot_types_in_functions <-
 
 # Seurat analysis ---------------------------------------------------------
 
-seurat_process_fns <- c("SCTransform","NormalizeData", "FindVariableFeatures", "ScaleData",
-                        "RunPCA", "FindNeighbors", "FindClusters", "RunTSNE", "RunUMAP" )
+seurat_assay_data_slots <- c("data", "scale.data")
+
+seurat_coords_from_opts <- c("umap", "tsne")
 
 seurat_methods <- c("spatial", "single_cell")
 
-seurat_coords_from_opts <- c("umap", "tsne")
+seurat_process_fns <- c("SCTransform","NormalizeData", "FindVariableFeatures", "ScaleData",
+                        "RunPCA", "FindNeighbors", "FindClusters", "RunTSNE", "RunUMAP" )
+
+
 
 
 # Trajectory analysis -----------------------------------------------------
