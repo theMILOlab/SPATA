@@ -35,11 +35,9 @@ check_availability <- function(test, ref_x, ref_fns){
 
   if(!base::isTRUE(test)){
 
-    base::stop(
-      glue::glue(
-        "Could not find {ref_x}. Use {ref_fns}."
-      )
-    )
+    msg <- glue::glue("Could not find {ref_x}. Make sure to use {ref_fns}.")
+
+    confuns::give_feedback(msg = msg, fdb.fn = "stop", with.time = FALSE)
 
   }
 
@@ -74,11 +72,9 @@ check_to <- function(object, to){
                       ref_have = confuns::adapt_reference(not_defined_directories, sg = "has", pl = "have"),
                       not_defined = glue::glue_collapse(x = not_defined_directories, sep = "', '", last = "' and '"))
 
-    fdb.fn <- base::ifelse(base::length(not_defined_directories) == base::length(to), "stop", "warning")
-
     confuns::give_feedback(
       msg = msg,
-      fdb.fn = fdb.fn,
+      fdb.fn = "warning",
       with.time = FALSE
     )
 
@@ -859,10 +855,12 @@ check_pt <- function(pt_size = NULL,
 #' numeric \emph{x}- and \emph{y}-variables.
 #' @param smooth Logical. If set to TRUE values will be smoothed according to the
 #' \code{smoooth_}-parameters.
-#' @param smooth_span The amount of smoothing specified as a single numeric value.
+#' @param smooth_clr Character value. The color with which to display the smoothed
+#' model.
 #' @param smooth_method The smoothing method that will be used specified as a
 #' single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).
 #' @param smooth_se Logical. If set to TRUE the confidence interval will be
+#' @param smooth_span The amount of smoothing specified as a single numeric value.
 #' displayed.
 #'
 #' @inherit lazy_check_dummy description details return

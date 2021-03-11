@@ -489,7 +489,7 @@ createTrajectories <- function(object){
           ##--- 3. save the highlighted trajectory
           oe <- shiny::observeEvent(input$save_trajectory, {
 
-            traj_names <- getTrajectoryNames(object = spata_obj(), of_sample = current()$sample)
+            traj_names <- getTrajectoryNames(object = spata_obj(), of_sample = current()$sample, verbose = FALSE)
 
             ## control
             checkpoint(evaluate = base::nrow(compiled_trajectory_df()) > 0, case_false = "insufficient_n_vertices2")

@@ -24,17 +24,18 @@ initiateSpataObject_MALDI <- function(coords_df,
                                       verbose = TRUE){
 
   initiateSpataObject_ExprMtr(coords_df = coords_df,
-                           expr_mtr = intensity_mtr,
-                           ref_expr_mtr = "intensity_mtr",
-                           image = image,
-                           sample_name = sample_name,
-                           gene_set_path = gene_set_path,
-                           output_path = output_path,
-                           file_name = file_name,
-                           pca_comp = pca_comp,
-                           nn = nn,
-                           tsne_perplexity = tsne_perplexity,
-                           verbose = verbose)
+                              expr_mtr = intensity_mtr,
+                              ref_expr_mtr = "intensity_mtr",
+                              image = image,
+                              sample_name = sample_name,
+                              gene_set_path = gene_set_path,
+                              output_path = output_path,
+                              file_name = file_name,
+                              pca_comp = pca_comp,
+                              nn = nn,
+                              tsne_perplexity = tsne_perplexity,
+                              verbose = verbose
+                              )
 
 }
 
@@ -137,7 +138,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
     seurat_object <-
       Seurat::CreateSeuratObject(counts = counts, meta.data = feature_df)
 
-    seurat_object <-
+    processed_seurat_object <-
       process_seurat_object(
         seurat_object = seurat_object,
         SCTransform = SCTransform,
@@ -157,7 +158,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
     spata_object <-
       transformSeuratToSpata(
-        seurat_object = seurat_object,
+        seurat_object = processed_seurat_object,
         assay = "RNA",
         sample_name = sample_name,
         gene_set_path = gene_set_path,
@@ -181,7 +182,7 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
           spata_object_return <-
             saveCorrespondingSeuratObject(
-              seurat_object = seurat_object,
+              seurat_object = processed_seurat_object,
               object = spata_object,
               directory_seurat = directory_seurat,
               combine_with_wd = combine_with_wd
@@ -233,7 +234,168 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
     base::return(spata_object)
 
+}
+
+#' @title Initiate a spata-object from example data sets
+#'
+#' @description Creates and returns an object of class spata
+#' from the example data sets provided by the package \emph{SeuratData}.
+#' See details for more.
+#'
+#' @param data_set Character value. The data-set from which to create the spata-object.
+#' Currently only \emph{'stxBrain'} is available. Additional datat sets will be added
+#' shortly.
+#' @param type Given to argument \code{type} of funciton \code{SeuratData::LoadData()}.
+#' @param force Logical. If set to TRUE, the function installs all requirements
+#' (packages, data sets) automatically without requesting any further permission.
+#' If set to FALSE, the function stops with an informative error message when
+#' it encounters missing installations.
+#' @inherit initiateSpataObject_10X params details return
+#'
+#' @export
+
+initiateSpataObject_Examples <- function(data_set = "stxBrain",
+                                         type = "anterior1",
+                                         force = FALSE,
+                                         gene_set_path = NULL,
+                                         SCTransform = FALSE,
+                                         NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
+                                         FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
+                                         ScaleData = TRUE,
+                                         RunPCA = list(npcs = 60),
+                                         FindNeighbors = list(dims = 1:30),
+                                         FindClusters = list(resolution = 0.8),
+                                         RunTSNE = TRUE,
+                                         RunUMAP = list(dims = 1:30),
+                                         verbose = TRUE){
+
+  # 1. Make sure that the SeuratData package is installed -------------------
+
+  confuns::give_feedback(
+    msg = "Making sure that the SeuratData package is installed.",
+    verbose = verbose
+  )
+
+  pkgs <-
+    utils::installed.packages() %>%
+    base::rownames()
+
+  if(!"SeuratData" %in% pkgs){
+
+    if(base::isTRUE(force)){
+
+      confuns::give_feedback(msg = "Argument 'force' has been set to TRUE. Installing package 'SeuratData'.")
+
+      utils::install.packages(pkgs = "SeuratData")
+
+    } else {
+
+      msg <- "The package 'SeuratData' is not installed. Please install the package manually or set argument 'force' to TRUE."
+
+      confuns::give_feedback(msg = msg, fdb.fn = "stop")
+
+    }
+
   }
+
+  # -----
+
+
+  # 2. Make sure that the requested data set is installed -------------------
+
+  confuns::give_feedback(
+    msg = "Making sure that the requested data set is installed.",
+    verbose = verbose
+  )
+
+  confuns::check_one_of(
+    input = data_set,
+    against = "stxBrain"
+  )
+
+  installed_data_sets <-
+    SeuratData::AvailableData() %>%
+    dplyr::filter(Installed) %>%
+    dplyr::pull(Dataset)
+
+  if(!data_set %in% installed_data_sets){
+
+    if(base::isTRUE(force)){
+
+      confuns::give_feedback(msg = glue::glue("Argument 'force' has been set to TRUE. Installing data set '{data_set}'."))
+
+      SeuratData::InstallData(ds = data_set)
+
+    } else {
+
+      msg <- glue::glue("The data set '{data_set}' is not installed. Please install it manually or set argument 'force' to TRUE.")
+
+      confuns::give_feedback(msg = msg, fdb.fn = "stop")
+
+    }
+
+  }
+
+  # -----
+
+
+  # 3. Load and process the seurat object  ----------------------------------
+
+  confuns::give_feedback(msg = "Loading data and performing Seurat-analysis steps.", verbose = verbose)
+
+  seurat_object <- SeuratData::LoadData(ds = data_set, type = type)
+
+  # make sure that input for SCTRansform is valid
+  if(base::isTRUE(SCTransform)){
+
+    SCTransform <- list("assay" = "Spatial", "new.assay.name" = "Spatial")
+
+  } else if(confuns::is_list(SCTransform)){
+
+    SCTransform[["assay"]] <- "Spatial"
+    SCTransform[["new.assay.name"]] <- "Spatial"
+
+  }
+
+  processed_seurat_object <-
+    process_seurat_object(
+      seurat_object = seurat_object,
+      calculate_rb_and_mt = TRUE,
+      remove_stress_and_mt = TRUE,
+      SCTransform = SCTransform,
+      NormalizeData = NormalizeData,
+      FindVariableFeatures = FindVariableFeatures,
+      ScaleData = ScaleData,
+      RunPCA = RunPCA,
+      FindNeighbors = FindNeighbors,
+      FindClusters = FindClusters,
+      RunTSNE = RunTSNE,
+      RunUMAP = RunUMAP,
+      verbose = verbose
+    )
+
+  # -----
+
+  # 4. Create SPATA-object --------------------------------------------------
+
+  confuns::give_feedback(msg = "Initiating spata-object.", verbose = verbose)
+
+  spata_object <-
+    transformSeuratToSpata(
+      seurat_object = processed_seurat_object,
+      sample_name = stringr::str_c(data_set, type, sep = "-"),
+      gene_set_path = gene_set_path,
+      method = "spatial",
+      verbose = verbose
+    )
+
+  spata_object <- setInitiationInfo(spata_object)
+
+  # -----
+
+  base::return(spata_object)
+
+}
 
 
 #' @title Initiate spata object from scaled expression matrix
@@ -252,15 +414,16 @@ initiateSpataObject_CountMtr <- function(coords_df,
 #'
 #' @param expr_mtr A numeric matrix. The expression matrix to be used.
 #' @param image An Image of the sample that can be displayed as the surface plot's background.
-#' @param nn Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
-#' of nearest neighbours to compute.
-#' @param pca_comp Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
-#' the number of components to return.
-#' @param tsne_perplexity Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.
+#' @param k,nn Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
+#' of nearest neighbours to compute. (\code{nn} is deprecated.)
 #'
 #' @details After initiating the spata-object PCA is performed via \code{irlba::prcomp_irlba()} and clustering
 #' is done via \code{RANN::nn2()}. (Use \code{addFeatures()} to add any clustering results of your own analysis.)
 #' Additional dimensional reduction is performed via \code{Rtsne::Rtsne()} and \code{umap::umap()}.
+#'
+#' Note that this function initiates a spata-object that does not contain a count-matrix! You can
+#' add a count-matrix manually using \code{setCountmatrix()}. As long as there is none functions that
+#' need a count-matrix will throw an error telling you that no count matrix could be found.
 #'
 #' @return A spata-object.
 #'
@@ -268,17 +431,18 @@ initiateSpataObject_CountMtr <- function(coords_df,
 
 initiateSpataObject_ExprMtr <- function(coords_df,
                                         expr_mtr,
+                                        sample_name,
                                         count_mtr = NULL,
                                         mtr_name = "scaled",
-                                        sample_name = "sample1",
                                         image = NULL,
                                         directory_spata = NULL,
                                         combine_with_wd = FALSE,
                                         gene_set_path = NULL,
-                                        n_pcs = 30,
                                         k = 50,
-                                        tsne_perplexity = 30,
-                                        ...,
+                                        nn = NULL,
+                                        runPca = list(n_pcs = 30),
+                                        runTsne = list(tsne_perplexity = 30),
+                                        runUmap = list(),
                                         verbose = TRUE){
 
   # 1. Control --------------------------------------------------------------
@@ -288,7 +452,18 @@ initiateSpataObject_ExprMtr <- function(coords_df,
     verbose = verbose
   )
 
-  if(base::isTRUE(verbose)){base::message("Step 1/4: Checking input for validity.")}
+  confuns::give_feedback(msg = "Checking input for validity.", verbose = verbose)
+
+  # deprecated arguments
+  if(!base::is.null(nn)){
+
+    base::warning("Argument 'nn' is deprecated. Please use argument 'k' in the future.")
+
+    confuns::is_value(x = nn, mode = "numeric")
+
+    k <- nn
+
+  }
 
   # check if expr matrix is a matrix
   if(!base::is.matrix(expr_mtr) | base::length(base::dim(expr_mtr)) != 2){
@@ -309,14 +484,14 @@ initiateSpataObject_ExprMtr <- function(coords_df,
   # check value inputs
   confuns::is_value(x = sample_name, mode = "character")
 
-  confuns::are_values("output_path", "file_name", mode = "character", skip.allow = TRUE, skip.val = NULL)
-
-  confuns::are_values("n_pcs", "k", "tsne_perplexity", mode = "numeric")
+  confuns::are_values("k", mode = "numeric")
 
   # check if gene names are valid
   if(base::any(stringr::str_detect(base::rownames(expr_mtr), pattern = "_"))){
 
-    base::message("Rownames of expression matrix contain '_' which is not allowed and will be changed into '-'.")
+    msg <- "Rownames of expression matrix contain '_' which is not allowed and will be changed into '-'."
+
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     base::rownames(expr_mtr) <-
       stringr::str_replace_all(string = base::rownames(expr_mtr), pattern = "_", replacement = "-")
@@ -337,17 +512,12 @@ initiateSpataObject_ExprMtr <- function(coords_df,
     dplyr::mutate(.data = coords_df, sample = {{sample_name}}) %>%
     dplyr::select(barcodes, sample, x, y)
 
-
-  # check if saving is possible (returns NULL if output path is NULL)
-  object_file <- check_saving(output_path = output_path, file_name = file_name)
-
-
   # -----
 
 
   # 2. Setting up spata object ----------------------------------------------
 
-  if(base::isTRUE(verbose)){ base::message("Step 2/4:Setting up spata-object.")}
+  confuns::give_feedback(msg = "Setting up spata-object.", verbose = verbose)
 
   spata_object <- methods::new(Class = "spata", samples = sample_name)
 
@@ -395,7 +565,6 @@ initiateSpataObject_ExprMtr <- function(coords_df,
     base::append(
       x = spata_object@information,
       values = list(
-        autoencoder = magrittr::set_names(x = list(list()), nm = sample_name),
         barcodes = magrittr::set_names(x = list(base::colnames(expr_mtr)), nm = sample_name)
       ))
 
@@ -406,13 +575,16 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   # 3. Running analysis -----------------------------------------------------
 
-  if(base::isTRUE(verbose)){ base::message("Step 3/4: Running analysis steps.")}
+  confuns::give_feedback(msg = "Running PCA.", verbose = verbose)
 
-  if(base::isTRUE(verbose)){ base::message("---------- PCA Analysis 1/4 ------------- ")}
+  spata_object <- confuns::call_flexibly(fn = "runPca",
+                                         fn.ns = "SPATA",
+                                         default = list(object = spata_object),
+                                         v.fail = spata_object,
+                                         v.skip = spata_object,
+                                         verbose = verbose)
 
-  spata_object <- runPca(object = spata_object, n_pcs = n_pcs)
-
-  if(base::isTRUE(verbose)){ base::message("---------- SNN-Cluster Analysis 2/3 ------------- ") }
+  confuns::give_feedback(msg = "Running SNN-Cluster Analysis.", verbose = verbose)
 
   cluster_df <-
     findNearestNeighbourClusters(object = spata_object,
@@ -432,21 +604,34 @@ initiateSpataObject_ExprMtr <- function(coords_df,
                               key_variable = "barcodes")
 
 
-  if(base::isTRUE(verbose)){ base::message("---------- Dimensional Reduction 3/3 ------------- ")}
+  confuns::give_feedback(msg = "Running TSNE.", verbose = verbose)
 
-  if(base::isTRUE(verbose)){ base::message("Running TSNE.") }
+  spata_object <- confuns::call_flexibly(fn = "runTsne",
+                                         fn.ns = "SPATA",
+                                         default = list(object = spata_object),
+                                         v.fail = spata_object,
+                                         v.skip = spata_object,
+                                         verbose = verbose)
 
-  spata_object <- runTsne(object = spata_object, tsne_perplexity = tsne_perplexity)
 
+  confuns::give_feedback(msg = "Running UMAP.", verbose = verbose)
 
-  if(base::isTRUE(verbose)){ base::message("Running UMAP.") }
+  spata_object <- confuns::call_flexibly(fn = "runUmap",
+                                         fn.ns = "SPATA",
+                                         default = list(object = spata_object),
+                                         v.fail = spata_object,
+                                         v.skip = spata_object,
+                                         verbose = verbose)
 
-  spata_object <- runUmap(object = spata_object, ...)
+  spata_object <- setDefaultInstructions(spata_object)
 
+  spata_object <- setInitiationInfo(spata_object)
 
   # -----
 
   # 4. Saving and returning object ------------------------------------------
+
+  confuns::give_feedback(msg = "Saving.", verbose = verbose)
 
   if(base::is.character(directory_spata)){
 
@@ -470,6 +655,12 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
       })
 
+  } else {
+
+    confuns::give_feedback(
+      msg = "No directory has been specified. Skip saving."
+    )
+
   }
 
   confuns::give_feedback(
@@ -479,15 +670,14 @@ initiateSpataObject_ExprMtr <- function(coords_df,
 
   # -----
 
-  base::return(setInitiationInfo(spata_object))
+  base::return(spata_object)
 
 }
 
 #' @title Initiate a spata-object from 10X Visium
 #'
 #' @description Creates, saves and returns an object of class spata
-#' from scratch. Several samples can be stored in one object, though we recommend to stick
-#' to one. (See details for more.)
+#' from 10X Visium results. See details for more information.
 #'
 #' @inherit argument_dummy params
 #' @inherit check_saving params
@@ -563,13 +753,12 @@ initiateSpataObject_10X <- function(directory_10X,
 
   }
 
-
   # check input for gene set data.frame
   confuns::is_value(x = gene_set_path, mode = "character", skip.allow = TRUE, skip.val = NULL)
 
   if(base::is.null(gene_set_path)){
 
-    if(base::isTRUE(verbose)){base::message("No gene-set data.frame path specified.")}
+    confuns::give_feedback(msg = "No gene-set data.frame path specified.", verbose = verbose)
 
   } else {
 
@@ -596,20 +785,22 @@ initiateSpataObject_10X <- function(directory_10X,
 
   # 2. Read in data ---------------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 1/4 : Reading in .h5 file.")}
+  confuns::give_feedback(msg = "Reading in .h5 file.")
 
   data_dir <- base::paste0(directory_10X, "/outs")
   file_dir <- base::paste0(directory_10X, "/outs/filtered_feature_bc_matrix.h5")
 
   if(base::file.exists(paths = file_dir)){
 
-   base::message(glue::glue("Loading from directory: '{data_dir}'"))
+   confuns::give_feedback(msg = glue::glue("Loading from directory: '{data_dir}'"), verbose = verbose)
 
    seurat_object <- Seurat::Load10X_Spatial(data.dir = data_dir, filename = "filtered_feature_bc_matrix.h5")
 
   } else {
 
-   base::stop(glue::glue("Directory '{file_dir}' does not exist."))
+   msg <- glue::glue("Directory '{file_dir}' does not exist.")
+
+   confuns::give_feedback(msg = msg, fdb.fn = "stop")
 
   }
 
@@ -618,7 +809,19 @@ initiateSpataObject_10X <- function(directory_10X,
 
   # 3. Seurat analysis ------------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 2/4: Performing Seurat-analysis steps.")}
+  confuns::give_feedback(msg = "Performing Seurat-analysis steps.", verbose = verbose)
+
+  # make sure that input for SCTRansform is valid
+  if(base::isTRUE(SCTransform)){
+
+    SCTransform <- list("assay" = "Spatial", "new.assay.name" = "Spatial")
+
+  } else if(confuns::is_list(SCTransform)){
+
+    SCTransform[["assay"]] <- "Spatial"
+    SCTransform[["new.assay.name"]] <- "Spatial"
+
+  }
 
   processed_seurat_object <-
     process_seurat_object(
@@ -634,14 +837,15 @@ initiateSpataObject_10X <- function(directory_10X,
       FindClusters = FindClusters,
       RunTSNE = RunTSNE,
       RunUMAP = RunUMAP,
-      verbose = verbose)
+      verbose = verbose
+      )
 
   # -----
 
 
   # 5. Create SPATA-object --------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 3/4: Initiating spata-object.")}
+  confuns::give_feedback(msg = "Initiating spata-object.", verbose = verbose)
 
   spata_object <-
     transformSeuratToSpata(
@@ -654,13 +858,12 @@ initiateSpataObject_10X <- function(directory_10X,
 
   spata_object <- setInitiationInfo(spata_object)
 
-  spata_object <-
-    setPrResults(spata_object, pr_results = hp_analysis_list)
-
   # -----
 
 
   # 6. Save objects and return spata object ---------------------------------
+
+  confuns::give_feedback(msg = "Saving.", verbose = verbose)
 
   # save seurat
   if(base::is.character(directory_seurat)){
@@ -670,7 +873,7 @@ initiateSpataObject_10X <- function(directory_10X,
 
         spata_object_return <-
           saveCorrespondingSeuratObject(
-            seurat_object = seurat_object,
+            seurat_object = processed_seurat_object,
             object = spata_object,
             directory_seurat = directory_seurat,
             combine_with_wd = combine_with_wd,
@@ -690,7 +893,7 @@ initiateSpataObject_10X <- function(directory_10X,
   } else {
 
     confuns::give_feedback(
-      msg = "Skip saving seurat-object.",
+      msg = "No directory specified. Skip saving seurat-object.",
       verbose = verbose
     )
 
@@ -722,7 +925,7 @@ initiateSpataObject_10X <- function(directory_10X,
   } else {
 
     confuns::give_feedback(
-      msg = "Skip saving spata-object.",
+      msg = "No directory specified. Skip saving spata-object.",
       verbose = verbose
     )
 

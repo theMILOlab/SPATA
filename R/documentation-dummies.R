@@ -228,6 +228,9 @@ seurat_object_dummy <- function(seurat_object){}
 #' continuous values of numeric variables. Run \code{validColorSpectra()} to obtain
 #' valid input options.
 #'
+#' @param discrete_feature Character value. Specifies the name of the grouping variable
+#' of interest. Use \code{getGroupingOptions()} to obtain all valid input options.
+#'
 #' @param display_facets Logical value. If set to TRUE the plot is split via
 #' \code{ggplot2::facet_wrap()} such that each variable gets it's own subplot.
 #' @param display_points Logical value. If set to TRUE points are used additionally

@@ -650,7 +650,7 @@ check_segment <- function(object,
 
     bc_segm <-
       getFeatureDf(object, of_sample = of_sample) %>%
-      dplyr::filter(segment == segment_name) %>%
+      dplyr::filter(segmentation == segment_name) %>%
       dplyr::pull(barcodes)
 
     if(base::length(bc_segm) == 0){

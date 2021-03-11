@@ -8,8 +8,6 @@
 #' @param set_up_list A named list with slots \code{$activation, $bottleneck, $dropout, $epochs, $layers}.
 #'
 #' @return A spata-object.
-#' @export
-#'
 
 addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = NA){
 
@@ -18,14 +16,13 @@ addAutoencoderSetUp <- function(object, mtr_name, set_up_list, of_sample = NA){
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
-  object$autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]] <- set_up_list
+  object@autoencoder[[of_sample]][["nn_set_ups"]][[mtr_name]] <- set_up_list
 
   base::return(object)
 
 }
 
 # -----
-
 
 
 # Slot: data --------------------------------------------------------------
@@ -68,7 +65,6 @@ addExpressionMatrix <- function(object, expr_mtr, mtr_name, of_sample = ""){
 #'
 #' @return An updated spata-object.
 #' @export
-#'
 
 discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 
@@ -89,12 +85,14 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
                                 mtr_name = mtr_name,
                                 of_sample = of_sample)
 
-  base::message(glue::glue("Expression matrix '{mtr_name}' discarded."))
+  confuns::give_feedback(
+    msg = glue::glue("Expression matrix '{mtr_name}' discarded.")
+    )
 
   # feedback if discarded matrix was denoted as active matrix
   if(mtr_name == getActiveMatrixName(object, of_sample = of_sample)){
 
-    base::warning(glue::glue("Expression matrix '{mtr_name}' was denoted as the active matrix. Make sure to denote a new one with 'setActiveExpressionMatrix()'"))
+    base::warning(glue::glue("Expression matrix '{mtr_name}' was set as the active matrix. Make sure to denote set new one with 'setActiveExpressionMatrix()'"))
 
   }
 
@@ -106,6 +104,9 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
     base::warning("There are no expression matrices left in the provided spata-object. Make sure to add one with 'addExpressionMatrix()'.")
 
   }
+
+  # delete neural network set ups
+  object@autoencoder$T275$nn_set_ups[[mtr_name]]  <- NULL
 
   base::return(object)
 
@@ -124,11 +125,13 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 
 #' @title Add a new feature
 #'
-#' @description Adds a new variable to the objects feature data.
+#' @description Adds new externally generated variables to the spata-object's feature data
+#' to make them available for all SPATA-intern functions.
 #'
-#' @inherit check_object
-#' @param overwrite Logical. If the specified feature name already exists in the
-#' current spata-object this argument must be set to TRUE in order to overwrite it.
+#' @inherit check_sample params
+#' @param feature_df A data.frame that contains the key variables as well
+#' as the informative variables that are to be joined.
+#' @param feature_names Character vector or NULL. See details for more.
 #' @param key_variable Character value. Either \emph{'barcodes'} or \emph{'coordinates'}.
 #' If set to \emph{'coordinates'} the \code{feature_df}-input must contain numeric x- and
 #' y- variables.
@@ -137,29 +140,54 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 #' in this case each barcode-spot. In SPATA the barcode-variable is a key-variable on its own,
 #' x- and y-coordinates work as key-variables if they are used combined.
 #'
-#' @inherit check_feature_df params
+#' @param overwrite Logical. If the specified feature name already exists in the
+#' current spata-object this argument must be set to TRUE in order to overwrite it.
 #'
-#' @details Eventually the new feature will be joined via \code{dplyr::left_join()} over the
-#' key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure the joining process.
+#'
+#' @details If you are only interested in adding specific features to the spata-object
+#' you can specify those with the \code{feature_names}-argument. If no variables
+#' are specified this way all variables found in the input data.frame for argument
+#' \code{feature_df} are taken. (Apart from variables called \emph{barcodes, sample, x} and \emph{y}).
+#'
+#' Eventually the new features are joined via \code{dplyr::left_join()} over the
+#' key-variables \emph{barcodes} or \emph{x} and \emph{y}. Additional steps secure
+#' the joining process.
 #'
 #' @return An updated spata-object.
 #' @export
+#' @examples #Not run:
+#'
+#' mncl_clusters <- findMonocleClusters(object = spata_obj)
+#'
+#' spata_obj <- addFeatures(object = spata_obj,
+#'                          feature_names = NULL, # add all variables...
+#'                          feature_df = mncl_clusters # ... from the data.frame 'mncl_clusters'
+#'                          )
+#'
+#' getGroupingOptions(object = spata_obj)
 
 addFeatures <- function(object,
-                        feature_names,
                         feature_df,
+                        feature_names = NULL,
                         key_variable = "barcodes",
                         overwrite = FALSE,
-                        of_sample = ""){
+                        of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
   check_object(object)
 
-  confuns::is_vec(x = feature_names, mode = "character")
+  confuns::is_vec(x = feature_names, mode = "character", skip.allow = TRUE, skip.val = NULL)
   confuns::is_value(x = key_variable, mode = "character")
 
   confuns::check_one_of(input = key_variable, against = c("barcodes", "coordinates"), ref.input = "argument 'key_variable'")
 
+  if(base::is.null(feature_names)){
+
+    all_cnames <- base::colnames(feature_df)
+
+    feature_names <- all_cnames[!all_cnames %in% c("x", "y", "barcodes", "sample")]
+
+  }
 
   feature_names <- confuns::check_vector(
     input = feature_names,
@@ -208,7 +236,12 @@ addFeatures <- function(object,
 
     found_ref <- stringr::str_c(found, collapse = "', '")
 
-    base::stop(glue::glue("Specified feature names '{found_ref}' {ref[1]} already present in current feature data. Set overwrite to TRUE in order to overwrite {ref[2]}."))
+    msg <- glue::glue("Specified feature names '{found_ref}' {ref[1]} already present in current feature data. Set overwrite to TRUE in order to overwrite {ref[2]}.")
+
+    confuns::give_feedback(
+      msg = msg,
+      fdb.fn = "stop"
+    )
 
     # discard existing, intersecting feature names if overwrite is TRUE
   } else if(base::any(feature_names %in% existing_fnames) && base::isTRUE(overwrite)){
@@ -301,9 +334,18 @@ addFeatures <- function(object,
 
 }
 
-#' @rdname addFeatures
+
+#' @title Discard features
+#'
+#' @description Discards the features of choice.
+#'
+#' @inherit check_sample params
+#' @param feature_names Character vector. Specifies the features to be discarded.
+#'
+#' @return An updated spata-object.
 #' @export
-discardFeatures <- function(object, feature_names){
+
+discardFeatures <- function(object, feature_names, of_sample = NA){
 
   # 1. Control --------------------------------------------------------------
   check_object(object)

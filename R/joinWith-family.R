@@ -115,15 +115,17 @@ joinWithFeatures <- function(object,
   # adjusting check
   features <- check_features(object, features = features)
 
-  smooth_ref <- base::ifelse(test = base::isTRUE(smooth), yes = " and smoothing ", no = " " )
+  msg <-
+    glue::glue(
+      "Joining{smooth_ref}{base::length(features)} {feature_ref}.",
+      feature_ref = confuns::adapt_reference(features, sg = "feature"),
+      smooth_ref = base::ifelse(test = base::isTRUE(smooth), yes = " and smoothing ", no = " " )
+      )
 
-  if(base::isTRUE(verbose)){
-
-    feature_ref <- base::ifelse(base::length(features) == 1, "feature", "features")
-
-    base::message(glue::glue("Joining{smooth_ref}{base::length(features)} {feature_ref}."))
-
-    }
+  confuns::give_feedback(
+    msg = msg,
+    verbose = verbose
+  )
 
   # overwrite check
   discard <- features[features %in% base::colnames(spata_df)]
@@ -131,9 +133,13 @@ joinWithFeatures <- function(object,
 
   if(n_discard > 0){
 
-    var_ref <- base::ifelse(n_discard == 1, "variable", "variables")
+    msg <-
+      glue::glue(
+        "Overwriting {n_discard} feature-{var_ref}.",
+        var_ref = base::ifelse(n_discard == 1, "variable", "variables")
+        )
 
-    base::message(glue::glue("Overwriting {n_discard} feature-{var_ref}."))
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
@@ -166,7 +172,7 @@ joinWithFeatures <- function(object,
 
   }
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   # -----
 
@@ -209,13 +215,22 @@ joinWithGenes <- function(object,
 
   n_genes <- base::length(genes)
 
-  if(uniform_genes == "discard"){
+  n_bcsp <- base::nrow(spata_df)
+  sample <- spata_df$sample %>% base::unique()
 
-    ref <- base::ifelse(n_genes > 1, "genes", "gene")
+  total_n_bcsp <- getCoordsDf(object, of_sample = sample) %>% base::nrow()
+
+  if(uniform_genes == "discard" & n_bcsp != total_n_bcsp){
 
     if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Checking {n_genes} {ref} for uniform expression across all barcode-spots."))
+      msg <-
+        glue::glue(
+          "Checking {n_genes} {ref} for uniform expression across all barcode-spots.",
+          ref = confuns::adapt_reference(input = genes, sg = "gene")
+          )
+
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
       pb <-
         progress::progress_bar$new(
@@ -250,11 +265,10 @@ joinWithGenes <- function(object,
       genes <- genes[!uniformly_expressed]
       n_genes <- base::length(genes)
 
-      if(base::isTRUE(verbose)){
-
-        base::message(glue::glue("Discarded {n_uniformly_expressed} genes."))
-
-      }
+      confuns::give_feedback(
+        msg = glue::glue("Discarded {n_uniformly_expressed} genes."),
+        verbose = verbose
+      )
 
       if(n_genes < 1){
 
@@ -264,7 +278,7 @@ joinWithGenes <- function(object,
 
     } else if(base::isTRUE(verbose)){
 
-      base::message("No uniformly expressed genes found.")
+      confuns::give_feedback(msg = "No uniformly expressed genes found.")
 
     }
 
@@ -281,11 +295,11 @@ joinWithGenes <- function(object,
 
     if(base::isTRUE(verbose) && base::isTRUE(smooth)){
 
-      base::message(glue::glue("Averaging, joining and smoothing {n_genes} {ref}."))
+      confuns::give_feedback(msg = glue::glue("Averaging, joining and smoothing {n_genes} {ref}."))
 
     } else if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Averaging and joining {n_genes} {ref}."))
+      confuns::give_feedback(msg = glue::glue("Averaging and joining {n_genes} {ref}."))
 
     }
 
@@ -297,11 +311,11 @@ joinWithGenes <- function(object,
 
     if(base::isTRUE(verbose) && base::isTRUE(smooth)){
 
-      base::message(glue::glue("Joining and smoothing {n_genes} {ref}."))
+      confuns::give_feedback(msg = glue::glue("Joining and smoothing {n_genes} {ref}."))
 
     } else if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Joining {n_genes} {ref}."))
+      confuns::give_feedback(msg = glue::glue("Joining {n_genes} {ref}."))
 
     }
 
@@ -338,7 +352,8 @@ joinWithGenes <- function(object,
 
     ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
-    base::message(glue::glue("Overwriting {n_discard} gene-{ref}."))
+    confuns::give_feedback(msg = glue::glue("Overwriting {n_discard} gene-{ref}."))
+
     spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
   }
@@ -380,7 +395,7 @@ joinWithGenes <- function(object,
 
   if(base::isTRUE(normalize)){
 
-    if(base::isTRUE(verbose)){base::message(glue::glue("Normalizing values."))}
+    confuns::give_feedback(msg = "Normalizing values.", verbose = verbose)
 
     joined_df <-
       purrr::imap_dfr(.x = joined_df,
@@ -391,11 +406,7 @@ joinWithGenes <- function(object,
 
   }
 
-  if(base::isTRUE(verbose)){
-
-    base::message("Done.")
-
-  }
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   # -----
 
@@ -434,7 +445,7 @@ joinWithGeneSets <- function(object,
 
     ref <- base::ifelse(n_discard == 1, "variable", "variables")
 
-    base::message(glue::glue("Overwriting {n_discard} gene-set-{ref}."))
+    confuns::give_feedback(msg = glue::glue("Overwriting {n_discard} gene-set-{ref}."))
     spata_df <- dplyr::select(.data = spata_df, -dplyr::all_of(discard))
 
   }
@@ -450,7 +461,7 @@ joinWithGeneSets <- function(object,
 
     x <- dplyr::pull(spata_df, var = x)
     y <- dplyr::pull(spata_df, var = y)
-    smooth_ref <- glue::glue(" and smoothing ")
+    smooth_ref <- " and smoothing "
 
   } else {
 
@@ -466,13 +477,11 @@ joinWithGeneSets <- function(object,
 
   num_gs <- base::length(gene_sets)
 
-  if(base::isTRUE(verbose)){
+  ref <- confuns::adapt_reference(input = gene_sets, sg = "gene-set")
 
-    ref <- base::ifelse(num_gs == 1, "gene-set", "gene-sets")
+  msg <- glue::glue("Calculating{smooth_ref}expression score for {base::length(gene_sets)} {ref} according to method '{method_gs}'.")
 
-    base::message(glue::glue("Calculating{smooth_ref}expression score for {base::length(gene_sets)} {ref} according to method '{method_gs}'."))
-
-  }
+  confuns::give_feedback(msg = msg, verbose = verbose)
 
   if(base::isTRUE(verbose)){
 
@@ -533,13 +542,14 @@ joinWithGeneSets <- function(object,
       if(base::isTRUE(smooth)){
 
         variable <- dplyr::pull(.data = geneset_vls, var = gene_sets[i])
-        model <- stats::loess(formula = variable ~ x*y, span = smooth_span)
+
+        model <- stats::loess(formula = variable ~ x*y, span = smooth_span/10)
 
         geneset_vls[, gene_sets[i]] <- stats::predict(model)
 
       }
 
-      # gradually add gene_set columns to joined_df
+      # gradually add gene-set columns to joined_df
       joined_df <-
         dplyr::left_join(x = joined_df, y = geneset_vls, by = "barcodes")
 
@@ -563,7 +573,7 @@ joinWithGeneSets <- function(object,
 
   if(base::isTRUE(normalize)){
 
-    if(base::isTRUE(verbose)){base::message(glue::glue("Normalizing values."))}
+    confuns::give_feedback(msg = "Normalizing values.", verbose = verbose)
 
     # normalize
     joined_df <-
@@ -574,7 +584,7 @@ joinWithGeneSets <- function(object,
 
   }
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   if(base::length(ignored_gs) > 1){
 

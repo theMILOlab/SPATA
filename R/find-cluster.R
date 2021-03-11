@@ -56,7 +56,10 @@ findMonocleClusters <- function(object,
                       k = k,
                       num_iter = num_iter)
 
-  if(base::isTRUE(verbose)){base::message("Creating 'cell_data_set'-object.")}
+  confuns::give_feedback(
+    msg = "Creating 'cell_data_set'-object.",
+    verbose = verbose
+  )
 
   count_mtr <- base::as.matrix(getCountMatrix(object, of_sample = of_sample))
 
@@ -75,11 +78,10 @@ findMonocleClusters <- function(object,
   # preprocess
   for(p in base::seq_along(preprocess_method)){
 
-    if(base::isTRUE(verbose)){
-
-      base::message(glue::glue("Preprocessing cells with method {p}/{base::length(preprocess_method)} '{preprocess_method[p]}'"))
-
-    }
+      confuns::give_feedback(
+        msg = glue::glue("Preprocessing cells with method {p}/{base::length(preprocess_method)} '{preprocess_method[p]}'"),
+        verbose = verbose
+      )
 
     cds <- monocle3::preprocess_cds(cds, method = preprocess_method[p])
 
@@ -89,7 +91,10 @@ findMonocleClusters <- function(object,
 
   if(base::length(of_sample) > 1){
 
-  if(base::isTRUE(verbose)){ base::message(glue::glue("Aligning for {base::length(of_sample)} samples belonging"))}
+    confuns::give_feedbkac(
+      msg = glue::glue("Aligning for {base::length(of_sample)} samples belonging"),
+      verbose = verbose
+      )
 
     cds <- monocle3::align_cds(cds = cds, alignment_group = "sample")
 
@@ -98,19 +103,31 @@ findMonocleClusters <- function(object,
 
   for(p in base::seq_along(preprocess_method)){
 
-    base::message(glue::glue("Using preprocess method '{preprocess_method[p]}':"))
+    confuns::give_feedback(
+      msg = glue::glue("Using preprocess method '{preprocess_method[p]}':"),
+      verbose = verbose
+      )
 
     for(r in base::seq_along(reduction_method)){
 
-      base::message(glue::glue("Reducing dimensions with reduction method {r}/{base::length(reduction_method)}: '{reduction_method[r]}' "))
+      confuns::give_feedback(
+        msg = glue::glue("Reducing dimensions with reduction method {r}/{base::length(reduction_method)}: '{reduction_method[r]}' "),
+        verbose = verbose
+        )
 
       if(reduction_method[r] == "LSI" && preprocess_method[p] != "LSI"){
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"))
+        confuns::give_feedback(
+          msg = glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"),
+          verbose = TRUE
+          )
 
       } else if(reduction_method[r] == "PCA" && preprocess_method[p] != "PCA") {
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"))
+        confuns::give_feedback(
+          msg = glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess_method[p]}'"),
+          verbose = verbose
+          )
 
       } else {
 
@@ -128,7 +145,10 @@ findMonocleClusters <- function(object,
 
     if(base::isTRUE(verbose)){
 
-      base::message(glue::glue("Using reduction method {reduction_method[r]}:"))
+      confuns::give_feedback(
+        msg = glue::glue("Using reduction method {reduction_method[r]}:"),
+        verbose = verbose
+        )
 
     }
 
@@ -136,7 +156,10 @@ findMonocleClusters <- function(object,
 
       if(base::isTRUE(verbose)){
 
-        base::message(glue::glue("Clustering barcode-spots with method {c}/{base::length(cluster_method)}: {cluster_method[c]}"))
+        confuns::give_feedback(
+        msg = glue::glue("Clustering barcode-spots with method {c}/{base::length(cluster_method)}: {cluster_method[c]}"),
+        verbose = verbose
+        )
 
       }
 
@@ -171,7 +194,7 @@ findMonocleClusters <- function(object,
                               }) %>%
     dplyr::mutate(barcodes = cluster_df$barcodes)
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   base::return(cluster_df)
 
@@ -262,11 +285,9 @@ findNearestNeighbourClusters <- function(object,
 
       cluster_name <- stringr::str_c("cluster_nn2", treetype, searchtype, sep = "_")
 
-      if(base::isTRUE(verbose)){
+      msg <- glue::glue("Running algorithm with treetype ({t}/{n_treetypes}) '{treetype}' and with searchtype ({s}/{n_searchtypes}) '{searchtype}'.")
 
-        base::message(glue::glue("Running algorithm with treetype ({t}/{n_treetypes}) '{treetype}' and with searchtype ({s}/{n_searchtypes}) '{searchtype}'."))
-
-      }
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
       nearest <- RANN::nn2(data = pca_mtr,
                            k = k,
@@ -322,7 +343,7 @@ findNearestNeighbourClusters <- function(object,
 #' @export
 
 findSeuratClusters <- function(object,
-                               mtr_name = "scaled",
+                               mtr_name = getActiveMatrixName(object, of_sample = of_sample),
                                FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
                                RunPCA = list(npcs = 60),
                                FindNeighbors = list(dims = 1:30),

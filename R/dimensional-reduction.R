@@ -7,17 +7,18 @@
 #' @inherit check_sample params
 #' @inherit getExpressionMatrix params
 #' @param n_pcs Numeric value. Denotes the number of principal components to be computed.
+#' @param ... Additional arguments given to \code{irlba::prcomp_irlba()}.
 #'
 #' @return
 #'
 #'  \itemize{
-#'   \item{\code{runPca()}}{ An updated spata-object containing the reduction variables in the pca data.frame.}
-#'   \item{\code{runPca2()}}{ The direct output-object of \code{irlba::prcomp_irlba()}}.
+#'   \item{\code{runPca()}:}{ An updated spata-object containing the reduction variables in the pca data.frame.}
+#'   \item{\code{runPca2()}:}{ The direct output-object of \code{irlba::prcomp_irlba()}}.
 #'   }
 #'
 #' @export
 
-runPca <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
+runPca <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA, ...){
 
   check_object(object)
 
@@ -25,7 +26,8 @@ runPca <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 
   pca_res <- runPca2(object = object,
                      n_pcs = n_pcs,
-                     mtr_name = mtr_name)
+                     mtr_name = mtr_name,
+                     ...)
 
   expr_mtr <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = mtr_name)
 
@@ -42,7 +44,7 @@ runPca <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 
 #' @rdname runPca
 #' @export
-runPca2 <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
+runPca2 <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA, ...){
 
   check_object(object)
 
@@ -50,7 +52,7 @@ runPca2 <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 
   expr_mtr <- getExpressionMatrix(object, of_sample = of_sample, mtr_name = mtr_name)
 
-  pca_res <- irlba::prcomp_irlba(x = base::t(expr_mtr), n = n_pcs)
+  pca_res <- irlba::prcomp_irlba(x = base::t(expr_mtr), n = n_pcs, ...)
 
   base::return(pca_res)
 
@@ -67,17 +69,18 @@ runPca2 <- function(object, n_pcs = 30, mtr_name = NULL, of_sample = NA){
 #' smaller or equal to the number of principal components the pca data.frame contains.
 #' @param tsne_perplexity Numeric value. Given to argument \code{perplexity} of
 #' \code{Rtsne::Rtsne()}.
+#' @param ... Additional arguments given to \code{Rtsne::Rtsne()}.
 #'
 #' @return
 #'
 #'  \itemize{
-#'   \item{\code{runTsne()}}{ An updated spata-object containing the reduction variables in the tsne data.frame.}
-#'   \item{\code{runTsne2()}}{ The direct output-object of \code{Rtsne::Rtsne()}}
+#'   \item{\code{runTsne()}:}{ An updated spata-object containing the reduction variables in the tsne data.frame.}
+#'   \item{\code{runTsne2()}:}{ The direct output-object of \code{Rtsne::Rtsne()}}
 #'   }
 #'
 #' @export
 
-runTsne <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
+runTsne <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA, ...){
 
   check_object(object)
 
@@ -87,7 +90,8 @@ runTsne <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 
   tsne_res <- runTsne2(object = object,
                        of_sample = of_sample,
-                       tsne_perplexity = tsne_perplexity)
+                       tsne_perplexity = tsne_perplexity,
+                       ...)
 
   pca_mtr <- getPcaMtr(object = object, of_sample = of_sample, n_pcs = n_pcs)
 
@@ -103,7 +107,7 @@ runTsne <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 
 #' @rdname runTsne
 #' @export
-runTsne2 <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
+runTsne2 <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA, ...){
 
   check_object(object)
 
@@ -111,7 +115,7 @@ runTsne2 <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 
   pca_mtr <- getPcaMtr(object = object, of_sample = of_sample, n_pcs = n_pcs)
 
-  tsne_res <- Rtsne::Rtsne(pca_mtr, perplexity = tsne_perplexity)
+  tsne_res <- Rtsne::Rtsne(pca_mtr, perplexity = tsne_perplexity, ...)
 
   base::return(tsne_res)
 
@@ -130,8 +134,8 @@ runTsne2 <- function(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA){
 #' @return
 #'
 #'  \itemize{
-#'   \item{\code{runUmap()}}{ An updated spata-object containing the reduction variables in the umap data.frame.}
-#'   \item{\code{runUmap2()}}{ The direct output-object of \code{umap::umap()}}
+#'   \item{\code{runUmap()}:}{ An updated spata-object containing the reduction variables in the umap data.frame.}
+#'   \item{\code{runUmap2()}:}{ The direct output-object of \code{umap::umap()}}
 #'   }
 #'
 #' @export

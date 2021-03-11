@@ -94,12 +94,19 @@ runDeAnalysis <- function(object,
           de_results <-
             Seurat::FindAllMarkers(object = seurat_object, test.use = method, ...)
 
-          base::rm(seurat_object)
+           base::rm(seurat_object)
+
+           if("avg_log2FC" %in% base::colnames(de_results)){
+
+             de_results <- dplyr::rename(de_results, avg_logFC = avg_log2FC)
+
+           }
 
           # save results in spata object
           object@dea[[of_sample]][[across]][[method]][["data"]] <-
             tibble::remove_rownames(.data = de_results) %>%
             dplyr::rename({{across}} := "cluster")
+
 
           object@dea[[of_sample]][[across]][[method_de]][["adjustments"]] <- list(...)
 
@@ -232,9 +239,11 @@ filterDeaDf <- function(dea_df,
 
   if(return == "vector"){
 
-    dplyr::pull(res_df, gene) %>%
-      magrittr::set_names(value = dplyr::pull(res_df, var = {{across}})) %>%
-      base::return()
+    res <-
+      dplyr::pull(res_df, gene) %>%
+      magrittr::set_names(value = dplyr::pull(res_df, var = {{across}}))
+
+    base::return(res)
 
   } else if(return == "data.frame") {
 
@@ -248,8 +257,10 @@ filterDeaDf <- function(dea_df,
         dplyr::pull(gene)
 
     }) %>%
-      magrittr::set_names(value = across_subset) %>%
-      base::return()
+
+      res <- magrittr::set_names(value = across_subset)
+
+      base::return(res)
 
   }
 

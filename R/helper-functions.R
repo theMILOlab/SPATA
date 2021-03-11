@@ -56,9 +56,13 @@ hlpr_add_barcode_suffix <- function(input, sample_name){
 
 hlpr_add_old_coords <- function(object, plot_df, complete){
 
-  if(base::isTRUE(complete)){
+  # currently deprecated!
+  if(FALSE){
 
     old_coords_df <- object@information$old_coordinates
+
+    cnames <- base::colnames(plot_df)
+    variable <- cnames[!cnames %in% coords_df_vars]
 
     res_df <-
       dplyr::add_row(.data = plot_df,
@@ -66,6 +70,18 @@ hlpr_add_old_coords <- function(object, plot_df, complete){
                      sample = old_coords_df$sample,
                      x = old_coords_df$x,
                      y = old_coords_df$y)
+
+    variable_vec <- res_df[[variable]]
+
+    if(base::is.factor(variable_vec)){
+
+      variable_vec <- base::factor(x = variable_vec,
+                                   levels = c(base::levels(variable_vec), "subs.by.segment")
+                                   )
+
+      res_df[[variable]][base::is.na(res_df[[variable]])] <- "subs.by.segment"
+
+    }
 
   } else {
 
@@ -845,6 +861,7 @@ hlpr_scatterplot <- function(object,
                              spata_df,
                              color_to,
                              method_gs = "mean",
+                             display_title = FALSE,
                              pt_size = 2,
                              pt_alpha = 1,
                              pt_clrsp = "inferno",
@@ -904,6 +921,7 @@ hlpr_scatterplot <- function(object,
                                  normalize = normalize,
                                  verbose = verbose)
 
+    # currently not in use
     if(is_subsetted_by_segment(object)){
 
       spata_df <-
@@ -915,15 +933,27 @@ hlpr_scatterplot <- function(object,
 
     }
 
-    title <-
-      stringr::str_c("Gene set: ", gene_set, " (", method_gs, ")", sep = "")
+
+    # display informative title
+    if(base::isTRUE(display_title)){
+
+      title <-
+        stringr::str_c("Gene set: ", gene_set, " (", method_gs, ")", sep = "")
+
+    } else {
+
+      title <- NULL
+
+    }
+
+
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[[gene_set]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
-      ggplot2::labs(color = "Expr.\nscore", title = title)
+      ggplot2::labs(color = "Expr.", title = title)
     )
 
     # if genes
@@ -938,6 +968,7 @@ hlpr_scatterplot <- function(object,
                               normalize = normalize,
                               verbose = verbose)
 
+    # currently not in use
     if(is_subsetted_by_segment(object)){
 
       spata_df <-
@@ -949,16 +980,26 @@ hlpr_scatterplot <- function(object,
 
     }
 
-    title <-
-      glue::glue("Genes: {genes}",
-                 genes = glue::glue_collapse(x = color_to$genes, sep = ", ", width = 7, last = " and "))
+
+    if(base::isTRUE(display_title)){
+
+      title <-
+        glue::glue("Gene: {genes}",
+                   genes = glue::glue_collapse(x = color_to$genes, sep = ", ", width = 7, last = " and "))
+
+    } else {
+
+      title <- NULL
+
+    }
+
 
     # assemble ggplot add-on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[["mean_genes"]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
-      ggplot2::labs(color = "Mean expr.\nscore", title = title)
+      ggplot2::labs(color = "Expr.", title = title)
     )
 
     # else if color_to has not been specified
@@ -1023,7 +1064,10 @@ hlpr_smooth <- function(variable,
 
     }
 
-    base::message("Skip smoothing of ", aspect, " '", var_name, "' as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
+    msg <- stringr::str_c("Skip smoothing of ", aspect, " '", var_name, "' as it is of class '", base::class(dplyr::pull(data, rv)), "'.")
+
+    confuns::give_feedback(msg = msg)
+
     base::return(variable)
 
   } else if(base::any(base::is.na(data$rv)) |
@@ -1041,9 +1085,11 @@ hlpr_smooth <- function(variable,
 
   } else {
 
-    model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span / 10)
+    smooth_span <- smooth_span/10
 
-    return(stats::predict(object = model))
+    model <- stats::loess(formula = rv ~ x * y, data = data, span = smooth_span)
+
+    base::return(stats::predict(object = model))
 
   }
 
@@ -1090,14 +1136,14 @@ hlpr_smooth_shiny <- function(variable,
 
     if(base::nrow(smoothed_df) == base::nrow(coords_df)){
 
-      return(smoothed_df)
+      base::return(smoothed_df)
 
     } else {
 
       shiny::showNotification(ui = "Smoothing failed. Return original values.",
                               type = "warning")
 
-      return(coords_df)
+      base::return(coords_df)
 
     }
 
@@ -1109,7 +1155,7 @@ hlpr_smooth_shiny <- function(variable,
 
     base::colnames(coords_df)[base::which(base::colnames(coords_df) == "response_variable")] <- variable
 
-    return(coords_df)
+    base::return(coords_df)
 
   }
 
@@ -1264,7 +1310,10 @@ hlpr_summarize_trajectory_df <- function(object,
   variables <- variables[variables %in% base::colnames(joined_df)]
 
   # summarize data.frame
-  if(base::isTRUE(verbose)){base::message("Summarizing trajectory data.frame.")}
+  confuns::give_feedback(
+    msg = "Summarizing trajectory data.frame. (This might take a few moments.)",
+    verbose = verbose
+  )
 
   summarized_df <-
     dplyr::group_by(.data = joined_df, trajectory_part, order_binned) %>%
@@ -1281,7 +1330,10 @@ hlpr_summarize_trajectory_df <- function(object,
 
   if(base::isTRUE(normalize)){
 
-    if(base::isTRUE(verbose)){base::message("Normalizing values.")}
+    confuns::give_feedback(
+      msg = "Normalizing values.",
+      verbose = verbose
+    )
 
     summarized_df <-
       dplyr::group_by(.data = summarized_df, variables) %>%
@@ -1290,7 +1342,7 @@ hlpr_summarize_trajectory_df <- function(object,
 
   }
 
-  if(base::isTRUE(verbose)){base::message("Done.")}
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
 
   # -----
 

@@ -6,10 +6,10 @@
 #' @title Obtain spatial coordinates
 #'
 #' @inherit check_sample params
-#' @param of_segment Character value. Specifies the segment of interest.
+#' @param segment_names Character vector. Specifies the segments of interest.
 #'
 #' @return A data.frame containing the variables \emph{barcods, sample, x, y}
-#' (and \emph{segment} if specified).
+#' (and \emph{segmentation} in case of \code{getSegmentDf()}).
 #' @export
 
 getCoordsDf <- function(object, of_sample = NA){
@@ -33,6 +33,33 @@ getCoordsDf <- function(object, of_sample = NA){
 
   base::return(coords_df)
 
+}
+
+
+#' @rdname getCoordsDf
+#' @export
+getSegmentDf <- function(object, segment_names, of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  confuns::is_vec(segment_names, mode = "character")
+
+  confuns::check_one_of(
+    input = segment_names,
+    against = getSegmentNames(object, of_sample = of_sample)
+  )
+
+  res_df <-
+    joinWith(
+      object = object,
+      spata_df = getCoordsDf(object, of_sample = of_sample),
+      features = "segmentation"
+    ) %>%
+    dplyr::filter(segmentation %in% {{segment_names}})
+
+  base::return(res_df)
 
 }
 
@@ -47,7 +74,7 @@ getCoordsDf <- function(object, of_sample = NA){
 #' @return A summarizing list.
 #' @export
 
-getDeOverview <- function(object){
+getDeaOverview <- function(object){
 
   check_object(object)
 
@@ -234,7 +261,7 @@ getExpressionMatrix <- function(object,
 
       active_mtr <- base::ifelse(test = base::is.null(active_mtr), yes = "NULL", no = active_mtr)
 
-      base::stop(glue::glue("Did not find active matrix '{active_mtr}' in data slot of sample '{of_sample}'. Don't know which matrix to return. Please denote a valid active expression matrix with 'setActiveExpressionMatrix()'."))
+      base::stop(glue::glue("Did not find active matrix '{active_mtr}' in data slot of sample '{of_sample}'. Don't know which matrix to return. Please set a valid active expression matrix with 'setActiveExpressionMatrix()'."))
 
     }
 
@@ -250,13 +277,13 @@ getExpressionMatrix <- function(object,
 
   }
 
-  if(base::isTRUE(verbose)){ base::message(glue::glue("Using expression matrix '{active_mtr}'."))}
+  confuns::give_feedback(msg = glue::glue("Using expression matrix '{active_mtr}'."), verbose = verbose)
 
   expr_mtr <-
     object@data[[of_sample]][[active_mtr]] %>%
     base::as.matrix()
 
-  return(expr_mtr)
+  base::return(expr_mtr)
 
 }
 
@@ -278,7 +305,7 @@ getCountMatrix <- function(object, of_sample = NA){
 
   }
 
-  return(count_mtr)
+  base::return(count_mtr)
 
 }
 
@@ -349,6 +376,7 @@ getSpataDf <- function(object, of_sample = NA){
 #'
 #' @inherit check_method params
 #' @inherit check_sample params
+#' @param n_pcs Numeric value. Denotes the number of principal components to be included.
 #'
 #' @return A data.frame that contains the unique identifiers
 #' (keys): \emph{barcodes, sample} and:.
@@ -387,6 +415,15 @@ getDimRedDf <- function(object,
     base::stop("There seems to be no data for method: ", method_dr)
 
   }
+
+  ref_x <- stringr::str_c(method_dr, "data", sep = "-")
+  ref_fns <- stringr::str_c("run", confuns::make_capital_letters(string = method_dr), "()", sep = "")
+
+  check_availability(
+    test = !(base::is.null(dim_red_df) || base::nrow(dim_red_df) == 0),
+    ref_x = ref_x,
+    ref_fns = ref_fns
+  )
 
   base::return(dim_red_df)
 
@@ -703,24 +740,29 @@ getFeatureValues <- function(object, features, of_sample = NA){
 
   if(base::length(features) == 1){
 
-    getFeatureDf(object, of_sample = of_sample) %>%
+    values <-
+      getFeatureDf(object, of_sample = of_sample) %>%
       dplyr::pull(var = {{features}}) %>%
-      base::unique() %>%
-      base::return()
+      base::unique()
+
+    base::return(values)
 
   } else {
 
-    purrr::map(.x = features,
-               .f = function(f){
+    values <-
+      purrr::map(.x = features,
+                 .f = function(f){
+                   res <-
+                   getFeatureDf(object, of_sample = of_sample) %>%
+                     dplyr::pull(var = {{f}}) %>%
+                     base::unique()
 
-                 getFeatureDf(object, of_sample = of_sample) %>%
-                   dplyr::pull(var = {{f}}) %>%
-                   base::unique() %>%
-                   base::return()
+                   base::return(res)
 
-               }) %>%
-      magrittr::set_names(features) %>%
-      base::return()
+                 }) %>%
+      magrittr::set_names(features)
+
+    base::return(values)
   }
 
 
@@ -753,6 +795,7 @@ getGroupingOptions <- function(object, of_sample = NA){
 #' @title Obtain group names a grouping variable contains
 #'
 #' @inherit across_dummy params
+#' @inherit argument_dummy params
 #' @inherit check_sample params
 #'
 #' @return Character vector
@@ -763,7 +806,7 @@ getGroupingOptions <- function(object, of_sample = NA){
 #'  # obtain all group names the variable 'my_cluster'
 #'  # contains
 #'
-#'  getGroupNames(object = object, across = "my_cluster")
+#'  getGroupNames(object = object, discrete_feature = "my_cluster")
 #'
 
 getGroupNames <- function(object, discrete_feature, of_sample = NA){
@@ -783,8 +826,9 @@ getGroupNames <- function(object, discrete_feature, of_sample = NA){
 
   if(base::is.factor(res_groups)){
 
-    base::levels(res_groups) %>%
-      base::return()
+    res_groups <- base::levels(res_groups)
+
+    base::return(res_groups)
 
   } else {
 
@@ -846,7 +890,7 @@ getSegmentNames <- function(object,
 
                  } else {
 
-                   return(segment_names[!segment_names %in% c("none", "")])
+                   base::return(segment_names[!segment_names %in% c("none", "")])
 
                  }
 
@@ -858,8 +902,9 @@ getSegmentNames <- function(object,
 
   if(base::isTRUE(simplify)){
 
-    base::unlist(res_list, use.names = FALSE) %>%
-      base::return()
+    res_list <- base::unlist(res_list, use.names = FALSE)
+
+    base::return(res_list)
 
   } else {
 
@@ -933,6 +978,30 @@ getGeneCounts <- function(object, of_sample = NA, return = "tibble"){
 
 }
 
+#' @title Obtain feature names of the gene meta data
+#'
+#' @description Convenient way to obtain the column names of the output data.frame
+#' of \code{getGeneMetaDf()}.
+#'
+#' @inherit getGeneMetaData params
+
+getGeneFeatureNames <- function(object, mtr_name = NULL, of_sample = NA){
+
+  check_object(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  gmdf <- getGeneMetaDf(object = object,
+                        mtr_name = mtr_name,
+                        of_sample = of_sample) %>%
+    dplyr::select(-genes)
+
+  gf_names <- base::colnames(gmdf)
+
+  base::return(gf_names)
+
+}
+
 #' @title Obtain gene meta data
 #'
 #' @inherit check_sample params
@@ -1001,7 +1070,7 @@ getImage <- function(object, of_sample = NA){
 
   check_object(object)
 
-  of_sample = check_sample(object, of_sample = of_sample, of.length = 1)
+  of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
   object@images[[of_sample]]
 
@@ -1009,8 +1078,6 @@ getImage <- function(object, of_sample = NA){
 
 # -----
 # Slot: information -------------------------------------------------------
-
-
 
 #' @title Obtain default argument inputs
 #'
@@ -1045,11 +1112,70 @@ getDirectoryInstructions <- function(object, to = c("cell_data_set", "seurat_obj
 
   } else {
 
-    base::unlist(directory_list, use.names = FALSE) %>%
-      base::return()
+    dir <- base::unlist(directory_list, use.names = FALSE)
+
+    base::return(dir)
+
   }
 
 }
+
+
+#' @title Obtain information about object initiation
+#'
+#' @description Information about the object's initiation is stored in
+#' a list of three slots:
+#'
+#' \itemize{
+#'  \item{\emph{init_fn}: Contains the name of the initation function as a character value.}
+#'  \item{\emph{input}: Contains a list of which every slot refers to the input of one argument with which the
+#'  initiation function has been called.}
+#'  \item{\emph{time}: Contains the time at which the object was initiated.}
+#'  }
+#'
+#'  \code{getInitiationInput()} returns only slot \emph{input}.
+#'
+#' @inherit check_object params
+#' @inherit argument_dummy params
+#'
+#' @details \code{initiateSpataObject_CountMtr()} and \code{initiateSpataObject_ExprMtr()} each require
+#' a matrix and a coordinate data.frame as input. These are not included in the output
+#' of this function but can be obtained via \code{getCoordsDf()} and \code{getCountMtr()} or \code{getExpressionMtr()}.
+#'
+#' @return A list. See description.
+#' @export
+
+getInitiationInfo <- function(object){
+
+  check_object(object)
+
+  info <- object@information$initiation
+
+  base::return(info)
+
+}
+
+#' @rdname getInitiationInfo
+#' @export
+getInitiationInput <- function(object, verbose = NULL){
+
+  hlpr_assign_arguments(object)
+
+  info <- getInitiationInfo(object)
+
+  init_fn <- info$init_fn
+
+  confuns::give_feedback(
+    msg = glue::glue("Initiation function used: '{init_fn}()'."),
+    verbose = verbose,
+    with.time = FALSE
+  )
+
+  base::return(info$input)
+
+}
+
+
 
 # -----
 
@@ -1282,7 +1408,7 @@ getTrajectoryLength <- function(object,
 #'
 #' @export
 
-getTrajectoryNames <- function(object, simplify = TRUE, of_sample = NA){
+getTrajectoryNames <- function(object, simplify = TRUE, of_sample = NA, ...){
 
   # lazy check
   check_object(object)
@@ -1299,7 +1425,17 @@ getTrajectoryNames <- function(object, simplify = TRUE, of_sample = NA){
 
       if(base::length(t_names) == 0){
 
-        base::message(stringr::str_c("No trajectories found in sample: ", i, sep = ""))
+        msg <- stringr::str_c("No trajectories found in sample: ", i, sep = "")
+
+        input <- confuns::keep_named(c(...))
+
+        verbose <- base::ifelse(test = base::any(input == FALSE), yes = FALSE, no = TRUE)
+
+        confuns::give_feedback(
+          msg = msg,
+          with.time = FALSE,
+          verbose = verbose
+        )
 
         base::return(NULL)
 

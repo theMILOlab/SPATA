@@ -24,12 +24,12 @@ Imports:
     ggridges,
     ggsci,
     glue,
-    keras,
     magick,
     magrittr,
     pheatmap,
     progress,
     purrr,
+    psych,
     rlang,
     readr,
     reticulate,
@@ -40,7 +40,6 @@ Imports:
     sp,
     stringr,
     stringi,
-    tensorflow, 
     tibble,
     tidyr,
     tidytext,
@@ -50,6 +49,8 @@ Collate:
     'S4-generic-functions.R'
     'add-family.R'
     'adjust-family.R'
+    'autoencoder-preliminary-functions.R'
+    'autoencoder-preliminary-plotting-functions.R'
     'check-family-adjusting.R'
     'check-family-lazy.R'
     'check-family-validation.R'
@@ -68,6 +69,7 @@ Collate:
     'initiate-family.R'
     'is-family.R'
     'joinWith-family.R'
+    'joinWithDimRed-family.R'
     'loading-and-saving.R'
     'merge-spata-objects.R'
     'miscellaneous-data-frame-functions.R'
