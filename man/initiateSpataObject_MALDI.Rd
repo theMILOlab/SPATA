@@ -40,13 +40,8 @@ correspond to the genes and column names must correspond to the barcodes.}
 
 If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
 
-\item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
-the number of components to return.}
-
 \item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
-of nearest neighbours to compute.}
-
-\item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
+of nearest neighbours to compute. (\code{nn} is deprecated.)}
 }
 \value{
 A spata-object.

@@ -21,6 +21,7 @@ plotBoxplot(
   ref_group = NULL,
   step_increase = 0.01,
   vjust = 0,
+  display_facets = NULL,
   scales = "free",
   nrow = NULL,
   ncol = NULL,
@@ -45,6 +46,7 @@ plotDensityplot(
   relevel = NULL,
   clrp = NULL,
   clrp_adjust = NULL,
+  display_facets = NULL,
   scales = "free",
   nrow = NULL,
   ncol = NULL,
@@ -105,6 +107,7 @@ plotViolinplot(
   test_pairwise = NULL,
   ref_group = NULL,
   step_increase = 0.01,
+  display_facets = NULL,
   vjust = 0,
   scales = "free",
   nrow = NULL,
@@ -179,6 +182,9 @@ height for every additional comparison to minimize overlap.}
 the test denoted in \code{test.groupwise}. Negative input highers, positive
 input lowers the position.}
 
+\item{display_facets}{Logical value. If set to TRUE the plot is split via
+\code{ggplot2::facet_wrap()} such that each variable gets it's own subplot.}
+
 \item{scales}{Given to \code{ggplot2::facet_wrap()}. Affects the way the subplots
 are displayed.}
 
@@ -219,9 +225,6 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to the respective \code{ggplot2::geom_<plot_type>()}
 function. E.g. \code{plotViolinplot()} relies on \code{ggplot2::geom_violin()}.}
-
-\item{display_facets}{Logical value. If set to TRUE the plot is split via
-\code{ggplot2::facet_wrap()} such that each variable gets it's own subplot.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according
@@ -230,6 +233,6 @@ to the rules of the ggplot2-framework.
 \description{
 These functions display the distribution of numeric
 variables for the whole sample or in a comparative manner if argument
-\code{across} is specified. \code{plotViolinplots()} and \code{plotBoxplot}
+\code{across} is specified. \code{plotViolinplot()} and \code{plotBoxplot()}
 allow for statistical tests such as t-test or ANOVA.
 }

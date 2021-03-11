@@ -9,6 +9,9 @@ getGroupNames(object, discrete_feature, of_sample = NA)
 \arguments{
 \item{object}{A valid spata-object.}
 
+\item{discrete_feature}{Character value. Specifies the name of the grouping variable
+of interest. Use \code{getGroupingOptions()} to obtain all valid input options.}
+
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 }
@@ -24,6 +27,6 @@ Obtain group names a grouping variable contains
  # obtain all group names the variable 'my_cluster'
  # contains
 
- getGroupNames(object = object, across = "my_cluster")
+ getGroupNames(object = object, discrete_feature = "my_cluster")
 
 }

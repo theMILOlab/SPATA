@@ -9,6 +9,7 @@ hlpr_scatterplot(
   spata_df,
   color_to,
   method_gs = "mean",
+  display_title = FALSE,
   pt_size = 2,
   pt_alpha = 1,
   pt_clrsp = "inferno",
@@ -35,7 +36,8 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{normalize}{Logical. If set to TRUE values will be scaled to 0-1.
 

@@ -19,13 +19,16 @@ numeric \emph{x}- and \emph{y}-variables.}
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{smooth_method}{The smoothing method that will be used specified as a
 single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
 
-\item{smooth_se}{Logical. If set to TRUE the confidence interval will be
-displayed.}
+\item{smooth_se}{Logical. If set to TRUE the confidence interval will be}
+
+\item{smooth_clr}{Character value. The color with which to display the smoothed
+model.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

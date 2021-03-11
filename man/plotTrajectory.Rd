@@ -48,7 +48,8 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{pt_size}{Numeric value. Specifies the size of all points.}
 
@@ -87,5 +88,6 @@ to the rules of the ggplot2-framework.
 }
 \description{
 Displays the spatial course of spatial trajectory that was
-drawn with \code{SPATA::createTrajectories()}.
+drawn with \code{SPATA::createTrajectories()}. Increase the transparency
+via argument \code{pt_alpha} to highlight the trajectory's course.
 }

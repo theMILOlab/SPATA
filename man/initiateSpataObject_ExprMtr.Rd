@@ -7,17 +7,18 @@
 initiateSpataObject_ExprMtr(
   coords_df,
   expr_mtr,
+  sample_name,
   count_mtr = NULL,
   mtr_name = "scaled",
-  sample_name = "sample1",
   image = NULL,
   directory_spata = NULL,
   combine_with_wd = FALSE,
   gene_set_path = NULL,
-  n_pcs = 30,
   k = 50,
-  tsne_perplexity = 30,
-  ...,
+  nn = NULL,
+  runPca = list(n_pcs = 30),
+  runTsne = list(tsne_perplexity = 30),
+  runUmap = list(),
   verbose = TRUE
 )
 }
@@ -45,13 +46,8 @@ of the input matrix (\code{expr_mtr}).}
 
 If set to NULL the default gene-set data.frame will used. Run \code{?gsdf} to get more information.}
 
-\item{tsne_perplexity}{Numeric value. Given to argument \code{perplexity} of function \code{Rtsne::Rtsne()}.}
-
-\item{nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
-of nearest neighbours to compute.}
-
-\item{pca_comp}{Numeric value. Given to argument \code{n} of function \code{irlba::prcomp_irlba()}: Determines
-the number of components to return.}
+\item{k, nn}{Numeric value. Given to argument \code{k} of function \code{RANN::nn2()}: Determines to maximum number
+of nearest neighbours to compute. (\code{nn} is deprecated.)}
 }
 \value{
 A spata-object.
@@ -64,4 +60,8 @@ an already processed expression/intensity matrix. See details for more informati
 After initiating the spata-object PCA is performed via \code{irlba::prcomp_irlba()} and clustering
 is done via \code{RANN::nn2()}. (Use \code{addFeatures()} to add any clustering results of your own analysis.)
 Additional dimensional reduction is performed via \code{Rtsne::Rtsne()} and \code{umap::umap()}.
+
+Note that this function initiates a spata-object that does not contain a count-matrix! You can
+add a count-matrix manually using \code{setCountmatrix()}. As long as there is none functions that
+need a count-matrix will throw an error telling you that no count matrix could be found.
 }

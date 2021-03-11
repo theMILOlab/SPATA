@@ -17,7 +17,7 @@ plotTrajectoryFeatures(
   clrp = NULL,
   clrp_adjust = NULL,
   display_trajectory_parts = NULL,
-  split = NULL,
+  display_facets = NULL,
   verbose = NULL,
   of_sample = NA,
   ...
@@ -35,7 +35,7 @@ plotTrajectoryGenes(
   smooth_se = NULL,
   smooth_span = NULL,
   display_trajectory_parts = NULL,
-  split = NULL,
+  display_facets = NULL,
   verbose = NULL,
   of_sample = NA,
   ...
@@ -53,7 +53,7 @@ plotTrajectoryGeneSets(
   clrp = NULL,
   clrp_adjust = NULL,
   display_trajectory_parts = NULL,
-  split = NULL,
+  display_facets = NULL,
   verbose = NULL,
   of_sample = NA,
   ...
@@ -67,10 +67,10 @@ plotTrajectoryGeneSets(
 \item{smooth_method}{The smoothing method that will be used specified as a
 single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
 
-\item{smooth_se}{Logical. If set to TRUE the confidence interval will be
-displayed.}
+\item{smooth_se}{Logical. If set to TRUE the confidence interval will be}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{binwidth}{Numeric value. Denotes the binwidth with which to sort all
 relevant barcode spots into groups that are then aligned with respect to the
@@ -89,7 +89,7 @@ represent the group.}
 visualizes the parts in which the trajectory has been partitioned while beeing
 drawn.}
 
-\item{split}{Logical. If set to TRUE sub plots for every specified gene, gene-set
+\item{display_facets}{Logical. If set to TRUE sub plots for every specified gene, gene-set
 or feature are displayed via \code{ggplot2::facet_wrap()}}
 
 \item{verbose}{Logical. If set to TRUE informative messages regarding
@@ -101,7 +101,7 @@ the computational progress will be printed.
 If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{...}{Additional arguments given to \code{ggplot2::facet_wrap()} if argument
-\code{split} is set to TRUE.}
+\code{display_facets} is set to TRUE.}
 
 \item{genes}{The genes of interest specified as a character vector.}
 

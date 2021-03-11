@@ -6,7 +6,7 @@
 \usage{
 findSeuratClusters(
   object,
-  mtr_name = "scaled",
+  mtr_name = getActiveMatrixName(object, of_sample = of_sample),
   FindVariableFeatures = list(selection.method = "vst", nfeatures = 2000),
   RunPCA = list(npcs = 60),
   FindNeighbors = list(dims = 1:30),

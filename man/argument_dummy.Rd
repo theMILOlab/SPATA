@@ -43,6 +43,9 @@ color palette that is used to represent the groups. Names of the input vector mu
 to the group and the respective named element denotes the color with which to
 represent the group.}
 
+\item{discrete_feature}{Character value. Specifies the name of the grouping variable
+of interest. Use \code{getGroupingOptions()} to obtain all valid input options.}
+
 \item{display_title}{Logical value. If set to TRUE an informative title is displayed.}
 
 \item{n_bcsp}{Numeric value. Specifies the sample size of barcode-spots and

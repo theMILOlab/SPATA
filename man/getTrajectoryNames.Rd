@@ -4,7 +4,7 @@
 \alias{getTrajectoryNames}
 \title{Obtain trajectory names}
 \usage{
-getTrajectoryNames(object, simplify = TRUE, of_sample = NA)
+getTrajectoryNames(object, simplify = TRUE, of_sample = NA, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}

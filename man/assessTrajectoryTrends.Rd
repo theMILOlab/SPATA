@@ -10,10 +10,10 @@
 assessTrajectoryTrends(
   object,
   trajectory_name,
-  of_sample = "",
   variables,
   binwidth = 5,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 
 assessTrajectoryTrends2(stdf, verbose = TRUE)
@@ -21,11 +21,11 @@ assessTrajectoryTrends2(stdf, verbose = TRUE)
 assessTrajectoryTrendsCustomized(
   object,
   trajectory_name,
-  of_sample = "",
   customized_trends,
   variables,
   binwidth = 5,
-  verbose = TRUE
+  verbose = TRUE,
+  of_sample = NA
 )
 
 assessTrajectoryTrendsCustomized2(stdf, customized_trends, verbose = TRUE)
@@ -35,9 +35,6 @@ assessTrajectoryTrendsCustomized2(stdf, customized_trends, verbose = TRUE)
 
 \item{trajectory_name}{The trajectory of interest specified
 as a single character value.}
-
-\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
-If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{variables}{Character vector. The variables of interest:
 
@@ -51,6 +48,9 @@ If set to \emph{""} (the default) the first sample is chosen.}
 the computational progress will be printed.
 
 (Warning messages will always be printed.)}
+
+\item{of_sample}{The sample(s) of interest specified as a single character value or vector.
+If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{stdf}{A summarized trajectory data.frame. (e.g. obtained by
 \code{getTrajectoryDf()}).}
@@ -69,12 +69,15 @@ trajectories by fitting a variety of mathematical models to them and
 by assessing the quality of each fit.
 
 \itemize{
- \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and constructs
+ \item{\code{assessTrajectoryTrends()}: Takes a valid spata-object and assembles
  the needed summarized trajectory data.frame from scratch.}
  \item{\code{assessTrajectoryTrends2()}: Takes a summarized trajectory data.frame
  returned by \code{getTrajectoryDf()}.}
  \item{\code{assessTrajectoryTrendsCustomized()}: Takes a valid spata-object as well as
- a data.frame or list of customized models against which to fit the variables and constructs
+ a data.frame or list of customized models against which to fit the variables. It assembles
  the needed summarized trajectory data.frame from scratch.}
+ \item{\code{assessTrajectoryTrendsCustomized2()}: Takes a summarized trajectory data.frame
+ returned by \code{getTrajectoryDf()} as well as a data.frame or list of customized
+ models against which to fit the variables.}
  }
 }

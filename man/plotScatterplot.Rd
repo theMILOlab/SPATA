@@ -7,15 +7,35 @@
 plotScatterplot(
   object,
   variables,
+  smooth = NULL,
+  smooth_clr = NULL,
+  smooth_method = NULL,
+  smooth_se = NULL,
+  smooth_span = NULL,
   pt_alpha = NULL,
   pt_clr = NULL,
   pt_size = NULL,
   verbose = NULL,
-  of_sample = NA
+  of_sample = NA,
+  ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
+
+\item{smooth}{Logical. If set to TRUE values will be smoothed according to the
+\code{smoooth_}-parameters.}
+
+\item{smooth_clr}{Character value. The color with which to display the smoothed
+model.}
+
+\item{smooth_method}{The smoothing method that will be used specified as a
+single character value (e.g. \emph{"lm", "glm", "gam", "loess"}).}
+
+\item{smooth_se}{Logical. If set to TRUE the confidence interval will be}
+
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
@@ -30,6 +50,8 @@ the computational progress will be printed.
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{ggplot2::geom_smooth()}.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

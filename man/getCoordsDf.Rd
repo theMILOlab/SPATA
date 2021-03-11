@@ -2,9 +2,12 @@
 % Please edit documentation in R/get-family.R
 \name{getCoordsDf}
 \alias{getCoordsDf}
+\alias{getSegmentDf}
 \title{Obtain spatial coordinates}
 \usage{
 getCoordsDf(object, of_sample = NA)
+
+getSegmentDf(object, segment_names, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -12,11 +15,11 @@ getCoordsDf(object, of_sample = NA)
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
 
-\item{of_segment}{Character value. Specifies the segment of interest.}
+\item{segment_names}{Character vector. Specifies the segments of interest.}
 }
 \value{
 A data.frame containing the variables \emph{barcods, sample, x, y}
-(and \emph{segment} if specified).
+(and \emph{segmentation} in case of \code{getSegmentDf()}).
 }
 \description{
 Obtain spatial coordinates

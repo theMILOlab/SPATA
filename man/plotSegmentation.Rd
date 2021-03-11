@@ -7,15 +7,21 @@
 plotSegmentation(
   object,
   encircle = TRUE,
+  segment_subset = NULL,
   pt_size = NULL,
   pt_clrp = NULL,
-  of_sample = NA
+  clrp_adjust = NULL,
+  of_sample = NA,
+  ...
 )
 }
 \arguments{
 \item{object}{A valid spata-object.}
 
 \item{encircle}{Logical. If set to TRUE the segments are enclosed in a polygon.}
+
+\item{segment_subset}{Character vector or NULL. If character vector, denotes
+the segments that are supposed to be highlighted.}
 
 \item{pt_size}{Numeric value. Specifies the size of all points.}
 
@@ -24,6 +30,8 @@ color is categorical/discrete. Run \code{validColorPalettes()} to see valid inpu
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{confuns::scale_color_add_on()}.}
 }
 \value{
 Returns a ggplot-object that can be additionally customized according

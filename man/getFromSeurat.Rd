@@ -11,11 +11,11 @@ getFromSeurat(return_value, error_handling, error_value, error_ref)
 
 \item{error_handling}{Either \emph{'warning} or \emph{'stop'}.}
 
-\item{error_value}{What is supposed to be returned if extractino fails.}
+\item{error_value}{What is supposed to be returned if extraction fails.}
 
 \item{error_ref}{The reference for the feedback message.}
 }
 \description{
 A wrapper around \code{base::tryCatch()} with predefined error handling
-messages if extraction from seurat object failed.
+messages if extraction from seurat-object failed.
 }

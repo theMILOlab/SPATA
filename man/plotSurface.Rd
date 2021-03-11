@@ -18,6 +18,7 @@ plotSurface(
   pt_clrp = NULL,
   pt_clrsp = NULL,
   pt_size = NULL,
+  clrp_adjust = NULL,
   display_image = NULL,
   display_title = NULL,
   complete = NULL,
@@ -60,7 +61,8 @@ of \emph{'gsva', 'ssgsea', 'zscore', or 'plage'}. The latter four will be given 
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
@@ -73,6 +75,11 @@ color is categorical/discrete. Run \code{validColorPalettes()} to see valid inpu
 color is continuous. Run \code{validColorSpectra()} to see valid input.}
 
 \item{pt_size}{Numeric value. Specifies the size of all points.}
+
+\item{clrp_adjust}{Named character vector or NULL. If character, it adjusts the
+color palette that is used to represent the groups. Names of the input vector must refer
+to the group and the respective named element denotes the color with which to
+represent the group.}
 
 \item{display_image}{Logical. If set to TRUE the histology image of the specified sample
 is displayed underneath the plot.}
@@ -101,11 +108,6 @@ If set to \emph{""} (the default) the first sample is chosen.}
 
 \item{image}{An image of class \emph{Image} to be displayed in the background.
 Easily accessible via \code{SPATA::image()}.}
-
-\item{clrp_adjust}{Named character vector or NULL. If character, it adjusts the
-color palette that is used to represent the groups. Names of the input vector must refer
-to the group and the respective named element denotes the color with which to
-represent the group.}
 }
 \description{
 Displays the spatial dimension of the sample and colors the

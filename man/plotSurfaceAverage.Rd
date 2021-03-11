@@ -18,7 +18,8 @@ plotSurfaceAverage(
 \arguments{
 \item{object}{A valid spata-object.}
 
-\item{color_by}{A named list in which each element is a vector of gene names.}
+\item{color_by}{A character vector of gene names or a
+named list in which each element is a vector of gene names.}
 
 \item{pt_alpha}{Numeric value. Specifies the degree of transparency of all points.}
 
@@ -30,7 +31,8 @@ color is continuous. Run \code{validColorSpectra()} to see valid input.}
 \item{smooth}{Logical. If set to TRUE values will be smoothed according to the
 \code{smoooth_}-parameters.}
 
-\item{smooth_span}{The amount of smoothing specified as a single numeric value.}
+\item{smooth_span}{The amount of smoothing specified as a single numeric value.
+displayed.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
