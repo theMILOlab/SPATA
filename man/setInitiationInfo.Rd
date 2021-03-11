@@ -4,10 +4,13 @@
 \alias{setInitiationInfo}
 \title{Set initiation information}
 \usage{
-setInitiationInfo(object)
+setInitiationInfo(object, additional_input = list())
 }
 \arguments{
 \item{object}{A valid spata-object.}
+
+\item{additional_input}{A list of named arguments provided by
+... of the calling function.}
 }
 \value{
 A logical value TRUE if nothing invalid has been detected or an informative

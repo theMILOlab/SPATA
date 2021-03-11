@@ -5,9 +5,9 @@
 \alias{runTsne2}
 \title{Run t-Stochastic Neighbour Embedding}
 \usage{
-runTsne(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA)
+runTsne(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA, ...)
 
-runTsne2(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA)
+runTsne2(object, n_pcs = 20, tsne_perplexity = 30, of_sample = NA, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -20,11 +20,13 @@ smaller or equal to the number of principal components the pca data.frame contai
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{Rtsne::Rtsne()}.}
 }
 \value{
 \itemize{
-  \item{\code{runTsne()}}{ An updated spata-object containing the reduction variables in the tsne data.frame.}
-  \item{\code{runTsne2()}}{ The direct output-object of \code{Rtsne::Rtsne()}}
+  \item{\code{runTsne()}:}{ An updated spata-object containing the reduction variables in the tsne data.frame.}
+  \item{\code{runTsne2()}:}{ The direct output-object of \code{Rtsne::Rtsne()}}
   }
 }
 \description{

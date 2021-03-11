@@ -6,7 +6,7 @@
 \usage{
 transformSpataToSeurat(
   object,
-  assay = "Spatial",
+  assay_name = "Spatial",
   ...,
   SCTransform = FALSE,
   NormalizeData = list(normalization.method = "LogNormalize", scale.factor = 1000),
@@ -22,8 +22,6 @@ transformSpataToSeurat(
 }
 \arguments{
 \item{object}{A valid spata-object.}
-
-\item{assay}{Character value. The name under which the count- and expression matrix is to be saved.}
 
 \item{...}{Additional parameters given to \code{Seurat::CreateSeuratObject()}.}
 
@@ -47,9 +45,11 @@ for argument \code{features} is set to \code{base::rownames(seurat_object)}.}
 \item{RunTSNE}{A named list of arguments given to \code{Seurat::RunTSNE()}, TRUE or FALSE.}
 
 \item{RunUMAP}{A named list of arguments given to \code{Seurat::RunUMAP()}, TRUE or FALSE.}
+
+\item{assay}{Character value. The name under which the count- and expression matrix is to be saved.}
 }
 \value{
-
+A seurat-object.
 }
 \description{
 Takes the count matrix of your spata-object and creates a
@@ -57,13 +57,9 @@ Seurat-object with it. The spata-object's feature-data is passed as input
 for the \code{meta.data}-argument of \code{Seurat::CreateSeuratObject()}.
 If specified as TRUE or named list of arguments the respective functions are called in
 order to pre process the object.
-
-The specified spata-object must contain only one sample! (use \code{subsetSpataObject()} to reduce
-the number of samples). If you want to analyze several samples with Seurat please compile the objects one by one and
-consider using \code{Seurat::merge()}.
 }
 \details{
-`compileSeuratObject()` is a convenient wrapper around all functions that preprocess a seurat-object
+`transformSpataToSeurat()` is a convenient wrapper around all functions that preprocess a seurat-object
 after it's initiation. The object is initiated by passing the spata-objects count-matrix and feature data to it whereupon
 the functions are called in the order they are presented in this documentation. For all
 pre processing functions apply the following instructions:
@@ -72,7 +68,7 @@ pre processing functions apply the following instructions:
   \item{If set to FALSE the processing function is skipped.}
   \item{If set to TRUE the respective function is called with it's default argument settings. Note: \code{RunUMAP()} needs
   additional input!}
-  \item{If a named list is provided the respective function called whereby the named list will provide the argument-input (the seurat-object to be constructed must not be named and will be
+  \item{If a named list is provided the respective function is called whereby the named list will provide the argument-input (the seurat-object to be constructed must not be named and will be
   passed to every function as the first argument!!!.)}
   }
 

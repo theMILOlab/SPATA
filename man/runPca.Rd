@@ -5,9 +5,9 @@
 \alias{runPca2}
 \title{Run Principal Component Analysis}
 \usage{
-runPca(object, n_pcs = 30, mtr_name = NULL, of_sample = NA)
+runPca(object, n_pcs = 30, mtr_name = NULL, of_sample = NA, ...)
 
-runPca2(object, n_pcs = 30, mtr_name = NULL, of_sample = NA)
+runPca2(object, n_pcs = 30, mtr_name = NULL, of_sample = NA, ...)
 }
 \arguments{
 \item{object}{A valid spata-object.}
@@ -19,11 +19,13 @@ the currently active matrix is chosen.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}
+
+\item{...}{Additional arguments given to \code{irlba::prcomp_irlba()}.}
 }
 \value{
 \itemize{
-  \item{\code{runPca()}}{ An updated spata-object containing the reduction variables in the pca data.frame.}
-  \item{\code{runPca2()}}{ The direct output-object of \code{irlba::prcomp_irlba()}}.
+  \item{\code{runPca()}:}{ An updated spata-object containing the reduction variables in the pca data.frame.}
+  \item{\code{runPca2()}:}{ The direct output-object of \code{irlba::prcomp_irlba()}}.
   }
 }
 \description{

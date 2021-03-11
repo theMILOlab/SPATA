@@ -7,9 +7,10 @@
 transformSeuratToSpata(
   seurat_object,
   sample_name,
-  assay = "Spatial",
-  slice_name = "slice1",
   method = "spatial",
+  assay_name = NULL,
+  assay_slot = NULL,
+  image_name = NULL,
   coords_from = "umap",
   gene_set_path = NULL,
   verbose = TRUE
@@ -23,8 +24,8 @@ transformSeuratToSpata(
 \item{method}{Character value. Determines the data slots from which to compile the spata-object.
 
  \describe{
-  \item{\emph{'spatial'}}{Denotes that the data to be used derived from spatial experiments. }
-  \item{\emph{'single_cell'}}{Denotes that the data to be used derived from single cell experiments. }
+  \item{\emph{'spatial'}}{Denotes that the data to be used derived from spatial experiments.}
+  \item{\emph{'single_cell'}}{Denotes that the data to be used derived from single cell experiments.}
  }}
 
 \item{coords_from}{Character value. Either \emph{'umap'} or \emph{'tsne'}.
@@ -53,5 +54,32 @@ the computational progress will be printed.
 A spata object.
 }
 \description{
-Transform seurat-object to spata-object
+This function provides a convenient way to transform your seurat-object
+into a spata-object while maintaining as much analysis progress as possible. See details
+for more information.
+}
+\details{
+This function assembles a spata-object from the data it finds in the provided
+seurat-object. This always includes gene count- and expression-matrices as well as
+dimensional reduction data like PCA, UMAP and TSNE. Whenever \code{transformSpataToSeurat()}
+does not find anything it well tell you via a warning message or an error message if the missing
+data is essential to the spata-object. You might have to run certain functions afterwards with the
+obtained SPATA-object. (e.g. did not find UMAP data in seurat-object -> \code{runUmap()}).
+
+If your seurat-object contains more than one assay-object or more than one
+SpatialImage-object you need to specify the respective objects by name using the arguments
+\code{assay_name} and \code{image_name}. If the assay you denoted with \code{assay_name}
+contains more than one valid expression matrix you need to specify the one you
+want to use as the spata-object's \emph{scaled_mtr}.
+
+Seurat-objects containing data derived from spatial experiments (\code{method} = \emph{'spatial'}):
+
+If you specify argument \code{method} as \emph{'spatial'} \code{transformSeuratToSpata()}
+assumes that the provided seurat-object contains a SpatialImage-object in slot @images
+from which it will extract the coordinates and the histology image.
+
+Seurat-objects containing data derived from spatial experiments (\code{method} = \emph{'single_cell'}):
+
+If you specify argument \code{method} as \emph{'single_cell'} \code{transformSeuratToSpata()}
+uses either tsne or umap embedding as surrogate coordinates.
 }

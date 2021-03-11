@@ -22,8 +22,8 @@ If set to \emph{""} (the default) the first sample is chosen.}
 }
 \value{
 \itemize{
-  \item{\code{runUmap()}}{ An updated spata-object containing the reduction variables in the umap data.frame.}
-  \item{\code{runUmap2()}}{ The direct output-object of \code{umap::umap()}}
+  \item{\code{runUmap()}:}{ An updated spata-object containing the reduction variables in the umap data.frame.}
+  \item{\code{runUmap2()}:}{ The direct output-object of \code{umap::umap()}}
   }
 }
 \description{

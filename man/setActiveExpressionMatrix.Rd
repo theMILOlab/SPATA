@@ -4,7 +4,7 @@
 \alias{setActiveExpressionMatrix}
 \title{Denote the default expression matrix}
 \usage{
-setActiveExpressionMatrix(object, of_sample = "", mtr_name)
+setActiveExpressionMatrix(object, mtr_name, of_sample = NA)
 }
 \arguments{
 \item{object}{A valid spata-object.}

@@ -6,7 +6,7 @@
 \usage{
 process_seurat_object(
   seurat_object,
-  assay = "RNA",
+  assay_name = NULL,
   calculate_rb_and_mt = TRUE,
   remove_stress_and_mt = TRUE,
   SCTransform = FALSE,
@@ -23,8 +23,6 @@ process_seurat_object(
 }
 \arguments{
 \item{seurat_object}{A valid seurat-object.}
-
-\item{assay}{Character value. The name under which the count- and expression matrix is to be saved.}
 
 \item{SCTransform}{A named list of arguments given to \code{Seurat::SCTransform()}, TRUE or FALSE.}
 

@@ -82,11 +82,11 @@ Monocle3 allows to use different methods for dimensional-reduction or clustering
 on each other. These arguments take a character vector of all valid inputs. \code{transformSpataToCDS()} iterates
 over all valid combinations and returns the cell_data_set with the computed information inside.
 
-Handling monocle-function-arguments.
+Handling monocle-function-arguments:
 
 These arguments take named lists of arguments that are given to the respective function. The \code{_method}-arguments
 as well as the argument \code{cds} are automatically defined and must not be included in the given lists!!! Empty lists - the default -
 result in running the function with it's default parameters.
 
-The spata-objects feature data (@fdata) is passed to the cell_data_set for it's slot \code{cell_meta_data}
+The spata-objects feature data (@fdata) is passed to the cell_data_set for it's slot \code{cell_meta_data}.
 }
