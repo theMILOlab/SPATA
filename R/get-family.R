@@ -12,7 +12,7 @@
 #' (and \emph{segmentation} in case of \code{getSegmentDf()}).
 #' @export
 
-getCoordsDf <- function(object, of_sample = NA){
+getCoordsDf <- function(object, of_sample = NA, return = "tibble"){
 
   # 1. Control --------------------------------------------------------------
 
@@ -28,6 +28,12 @@ getCoordsDf <- function(object, of_sample = NA){
 
   coords_df <-
     object@coordinates[[of_sample]]
+
+  if(return == "tibble"){
+
+    coords_df <- tibble::as_tibble(coords_df)
+
+  }
 
   # -----
 

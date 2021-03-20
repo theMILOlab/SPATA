@@ -407,7 +407,7 @@ plotSurfaceAverage <- function(object,
     ggplot2::theme_void() +
     ggplot2::facet_wrap(. ~ name) +
     scale_color_add_on(clrsp = pt_clrsp) +
-    ggplot2::labs(color = "Expr.")
+    ggplot2::labs(color = NULL)
 
 
 }
@@ -511,7 +511,7 @@ plotSurfaceComparison <- function(object,
     confuns::scale_color_add_on(variable = plot_df$values, clrsp = pt_clrsp) +
     ggplot2::theme_void() +
     ggplot2::facet_wrap(facets = ~ variables, ...) +
-    ggplot2::labs(color = "Expr.\nscore")
+    ggplot2::labs(color = NULL)
 
 }
 
@@ -552,7 +552,7 @@ plotSurfaceComparison2 <- function(coords_df,
       confuns::scale_color_add_on(variable = shifted_df$values, clrsp = pt_clrsp) +
       ggplot2::theme_void() +
       ggplot2::facet_wrap(facets = ~ variables, ...) +
-      ggplot2::labs(color = "Values")
+      ggplot2::labs(color = NULL)
 
   }
 
@@ -600,6 +600,7 @@ plotSurfaceQuantiles <- function(object,
 
   of_sample <- check_sample(object, of_sample = of_sample, of.length = 1)
 
+  confuns::is_value(x = color_by, mode = "character")
   confuns::is_value(x = n_qntls, mode = "numeric")
   confuns::is_vec(x = keep_qntls, mode = "numeric")
 

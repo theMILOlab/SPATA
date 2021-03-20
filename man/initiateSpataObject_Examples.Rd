@@ -6,7 +6,7 @@
 \usage{
 initiateSpataObject_Examples(
   data_set = "stxBrain",
-  type = "default",
+  type = "anterior1",
   force = FALSE,
   gene_set_path = NULL,
   SCTransform = FALSE,

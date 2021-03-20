@@ -1,5 +1,169 @@
 
 
+# Several slots:
+
+#' @title Discard genes
+#'
+#' @description This function takes a vector of genes or
+#' a regular expression and discards genes from the object's
+#' data matrices, gene meta data.frames and de-analysis results
+#' that match the input.
+#'
+#' @inherit argument_dummy params
+#' @inherit check_sample params
+#'
+#' @param genes Character vector or NULL. If character vector, specifies the genes
+#' to be discarded by name.
+#' @param regex Character value or NULL. If character value, specifies the
+#' regular expression according to which genes are discarded.
+#' @param include_dea Logical value. If set to TRUE the results of de-analysis
+#' are included. If set to FALSE de-analysis results are skipped during the
+#' discarding steps.
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+discardGenes <- function(object,
+                         genes = NULL,
+                         regex = NULL,
+                         include_dea = TRUE,
+                         verbose = NULL,
+                         of_sample = NA){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  hlpr_assign_arguments(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  confuns::is_value(x = include_dea, mode = "logical")
+
+  confuns::is_value(x = regex, mode = "character", skip.allow = TRUE, skip.val = NULL)
+  confuns::is_vec(x = genes, mode = "character", skip.allow = TRUE, skip.val = NULL)
+
+  if(base::all(!base::is.null(genes), !base::is.null(regex))){
+
+    msg <- "Please specify input either for argument 'genes' or for argument 'regex' - not both."
+
+    confuns::give_feedback(msg = msg, fdb.fn = "stop")
+
+  } else if(base::all(base::is.null(genes), base::is.null(regex))){
+
+    msg <- "Please specify input for argument 'genes' or for argument 'regex'."
+
+  } else if(base::is.character(genes)){
+
+    regex <- stringr::str_c(genes, collapse = "|")
+
+  }
+
+  # 2. Clean matrices -------------------------------------------------------
+
+  confuns::give_feedback(msg = "Cleaning data matrices.", verbose = verbose)
+
+  mtr_list <- object@data[[of_sample]]
+
+  mtr_names <- base::names(mtr_list)
+
+  mtr_list <-
+    purrr::map(.x = mtr_list,
+               .f = function(mtr){
+
+                 all_genes <- base::rownames(mtr)
+
+                 match_regex <-
+                   stringr::str_detect(
+                     string = all_genes,
+                     pattern = regex
+                   )
+
+                 # keep only gene names that did not match the regex
+                 res_mtr <- mtr[!match_regex, ]
+
+                 base::return(res_mtr)
+
+               }) %>%
+    purrr::set_names(nm = mtr_names)
+
+  object@data[[of_sample]] <- mtr_list
+
+  base::rm(mtr_list)
+
+  # 3. Clean gene data ------------------------------------------------------
+
+  confuns::give_feedback(msg = "Cleaning gene meta data.", verbose = verbose)
+
+  gdata_list <- object@gdata[[of_sample]]
+
+  gdata_names <- base::names(gdata_list)
+
+  gdata_list <-
+    purrr::map(.x = gdata_list,
+               .f = function(gdata_mtr_list){
+
+                 df <- gdata_mtr_list$df
+
+                 df <- dplyr::filter(df, !stringr::str_detect(genes, pattern = {{regex}} ))
+
+                 gdata_mtr_list$df <- df
+
+                 base::return(gdata_mtr_list)
+
+               }) %>%
+    purrr::set_names(nm = gdata_names)
+
+  object@gdata[[of_sample]] <- gdata_list
+
+  base::rm(gdata_list)
+
+  # 4. Clean Dea Results ----------------------------------------------------
+
+  if(base::isTRUE(include_dea)){
+
+    confuns::give_feedback(msg = "Cleaning de-analysis results.", verbose = verbose)
+
+    dea_list <- object@dea[[of_sample]]
+
+    dea_names <- base::names(dea_list)
+
+    dea_names2 <-
+      purrr::map(.x = dea_list, .f = base::names) %>%
+      purrr::set_names(nm = dea_names)
+
+    dea_list <-
+      purrr::pmap(.l = list(dea_list, dea_names2),
+                  .f = function(.dea_list, .dea_names2){
+
+                    purrr::map(.x = .dea_list,
+                               .f = function(method){
+
+                                 df <- dplyr::filter(method$data, !stringr::str_detect(gene, pattern = {{regex}}))
+
+                                 res_method <- list(data = df,
+                                                    adjustments = method$adjustments)
+
+                                 base::return(res_method)
+
+                               }) %>%
+                      purrr::set_names(nm = .dea_names2)
+
+                  }) %>%
+      purrr::set_names(nm = dea_names)
+
+    object@dea[[of_sample]] <- dea_list
+
+  }
+
+  # 5. Return results -------------------------------------------------------
+
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
+
+  base::return(object)
+
+}
+
+
 # Slot: autoencoder -------------------------------------------------------
 
 #' Title
@@ -140,8 +304,8 @@ discardExpressionMatrix <- function(object, mtr_name, of_sample = NA){
 #' in this case each barcode-spot. In SPATA the barcode-variable is a key-variable on its own,
 #' x- and y-coordinates work as key-variables if they are used combined.
 #'
-#' @param overwrite Logical. If the specified feature name already exists in the
-#' current spata-object this argument must be set to TRUE in order to overwrite it.
+#' @param overwrite Logical. If the specified feature names already exist in the
+#' current spata-object this argument must be set to TRUE in order to overwrite them.
 #'
 #'
 #' @details If you are only interested in adding specific features to the spata-object
@@ -381,6 +545,208 @@ discardFeatures <- function(object, feature_names, of_sample = NA){
 # -----
 
 
+
+
+# Slot: gdata -------------------------------------------------------------
+
+#' @title Add new gene features
+#'
+#' @description This function allows to savely add features to the
+#' gene meta data.frame of an expression matrix of choice.
+#'
+#' @inherit addFeatures params
+#' @inherit argument_dummy params
+#' @inherit check_sample params
+#' @inherit getGeneMetaData params
+#'
+#' @param gene_df A data.frame that contains the variables specified by name
+#' in the argument \code{feature_names} and the key variable \emph{genes} by
+#' which the feature variables are joined to the already existing
+#' gene meta data.frame.
+#'
+#' @details If you are only interested in adding specific features to the spata-object
+#' you can specify those with the \code{feature_names}-argument. If no variables
+#' are specified this way all variables found in the input data.frame for argument
+#' \code{gene_df} are taken. (Apart from the key variable \emph{genes}).
+#'
+#' Eventually the new features are joined via \code{dplyr::left_join()} over the
+#' key-variables \emph{genes}. Additional steps secure
+#' the joining process.
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+addGeneFeatures <- function(object,
+                            gene_df,
+                            feature_names = NULL,
+                            mtr_name = NULL,
+                            overwrite = FALSE,
+                            verbose = NULL,
+                            of_sample = NA){
+
+
+  # 1. Control --------------------------------------------------------------
+
+  hlpr_assign_arguments(object)
+
+  of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+  gene_cnames <-
+    dplyr::select(gene_df, -genes) %>%
+    base::colnames()
+
+  if(base::is.null(feature_names)){
+
+    feature_names <- gene_cnames
+
+  } else {
+
+    var.class <-
+      purrr::map(.x = feature_names, .f = function(i){ base::return("any") }) %>%
+      purrr::set_names(feature_names)
+
+    confuns::check_data_frame(
+      df = gene_df,
+      var.class = c("genes" = "character", var.class)
+    )
+
+    gene_df <- dplyr::select(gene_df, dplyr::all_of(x = c("genes", feature_names)))
+
+  }
+
+  # get matrix name for feedback
+  if(base::is.null(mtr_name)){
+
+    mtr_name <- getActiveMatrixName(object, of_sample = of_sample)
+
+  }
+
+
+  # 2. Extract gene meta data.frame -----------------------------------------
+
+  gmdata <-
+    getGeneMetaData(object = object, mtr_name = mtr_name, of_sample = of_sample)
+
+  gmdf <- gmdata$df
+
+
+  # 3. Compare input and gene meta data.frame -------------------------------
+
+  # do features already exist?
+
+  gmdf_features <-
+    dplyr::select(gmdf, -genes) %>%
+    base::colnames()
+
+  ovlp <-
+    base::intersect(x = feature_names, y = gmdf_features)
+
+  if(base::length(ovlp) >= 1){
+
+    if(base::isTRUE(overwrite)){
+
+      gmdf <-
+        dplyr::select(gmdf, -dplyr::all_of(x = ovlp))
+
+    } else {
+
+      msg <-
+        glue::glue("{ref1} '{ref_features}' already {ref2} in gene meta data of matrix '{mtr_name}'. Set argument 'overwrite' to TRUE in order to overwrite them.",
+                   ref1 = confuns::adapt_reference(input = ovlp, sg = "Feature"),
+                   ref_features = glue::glue_collapse(x = ovlp, sep = "', '", last = "' and '"),
+                   ref2 = confuns::adapt_reference(input = ovlp, sg = "exists", pl = "exist")
+        )
+
+      confuns::give_feedback(msg = msg, fdb.fn = "stop", with.time = FALSE)
+
+    }
+
+  }
+
+  # make sure that no data of not existing genes is added
+  gmdf_genes <- gmdf$genes
+
+  gene_df_final <- dplyr::filter(gene_df, genes %in% {{gmdf_genes}})
+
+  # join features
+  confuns::give_feedback(
+    msg = glue::glue("Adding features to gene meta data of matrix '{mtr_name}'."),
+    verbose = verbose
+  )
+
+  gmdf_new <-
+    dplyr::left_join(
+      x = gmdf,
+      y = gene_df_final,
+      by = "genes"
+    )
+
+  #  4. Add new gene meta data.frame -----------------------------------------
+
+  gmdata$df <- gmdf_new
+
+  object <-
+    addGeneMetaData(
+      object = object,
+      meta_data_list = gmdata
+      )
+
+  # 5. Return results -------------------------------------------------------
+
+  confuns::give_feedback(msg = "Done.", verbose = verbose)
+
+  base::return(object)
+
+}
+
+
+#' @title Discard gene features
+#'
+#' @description Discards the features of choice of the gene meta data.
+#'
+#' @inherit check_sample params
+#' @inherit getExpressionMatrix params
+#' @param feature_names Character vector. Specifies the gene features to be discarded.
+#'
+#' @return An updated spata-object.
+#' @export
+#'
+discardGeneFeatures <- function(object,
+                                feature_names,
+                                mtr_name = NULL){
+
+ check_object(object)
+
+ of_sample <-
+   check_sample(object = object, of_sample = of_sample, of.length = 1)
+
+ confuns::is_vec(x = feature_names, mode = "character")
+
+ gmdata <-
+   getGeneMetaData(object = object, mtr_name = mtr_name, of_sample = of_sample)
+
+ gmdf <- gmdata$df
+
+ for(feature in feature_names){
+
+   gmdf[[feature]] <- NULL
+
+ }
+
+ gmdata$df <- gmdf
+
+ object <-
+   addGeneMetaData(
+     object = object,
+     meta_data_list = gmdata,
+     of_sample = of_sample
+     )
+
+ base::return(object)
+
+}
+
+# -----
 
 # Slot: used_genesets -----------------------------------------------------
 

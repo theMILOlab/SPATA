@@ -29,8 +29,8 @@ Key variables are variables in a data.frame that uniquely identify each observat
 in this case each barcode-spot. In SPATA the barcode-variable is a key-variable on its own,
 x- and y-coordinates work as key-variables if they are used combined.}
 
-\item{overwrite}{Logical. If the specified feature name already exists in the
-current spata-object this argument must be set to TRUE in order to overwrite it.}
+\item{overwrite}{Logical. If the specified feature names already exist in the
+current spata-object this argument must be set to TRUE in order to overwrite them.}
 
 \item{of_sample}{The sample(s) of interest specified as a single character value or vector.
 If set to \emph{""} (the default) the first sample is chosen.}

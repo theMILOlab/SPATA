@@ -785,6 +785,30 @@ check_monocle_input <- function(preprocess_method,
 
 }
 
+#' Makes sure that both packages are installed
+#'
+check_monocle_packages <- function(){
+
+  pkgs <-
+    utils::installed.packages() %>%
+    base::as.data.frame() %>%
+    tibble::rownames_to_column("pkgs") %>%
+    dplyr::pull(pkgs)
+
+  missing <- base::setdiff(x = c("leidenbase", "monocle3"), y = pkgs)
+
+  if(base::length(missing) >= 1){
+
+    msg <- glue::glue("The {ref1} '{ref2}' must be installed in order to use this function.",
+                      ref1 = confuns::adapt_reference(input = missing, sg = "package"),
+                      ref2 = glue::glue_collapse(x = missing, sep = "' and '"))
+
+    confuns::give_feedback(msg = msg, fdb.fn = "stop")
+
+  }
+
+}
+
 
 #' Check spata object input
 #'

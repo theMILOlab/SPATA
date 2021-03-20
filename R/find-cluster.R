@@ -50,6 +50,8 @@ findMonocleClusters <- function(object,
 
   check_object(object)
 
+  check_monocle_packages()
+
   check_monocle_input(preprocess_method = preprocess_method,
                       reduction_method = reduction_method,
                       cluster_method = cluster_method,

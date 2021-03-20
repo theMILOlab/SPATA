@@ -599,7 +599,6 @@ transformSeuratToSpata <- function(seurat_object,
 #' @export
 
 transformSpataToCDS <- function(object,
-                                of_sample = "",
                                 preprocess_method = "PCA",
                                 reduction_method = c("PCA", "UMAP"),
                                 cluster_method = "leiden",
@@ -609,9 +608,12 @@ transformSpataToCDS <- function(object,
                                 cluster_cells = list(),
                                 learn_graph = list(),
                                 order_cells = list(),
+                                of_sample = NA,
                                 verbose = TRUE){
 
   check_object(object)
+
+  check_monocle_packages()
 
   of_sample <- check_sample(object = object, of_sample = of_sample, of.length = 1)
 
@@ -628,7 +630,7 @@ transformSpataToCDS <- function(object,
   # Step 1 - Create cds -----------------------------------------------------
 
 
-  if(base::isTRUE(verbose)){base::message("Step 1/7 Creating 'cell data set'-object.")}
+  confuns::give_feedback(msg = "Step 1/7 Creating 'cell_data_set'-object.", verbose = verbose)
 
   count_mtr <- base::as.matrix(getCountMatrix(object = object, of_sample = of_sample))
 
@@ -652,43 +654,49 @@ transformSpataToCDS <- function(object,
 
   # Step 2-4 Estimate size factors, preprocess, reduce dimensions -----------
 
-  if(base::isTRUE(verbose)){base::message("Step 2/7 Estimating size factors.")}
+  confuns::give_feedback(msg =  "Step 2/7 Estimating size factors.", verbose = verbose)
 
   cds <- confuns::call_flexibly(fn = "estimate_size_factors", fn.ns = "monocle3",
                                 default = list(cds = cds), v.fail = cds, verbose = verbose)
 
-  if(base::isTRUE(verbose)){base::message("Step 3/7 Preprocessing cell data set.")}
+  confuns::give_feedback(msg = "Step 3/7 Preprocessing cell data set.")
 
   for(p in base::seq_along(preprocess_method)){
 
-    if(base::isTRUE(verbose)){
+    msg <- glue::glue("Preprocessing cells with method {p}/{base::length(preprocess_method)} '{preprocess_method[p]}'")
 
-      base::message(glue::glue("Preprocessing cells with method {p}/{base::length(preprocess_method)} '{preprocess_method[p]}'"))
-
-    }
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     cds <- confuns::call_flexibly(fn = "preprocess_cds", fn.ns = "monocle3",
                                   default = list(cds = cds), v.fail = cds, verbose = verbose)
 
   }
 
-  if(base::isTRUE(verbose)){base::message("Step 4/7 Reducing dimensions.")}
+  confuns::give_feedback(msg = "Step 4/7 Reducing dimensions.", verbose = verbose)
 
   for(p in base::seq_along(preprocess_method)){
 
-    base::message(glue::glue("Using preprocess method '{preprocess_method[p]}':"))
+    msg <- glue::glue("Using preprocess method '{preprocess_method[p]}':")
+
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     for(r in base::seq_along(reduction_method)){
 
-      base::message(glue::glue("Reducing dimensions with reduction method {r}/{base::length(reduction_method)}: '{reduction_method[r]}' "))
+      msg <- glue::glue("Reducing dimensions with reduction method {r}/{base::length(reduction_method)}: '{reduction_method[r]}' ")
+
+      confuns::give_feedback(msg = msg, verbose = verbose)
 
       if(reduction_method[r] == "LSI" && preprocess_method[p] != "LSI"){
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+        msg <- glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'")
+
+        confuns::give_feedback(msg = msg, verbose = verbose)
 
       } else if(reduction_method[r] == "PCA" && preprocess_method[p] != "PCA") {
 
-        base::message(glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'"))
+        msg <- glue::glue("Ignoring invalid combination. reduction-method: '{reduction_method[r]}' &  preprocess-method: '{preprocess}'")
+
+        confuns::give_feedback(msg = msg, verbose = verbose)
 
       } else {
 
@@ -706,29 +714,23 @@ transformSpataToCDS <- function(object,
 
   # Step 5 Cluster cells ----------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 5/7 Clustering cells.")}
+  confuns::give_feedback(msg = "Step 5/7 Clustering cells.", verbose = verbose)
 
   for(r in base::seq_along(reduction_method)){
 
-    if(base::isTRUE(verbose)){
+    msg <- glue::glue("Using reduction method {reduction_method[r]}:")
 
-      base::message(glue::glue("Using reduction method {reduction_method[r]}:"))
-
-    }
+    confuns::give_feedback(msg = msg, verbose = verbose)
 
     for(c in base::seq_along(cluster_method)){
 
-      if(base::isTRUE(verbose)){
-
-        base::message(glue::glue("Clustering barcode-spots with method {c}/{base::length(cluster_method)}: {cluster_method[c]}"))
-
-      }
-
-      cds <- confuns::call_flexibly(fn = "cluster_cells", fn.ns = "monocle3",
-                                    default = list(cds = cds, reduction_method = reduction_method[r], cluster_method = cluster_method[c]),
-                                    v.fail = cds, verbose = verbose)
+      msg <- glue::glue("Clustering barcode-spots with method {c}/{base::length(cluster_method)}: {cluster_method[c]}")
 
     }
+
+    cds <- confuns::call_flexibly(fn = "cluster_cells", fn.ns = "monocle3",
+                                  default = list(cds = cds, reduction_method = reduction_method[r], cluster_method = cluster_method[c]),
+                                  v.fail = cds, verbose = verbose)
 
   }
 
@@ -737,7 +739,7 @@ transformSpataToCDS <- function(object,
 
   # Step 6 Learn trajectory -------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 6/7 Learning trajectory.")}
+  confuns::give_feedback(msg ="Step 6/7 Learning trajectory.", verbose = verbose)
 
   cds <- confuns::call_flexibly(fn = "learn_graph", fn.ns = "monocle3",
                                 default = list(cds = cds), v.fail = cds, verbose = verbose)
@@ -747,7 +749,7 @@ transformSpataToCDS <- function(object,
 
   # Step 7 Ordering cells ---------------------------------------------------
 
-  if(base::isTRUE(verbose)){base::message("Step 7/7 Ordering cells.")}
+  confuns::give_feedback(msg ="Step 7/7 Ordering cells.", verbose = verbose)
 
   cds <- confuns::call_flexibly(fn = "order_cells", fn.ns = "monocle3",
                                 default = list(cds = cds), v.fail = cds, verbose = verbose)

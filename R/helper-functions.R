@@ -947,17 +947,18 @@ hlpr_scatterplot <- function(object,
     }
 
 
-
     # assemble ggplot add-on
     ggplot_add_on <- list(
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[[gene_set]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
-      ggplot2::labs(color = "Expr.", title = title)
+      ggplot2::labs(color = NULL, title = title, caption = gene_set)
     )
 
     # if genes
   } else if("genes" %in% base::names(color_to)){
+
+    genes <- color_to$genes
 
     spata_df <- joinWithGenes(object = object,
                               spata_df = spata_df,
@@ -999,7 +1000,7 @@ hlpr_scatterplot <- function(object,
       ggplot2::geom_point(data = spata_df, size = pt_size, alpha = pt_alpha,
                           mapping = ggplot2::aes(color = .data[["mean_genes"]])),
       confuns::scale_color_add_on(aes = "color", clrsp = pt_clrsp, ...),
-      ggplot2::labs(color = "Expr.", title = title)
+      ggplot2::labs(color = base::ifelse(base:::length(genes) == 1, genes, "Mean\nExpr."), title = title)
     )
 
     # else if color_to has not been specified
