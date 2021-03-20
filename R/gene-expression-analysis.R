@@ -112,6 +112,12 @@ findDE <- function(object,
     dplyr::filter(de, p_val_adj < {{p_val_adj}}) %>%
     dplyr::select(-pct.1, -pct.2)
 
+  if("avg_log2FC" %in% base::colnames(de)){
+
+    de <- dplyr::rename(de, avg_logFC = avg_log2FC)
+
+  }
+
   # -----
 
   base::return(de)
