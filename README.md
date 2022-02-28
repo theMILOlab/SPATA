@@ -1,3 +1,7 @@
+
+SPATA (1) is deprecated, please use the SPATA2 version https://github.com/theMILOlab/SPATA Thanks!
+
+
 Check out our github-page to find a variety of articles, tutorials and information:  https://themilolab.github.io/SPATA/index.html
 
 
